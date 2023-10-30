@@ -1,4 +1,4 @@
-[![Tests](https://github.com/netascode/terraform-provider-catalystcenter/actions/workflows/test.yml/badge.svg)](https://github.com/netascode/terraform-provider-catalystcenter/actions/workflows/test.yml)
+[![Tests](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/actions/workflows/test.yml/badge.svg)](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/actions/workflows/test.yml)
 
 # Terraform Provider Cisco Catalyst Center
 
@@ -10,7 +10,7 @@ All resources and data sources have been tested with the following releases.
 | --------------- | ------- |
 | Catalyst Center | 2.3.7   |
 
-Documentation: <https://registry.terraform.io/providers/netascode/catalystcenter/latest>
+Documentation: <https://registry.terraform.io/providers/CiscoDevNet/catalystcenter/latest>
 
 ## Requirements
 
@@ -47,7 +47,7 @@ This Terraform Provider is available to install automatically via `terraform ini
 [install it as a plugin.](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin)
 After placing it into your plugins directory,  run `terraform init` to initialize it.
 
-Additional documentation, including available resources and their arguments/attributes can be found on the [Terraform documentation website](https://registry.terraform.io/providers/netascode/catalystcenter/latest/docs).
+Additional documentation, including available resources and their arguments/attributes can be found on the [Terraform documentation website](https://registry.terraform.io/providers/CiscoDevNet/catalystcenter/latest/docs).
 
 ## Developing the Provider
 

@@ -1,4 +1,4 @@
-module github.com/netascode/terraform-provider-catalystcenter
+module github.com/CiscoDevNet/terraform-provider-catalystcenter
 
 go 1.19
 
