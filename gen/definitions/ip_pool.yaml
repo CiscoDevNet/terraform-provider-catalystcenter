@@ -1,0 +1,59 @@
+---
+name: IP Pool
+rest_endpoint: /dna/intent/api/v1/global-pool
+get_rest_endpoint: /api/v2/ippool
+put_id_include_path: settings.ippool.0
+id_from_query_path: response
+doc_category: Network Settings
+attributes:
+  - model_name: ipPoolName
+    tf_name: name
+    data_path: settings.ippool.0
+    response_data_path: response.ipPoolName
+    type: String
+    id: true
+    description: The name of the IP pool
+    example: MyPool1
+  - model_name: IpAddressSpace
+    data_path: settings.ippool.0
+    write_only: true
+    type: String
+    enum_values: [IPv4, IPv6]
+    default_value: IPv4
+    description: IP address version
+    example: IPv4
+  - model_name: type
+    data_path: settings.ippool.0
+    type: String
+    write_only: true
+    enum_values: [Generic, Tunnel]
+    default_value: Generic
+    description: Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.
+    example: Generic
+  - model_name: ipPoolCidr
+    tf_name: ip_subnet
+    data_path: settings.ippool.0
+    response_data_path: response.ipPoolCidr
+    type: String
+    mandatory: true
+    description: The IP subnet of the IP pool
+    example: 21.1.1.0/24
+  - model_name: gateway
+    data_path: settings.ippool.0
+    response_data_path: response.gateways.0
+    type: String
+    description: The gateway for the IP pool
+    example: 21.1.1.1
+  - model_name: dhcpServerIps
+    data_path: settings.ippool.0
+    response_data_path: response.dhcpServerIps
+    type: StringList
+    description: List of DHCP Server IPs
+    example: 1.2.3.4
+  - model_name: dnsServerIps
+    data_path: settings.ippool.0
+    response_data_path: response.dnsServerIps
+    type: StringList
+    description: List of DNS Server IPs
+    example: 2.3.4.5
+

@@ -1,0 +1,1 @@
+terraform import catalystcenter_ip_pool_reservation.example "MyRes1"

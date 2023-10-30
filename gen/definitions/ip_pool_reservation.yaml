@@ -1,0 +1,152 @@
+---
+name: IP Pool Reservation
+rest_endpoint: /dna/intent/api/v1/reserve-ip-subpool
+id_from_query_path: response
+put_id_query_param: id
+doc_category: Network Settings
+attributes:
+  - model_name: siteId
+    type: String
+    query_param: true
+    description: The site ID
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_area.test.id
+  - model_name: name
+    response_model_name: groupName
+    response_data_path: response.0.groupName
+    type: String
+    id: true
+    description: The name of the IP pool reservation
+    example: MyRes1
+  - model_name: type
+    type: String
+    mandatory: true
+    write_only: true
+    write_changes_only: true
+    enum_values: [Generic, LAN, WAN, management, service]
+    description: The type of the IP pool reservation
+    example: Generic
+  - model_name: ipv6AddressSpace
+    type: Bool
+    write_only: true
+    default_value: false
+    description: If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required
+    example: false
+  - model_name: ipv4GlobalPool
+    type: String
+    mandatory: true
+    write_only: true
+    write_changes_only: true
+    description: "IPv4 Global pool address with cidr, example: 175.175.0.0/16"
+    example: 172.32.0.0/16
+  - model_name: ipv4Prefix
+    type: Bool
+    mandatory: true
+    write_only: true
+    write_changes_only: true
+    description: If this value is `true`, the `ipv4_prefix_length` attribute must be provided, if it is `false`, the `ipv4_total_host` attribute must be provided
+    example: true
+  - model_name: ipv4PrefixLength
+    type: Int64
+    write_only: true
+    write_changes_only: true
+    description: The IPv4 prefix length is required when `ipv4_prefix` value is `true`.
+    example: 24
+    minimum_test_value: 24
+  - model_name: ipv4Subnet
+    type: String
+    write_only: true
+    write_changes_only: true
+    description: The IPv4 subnet
+    example: 172.32.1.0
+    minimum_test_value: '"172.32.1.0"'
+  - model_name: ipv4GateWay
+    tf_name: ipv4_gateway
+    type: String
+    write_only: true
+    description: The gateway for the IP pool reservation
+    example: 172.32.1.1
+  - model_name: ipv4DhcpServers
+    type: StringList
+    write_only: true
+    description: List of DHCP Server IPs
+    example: 1.2.3.4
+  - model_name: ipv4DnsServers
+    type: StringList
+    write_only: true
+    description: List of DNS Server IPs
+    example: 2.3.4.5
+  - model_name: ipv6GlobalPool
+    type: String
+    write_only: true
+    description: "IPv6 Global pool address with cidr, example: 2001:db8:85a3::/64"
+    example: 2001:db8:85a3::/64
+    exclude_test: true
+  - model_name: ipv6Prefix
+    type: Bool
+    write_only: true
+    description: If this value is `true`, the `ipv6_prefix_length` attribute must be provided, if it is `false`, the `ipv6_total_host` attribute must be provided
+    example: true
+    exclude_test: true
+  - model_name: ipv6PrefixLength
+    type: Int64
+    write_only: true
+    description: The IPv6 prefix length is required when `ipv6_prefix` value is `true`.
+    example: 80
+    exclude_test: true
+  - model_name: ipv6Subnet
+    type: String
+    write_only: true
+    description: The IPv6 subnet, for example `2001:db8:85a3:0:100::`
+    example: "2001:db8:85a3:0:100::"
+    exclude_test: true
+  - model_name: ipv6GateWay
+    tf_name: ipv6_gateway
+    type: String
+    write_only: true
+    description: The gateway for the IP pool reservation
+    example: "2001:db8:85a3:0:100::1"
+    exclude_test: true
+  - model_name: ipv6DhcpServers
+    type: StringList
+    write_only: true
+    description: List of DHCP Server IPs
+    example: "2001:db8::1234"
+    exclude_test: true
+  - model_name: ipv6DnsServers
+    type: StringList
+    write_only: true
+    description: List of DNS Server IPs
+    example: "2001:db8::1234"
+    exclude_test: true
+  - model_name: ipv4TotalHost
+    type: Int64
+    write_only: true
+    description: The total number of IPv4 hosts
+    example: 100
+    exclude_test: true
+  - model_name: ipv6TotalHost
+    type: Int64
+    write_only: true
+    description: The total number of IPv6 hosts
+    example: 100
+    exclude_test: true
+  - model_name: slaacSupport
+    type: Bool
+    write_only: true
+    description: Enable SLAAC support
+    example: true
+    exclude_test: true
+
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+    depends_on  = [catalystcenter_ip_pool.test]
+  }
+
+  resource "catalystcenter_ip_pool" "test" {
+    name             = "MyPool1"
+    ip_subnet        = "172.32.0.0/16"
+  }
+  

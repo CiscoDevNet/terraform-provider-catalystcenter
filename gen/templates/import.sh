@@ -1,0 +1,1 @@
+terraform import catalystcenter_{{snakeCase .Name}}.example "{{$id := false}}{{range .Attributes}}{{if .Id}}{{$id = true}}{{.Example}}{{end}}{{end}}{{if not $id}}4b0b7a80-44c0-4bf2-bab5-fc24b4e0a17e{{end}}"
