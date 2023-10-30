@@ -6,8 +6,6 @@ The Catalyst Center provider provides resources to interact with a Cisco Catalys
 
 All resources and data sources have been tested with the following releases.
 
-All resources and data sources have been tested with the following releases.
-
 | Platform        | Version |
 | --------------- | ------- |
 | Catalyst Center | 2.3.7   |
