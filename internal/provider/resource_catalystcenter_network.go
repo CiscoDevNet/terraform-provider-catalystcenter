@@ -131,8 +131,11 @@ func (r *NetworkResource) Schema(ctx context.Context, req resource.SchemaRequest
 				Required:            true,
 			},
 			"network_aaa_server_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of network AAA server").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of network AAA server").AddStringEnumDescription("AAA", "ISE").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AAA", "ISE"),
+				},
 			},
 			"network_aaa_server_primary_ip": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("In case of `ISE` server type, this is the PAN IP address, in case of `AAA` this is the primary IP address").String,
@@ -154,8 +157,11 @@ func (r *NetworkResource) Schema(ctx context.Context, req resource.SchemaRequest
 				Optional:            true,
 			},
 			"endpoint_aaa_server_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of network AAA server").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of network AAA server").AddStringEnumDescription("AAA", "ISE").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AAA", "ISE"),
+				},
 			},
 			"endpoint_aaa_server_primary_ip": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("In case of `ISE` server type, this is the PAN IP address, in case of `AAA` this is the primary IP address").String,

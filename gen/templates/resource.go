@@ -408,9 +408,11 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
+	{{- /* Check if id can be resolved directly from response */}}
 	{{- if .IdPath}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
-	{{- else if .IdFromQueryPath}}
+	{{- /* Check if we need an extra query to resolve the id */}}
+	{{- else if and .IdFromQueryPath (not .IdFromAttribute)}}
 		{{- $id := getId .Attributes}}
 	params = ""
 		{{- if hasQueryParam .Attributes}}
@@ -423,6 +425,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		return
 	}
 	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ plan.{{toGoName $id.TfName}}.Value{{$id.Type}}() +"\").id").String())
+	{{- /* If we have an id attribute we will use that as id */}}
 	{{- else if hasId .Attributes}}
 		{{- $id := getId .Attributes}}
 	plan.Id = types.StringValue(fmt.Sprint(plan.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
@@ -467,7 +470,12 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	}
 
 	{{- if .GetFromAll}}
+		{{- if .IdFromAttribute}}
+			{{- $id := getId .Attributes}}
+	res = res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\"" + state.{{toGoName $id.TfName}}.Value{{$id.Type}}() + "\")")
+		{{- else}}
 	res = res.Get("{{.IdFromQueryPath}}.#(id==\"" + state.Id.ValueString() + "\")")
+		{{- end}}
 	{{- end}}
 
 	state.updateFromBody(ctx, res)
@@ -540,7 +548,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
 	{{- if not .NoDelete}}
-	res, err := r.client.Delete(state.getPath() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}"{{.DeleteRestEndpoint}}"{{else}}state.getPath(){{end}} + "/" + state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

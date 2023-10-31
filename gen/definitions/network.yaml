@@ -101,7 +101,7 @@ attributes:
     tf_name: network_aaa_server_type
     type: String
     write_only: true
-    enum_value: [AAA, ISE]
+    enum_values: [AAA, ISE]
     description: Type of network AAA server
     example: AAA
     exclude_test: true
@@ -143,7 +143,7 @@ attributes:
     tf_name: endpoint_aaa_server_type
     type: String
     write_only: true
-    enum_value: [AAA, ISE]
+    enum_values: [AAA, ISE]
     description: Type of network AAA server
     example: AAA
     exclude_test: true

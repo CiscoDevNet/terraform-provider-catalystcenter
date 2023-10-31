@@ -253,6 +253,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewIPPoolResource,
 		NewIPPoolReservationResource,
 		NewNetworkResource,
+		NewSPProfileResource,
 	}
 }
 
@@ -271,6 +272,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewIPPoolDataSource,
 		NewIPPoolReservationDataSource,
 		NewNetworkDataSource,
+		NewSPProfileDataSource,
 	}
 }
 

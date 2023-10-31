@@ -97,6 +97,7 @@ type YamlConfig struct {
 	Name                string                `yaml:"name"`
 	RestEndpoint        string                `yaml:"rest_endpoint"`
 	GetRestEndpoint     string                `yaml:"get_rest_endpoint"`
+	DeleteRestEndpoint  string                `yaml:"delete_rest_endpoint"`
 	GetNoId             bool                  `yaml:"get_no_id"`
 	GetFromAll          bool                  `yaml:"get_from_all"`
 	GetRequiresId       bool                  `yaml:"get_requires_id"`
@@ -107,6 +108,7 @@ type YamlConfig struct {
 	IdPath              string                `yaml:"id_path"`
 	IdFromQueryPath     string                `yaml:"id_from_query_path"`
 	IdQueryParam        string                `yaml:"id_query_param"`
+	IdFromAttribute     string                `yaml:"id_from_attribute"`
 	PutIdIncludePath    string                `yaml:"put_id_include_path"`
 	PutIdQueryParam     string                `yaml:"put_id_query_param"`
 	DataSourceNameQuery bool                  `yaml:"data_source_name_query"`

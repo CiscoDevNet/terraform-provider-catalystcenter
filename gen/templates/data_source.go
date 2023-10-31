@@ -220,7 +220,12 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	}
 
 	{{- if .GetFromAll}}
+		{{- if .IdFromAttribute}}
+			{{- $id := getId .Attributes}}
+	res = res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\"" + config.Id.ValueString() + "\")")
+		{{- else}}
 	res = res.Get("{{.IdFromQueryPath}}.#(id==\"" + config.Id.ValueString() + "\")")
+		{{- end}}
 	{{- end}}
 
 	config.fromBody(ctx, res)

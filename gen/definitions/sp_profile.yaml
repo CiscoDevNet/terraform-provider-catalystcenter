@@ -1,0 +1,33 @@
+---
+name: SP Profile
+rest_endpoint: /dna/intent/api/v2/service-provider
+delete_rest_endpoint: /dna/intent/api/v2/sp-profile
+get_from_all: true
+id_from_query_path: response.0.value
+id_from_attribute: true
+doc_category: Network Settings
+attributes:
+  - model_name: profileName
+    response_model_name: spProfileName
+    tf_name: name
+    data_path: settings.qos.0
+    response_data_path: spProfileName
+    type: String
+    id: true
+    description: The name of the SP profile
+    example: Profile1
+  - model_name: model
+    data_path: settings.qos.0
+    response_data_path: slaProfileName
+    type: String
+    enum_values: [4-class-model, 5-class-model, 6-class-model, 8-class-model]
+    mandatory: true
+    description: The model
+    example: 4-class-model
+  - model_name: wanProvider
+    data_path: settings.qos.0
+    response_data_path: wanProvider
+    type: String
+    mandatory: true
+    description: The WAN provider
+    example: Provider1

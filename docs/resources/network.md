@@ -50,6 +50,7 @@ resource "catalystcenter_network" "example" {
 - `endpoint_aaa_server_secondary_ip` (String) In case of `ISE` server type, this is the PSN IP address, in case of `AAA` this is a secondary IP address
 - `endpoint_aaa_server_shared_secret` (String) Only relevant for type `ISE`, shared secret
 - `endpoint_aaa_server_type` (String) Type of network AAA server
+  - Choices: `AAA`, `ISE`
 - `netflow_collector` (String) Netflow collector IP
 - `netflow_collector_port` (Number) Netflow collector port
 - `network_aaa_server_primary_ip` (String) In case of `ISE` server type, this is the PAN IP address, in case of `AAA` this is the primary IP address
@@ -58,6 +59,7 @@ resource "catalystcenter_network" "example" {
 - `network_aaa_server_secondary_ip` (String) In case of `ISE` server type, this is the PSN IP address, in case of `AAA` this is a secondary IP address
 - `network_aaa_server_shared_secret` (String) Only relevant for type `ISE`, shared secret
 - `network_aaa_server_type` (String) Type of network AAA server
+  - Choices: `AAA`, `ISE`
 - `ntp_servers` (List of String) List of NTP server IPs
 - `primary_dns_server` (String) Primary DNS server IP
 - `secondary_dns_server` (String) Secondary DNS server IP
