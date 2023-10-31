@@ -252,6 +252,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewFloorResource,
 		NewIPPoolResource,
 		NewIPPoolReservationResource,
+		NewNetworkResource,
 	}
 }
 
@@ -269,6 +270,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewFloorDataSource,
 		NewIPPoolDataSource,
 		NewIPPoolReservationDataSource,
+		NewNetworkDataSource,
 	}
 }
 
