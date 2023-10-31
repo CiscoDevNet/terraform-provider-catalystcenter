@@ -411,7 +411,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if .IdPath}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
 	{{- else if .IdFromQueryPath}}
-	{{- $id := getId .Attributes}}
+		{{- $id := getId .Attributes}}
 	params = ""
 		{{- if hasQueryParam .Attributes}}
 		{{- $queryParam := getQueryParam .Attributes}}
@@ -423,6 +423,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		return
 	}
 	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ plan.{{toGoName $id.TfName}}.Value{{$id.Type}}() +"\").id").String())
+	{{- else if hasId .Attributes}}
+		{{- $id := getId .Attributes}}
+	plan.Id = types.StringValue(fmt.Sprint(plan.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
 	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -448,7 +451,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	params := ""
 	{{- if .IdQueryParam}}
 	params += "?{{.IdQueryParam}}=" + state.Id.ValueString()
-	{{- else if hasQueryParam .Attributes}}
+	{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
 		{{- $queryParam := getQueryParam .Attributes}}
 	params += "?{{$queryParam.ModelName}}=" + state.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}

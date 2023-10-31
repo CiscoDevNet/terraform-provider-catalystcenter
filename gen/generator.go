@@ -99,6 +99,7 @@ type YamlConfig struct {
 	GetRestEndpoint     string                `yaml:"get_rest_endpoint"`
 	GetNoId             bool                  `yaml:"get_no_id"`
 	GetFromAll          bool                  `yaml:"get_from_all"`
+	GetRequiresId       bool                  `yaml:"get_requires_id"`
 	NoDelete            bool                  `yaml:"no_delete"`
 	PostUpdate          bool                  `yaml:"post_update"`
 	RootList            bool                  `yaml:"root_list"`

@@ -207,7 +207,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	params := ""
 	{{- if .IdQueryParam}}
 	params += "?{{.IdQueryParam}}=" + config.Id.ValueString()
-	{{- else if hasQueryParam .Attributes}}
+	{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
 		{{- $queryParam := getQueryParam .Attributes}}
 	params += "?{{$queryParam.ModelName}}=" + config.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}

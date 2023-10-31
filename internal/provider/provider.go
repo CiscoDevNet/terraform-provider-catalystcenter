@@ -241,6 +241,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewAreaResource,
+		NewAssignCredentialsResource,
 		NewBuildingResource,
 		NewCredentialsCLIResource,
 		NewCredentialsHTTPSReadResource,
@@ -257,6 +258,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewAreaDataSource,
+		NewAssignCredentialsDataSource,
 		NewBuildingDataSource,
 		NewCredentialsCLIDataSource,
 		NewCredentialsHTTPSReadDataSource,

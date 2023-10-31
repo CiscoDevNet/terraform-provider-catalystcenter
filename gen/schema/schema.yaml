@@ -4,6 +4,7 @@ rest_endpoint: str() # REST endpoint path
 get_rest_endpoint: str(required=False) # Override GET REST endpoint path
 get_no_id: bool(required=False) # Set to true if the GET request does not require an ID
 get_from_all: bool(required=False) # Set to true if GET does not support querying individual objects
+get_requires_id: bool(required=False) # Set to true if the GET request requires an ID in the URL path
 no_delete: bool(required=False) # Set to true if the DELETE request is not supported
 post_update: bool(required=False) # Set to true if the POST request is used for update
 root_list: bool(required=False) # Set to true if the root element of the data structure is a list
