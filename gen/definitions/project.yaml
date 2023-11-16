@@ -5,7 +5,6 @@ put_id_include_path: id
 put_id_query_param: id
 put_no_id: true
 id_path: response.data
-# id_query_param: id
 doc_category: Templates
 attributes:
   - model_name: name
