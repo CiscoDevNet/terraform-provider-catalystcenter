@@ -519,6 +519,8 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	res, err := r.client.Post(plan.getPath() + params, body)
 	{{- else if hasQueryParam .Attributes}}
 	res, err := r.client.Put(plan.getPath() + params, body)
+	{{- else if .PutNoId}}
+	res, err := r.client.Put(plan.getPath() + params, body)
 	{{- else}}
 	res, err := r.client.Put(plan.getPath() + "/" + plan.Id.ValueString() + params, body)
 	{{- end}}

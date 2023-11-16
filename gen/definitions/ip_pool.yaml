@@ -2,7 +2,7 @@
 name: IP Pool
 rest_endpoint: /dna/intent/api/v1/global-pool
 get_rest_endpoint: /api/v2/ippool
-put_id_include_path: settings.ippool.0
+put_id_include_path: settings.ippool.0.id
 id_from_query_path: response
 doc_category: Network Settings
 attributes:

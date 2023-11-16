@@ -111,6 +111,7 @@ type YamlConfig struct {
 	IdFromAttribute     string                `yaml:"id_from_attribute"`
 	PutIdIncludePath    string                `yaml:"put_id_include_path"`
 	PutIdQueryParam     string                `yaml:"put_id_query_param"`
+	PutNoId             bool                  `yaml:"put_no_id"`
 	DataSourceNameQuery bool                  `yaml:"data_source_name_query"`
 	MinimumVersion      string                `yaml:"minimum_version"`
 	DsDescription       string                `yaml:"ds_description"`

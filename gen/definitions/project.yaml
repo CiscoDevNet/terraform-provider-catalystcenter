@@ -1,0 +1,21 @@
+---
+name: Project
+rest_endpoint: /dna/intent/api/v1/template-programmer/project
+put_id_include_path: id
+put_id_query_param: id
+put_no_id: true
+id_path: response.data
+# id_query_param: id
+doc_category: Templates
+attributes:
+  - model_name: name
+    response_data_path: name
+    type: String
+    mandatory: true
+    description: The name of the project
+    example: Project1
+  - model_name: description
+    response_data_path: description
+    type: String
+    description: Description
+    example: My description
