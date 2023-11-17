@@ -1,0 +1,45 @@
+---
+name: Network Profile
+rest_endpoint: /api/v1/siteprofile
+get_extra_query_params: "?populated=true"
+id_from_query_path: response
+id_from_query_path_attribute: siteProfileUuid
+doc_category: Network Settings
+attributes:
+  - model_name: name
+    response_data_path: response.name
+    type: String
+    id: true
+    description: The name of the network profile
+    example: Profile1
+  - model_name: namespace
+    tf_name: type
+    response_data_path: response.namespace
+    type: String
+    enum_values: [switching]
+    mandatory: true
+    description: Profile type
+    example: switching
+  - model_name: profileAttributes
+    tf_name: templates
+    response_data_path: response.profileAttributes
+    type: List
+    attributes:
+      - model_name: key
+        tf_name: type
+        id: true
+        type: String
+        enum_values: [cli.templates, day0.templates]
+        description: Template type
+        example: cli.templates
+      - model_name: key
+        data_path: attribs.0
+        type: String
+        value: template.id
+      - model_name: value
+        tf_name: template_id
+        data_path: attribs.0
+        type: String
+        id: true
+        description: Template ID
+        example: f8297e86-35b0-486c-8752-6169aa5eb43c

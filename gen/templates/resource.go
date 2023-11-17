@@ -424,7 +424,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ plan.{{toGoName $id.TfName}}.Value{{$id.Type}}() +"\").id").String())
+	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ plan.{{toGoName $id.TfName}}.Value{{$id.Type}}() +"\").{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}").String())
 	{{- /* If we have an id attribute we will use that as id */}}
 	{{- else if hasId .Attributes}}
 		{{- $id := getId .Attributes}}
@@ -459,6 +459,9 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	params += "?{{$queryParam.ModelName}}=" + state.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}
 	params += "/" + state.Id.ValueString()
+	{{- end}}
+	{{- if .GetExtraQueryParams}}
+	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
