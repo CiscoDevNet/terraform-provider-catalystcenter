@@ -2,6 +2,7 @@
 name: str() # Name of the resource
 rest_endpoint: str() # REST endpoint path
 get_rest_endpoint: str(required=False) # Override GET REST endpoint path
+put_rest_endpoint: str(required=False) # Override PUT REST endpoint path
 delete_rest_endpoint: str(required=False) # Override DELETE REST endpoint path
 get_no_id: bool(required=False) # Set to true if the GET request does not require an ID
 get_from_all: bool(required=False) # Set to true if GET does not support querying individual objects
@@ -31,7 +32,7 @@ attribute:
   model_name: str(required=False) # Name of the attribute in the model (payload)
   response_model_name: str(required=False) # Name of the attribute in the model (response payload)
   tf_name: str(required=False) # Name of the attribute in the Terraform resource, by default derived from model_name
-  type: enum('String', 'Int64', 'Float64', 'Bool', 'List', 'Set', 'StringList', required=False) # Type of the attribute
+  type: enum('String', 'Int64', 'Float64', 'Bool', 'List', 'Set', 'StringList', 'Map', required=False) # Type of the attribute
   data_path: str(required=False) # Path to the attribute in the model structure
   response_data_path: str(required=False) # Path to the attribute in the response model structure
   id: bool(required=False) # Set to true if the attribute is part of the ID

@@ -1,0 +1,159 @@
+---
+name: Template
+rest_endpoint: /dna/intent/api/v1/template-programmer/project/%v/template
+get_rest_endpoint: /dna/intent/api/v1/template-programmer/template
+put_rest_endpoint: /dna/intent/api/v1/template-programmer/template
+delete_rest_endpoint: /dna/intent/api/v1/template-programmer/template
+put_id_include_path: id
+put_no_id: true
+id_path: response.data
+doc_category: Templates
+attributes:
+  - model_name: project_id
+    type: String
+    reference: true
+    description: The ID of the project
+    example: 12345678-1234-1234-1234-123456789012
+    test_value: catalystcenter_project.test.id
+  - model_name: name
+    type: String
+    mandatory: true
+    description: Name of the template
+    example: Template1
+  - model_name: description
+    type: String
+    description: Description
+    example: My description
+  - model_name: deviceTypes
+    type: List
+    mandatory: true
+    description: List of device types
+    attributes:
+      - model_name: productFamily
+        type: String
+        mandatory: true
+        description: Product family
+        example: Switches and Hubs
+      - model_name: productSeries
+        type: String
+        description: Product series
+        example: Cisco Catalyst 9300 Series Switches
+      - model_name: productType
+        type: String
+        description: Product type
+        example: Cisco Catalyst 9300 Switch
+  - model_name: language
+    type: String
+    enum_values:
+      - JINJA
+      - VELOCITY
+    mandatory: true
+    description: Language of the template
+    example: JINJA
+  - model_name: softwareType
+    type: String
+    mandatory: true
+    description: Software type
+    example: IOS-XE
+  - model_name: softwareVariant
+    type: String
+    description: Software variant
+    example: XE
+  - model_name: softwareVersion
+    type: String
+    description: Software version
+    example: 16.12.1a
+  - model_name: templateContent
+    type: String
+    description: Template content
+    example: hostname {{hostname}}
+  - model_name: templateParams
+    type: List
+    description: List of template parameters
+    attributes:
+      - model_name: binding
+        type: String
+        description: Bind to source
+        example: ""
+        exclude_test: true
+      - model_name: dataType
+        type: String
+        mandatory: true
+        enum_values:
+          - STRING
+          - INTEGER
+          - IPADDRESS
+          - MACADDRESS
+          - SECTIONDIVIDER
+        description: Datatype of template parameter
+        example: STRING
+      - model_name: defaultValue
+        type: String
+        description: Default value of template parameter
+        example: ABC
+      - model_name: description
+        type: String
+        description: Description of template parameter
+        example: My parameter
+      - model_name: displayName
+        type: String
+        description: Display name of template parameter
+        example: Custom hostname
+      - model_name: instructionText
+        type: String
+        description: Instruction text
+        example: My instructions
+      - model_name: notParam
+        type: Bool
+        description: Is it not a variable
+        example: false
+      - model_name: paramArray
+        type: Bool
+        description: Is it an array
+        example: false
+      - model_name: parameterName
+        type: String
+        description: Name of the template parameter
+        example: hostname
+      - model_name: range
+        tf_name: ranges
+        type: List
+        description: List of ranges
+        exclude_test: true
+        attributes:
+          - model_name: maxValue
+            type: Int64
+            description: Max value of range
+            example: 100
+          - model_name: minValue
+            type: Int64
+            description: Min value of range
+            example: 1
+      - model_name: required
+        type: Bool
+        description: Is parameter required
+        example: false
+      - model_name: defaultSelectedValues
+        data_path: selection
+        type: StringList
+        description: Default selection values
+        example: host1
+        exclude_test: true
+      - model_name: selectionType
+        data_path: selection
+        type: String
+        enum_values:
+          - SINGLE_SELECT
+          - MULTI_SELECT
+        mandatory: true
+        description: Type of selection
+        example: SINGLE_SELECT
+      - model_name: selectionValues
+        data_path: selection
+        type: Map
+        description: Selection values
+        example: "{host1 = \"host1\"}"
+test_prerequisites: |
+  resource "catalystcenter_project" "test" {
+    name        = "Project1"
+  }

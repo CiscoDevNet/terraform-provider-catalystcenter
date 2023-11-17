@@ -97,6 +97,7 @@ type YamlConfig struct {
 	Name                string                `yaml:"name"`
 	RestEndpoint        string                `yaml:"rest_endpoint"`
 	GetRestEndpoint     string                `yaml:"get_rest_endpoint"`
+	PutRestEndpoint     string                `yaml:"put_rest_endpoint"`
 	DeleteRestEndpoint  string                `yaml:"delete_rest_endpoint"`
 	GetNoId             bool                  `yaml:"get_no_id"`
 	GetFromAll          bool                  `yaml:"get_from_all"`

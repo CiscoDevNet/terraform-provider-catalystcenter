@@ -39,3 +39,11 @@ func GetStringList(result []gjson.Result) types.List {
 	}
 	return types.ListValueMust(types.StringType, v)
 }
+
+func GetStringMap(result map[string]gjson.Result) types.Map {
+	v := make(map[string]attr.Value)
+	for key, value := range result {
+		v[key] = types.StringValue(value.String())
+	}
+	return types.MapValueMust(types.StringType, v)
+}

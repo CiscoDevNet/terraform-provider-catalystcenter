@@ -93,7 +93,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					.AddDefaultValueDescription("{{.DefaultValue}}")
 					{{- end -}}
 					.String,
-				{{- if eq .Type "StringList"}}
+				{{- if or (eq .Type "StringList") (eq .Type "Map")}}
 				ElementType:         types.StringType,
 				{{- end}}
 				{{- if or .Id .Reference .Mandatory}}
@@ -158,7 +158,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								.AddDefaultValueDescription("{{.DefaultValue}}")
 								{{- end -}}
 								.String,
-							{{- if eq .Type "StringList"}}
+							{{- if or (eq .Type "StringList") (eq .Type "Map")}}
 							ElementType:         types.StringType,
 							{{- end}}
 							{{- if or .Id .Reference .Mandatory}}
@@ -218,7 +218,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											.AddDefaultValueDescription("{{.DefaultValue}}")
 											{{- end -}}
 											.String,
-										{{- if eq .Type "StringList"}}
+										{{- if or (eq .Type "StringList") (eq .Type "Map")}}
 										ElementType:         types.StringType,
 										{{- end}}
 										{{- if or .Id .Reference .Mandatory}}
@@ -278,7 +278,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 														.AddDefaultValueDescription("{{.DefaultValue}}")
 														{{- end -}}
 														.String,
-													{{- if eq .Type "StringList"}}
+													{{- if or (eq .Type "StringList") (eq .Type "Map")}}
 													ElementType:         types.StringType,
 													{{- end}}
 													{{- if or .Id .Reference .Mandatory}}
@@ -518,11 +518,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{if .PostUpdate}}
 	res, err := r.client.Post(plan.getPath() + params, body)
 	{{- else if hasQueryParam .Attributes}}
-	res, err := r.client.Put(plan.getPath() + params, body)
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body)
 	{{- else if .PutNoId}}
-	res, err := r.client.Put(plan.getPath() + params, body)
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body)
 	{{- else}}
-	res, err := r.client.Put(plan.getPath() + "/" + plan.Id.ValueString() + params, body)
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + plan.Id.ValueString() + params, body)
 	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))

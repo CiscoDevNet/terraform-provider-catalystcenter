@@ -38,28 +38,28 @@ func TestAccCc{{camelCase .Name}}(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	{{- $name := .Name }}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue)}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
 	{{- if or (eq .Type "List") (eq .Type "Set")}}
 	{{- $list := .TfName }}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue)}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
 	{{- if or (eq .Type "List") (eq .Type "Set")}}
 	{{- $clist := .TfName }}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue)}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
 	{{- if or (eq .Type "List") (eq .Type "Set")}}
 	{{- $cclist := .TfName }}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue)}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 		checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_{{snakeCase $name}}.test", "{{$list}}.0.{{$clist}}.0.{{$cclist}}.0.{{.TfName}}{{if eq .Type "StringList"}}.0{{end}}", "{{.Example}}"))

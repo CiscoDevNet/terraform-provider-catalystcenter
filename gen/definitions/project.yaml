@@ -8,13 +8,11 @@ id_path: response.data
 doc_category: Templates
 attributes:
   - model_name: name
-    response_data_path: name
     type: String
     mandatory: true
     description: The name of the project
     example: Project1
   - model_name: description
-    response_data_path: description
     type: String
     description: Description
     example: My description

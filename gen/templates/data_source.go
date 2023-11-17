@@ -95,7 +95,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 						{{- if not .Value}}
 						"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
 							MarkdownDescription: "{{.Description}}",
-							{{- if eq .Type "StringList"}}
+							{{- if or (eq .Type "StringList") (eq .Type "Map")}}
 							ElementType:         types.StringType,
 							{{- end}}
 							Computed:            true,
@@ -106,7 +106,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 									{{- if not .Value}}
 									"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
 										MarkdownDescription: "{{.Description}}",
-										{{- if eq .Type "StringList"}}
+										{{- if or (eq .Type "StringList") (eq .Type "Map")}}
 										ElementType:         types.StringType,
 										{{- end}}
 										Computed:            true,
@@ -117,7 +117,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 												{{- if not .Value}}
 												"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
 													MarkdownDescription: "{{.Description}}",
-													{{- if eq .Type "StringList"}}
+													{{- if or (eq .Type "StringList") (eq .Type "Map")}}
 													ElementType:         types.StringType,
 													{{- end}}
 													Computed:            true,

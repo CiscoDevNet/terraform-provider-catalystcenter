@@ -255,6 +255,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewNetworkResource,
 		NewProjectResource,
 		NewSPProfileResource,
+		NewTemplateResource,
 	}
 }
 
@@ -275,6 +276,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewNetworkDataSource,
 		NewProjectDataSource,
 		NewSPProfileDataSource,
+		NewTemplateDataSource,
 	}
 }
 
