@@ -115,6 +115,7 @@ func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.Read
 
 	params := ""
 	params += "/" + config.Id.ValueString()
+	params += "?populated=true"
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

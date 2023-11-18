@@ -213,6 +213,9 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}
 	params += "/" + config.Id.ValueString()
 	{{- end}}
+	{{- if .GetExtraQueryParams}}
+	params += "{{.GetExtraQueryParams}}"
+	{{- end}}
 	res, err := d.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}config.getPath(){{end}} + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
