@@ -92,11 +92,11 @@ func (r *AssignCredentialsResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv3 credentials").String,
 				Optional:            true,
 			},
-			"https_read": schema.StringAttribute{
+			"https_read_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTPS read credentials").String,
 				Optional:            true,
 			},
-			"https_write": schema.StringAttribute{
+			"https_write_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTPS write credentials").String,
 				Optional:            true,
 			},

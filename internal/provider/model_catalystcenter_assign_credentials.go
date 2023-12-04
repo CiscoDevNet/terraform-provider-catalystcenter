@@ -38,8 +38,8 @@ type AssignCredentials struct {
 	SnmpV2ReadId  types.String `tfsdk:"snmp_v2_read_id"`
 	SnmpV2WriteId types.String `tfsdk:"snmp_v2_write_id"`
 	SnmpV3Id      types.String `tfsdk:"snmp_v3_id"`
-	HttpsRead     types.String `tfsdk:"https_read"`
-	HttpsWrite    types.String `tfsdk:"https_write"`
+	HttpsReadId   types.String `tfsdk:"https_read_id"`
+	HttpsWriteId  types.String `tfsdk:"https_write_id"`
 }
 
 //template:end types
@@ -66,11 +66,11 @@ func (data AssignCredentials) toBody(ctx context.Context, state AssignCredential
 	if !data.SnmpV3Id.IsNull() {
 		body, _ = sjson.Set(body, "snmpV3Id", data.SnmpV3Id.ValueString())
 	}
-	if !data.HttpsRead.IsNull() {
-		body, _ = sjson.Set(body, "httpRead", data.HttpsRead.ValueString())
+	if !data.HttpsReadId.IsNull() {
+		body, _ = sjson.Set(body, "httpRead", data.HttpsReadId.ValueString())
 	}
-	if !data.HttpsWrite.IsNull() {
-		body, _ = sjson.Set(body, "httpWrite", data.HttpsWrite.ValueString())
+	if !data.HttpsWriteId.IsNull() {
+		body, _ = sjson.Set(body, "httpWrite", data.HttpsWriteId.ValueString())
 	}
 	return body
 }
@@ -100,14 +100,14 @@ func (data *AssignCredentials) fromBody(ctx context.Context, res gjson.Result) {
 		data.SnmpV3Id = types.StringNull()
 	}
 	if value := res.Get("response.#(key=\"credential.http.read\").value.0.objReferences.0"); value.Exists() {
-		data.HttpsRead = types.StringValue(value.String())
+		data.HttpsReadId = types.StringValue(value.String())
 	} else {
-		data.HttpsRead = types.StringNull()
+		data.HttpsReadId = types.StringNull()
 	}
 	if value := res.Get("response.#(key=\"credential.http.write\").value.0.objReferences.0"); value.Exists() {
-		data.HttpsWrite = types.StringValue(value.String())
+		data.HttpsWriteId = types.StringValue(value.String())
 	} else {
-		data.HttpsWrite = types.StringNull()
+		data.HttpsWriteId = types.StringNull()
 	}
 }
 
@@ -135,15 +135,15 @@ func (data *AssignCredentials) updateFromBody(ctx context.Context, res gjson.Res
 	} else {
 		data.SnmpV3Id = types.StringNull()
 	}
-	if value := res.Get("response.#(key=\"credential.http.read\").value.0.objReferences.0"); value.Exists() && !data.HttpsRead.IsNull() {
-		data.HttpsRead = types.StringValue(value.String())
+	if value := res.Get("response.#(key=\"credential.http.read\").value.0.objReferences.0"); value.Exists() && !data.HttpsReadId.IsNull() {
+		data.HttpsReadId = types.StringValue(value.String())
 	} else {
-		data.HttpsRead = types.StringNull()
+		data.HttpsReadId = types.StringNull()
 	}
-	if value := res.Get("response.#(key=\"credential.http.write\").value.0.objReferences.0"); value.Exists() && !data.HttpsWrite.IsNull() {
-		data.HttpsWrite = types.StringValue(value.String())
+	if value := res.Get("response.#(key=\"credential.http.write\").value.0.objReferences.0"); value.Exists() && !data.HttpsWriteId.IsNull() {
+		data.HttpsWriteId = types.StringValue(value.String())
 	} else {
-		data.HttpsWrite = types.StringNull()
+		data.HttpsWriteId = types.StringNull()
 	}
 }
 

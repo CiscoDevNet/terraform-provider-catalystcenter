@@ -82,11 +82,11 @@ func (d *AssignCredentialsDataSource) Schema(ctx context.Context, req datasource
 				MarkdownDescription: "The ID of the SNMPv3 credentials",
 				Computed:            true,
 			},
-			"https_read": schema.StringAttribute{
+			"https_read_id": schema.StringAttribute{
 				MarkdownDescription: "The ID of the HTTPS read credentials",
 				Computed:            true,
 			},
-			"https_write": schema.StringAttribute{
+			"https_write_id": schema.StringAttribute{
 				MarkdownDescription: "The ID of the HTTPS write credentials",
 				Computed:            true,
 			},

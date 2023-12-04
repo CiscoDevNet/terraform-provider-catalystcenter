@@ -96,7 +96,7 @@ func testAccCcAssignCredentialsConfig_all() string {
 	config := `resource "catalystcenter_assign_credentials" "test" {` + "\n"
 	config += `	site_id = catalystcenter_area.test.id` + "\n"
 	config += `	cli_id = catalystcenter_credentials_cli.test.id` + "\n"
-	config += `	https_read = catalystcenter_credentials_https_read.test.id` + "\n"
+	config += `	https_read_id = catalystcenter_credentials_https_read.test.id` + "\n"
 	config += `}` + "\n"
 	return config
 }

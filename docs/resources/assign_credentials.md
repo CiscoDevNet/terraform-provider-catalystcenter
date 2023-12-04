@@ -14,9 +14,9 @@ This resource can manage the assigned credentials of a site.
 
 ```terraform
 resource "catalystcenter_assign_credentials" "example" {
-  site_id    = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
-  cli_id     = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
-  https_read = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  site_id       = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  cli_id        = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  https_read_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
 }
 ```
 
@@ -30,8 +30,8 @@ resource "catalystcenter_assign_credentials" "example" {
 ### Optional
 
 - `cli_id` (String) The ID of the CLI credentials
-- `https_read` (String) The ID of the HTTPS read credentials
-- `https_write` (String) The ID of the HTTPS write credentials
+- `https_read_id` (String) The ID of the HTTPS read credentials
+- `https_write_id` (String) The ID of the HTTPS write credentials
 - `snmp_v2_read_id` (String) The ID of the SNMPv2 read credentials
 - `snmp_v2_write_id` (String) The ID of the SNMPv2 write credentials
 - `snmp_v3_id` (String) The ID of the SNMPv3 credentials

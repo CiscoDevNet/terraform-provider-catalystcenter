@@ -29,8 +29,8 @@ data "catalystcenter_assign_credentials" "example" {
 ### Read-Only
 
 - `cli_id` (String) The ID of the CLI credentials
-- `https_read` (String) The ID of the HTTPS read credentials
-- `https_write` (String) The ID of the HTTPS write credentials
+- `https_read_id` (String) The ID of the HTTPS read credentials
+- `https_write_id` (String) The ID of the HTTPS write credentials
 - `snmp_v2_read_id` (String) The ID of the SNMPv2 read credentials
 - `snmp_v2_write_id` (String) The ID of the SNMPv2 write credentials
 - `snmp_v3_id` (String) The ID of the SNMPv3 credentials
