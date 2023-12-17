@@ -143,7 +143,7 @@ func (data IPPoolReservation) toBody(ctx context.Context, state IPPoolReservatio
 
 //template:begin fromBody
 func (data *IPPoolReservation) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.groupName"); value.Exists() {
+	if value := res.Get("groupName"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
@@ -154,7 +154,7 @@ func (data *IPPoolReservation) fromBody(ctx context.Context, res gjson.Result) {
 
 //template:begin updateFromBody
 func (data *IPPoolReservation) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.groupName"); value.Exists() && !data.Name.IsNull() {
+	if value := res.Get("groupName"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()

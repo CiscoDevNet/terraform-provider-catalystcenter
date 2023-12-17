@@ -1,6 +1,7 @@
 ---
 name: IP Pool Reservation
 rest_endpoint: /dna/intent/api/v1/reserve-ip-subpool
+get_from_all: true
 id_from_query_path: response
 put_id_query_param: id
 doc_category: Network Settings
@@ -13,7 +14,7 @@ attributes:
     test_value: catalystcenter_area.test.id
   - model_name: name
     response_model_name: groupName
-    response_data_path: response.0.groupName
+    response_data_path: groupName
     type: String
     id: true
     description: The name of the IP pool reservation

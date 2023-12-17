@@ -185,6 +185,7 @@ func (d *IPPoolReservationDataSource) Read(ctx context.Context, req datasource.R
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
+	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 

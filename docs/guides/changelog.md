@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.2 (unreleased)
+
+- Fix issue with `catalystcenter_ip_pool_reservation` resource and multiple IP pools under a single site
+
 ## 0.1.1
 
 - BREAKING CHANGE: Rename `https_read` attribute of `catalystcenter_assign_credentials` to `https_read_id`
