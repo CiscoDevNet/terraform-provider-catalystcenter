@@ -12,6 +12,7 @@ description: |-
 - Fix issue with `catalystcenter_ip_pool_reservation` resource and multiple IP pools under a single site
 - Add `catalystcenter_device_claim_site` resource
 - Add `catalystcenter_device` resource and data source
+- Add `name` query option to `catalystcenter_ip_pool` data source
 
 ## 0.1.1
 
