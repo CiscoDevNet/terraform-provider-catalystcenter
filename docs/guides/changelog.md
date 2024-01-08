@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.1.2 (unreleased)
+## 0.1.2
 
 - Fix issue with `catalystcenter_ip_pool_reservation` resource and multiple IP pools under a single site
 - Add `catalystcenter_device_claim_site` resource
