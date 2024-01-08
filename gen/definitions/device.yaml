@@ -1,0 +1,29 @@
+---
+name: Device
+rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device
+id_path: id
+doc_category: Plug and Play
+attributes:
+  - model_name: serialNumber
+    data_path: deviceInfo
+    type: String
+    mandatory: true
+    description: Device serial number
+    example: FOC12345678
+  - model_name: stack
+    data_path: deviceInfo
+    type: Bool
+    description: Device is a stacked switch
+    example: false
+  - model_name: pid
+    data_path: deviceInfo
+    type: String
+    mandatory: true
+    description: Device product ID
+    example: C9300-24P
+  - model_name: hostname
+    data_path: deviceInfo
+    type: String
+    mandatory: true
+    description: Device hostname
+    example: switch1
