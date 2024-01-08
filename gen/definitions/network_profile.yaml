@@ -10,6 +10,7 @@ attributes:
     response_data_path: response.name
     type: String
     id: true
+    data_source_query: true
     description: The name of the network profile
     example: Profile1
   - model_name: namespace

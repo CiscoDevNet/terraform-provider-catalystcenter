@@ -185,6 +185,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 
 	{{- if $dataSourceQuery}}
 	{{- $getFromAllPath := getFromAllPath .}}
+	{{- $idFromQueryPathAttribute := .IdFromQueryPathAttribute}}
 	{{- range .Attributes}}
 	{{- if .DataSourceQuery}}
 	if config.Id.IsNull() && !config.{{toGoName .TfName}}.IsNull() {
@@ -196,7 +197,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 		if value := res{{if .ResponseDataPath}}.Get("{{firstPathElement .ResponseDataPath $getFromAllPath}}"){{end}}; len(value.Array()) > 0 {
 			value.ForEach(func(k, v gjson.Result) bool {
 				if config.{{toGoName .TfName}}.ValueString() == v.Get("{{if .ResponseDataPath}}{{remainingPathElements .ResponseDataPath $getFromAllPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}").String() {
-					config.Id = types.StringValue(v.Get("id").String())
+					config.Id = types.StringValue(v.Get("{{if $idFromQueryPathAttribute}}{{$idFromQueryPathAttribute}}{{else}}id{{end}}").String())
 					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{.ModelName}} '%v', id: %v", config.Id.String(), config.{{toGoName .TfName}}.ValueString(), config.Id.String()))
 					return false
 				}

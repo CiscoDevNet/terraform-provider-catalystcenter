@@ -17,6 +17,7 @@ description: |-
 - Add `name` query option to `catalystcenter_project` data source
 - Add `name` query option to `catalystcenter_template` data source
 - Add `name` query option to `catalystcenter_area` and `catalystcenter_building` data source
+- Add `name` query option to `catalystcenter_network_profile` data source
 
 ## 0.1.1
 
