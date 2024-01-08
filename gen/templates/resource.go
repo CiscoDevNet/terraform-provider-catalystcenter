@@ -49,7 +49,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &{{camelCase .Name}}Resource{}
+{{- if not .NoImport}}
 var _ resource.ResourceWithImportState = &{{camelCase .Name}}Resource{}
+{{- end}}
 
 func New{{camelCase .Name}}Resource() resource.Resource {
 	return &{{camelCase .Name}}Resource{}
@@ -450,6 +452,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
+	{{- if not .NoRead}}
 
 	params := ""
 	{{- if .IdQueryParam}}
@@ -482,6 +485,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	{{- end}}
 
 	state.updateFromBody(ctx, res)
+	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
@@ -567,7 +571,9 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 //template:end delete
 
 //template:begin import
+{{- if not .NoImport}}
 func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
+{{- end}}
 //template:end import

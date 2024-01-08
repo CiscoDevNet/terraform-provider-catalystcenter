@@ -95,6 +95,8 @@ var templates = []t{
 
 type YamlConfig struct {
 	Name                     string                `yaml:"name"`
+	NoResource               bool                  `yaml:"no_resource"`
+	NoDataSource             bool                  `yaml:"no_data_source"`
 	RestEndpoint             string                `yaml:"rest_endpoint"`
 	GetRestEndpoint          string                `yaml:"get_rest_endpoint"`
 	PutRestEndpoint          string                `yaml:"put_rest_endpoint"`
@@ -104,6 +106,8 @@ type YamlConfig struct {
 	GetRequiresId            bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams      string                `yaml:"get_extra_query_params"`
 	NoDelete                 bool                  `yaml:"no_delete"`
+	NoRead                   bool                  `yaml:"no_read"`
+	NoImport                 bool                  `yaml:"no_import"`
 	PostUpdate               bool                  `yaml:"post_update"`
 	RootList                 bool                  `yaml:"root_list"`
 	NoReadPrefix             bool                  `yaml:"no_read_prefix"`
@@ -410,8 +414,6 @@ func renderTemplate(templatePath, outputPath string, config interface{}) {
 }
 
 func main() {
-	providerConfig := make([]string, 0)
-
 	files, _ := os.ReadDir(definitionsPath)
 	configs := make([]YamlConfig, len(files))
 
@@ -436,13 +438,22 @@ func main() {
 
 		// Iterate over templates and render files
 		for _, t := range templates {
+			if (configs[i].NoImport && t.path == "./gen/templates/import.sh") ||
+				(configs[i].NoDataSource && t.path == "./gen/templates/data_source.go") ||
+				(configs[i].NoDataSource && t.path == "./gen/templates/data_source_test.go") ||
+				(configs[i].NoDataSource && t.path == "./gen/templates/data-source.tf") ||
+				(configs[i].NoResource && t.path == "./gen/templates/resource.go") ||
+				(configs[i].NoResource && t.path == "./gen/templates/resource_test.go") ||
+				(configs[i].NoResource && t.path == "./gen/templates/resource.tf") ||
+				(configs[i].NoResource && t.path == "./gen/templates/import.sh") {
+				continue
+			}
 			renderTemplate(t.path, t.prefix+SnakeCase(configs[i].Name)+t.suffix, configs[i])
 		}
-		providerConfig = append(providerConfig, configs[i].Name)
 	}
 
 	// render provider.go
-	renderTemplate(providerTemplate, providerLocation, providerConfig)
+	renderTemplate(providerTemplate, providerLocation, configs)
 
 	changelog, err := os.ReadFile(changelogOriginal)
 	if err != nil {

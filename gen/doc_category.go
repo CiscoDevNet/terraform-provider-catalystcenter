@@ -33,8 +33,10 @@ const (
 )
 
 type YamlConfig struct {
-	Name        string `yaml:"name"`
-	DocCategory string `yaml:"doc_category"`
+	Name         string `yaml:"name"`
+	DocCategory  string `yaml:"doc_category"`
+	NoResource   bool   `yaml:"no_resource"`
+	NoDataSource bool   `yaml:"no_data_source"`
 }
 
 var docPaths = []string{"./docs/data-sources/", "./docs/resources/"}
@@ -74,6 +76,10 @@ func main() {
 	// Update doc category
 	for i := range configs {
 		for _, path := range docPaths {
+			if (configs[i].NoDataSource && path == "./docs/data-sources/") ||
+				(configs[i].NoResource && path == "./docs/resources/") {
+				continue
+			}
 			filename := path + SnakeCase(configs[i].Name) + ".md"
 			content, err := os.ReadFile(filename)
 			if err != nil {

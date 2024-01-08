@@ -1,0 +1,96 @@
+---
+name: Device Claim Site
+rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device/site-claim
+no_data_source: true
+no_read: true
+no_delete: true
+no_import: true
+post_update: true
+skip_minimum_test: true
+doc_category: Plug and Play
+test_tags: [PNP]
+attributes:
+  - model_name: deviceId
+    type: String
+    mandatory: true
+    id: true
+    description: The device ID
+    example: 12345678-1234-1234-1234-123456789012
+  - model_name: siteId
+    type: String
+    mandatory: true
+    description: The site ID
+    example: 12345678-1234-1234-1234-123456789012
+  - model_name: type
+    type: String
+    mandatory: true
+    enum_values: [Default, StackSwitch, AccessPoint, Sensor, CatalystWLC, MobilityExpress]
+    description: The device type
+    example: Default
+  - model_name: imageId
+    data_path: imageInfo
+    type: String
+    description: Image ID. Required if `type` is `Default` or `StackSwitch`.
+    example: ""
+  - model_name: skip
+    data_path: imageInfo
+    tf_name: image_skip
+    type: Bool
+    description: Skip image provisioning.
+    example: true
+  - model_name: configId
+    data_path: configInfo
+    type: String
+    description: Config (temaplate) ID. Required if `type` is `Default` or `StackSwitch`.
+    example: template1
+  - model_name: configParameters
+    data_path: configInfo
+    type: List
+    description: List of config (temaplate) parameters.
+    attributes:
+      - model_name: key
+        tf_name: name
+        id: true
+        type: String
+        description: Name of config parameter.
+        example: HOSTNAME
+      - model_name: value
+        type: String
+        description: Value of config parameter.
+        example: switch1
+  - model_name: rfProfile
+    type: String
+    description: RF profile. Required if `type` is `AccessPoint`.
+    example: profile1
+    exclude_test: true
+  - model_name: staticIP
+    tf_name: static_ip
+    type: String
+    description: Static IP address. Required if `type` is `CatalystWLC` or `MobilityExpress`.
+    example: 1.2.3.4
+    exclude_test: true
+  - model_name: subnetMask
+    type: String
+    description: Subnet mask. Required if `type` is `CatalystWLC` or `MobilityExpress`.
+    example: 255.255.255.0
+    exclude_test: true
+  - model_name: gateway
+    type: String
+    description: Gateway IP. Required if `type` is `CatalystWLC` or `MobilityExpress`.
+    example: 1.2.3.1
+    exclude_test: true
+  - model_name: vlanId
+    type: String
+    description: Vlan ID. Required for Catalyst 9800 WLC.
+    example: "100"
+    exclude_test: true
+  - model_name: ipInterfaceName
+    type: String
+    description: IP interface name. Required for Catalyst 9800 WLC.
+    example: GigabitEthernet1
+    exclude_test: true
+  - model_name: sensorProfile
+    type: String
+    description: Sensor profile. Required if `type` is `Sensor`.
+    example: profile1
+    exclude_test: true

@@ -243,7 +243,9 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		{{- range .}}
-		New{{camelCase .}}Resource,
+		{{- if not .NoResource}}
+		New{{camelCase .Name}}Resource,
+		{{- end}}
 		{{- end}}
 	}
 }
@@ -251,7 +253,9 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		{{- range .}}
-		New{{camelCase .}}DataSource,
+		{{- if not .NoDataSource}}
+		New{{camelCase .Name}}DataSource,
+		{{- end}}
 		{{- end}}
 	}
 }
