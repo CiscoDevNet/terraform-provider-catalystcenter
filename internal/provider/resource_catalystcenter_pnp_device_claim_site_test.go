@@ -30,27 +30,27 @@ import (
 //template:end imports
 
 //template:begin testAcc
-func TestAccCcDeviceClaimSite(t *testing.T) {
+func TestAccCcPnPDeviceClaimSite(t *testing.T) {
 	if os.Getenv("PNP") == "" {
 		t.Skip("skipping test, set environment variable PNP")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_claim_site.test", "device_id", "12345678-1234-1234-1234-123456789012"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_claim_site.test", "site_id", "12345678-1234-1234-1234-123456789012"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_claim_site.test", "type", "Default"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_claim_site.test", "image_id", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_claim_site.test", "image_skip", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_claim_site.test", "config_id", "template1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_claim_site.test", "config_parameters.0.name", "HOSTNAME"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_claim_site.test", "config_parameters.0.value", "switch1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_claim_site.test", "device_id", "12345678-1234-1234-1234-123456789012"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_claim_site.test", "site_id", "12345678-1234-1234-1234-123456789012"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_claim_site.test", "type", "Default"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_claim_site.test", "image_id", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_claim_site.test", "image_skip", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_claim_site.test", "config_id", "template1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_claim_site.test", "config_parameters.0.name", "HOSTNAME"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_claim_site.test", "config_parameters.0.value", "switch1"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcDeviceClaimSiteConfig_all(),
+		Config: testAccCcPnPDeviceClaimSiteConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_device_claim_site.test",
+		ResourceName: "catalystcenter_pnp_device_claim_site.test",
 		ImportState:  true,
 	})
 
@@ -67,8 +67,8 @@ func TestAccCcDeviceClaimSite(t *testing.T) {
 //template:end testPrerequisites
 
 //template:begin testAccConfigMinimal
-func testAccCcDeviceClaimSiteConfig_minimum() string {
-	config := `resource "catalystcenter_device_claim_site" "test" {` + "\n"
+func testAccCcPnPDeviceClaimSiteConfig_minimum() string {
+	config := `resource "catalystcenter_pnp_device_claim_site" "test" {` + "\n"
 	config += `	device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
 	config += `	site_id = "12345678-1234-1234-1234-123456789012"` + "\n"
 	config += `	type = "Default"` + "\n"
@@ -79,8 +79,8 @@ func testAccCcDeviceClaimSiteConfig_minimum() string {
 //template:end testAccConfigMinimal
 
 //template:begin testAccConfigAll
-func testAccCcDeviceClaimSiteConfig_all() string {
-	config := `resource "catalystcenter_device_claim_site" "test" {` + "\n"
+func testAccCcPnPDeviceClaimSiteConfig_all() string {
+	config := `resource "catalystcenter_pnp_device_claim_site" "test" {` + "\n"
 	config += `	device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
 	config += `	site_id = "12345678-1234-1234-1234-123456789012"` + "\n"
 	config += `	type = "Default"` + "\n"

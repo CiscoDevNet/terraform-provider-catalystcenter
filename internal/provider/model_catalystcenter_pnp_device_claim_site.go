@@ -31,25 +31,25 @@ import (
 //template:end imports
 
 //template:begin types
-type DeviceClaimSite struct {
-	Id               types.String                      `tfsdk:"id"`
-	DeviceId         types.String                      `tfsdk:"device_id"`
-	SiteId           types.String                      `tfsdk:"site_id"`
-	Type             types.String                      `tfsdk:"type"`
-	ImageId          types.String                      `tfsdk:"image_id"`
-	ImageSkip        types.Bool                        `tfsdk:"image_skip"`
-	ConfigId         types.String                      `tfsdk:"config_id"`
-	ConfigParameters []DeviceClaimSiteConfigParameters `tfsdk:"config_parameters"`
-	RfProfile        types.String                      `tfsdk:"rf_profile"`
-	StaticIp         types.String                      `tfsdk:"static_ip"`
-	SubnetMask       types.String                      `tfsdk:"subnet_mask"`
-	Gateway          types.String                      `tfsdk:"gateway"`
-	VlanId           types.String                      `tfsdk:"vlan_id"`
-	IpInterfaceName  types.String                      `tfsdk:"ip_interface_name"`
-	SensorProfile    types.String                      `tfsdk:"sensor_profile"`
+type PnPDeviceClaimSite struct {
+	Id               types.String                         `tfsdk:"id"`
+	DeviceId         types.String                         `tfsdk:"device_id"`
+	SiteId           types.String                         `tfsdk:"site_id"`
+	Type             types.String                         `tfsdk:"type"`
+	ImageId          types.String                         `tfsdk:"image_id"`
+	ImageSkip        types.Bool                           `tfsdk:"image_skip"`
+	ConfigId         types.String                         `tfsdk:"config_id"`
+	ConfigParameters []PnPDeviceClaimSiteConfigParameters `tfsdk:"config_parameters"`
+	RfProfile        types.String                         `tfsdk:"rf_profile"`
+	StaticIp         types.String                         `tfsdk:"static_ip"`
+	SubnetMask       types.String                         `tfsdk:"subnet_mask"`
+	Gateway          types.String                         `tfsdk:"gateway"`
+	VlanId           types.String                         `tfsdk:"vlan_id"`
+	IpInterfaceName  types.String                         `tfsdk:"ip_interface_name"`
+	SensorProfile    types.String                         `tfsdk:"sensor_profile"`
 }
 
-type DeviceClaimSiteConfigParameters struct {
+type PnPDeviceClaimSiteConfigParameters struct {
 	Name  types.String `tfsdk:"name"`
 	Value types.String `tfsdk:"value"`
 }
@@ -57,14 +57,14 @@ type DeviceClaimSiteConfigParameters struct {
 //template:end types
 
 //template:begin getPath
-func (data DeviceClaimSite) getPath() string {
+func (data PnPDeviceClaimSite) getPath() string {
 	return "/dna/intent/api/v1/onboarding/pnp-device/site-claim"
 }
 
 //template:end getPath
 
 //template:begin toBody
-func (data DeviceClaimSite) toBody(ctx context.Context, state DeviceClaimSite) string {
+func (data PnPDeviceClaimSite) toBody(ctx context.Context, state PnPDeviceClaimSite) string {
 	body := ""
 	if !data.DeviceId.IsNull() {
 		body, _ = sjson.Set(body, "deviceId", data.DeviceId.ValueString())
@@ -124,7 +124,7 @@ func (data DeviceClaimSite) toBody(ctx context.Context, state DeviceClaimSite) s
 //template:end toBody
 
 //template:begin fromBody
-func (data *DeviceClaimSite) fromBody(ctx context.Context, res gjson.Result) {
+func (data *PnPDeviceClaimSite) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("deviceId"); value.Exists() {
 		data.DeviceId = types.StringValue(value.String())
 	} else {
@@ -156,9 +156,9 @@ func (data *DeviceClaimSite) fromBody(ctx context.Context, res gjson.Result) {
 		data.ConfigId = types.StringNull()
 	}
 	if value := res.Get("configInfo.configParameters"); value.Exists() {
-		data.ConfigParameters = make([]DeviceClaimSiteConfigParameters, 0)
+		data.ConfigParameters = make([]PnPDeviceClaimSiteConfigParameters, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := DeviceClaimSiteConfigParameters{}
+			item := PnPDeviceClaimSiteConfigParameters{}
 			if cValue := v.Get("key"); cValue.Exists() {
 				item.Name = types.StringValue(cValue.String())
 			} else {
@@ -213,7 +213,7 @@ func (data *DeviceClaimSite) fromBody(ctx context.Context, res gjson.Result) {
 //template:end fromBody
 
 //template:begin updateFromBody
-func (data *DeviceClaimSite) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *PnPDeviceClaimSite) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("deviceId"); value.Exists() && !data.DeviceId.IsNull() {
 		data.DeviceId = types.StringValue(value.String())
 	} else {

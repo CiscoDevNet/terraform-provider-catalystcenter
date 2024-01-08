@@ -41,24 +41,24 @@ import (
 //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &DeviceClaimSiteResource{}
+var _ resource.Resource = &PnPDeviceClaimSiteResource{}
 
-func NewDeviceClaimSiteResource() resource.Resource {
-	return &DeviceClaimSiteResource{}
+func NewPnPDeviceClaimSiteResource() resource.Resource {
+	return &PnPDeviceClaimSiteResource{}
 }
 
-type DeviceClaimSiteResource struct {
+type PnPDeviceClaimSiteResource struct {
 	client *cc.Client
 }
 
-func (r *DeviceClaimSiteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_claim_site"
+func (r *PnPDeviceClaimSiteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_pnp_device_claim_site"
 }
 
-func (r *DeviceClaimSiteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *PnPDeviceClaimSiteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device Claim Site.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a PnP Device Claim Site.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -146,7 +146,7 @@ func (r *DeviceClaimSiteResource) Schema(ctx context.Context, req resource.Schem
 	}
 }
 
-func (r *DeviceClaimSiteResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *PnPDeviceClaimSiteResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -157,8 +157,8 @@ func (r *DeviceClaimSiteResource) Configure(_ context.Context, req resource.Conf
 //template:end model
 
 //template:begin create
-func (r *DeviceClaimSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan DeviceClaimSite
+func (r *PnPDeviceClaimSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan PnPDeviceClaimSite
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -170,7 +170,7 @@ func (r *DeviceClaimSiteResource) Create(ctx context.Context, req resource.Creat
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, DeviceClaimSite{})
+	body := plan.toBody(ctx, PnPDeviceClaimSite{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -189,8 +189,8 @@ func (r *DeviceClaimSiteResource) Create(ctx context.Context, req resource.Creat
 //template:end create
 
 //template:begin read
-func (r *DeviceClaimSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state DeviceClaimSite
+func (r *PnPDeviceClaimSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state PnPDeviceClaimSite
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -210,8 +210,8 @@ func (r *DeviceClaimSiteResource) Read(ctx context.Context, req resource.ReadReq
 //template:end read
 
 //template:begin update
-func (r *DeviceClaimSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state DeviceClaimSite
+func (r *PnPDeviceClaimSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state PnPDeviceClaimSite
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -245,8 +245,8 @@ func (r *DeviceClaimSiteResource) Update(ctx context.Context, req resource.Updat
 //template:end update
 
 //template:begin delete
-func (r *DeviceClaimSiteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state DeviceClaimSite
+func (r *PnPDeviceClaimSiteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state PnPDeviceClaimSite
 
 	// Read state
 	diags := req.State.Get(ctx, &state)

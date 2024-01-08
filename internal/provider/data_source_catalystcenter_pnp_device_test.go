@@ -29,18 +29,18 @@ import (
 //template:end imports
 
 //template:begin testAccDataSource
-func TestAccDataSourceCcDevice(t *testing.T) {
+func TestAccDataSourceCcPnPDevice(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device.test", "serial_number", "FOC12345678"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device.test", "stack", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device.test", "pid", "C9300-24P"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device.test", "hostname", "switch1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_pnp_device.test", "serial_number", "FOC12345678"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_pnp_device.test", "stack", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_pnp_device.test", "pid", "C9300-24P"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_pnp_device.test", "hostname", "switch1"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcDeviceConfig(),
+				Config: testAccDataSourceCcPnPDeviceConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -53,8 +53,8 @@ func TestAccDataSourceCcDevice(t *testing.T) {
 //template:end testPrerequisites
 
 //template:begin testAccDataSourceConfig
-func testAccDataSourceCcDeviceConfig() string {
-	config := `resource "catalystcenter_device" "test" {` + "\n"
+func testAccDataSourceCcPnPDeviceConfig() string {
+	config := `resource "catalystcenter_pnp_device" "test" {` + "\n"
 	config += `	serial_number = "FOC12345678"` + "\n"
 	config += `	stack = false` + "\n"
 	config += `	pid = "C9300-24P"` + "\n"
@@ -62,8 +62,8 @@ func testAccDataSourceCcDeviceConfig() string {
 	config += `}` + "\n"
 
 	config += `
-		data "catalystcenter_device" "test" {
-			id = catalystcenter_device.test.id
+		data "catalystcenter_pnp_device" "test" {
+			id = catalystcenter_pnp_device.test.id
 		}
 	`
 	return config

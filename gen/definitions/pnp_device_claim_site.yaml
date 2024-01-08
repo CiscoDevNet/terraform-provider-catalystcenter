@@ -1,5 +1,5 @@
 ---
-name: Device Claim Site
+name: PnP Device Claim Site
 rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device/site-claim
 no_data_source: true
 no_read: true

@@ -40,26 +40,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &DeviceDataSource{}
-	_ datasource.DataSourceWithConfigure = &DeviceDataSource{}
+	_ datasource.DataSource              = &PnPDeviceDataSource{}
+	_ datasource.DataSourceWithConfigure = &PnPDeviceDataSource{}
 )
 
-func NewDeviceDataSource() datasource.DataSource {
-	return &DeviceDataSource{}
+func NewPnPDeviceDataSource() datasource.DataSource {
+	return &PnPDeviceDataSource{}
 }
 
-type DeviceDataSource struct {
+type PnPDeviceDataSource struct {
 	client *cc.Client
 }
 
-func (d *DeviceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device"
+func (d *PnPDeviceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_pnp_device"
 }
 
-func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *PnPDeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Device.",
+		MarkdownDescription: "This data source can read the PnP Device.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -87,7 +87,7 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		},
 	}
 }
-func (d *DeviceDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *PnPDeviceDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -96,7 +96,7 @@ func (d *DeviceDataSource) ConfigValidators(ctx context.Context) []datasource.Co
 	}
 }
 
-func (d *DeviceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *PnPDeviceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -107,8 +107,8 @@ func (d *DeviceDataSource) Configure(_ context.Context, req datasource.Configure
 //template:end model
 
 //template:begin read
-func (d *DeviceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config Device
+func (d *PnPDeviceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config PnPDevice
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

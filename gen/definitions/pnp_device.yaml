@@ -1,5 +1,5 @@
 ---
-name: Device
+name: PnP Device
 rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device
 id_path: id
 doc_category: Plug and Play

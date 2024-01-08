@@ -1,4 +1,4 @@
-resource "catalystcenter_device" "example" {
+resource "catalystcenter_pnp_device" "example" {
   serial_number = "FOC12345678"
   stack         = false
   pid           = "C9300-24P"

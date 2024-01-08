@@ -30,25 +30,25 @@ import (
 //template:end imports
 
 //template:begin testAcc
-func TestAccCcDevice(t *testing.T) {
+func TestAccCcPnPDevice(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "serial_number", "FOC12345678"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "stack", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "pid", "C9300-24P"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "hostname", "switch1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device.test", "serial_number", "FOC12345678"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device.test", "stack", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device.test", "pid", "C9300-24P"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device.test", "hostname", "switch1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccCcDeviceConfig_minimum(),
+			Config: testAccCcPnPDeviceConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcDeviceConfig_all(),
+		Config: testAccCcPnPDeviceConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_device.test",
+		ResourceName: "catalystcenter_pnp_device.test",
 		ImportState:  true,
 	})
 
@@ -65,8 +65,8 @@ func TestAccCcDevice(t *testing.T) {
 //template:end testPrerequisites
 
 //template:begin testAccConfigMinimal
-func testAccCcDeviceConfig_minimum() string {
-	config := `resource "catalystcenter_device" "test" {` + "\n"
+func testAccCcPnPDeviceConfig_minimum() string {
+	config := `resource "catalystcenter_pnp_device" "test" {` + "\n"
 	config += `	serial_number = "FOC12345678"` + "\n"
 	config += `	pid = "C9300-24P"` + "\n"
 	config += `	hostname = "switch1"` + "\n"
@@ -77,8 +77,8 @@ func testAccCcDeviceConfig_minimum() string {
 //template:end testAccConfigMinimal
 
 //template:begin testAccConfigAll
-func testAccCcDeviceConfig_all() string {
-	config := `resource "catalystcenter_device" "test" {` + "\n"
+func testAccCcPnPDeviceConfig_all() string {
+	config := `resource "catalystcenter_pnp_device" "test" {` + "\n"
 	config += `	serial_number = "FOC12345678"` + "\n"
 	config += `	stack = false` + "\n"
 	config += `	pid = "C9300-24P"` + "\n"

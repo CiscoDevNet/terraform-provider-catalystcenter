@@ -41,25 +41,25 @@ import (
 //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &DeviceResource{}
-var _ resource.ResourceWithImportState = &DeviceResource{}
+var _ resource.Resource = &PnPDeviceResource{}
+var _ resource.ResourceWithImportState = &PnPDeviceResource{}
 
-func NewDeviceResource() resource.Resource {
-	return &DeviceResource{}
+func NewPnPDeviceResource() resource.Resource {
+	return &PnPDeviceResource{}
 }
 
-type DeviceResource struct {
+type PnPDeviceResource struct {
 	client *cc.Client
 }
 
-func (r *DeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device"
+func (r *PnPDeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_pnp_device"
 }
 
-func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *PnPDeviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a PnP Device.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -89,7 +89,7 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	}
 }
 
-func (r *DeviceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *PnPDeviceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -100,8 +100,8 @@ func (r *DeviceResource) Configure(_ context.Context, req resource.ConfigureRequ
 //template:end model
 
 //template:begin create
-func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan Device
+func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan PnPDevice
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -113,7 +113,7 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, Device{})
+	body := plan.toBody(ctx, PnPDevice{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -132,8 +132,8 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 //template:end create
 
 //template:begin read
-func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state Device
+func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state PnPDevice
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -166,8 +166,8 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 //template:end read
 
 //template:begin update
-func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state Device
+func (r *PnPDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state PnPDevice
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -201,8 +201,8 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 //template:end update
 
 //template:begin delete
-func (r *DeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state Device
+func (r *PnPDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state PnPDevice
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -226,7 +226,7 @@ func (r *DeviceResource) Delete(ctx context.Context, req resource.DeleteRequest,
 //template:end delete
 
 //template:begin import
-func (r *DeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *PnPDeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 

@@ -31,7 +31,7 @@ import (
 //template:end imports
 
 //template:begin types
-type Device struct {
+type PnPDevice struct {
 	Id           types.String `tfsdk:"id"`
 	SerialNumber types.String `tfsdk:"serial_number"`
 	Stack        types.Bool   `tfsdk:"stack"`
@@ -42,14 +42,14 @@ type Device struct {
 //template:end types
 
 //template:begin getPath
-func (data Device) getPath() string {
+func (data PnPDevice) getPath() string {
 	return "/dna/intent/api/v1/onboarding/pnp-device"
 }
 
 //template:end getPath
 
 //template:begin toBody
-func (data Device) toBody(ctx context.Context, state Device) string {
+func (data PnPDevice) toBody(ctx context.Context, state PnPDevice) string {
 	body := ""
 	if !data.SerialNumber.IsNull() {
 		body, _ = sjson.Set(body, "deviceInfo.serialNumber", data.SerialNumber.ValueString())
@@ -69,7 +69,7 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 //template:end toBody
 
 //template:begin fromBody
-func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
+func (data *PnPDevice) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("deviceInfo.serialNumber"); value.Exists() {
 		data.SerialNumber = types.StringValue(value.String())
 	} else {
@@ -95,7 +95,7 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 //template:end fromBody
 
 //template:begin updateFromBody
-func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *PnPDevice) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("deviceInfo.serialNumber"); value.Exists() && !data.SerialNumber.IsNull() {
 		data.SerialNumber = types.StringValue(value.String())
 	} else {
