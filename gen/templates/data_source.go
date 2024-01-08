@@ -184,6 +184,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	{{- if $dataSourceQuery}}
+	{{- $getFromAllPath := getFromAllPath .}}
 	{{- range .Attributes}}
 	{{- if .DataSourceQuery}}
 	if config.Id.IsNull() && !config.{{toGoName .TfName}}.IsNull() {
@@ -192,9 +193,9 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
 		}
-		if value := res{{if .ResponseDataPath}}.Get("{{firstPathElement .ResponseDataPath}}"){{end}}; len(value.Array()) > 0 {
+		if value := res{{if .ResponseDataPath}}.Get("{{firstPathElement .ResponseDataPath $getFromAllPath}}"){{end}}; len(value.Array()) > 0 {
 			value.ForEach(func(k, v gjson.Result) bool {
-				if config.{{toGoName .TfName}}.ValueString() == v.Get("{{if .ResponseDataPath}}{{remainingPathElements .ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}").String() {
+				if config.{{toGoName .TfName}}.ValueString() == v.Get("{{if .ResponseDataPath}}{{remainingPathElements .ResponseDataPath $getFromAllPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}").String() {
 					config.Id = types.StringValue(v.Get("id").String())
 					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{.ModelName}} '%v', id: %v", config.Id.String(), config.{{toGoName .TfName}}.ValueString(), config.Id.String()))
 					return false

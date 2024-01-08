@@ -24,10 +24,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 //template:end imports
@@ -60,10 +64,12 @@ func (d *CredentialsSNMPv2ReadDataSource) Schema(ctx context.Context, req dataso
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
+				Optional:            true,
+				Computed:            true,
 			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "The description of the SNMPv2 credentials",
+				Optional:            true,
 				Computed:            true,
 			},
 			"read_community": schema.StringAttribute{
@@ -71,6 +77,14 @@ func (d *CredentialsSNMPv2ReadDataSource) Schema(ctx context.Context, req dataso
 				Computed:            true,
 			},
 		},
+	}
+}
+func (d *CredentialsSNMPv2ReadDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.ExactlyOneOf(
+			path.MatchRoot("id"),
+			path.MatchRoot("description"),
+		),
 	}
 }
 
@@ -96,6 +110,28 @@ func (d *CredentialsSNMPv2ReadDataSource) Read(ctx context.Context, req datasour
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
+	if config.Id.IsNull() && !config.Description.IsNull() {
+		res, err := d.client.Get(config.getPath())
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
+			return
+		}
+		if value := res.Get("response.snmpV2cRead"); len(value.Array()) > 0 {
+			value.ForEach(func(k, v gjson.Result) bool {
+				if config.Description.ValueString() == v.Get("description").String() {
+					config.Id = types.StringValue(v.Get("id").String())
+					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with description '%v', id: %v", config.Id.String(), config.Description.ValueString(), config.Id.String()))
+					return false
+				}
+				return true
+			})
+		}
+
+		if config.Id.IsNull() {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with description: %s", config.Description.ValueString()))
+			return
+		}
+	}
 
 	params := ""
 	res, err := d.client.Get(config.getPath() + params)

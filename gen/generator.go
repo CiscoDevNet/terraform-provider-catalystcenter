@@ -281,13 +281,33 @@ func HasDataSourceQuery(attributes []YamlConfigAttribute) bool {
 }
 
 // Templating helper function to return the first path element
-func FirstPathElement(path string) string {
-	return strings.Split(path, ".")[0]
+func FirstPathElement(path, getFromAllPath string) string {
+	if getFromAllPath != "" {
+		return getFromAllPath
+	} else if strings.HasPrefix(path, "response.") {
+		return strings.Split(path, ".")[0]
+	}
+	return ""
 }
 
 // Templating helper function to return the second and subsequent path elements
-func RemainingPathElements(path string) string {
-	return strings.Join(strings.Split(path, ".")[1:], ".")
+func RemainingPathElements(path, getFromAllPath string) string {
+	if getFromAllPath != "" {
+		return path
+	} else if strings.HasPrefix(path, "response.") {
+		return strings.Join(strings.Split(path, ".")[1:], ".")
+	}
+	return path
+}
+
+// Templating helper function to return the query path in case of "get_from_all" being enabled
+func GetFromAllPath(config YamlConfig) string {
+	if config.GetFromAll {
+		if config.IdFromQueryPath != "" {
+			return config.IdFromQueryPath
+		}
+	}
+	return ""
 }
 
 // Map of templating functions
@@ -306,6 +326,7 @@ var functions = template.FuncMap{
 	"hasDataSourceQuery":    HasDataSourceQuery,
 	"firstPathElement":      FirstPathElement,
 	"remainingPathElements": RemainingPathElements,
+	"getFromAllPath":        GetFromAllPath,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {

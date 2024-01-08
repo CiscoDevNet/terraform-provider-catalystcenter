@@ -4,6 +4,7 @@
 - Add `catalystcenter_device_claim_site` resource
 - Add `catalystcenter_device` resource and data source
 - Add `name` query option to `catalystcenter_ip_pool` data source
+- Add `description` query option to `catalystcenter_credentials_cli`, `catalystcenter_credentials_https_write`, `catalystcenter_credentials_https_read`, `catalystcenter_credentials_snmpv2_read`, `catalystcenter_credentials_snmpv2_write` and `catalystcenter_credentials_snmpv3` data source
 
 ## 0.1.1
 
