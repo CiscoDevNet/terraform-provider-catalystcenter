@@ -24,15 +24,18 @@ data "catalystcenter_template" "example" {
 
 ### Required
 
-- `id` (String) The id of the object
 - `project_id` (String) The ID of the project
+
+### Optional
+
+- `id` (String) The id of the object
+- `name` (String) Name of the template
 
 ### Read-Only
 
 - `description` (String) Description
 - `device_types` (Attributes List) List of device types (see [below for nested schema](#nestedatt--device_types))
 - `language` (String) Language of the template
-- `name` (String) Name of the template
 - `software_type` (String) Software type
 - `software_variant` (String) Software variant
 - `software_version` (String) Software version

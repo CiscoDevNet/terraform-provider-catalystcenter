@@ -18,6 +18,7 @@ attributes:
   - model_name: name
     type: String
     mandatory: true
+    data_source_query: true
     description: Name of the template
     example: Template1
   - model_name: description
