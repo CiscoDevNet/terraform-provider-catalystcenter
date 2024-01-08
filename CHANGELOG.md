@@ -1,6 +1,6 @@
 ## 0.1.3 (unreleased)
 
-- Add `catalystcenter_device` resource
+- Add `catalystcenter_device_role` resource
 - BREAKING CHANGE: Rename `catalystcenter_device` resource and data source to `catalystcenter_pnp_device`
 - BREAKING CHANGE: Rename `catalystcenter_device_claim_site` resource and data source to `catalystcenter_pnp_device_claim_site`
 
