@@ -218,7 +218,6 @@ func (r *CredentialsSNMPv3Resource) Update(ctx context.Context, req resource.Upd
 
 	body := plan.toBody(ctx, state)
 	params := ""
-
 	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))

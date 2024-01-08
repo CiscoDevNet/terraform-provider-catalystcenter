@@ -179,7 +179,6 @@ func (r *ProjectResource) Update(ctx context.Context, req resource.UpdateRequest
 	body := plan.toBody(ctx, state)
 	params := ""
 	params += "?id=" + plan.Id.ValueString()
-
 	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))

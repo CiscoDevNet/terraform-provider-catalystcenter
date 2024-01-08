@@ -314,7 +314,6 @@ func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateReques
 
 	body := plan.toBody(ctx, state)
 	params := ""
-
 	res, err := r.client.Put("/dna/intent/api/v1/template-programmer/template"+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))

@@ -109,6 +109,7 @@ type YamlConfig struct {
 	NoRead                   bool                  `yaml:"no_read"`
 	NoImport                 bool                  `yaml:"no_import"`
 	PostUpdate               bool                  `yaml:"post_update"`
+	PutCreate                bool                  `yaml:"put_create"`
 	RootList                 bool                  `yaml:"root_list"`
 	NoReadPrefix             bool                  `yaml:"no_read_prefix"`
 	IdPath                   string                `yaml:"id_path"`

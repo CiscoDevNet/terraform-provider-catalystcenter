@@ -405,7 +405,11 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		{{- $queryParam := getQueryParam .Attributes}}
 	params += "/" + plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
 	{{- end}}
+	{{- if .PutCreate}}
+	res, err := r.client.Put(plan.getPath() + params, body)
+	{{- else}}
 	res, err := r.client.Post(plan.getPath() + params, body)
+	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -522,8 +526,10 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- if .PutIdQueryParam}}
 	params += "?{{.PutIdQueryParam}}=" + plan.Id.ValueString()
 	{{- end}}
-	{{if .PostUpdate}}
+	{{- if .PostUpdate}}
 	res, err := r.client.Post(plan.getPath() + params, body)
+	{{- else if .PutCreate}}
+	res, err := r.client.Put(plan.getPath() + params, body)
 	{{- else if hasQueryParam .Attributes}}
 	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body)
 	{{- else if .PutNoId}}

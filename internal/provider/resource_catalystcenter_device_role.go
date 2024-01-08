@@ -23,14 +23,14 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -41,25 +41,24 @@ import (
 //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &AssignCredentialsResource{}
-var _ resource.ResourceWithImportState = &AssignCredentialsResource{}
+var _ resource.Resource = &DeviceRoleResource{}
 
-func NewAssignCredentialsResource() resource.Resource {
-	return &AssignCredentialsResource{}
+func NewDeviceRoleResource() resource.Resource {
+	return &DeviceRoleResource{}
 }
 
-type AssignCredentialsResource struct {
+type DeviceRoleResource struct {
 	client *cc.Client
 }
 
-func (r *AssignCredentialsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_assign_credentials"
+func (r *DeviceRoleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_role"
 }
 
-func (r *AssignCredentialsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *DeviceRoleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage the assigned credentials of a site.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device Role.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -69,42 +68,32 @@ func (r *AssignCredentialsResource) Schema(ctx context.Context, req resource.Sch
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"site_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The site ID").String,
+			"device_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The device ID").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"cli_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the CLI credentials").String,
-				Optional:            true,
+			"role": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The device role").AddStringEnumDescription("ACCESS", "CORE", "DISTRIBUTION", "BORDER ROUTER").String,
+				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("ACCESS", "CORE", "DISTRIBUTION", "BORDER ROUTER"),
+				},
 			},
-			"snmp_v2_read_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv2 read credentials").String,
-				Optional:            true,
-			},
-			"snmp_v2_write_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv2 write credentials").String,
-				Optional:            true,
-			},
-			"snmp_v3_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv3 credentials").String,
-				Optional:            true,
-			},
-			"https_read_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTPS read credentials").String,
-				Optional:            true,
-			},
-			"https_write_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTPS write credentials").String,
-				Optional:            true,
+			"role_source": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The device role source").AddStringEnumDescription("MANUAL", "AUTO").String,
+				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("MANUAL", "AUTO"),
+				},
 			},
 		},
 	}
 }
 
-func (r *AssignCredentialsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *DeviceRoleResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -115,8 +104,8 @@ func (r *AssignCredentialsResource) Configure(_ context.Context, req resource.Co
 //template:end model
 
 //template:begin create
-func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan AssignCredentials
+func (r *DeviceRoleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan DeviceRole
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -128,16 +117,15 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, AssignCredentials{})
+	body := plan.toBody(ctx, DeviceRole{})
 
 	params := ""
-	params += "/" + plan.SiteId.ValueString()
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
+	plan.Id = types.StringValue(fmt.Sprint(plan.DeviceId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -148,8 +136,8 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 //template:end create
 
 //template:begin read
-func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state AssignCredentials
+func (r *DeviceRoleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state DeviceRole
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -160,19 +148,6 @@ func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadR
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	params := ""
-	params += "/" + state.Id.ValueString()
-	res, err := r.client.Get("/api/v1/commonsetting/global" + params)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-
-	state.updateFromBody(ctx, res)
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
@@ -182,8 +157,8 @@ func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadR
 //template:end read
 
 //template:begin update
-func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state AssignCredentials
+func (r *DeviceRoleResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state DeviceRole
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -202,8 +177,7 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	params += "/" + plan.SiteId.ValueString()
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -218,8 +192,8 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 //template:end update
 
 //template:begin delete
-func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state AssignCredentials
+func (r *DeviceRoleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state DeviceRole
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -238,8 +212,4 @@ func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.Del
 //template:end delete
 
 //template:begin import
-func (r *AssignCredentialsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-}
-
 //template:end import

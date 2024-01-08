@@ -1,3 +1,7 @@
+## 0.1.3 (unreleased)
+
+- Add `catalystcenter_device_role` resource
+
 ## 0.1.2
 
 - Fix issue with `catalystcenter_ip_pool_reservation` resource and multiple IP pools under a single site

@@ -1,0 +1,32 @@
+---
+name: Device Role
+rest_endpoint: /dna/intent/api/v1/network-device/brief
+no_data_source: true
+no_read: true
+no_delete: true
+no_import: true
+put_create: true
+skip_minimum_test: true
+doc_category: Inventory
+test_tags: [INVENTORY]
+attributes:
+  - model_name: id
+    tf_name: device_id
+    type: String
+    mandatory: true
+    id: true
+    description: The device ID
+    example: 12345678-1234-1234-1234-123456789012
+  - model_name: role
+    type: String
+    enum_values: [ACCESS, CORE, DISTRIBUTION, BORDER ROUTER]
+    mandatory: true
+    description: The device role
+    example: ACCESS
+  - model_name: roleSource
+    type: String
+    mandatory: true
+    enum_values: [MANUAL, AUTO]
+    description: The device role source
+    example: MANUAL
+ 

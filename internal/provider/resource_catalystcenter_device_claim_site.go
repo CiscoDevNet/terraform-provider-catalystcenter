@@ -230,7 +230,6 @@ func (r *DeviceClaimSiteResource) Update(ctx context.Context, req resource.Updat
 
 	body := plan.toBody(ctx, state)
 	params := ""
-
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
