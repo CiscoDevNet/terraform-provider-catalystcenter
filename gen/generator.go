@@ -119,7 +119,6 @@ type YamlConfig struct {
 	PutIdIncludePath         string                `yaml:"put_id_include_path"`
 	PutIdQueryParam          string                `yaml:"put_id_query_param"`
 	PutNoId                  bool                  `yaml:"put_no_id"`
-	DataSourceNameQuery      bool                  `yaml:"data_source_name_query"`
 	MinimumVersion           string                `yaml:"minimum_version"`
 	DsDescription            string                `yaml:"ds_description"`
 	ResDescription           string                `yaml:"res_description"`
@@ -141,6 +140,7 @@ type YamlConfigAttribute struct {
 	Id                bool                  `yaml:"id"`
 	Reference         bool                  `yaml:"reference"`
 	QueryParam        bool                  `yaml:"query_param"`
+	DataSourceQuery   bool                  `yaml:"data_source_query"`
 	Mandatory         bool                  `yaml:"mandatory"`
 	WriteOnly         bool                  `yaml:"write_only"`
 	WriteChangesOnly  bool                  `yaml:"write_changes_only"`
@@ -270,19 +270,30 @@ func GetQueryParam(attributes []YamlConfigAttribute) YamlConfigAttribute {
 	return YamlConfigAttribute{}
 }
 
+// Templating helper function to return true if data source query attribute(s) are present
+func HasDataSourceQuery(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.DataSourceQuery {
+			return true
+		}
+	}
+	return false
+}
+
 // Map of templating functions
 var functions = template.FuncMap{
-	"toGoName":      ToGoName,
-	"camelCase":     CamelCase,
-	"snakeCase":     SnakeCase,
-	"sprintf":       fmt.Sprintf,
-	"toLower":       strings.ToLower,
-	"path":          BuildPath,
-	"hasId":         HasId,
-	"hasReference":  HasReference,
-	"hasQueryParam": HasQueryParam,
-	"getId":         GetId,
-	"getQueryParam": GetQueryParam,
+	"toGoName":           ToGoName,
+	"camelCase":          CamelCase,
+	"snakeCase":          SnakeCase,
+	"sprintf":            fmt.Sprintf,
+	"toLower":            strings.ToLower,
+	"path":               BuildPath,
+	"hasId":              HasId,
+	"hasReference":       HasReference,
+	"hasQueryParam":      HasQueryParam,
+	"getId":              GetId,
+	"getQueryParam":      GetQueryParam,
+	"hasDataSourceQuery": HasDataSourceQuery,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {

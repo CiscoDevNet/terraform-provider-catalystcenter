@@ -56,7 +56,7 @@ func (d *{{camelCase .Name}}DataSource) Metadata(_ context.Context, req datasour
 	resp.TypeName = req.ProviderTypeName + "_{{snakeCase .Name}}"
 }
 
-{{- $nameQuery := .DataSourceNameQuery}}
+{{- $dataSourceQuery := hasDataSourceQuery .Attributes}}
 
 func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
@@ -66,7 +66,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				{{- if not .DataSourceNameQuery}}
+				{{- if not $dataSourceQuery}}
 				Required:            true,
 				{{- else}}
 				Optional:            true,
@@ -83,7 +83,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- if or .Reference .QueryParam}}
 				Required:            true,
 				{{- else}}
-				{{- if and (eq .ModelName "name") ($nameQuery)}}
+				{{- if .DataSourceQuery}}
 				Optional:            true,
 				{{- end}}
 				Computed:            true,
@@ -146,12 +146,16 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 	}
 }
 
-{{- if .DataSourceNameQuery}}
+{{- if $dataSourceQuery}}
 func (d *{{camelCase .Name}}DataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
     return []datasource.ConfigValidator{
         datasourcevalidator.ExactlyOneOf(
             path.MatchRoot("id"),
-            path.MatchRoot("name"),
+			{{- range  .Attributes}}
+			{{- if .DataSourceQuery}}
+            path.MatchRoot("{{.TfName}}"),
+			{{- end}}
+			{{- end}}
         ),
     }
 }
@@ -179,18 +183,20 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
-	{{- if .DataSourceNameQuery}}
-	if config.Id.IsNull() && !config.Name.IsNull() {
+	{{- if $dataSourceQuery}}
+	{{- range .Attributes}}
+	{{- if .DataSourceQuery}}
+	if config.Id.IsNull() && !config.{{toGoName .TfName}}.IsNull() {
 		res, err := d.client.Get(config.getPath())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
 		}
-		if value := res.Get("response"); len(value.Array()) > 0 {
+		if value := res; len(value.Array()) > 0 {
 			value.ForEach(func(k, v gjson.Result) bool {
-				if config.Name.ValueString() == v.Get("name").String() {
+				if config.{{toGoName .TfName}}.ValueString() == v.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}").String() {
 					config.Id = types.StringValue(v.Get("id").String())
-					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
+					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{.ModelName}} '%v', id: %v", config.Id.String(), config.{{toGoName .TfName}}.ValueString(), config.Id.String()))
 					return false
 				}
 				return true
@@ -198,10 +204,12 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 		}
 
 		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", config.Name.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with {{.ModelName}}: %s", config.{{toGoName .TfName}}.ValueString()))
 			return
 		}
 	}
+	{{- end}}
+	{{- end}}
 	{{- end}}
 
 	params := ""

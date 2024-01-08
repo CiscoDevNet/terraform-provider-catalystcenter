@@ -8,6 +8,7 @@ attributes:
     data_path: deviceInfo
     type: String
     mandatory: true
+    data_source_query: true
     description: Device serial number
     example: FOC12345678
   - model_name: stack

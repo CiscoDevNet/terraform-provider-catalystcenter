@@ -24,7 +24,6 @@ id_from_attribute: bool(required=False) # Set to true if the ID is derived from 
 put_id_include_path: str(required=False) # If PUT needs to have specific JSON path where ID should be inserted
 put_id_query_param: str(required=False) # If PUT needs to have specific query parameter where ID should be inserted
 put_no_id: bool(required=False) # Set to true if the PUT request does not require an ID
-data_source_name_query: bool(required=False) # Set to true if the data source supports name queries
 minimum_version: str(required=False) # Define a minimum supported version
 ds_description: str(required=False) # Define a data source description
 res_description: str(required=False) # Define a resource description
@@ -44,6 +43,7 @@ attribute:
   id: bool(required=False) # Set to true if the attribute is part of the ID
   reference: bool(required=False) # Set to true if the attribute is a reference being used in the path (URL) of the REST endpoint
   query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for GET, POST and PUT requests
+  data_source_query: bool(required=False) # Set to true if the attribute is an alternative query parameter for the data source
   mandatory: bool(required=False) # Set to true if the attribute is mandatory
   write_only: bool(required=False) # Set to true if the attribute is write-only, meaning we cannot read the value
   write_changes_only: bool(required=False) # Set to true if the attribute should only be written (included in PUT payload) if it has changed
