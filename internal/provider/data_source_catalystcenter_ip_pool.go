@@ -24,11 +24,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 //template:end imports
@@ -61,10 +64,12 @@ func (d *IPPoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
+				Optional:            true,
+				Computed:            true,
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "The name of the IP pool",
+				Optional:            true,
 				Computed:            true,
 			},
 			"ip_address_space": schema.StringAttribute{
@@ -96,6 +101,14 @@ func (d *IPPoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		},
 	}
 }
+func (d *IPPoolDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.ExactlyOneOf(
+			path.MatchRoot("id"),
+			path.MatchRoot("name"),
+		),
+	}
+}
 
 func (d *IPPoolDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
@@ -119,6 +132,28 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
+	if config.Id.IsNull() && !config.Name.IsNull() {
+		res, err := d.client.Get(config.getPath())
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
+			return
+		}
+		if value := res.Get("response"); len(value.Array()) > 0 {
+			value.ForEach(func(k, v gjson.Result) bool {
+				if config.Name.ValueString() == v.Get("ipPoolName").String() {
+					config.Id = types.StringValue(v.Get("id").String())
+					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with ipPoolName '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
+					return false
+				}
+				return true
+			})
+		}
+
+		if config.Id.IsNull() {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with ipPoolName: %s", config.Name.ValueString()))
+			return
+		}
+	}
 
 	params := ""
 	params += "/" + config.Id.ValueString()

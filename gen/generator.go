@@ -280,20 +280,32 @@ func HasDataSourceQuery(attributes []YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return the first path element
+func FirstPathElement(path string) string {
+	return strings.Split(path, ".")[0]
+}
+
+// Templating helper function to return the second and subsequent path elements
+func RemainingPathElements(path string) string {
+	return strings.Join(strings.Split(path, ".")[1:], ".")
+}
+
 // Map of templating functions
 var functions = template.FuncMap{
-	"toGoName":           ToGoName,
-	"camelCase":          CamelCase,
-	"snakeCase":          SnakeCase,
-	"sprintf":            fmt.Sprintf,
-	"toLower":            strings.ToLower,
-	"path":               BuildPath,
-	"hasId":              HasId,
-	"hasReference":       HasReference,
-	"hasQueryParam":      HasQueryParam,
-	"getId":              GetId,
-	"getQueryParam":      GetQueryParam,
-	"hasDataSourceQuery": HasDataSourceQuery,
+	"toGoName":              ToGoName,
+	"camelCase":             CamelCase,
+	"snakeCase":             SnakeCase,
+	"sprintf":               fmt.Sprintf,
+	"toLower":               strings.ToLower,
+	"path":                  BuildPath,
+	"hasId":                 HasId,
+	"hasReference":          HasReference,
+	"hasQueryParam":         HasQueryParam,
+	"getId":                 GetId,
+	"getQueryParam":         GetQueryParam,
+	"hasDataSourceQuery":    HasDataSourceQuery,
+	"firstPathElement":      FirstPathElement,
+	"remainingPathElements": RemainingPathElements,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {
