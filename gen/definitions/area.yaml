@@ -14,6 +14,7 @@ attributes:
     response_data_path: response.0.name
     type: String
     mandatory: true
+    data_source_query: true
     description: The name of the area
     example: Area1
   - model_name: parentName

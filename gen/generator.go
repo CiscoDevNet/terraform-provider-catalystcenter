@@ -294,6 +294,8 @@ func FirstPathElement(path, getFromAllPath string) string {
 func RemainingPathElements(path, getFromAllPath string) string {
 	if getFromAllPath != "" {
 		return path
+	} else if strings.HasPrefix(path, "response.0.") {
+		return strings.Join(strings.Split(path, ".")[2:], ".")
 	} else if strings.HasPrefix(path, "response.") {
 		return strings.Join(strings.Split(path, ".")[1:], ".")
 	}
