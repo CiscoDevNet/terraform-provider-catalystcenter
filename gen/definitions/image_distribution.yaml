@@ -1,0 +1,28 @@
+---
+name: Image Distribution
+rest_endpoint: /dna/intent/api/v1/image/distribution
+# get_rest_endpoint: /dna/intent/api/v1/image/
+ds_description: This data source shows whether the given software image file resides on the given network device.
+res_description:
+  'This resource can distribute (copy) a software image file to the chosen network device.
+  <p/>
+  This provider currently cannot undistribute images once created, so beware of distributing many unnecessary images.'
+# get_from_all: true
+# id_from_query_path: response
+# id_from_query_path_attribute: imageUuid
+# id_query_param: imageUuid
+no_put: true
+no_delete: true
+no_import: true
+doc_category: Software Image Management (SWIM)
+attributes:
+  - model_name: deviceUuid
+    type: String
+    data_path: 0
+    description: The UUID of the network device to which to copy the software image file.
+    example: 138b3181-f9c5-4271-9292-cf3152ab4d3e
+  - model_name: imageUuid
+    type: String
+    data_path: 0
+    description: The UUID of the software image to copy. It could be obtained for example from `catalystcenter_image_from_url.id`.
+    example: faa9c5f7-d093-459a-8164-cc555bbf3b80
