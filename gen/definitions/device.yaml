@@ -1,0 +1,163 @@
+---
+name: Device
+no_data_source: true
+rest_endpoint: /dna/intent/api/v1/network-device
+no_read: true
+put_no_id: true
+id_from_query_path: response
+doc_category: Inventory
+attributes:
+  - model_name: cliTransport
+    type: String
+    enum_values: [telnet, ssh]
+    mandatory: true
+    description: CLI transport
+    example: ssh
+  - model_name: computeDevice
+    type: Bool
+    description: Compute device
+    example: false
+  - model_name: enablePassword
+    type: String
+    mandatory: true
+    description: CLI enable password of the device 
+    example: cisco123
+  - model_name: extendedDiscoveryInfo
+    type: String
+    enum_values: [DISCOVER_WITH_CANNED_DATA]
+    description: This field holds that info as whether to add device with canned data or not.
+    example: DISCOVER_WITH_CANNED_DATA
+  - model_name: httpPassword
+    type: String
+    description: HTTP password of the device
+    example: cisco123
+  - model_name: httpPort
+    type: String
+    description: HTTP port of the device
+    example: "80"
+  - model_name: httpSecure
+    type: Bool
+    description: Enable HTTPS
+    example: true
+  - model_name: httpUserName
+    type: String
+    description: HTTP username of the device
+    example: admin
+  - model_name: "0"
+    data_path: ipAddress
+    response_model_name: managementIpAddress
+    tf_name: ip_address
+    type: String
+    id: true
+    mandatory: true
+    description: IP address of the device
+    example: 1.2.3.4
+  - model_name: merakiOrgId
+    tf_name: meraki_org_ids
+    type: StringList
+    description: Selected Meraki organizations for which the devices needs to be imported
+    example: 12345678901234567890
+  - model_name: netconfPort
+    type: String
+    description: NETCONF port of the device
+    example: "830"
+  - model_name: password
+    type: String
+    mandatory: true
+    description: CLI password of the device
+    example: cisco123
+  - model_name: serialNumber
+    type: String
+    description: Serial number of the device
+    example: FOC12345678
+  - model_name: snmpAuthPassphrase
+    type: String
+    mandatory: true
+    description: SNMPv3 authentication passphrase of the device
+    example: cisco123
+  - model_name: snmpAuthProtocol
+    type: String
+    enum_values: [sha, md5]
+    mandatory: true
+    description: SNMPv3 authentication protocol of the device
+    example: sha
+  - model_name: snmpMode
+    type: String
+    enum_values: [noAuthnoPriv, authNoPriv, authPriv]
+    mandatory: true
+    description: SNMPv3 mode of the device
+    example: authPriv
+  - model_name: snmpPrivPassphrase
+    type: String
+    mandatory: true
+    description: SNMPv3 privacy passphrase of the device
+    example: cisco123
+  - model_name: snmpPrivProtocol
+    type: String
+    enum_values: [AES128]
+    mandatory: true
+    description: SNMPv3 privacy protocol of the device
+    example: AES128
+  - model_name: snmpROCommunity
+    tf_name: snmp_ro_community
+    type: String
+    mandatory: true
+    description: SNMPv2 read-only community of the device
+    example: com1
+  - model_name: snmpRWCommunity
+    tf_name: snmp_rw_community
+    type: String
+    mandatory: true
+    description: SNMPv2 read-write community of the device
+    example: com2
+  - model_name: snmpRetry
+    type: Int64
+    min_int: 0
+    max_int: 3
+    mandatory: true
+    description: SNMP retry count
+    example: 3
+  - model_name: snmpTimeout
+    type: Int64
+    min_int: 0
+    max_int: 300
+    mandatory: true
+    description: SNMP timeout in seconds
+    example: 10
+  - model_name: snmpUserName
+    type: String
+    mandatory: true
+    description: SNMPv3 username of the device
+    example: admin
+  - model_name: snmpVersion
+    type: String
+    mandatory: true
+    enum_values: [v2, v3]
+    description: SNMP version of the device
+    example: v3
+  - model_name: type
+    type: String
+    enum_values: [COMPUTE_DEVICE, MERAKI_DASHBOARD, NETWORK_DEVICE, FIREPOWER MANAGEMENT CENTER, THIRD PARTY DEVICE, NODATACHANGE]
+    mandatory: true
+    description: Device type
+    example: NETWORK_DEVICE
+  - model_name: updateMgmtIPaddressList
+    tf_name: update_mgmt_ip_addresses
+    type: List
+    description: IP address of the device to be mapped to New IP address
+    exclude_test: true
+    attributes:
+      - model_name: existMgmtIpAddress
+        type: String
+        description: Existing IP address of the device
+        example: 2.3.4.5
+      - model_name: newMgmtIpAddress
+        type: String
+        description: New IP address of the device
+        example: 3.4.5.6
+  - model_name: userName
+    type: String
+    mandatory: true
+    description: CLI username of the device
+    example: admin
+  

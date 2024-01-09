@@ -249,6 +249,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewCredentialsSNMPv2ReadResource,
 		NewCredentialsSNMPv2WriteResource,
 		NewCredentialsSNMPv3Resource,
+		NewDeviceResource,
 		NewDeviceRoleResource,
 		NewFloorResource,
 		NewIPPoolResource,
