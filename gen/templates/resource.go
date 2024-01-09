@@ -486,7 +486,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 			{{- $id := getId .Attributes}}
 	res = res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\"" + state.{{toGoName $id.TfName}}.Value{{$id.Type}}() + "\")")
 		{{- else}}
-	res = res.Get("{{.IdFromQueryPath}}.#({{if .GetIdPath}}{{.GetIdPath}}{{else}}id{{end}}==\"" + state.Id.ValueString() + "\")")
+	res = res.Get("{{.IdFromQueryPath}}.#({{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}==\"" + state.Id.ValueString() + "\")")
 		{{- end}}
 	{{- end}}
 

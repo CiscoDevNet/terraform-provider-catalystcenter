@@ -186,10 +186,11 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	{{- if $dataSourceQuery}}
 	{{- $getFromAllPath := getFromAllPath .}}
 	{{- $idFromQueryPathAttribute := .IdFromQueryPathAttribute}}
+	{{- $getRestEndpoint := .GetRestEndpoint}}
 	{{- range .Attributes}}
 	{{- if .DataSourceQuery}}
 	if config.Id.IsNull() && !config.{{toGoName .TfName}}.IsNull() {
-		res, err := d.client.Get(config.getPath())
+		res, err := d.client.Get({{if $getRestEndpoint}}"{{$getRestEndpoint}}"{{else}}config.getPath(){{end}})
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
@@ -237,7 +238,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 			{{- $id := getId .Attributes}}
 	res = res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\"" + config.Id.ValueString() + "\")")
 		{{- else}}
-	res = res.Get("{{.IdFromQueryPath}}.#({{if .GetIdPath}}{{.GetIdPath}}{{else}}id{{end}}==\"" + config.Id.ValueString() + "\")")
+	res = res.Get("{{.IdFromQueryPath}}.#({{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}==\"" + config.Id.ValueString() + "\")")
 		{{- end}}
 	{{- end}}
 

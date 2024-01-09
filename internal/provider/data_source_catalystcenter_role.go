@@ -24,11 +24,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 //template:end imports
@@ -61,10 +64,12 @@ func (d *RoleDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
+				Optional:            true,
+				Computed:            true,
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "The name of the role",
+				Optional:            true,
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
@@ -91,6 +96,14 @@ func (d *RoleDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 		},
 	}
 }
+func (d *RoleDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.ExactlyOneOf(
+			path.MatchRoot("id"),
+			path.MatchRoot("name"),
+		),
+	}
+}
 
 func (d *RoleDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
@@ -114,6 +127,28 @@ func (d *RoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
+	if config.Id.IsNull() && !config.Name.IsNull() {
+		res, err := d.client.Get("/dna/system/api/v1/roles")
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
+			return
+		}
+		if value := res.Get("response.roles"); len(value.Array()) > 0 {
+			value.ForEach(func(k, v gjson.Result) bool {
+				if config.Name.ValueString() == v.Get("name").String() {
+					config.Id = types.StringValue(v.Get("roleId").String())
+					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with role '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
+					return false
+				}
+				return true
+			})
+		}
+
+		if config.Id.IsNull() {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with role: %s", config.Name.ValueString()))
+			return
+		}
+	}
 
 	params := ""
 	res, err := d.client.Get("/dna/system/api/v1/roles" + params)

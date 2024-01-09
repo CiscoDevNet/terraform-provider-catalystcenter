@@ -111,7 +111,7 @@ func (d *AreaDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 	if config.Id.IsNull() && !config.Name.IsNull() {
-		res, err := d.client.Get(config.getPath())
+		res, err := d.client.Get("/dna/intent/api/v2/site")
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return

@@ -7,6 +7,7 @@ delete_rest_endpoint: /dna/intent/api/v1/template-programmer/template
 put_id_include_path: id
 put_no_id: true
 id_path: response.data
+id_from_query_path_attribute: templateId
 doc_category: Templates
 attributes:
   - model_name: project_id

@@ -105,7 +105,6 @@ type YamlConfig struct {
 	GetFromAll               bool                  `yaml:"get_from_all"`
 	GetRequiresId            bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams      string                `yaml:"get_extra_query_params"`
-	GetIdPath                string                `yaml:"get_id_path"`
 	NoDelete                 bool                  `yaml:"no_delete"`
 	NoRead                   bool                  `yaml:"no_read"`
 	NoImport                 bool                  `yaml:"no_import"`

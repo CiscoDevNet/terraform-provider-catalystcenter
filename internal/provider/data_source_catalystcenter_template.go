@@ -233,7 +233,7 @@ func (d *TemplateDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 	if config.Id.IsNull() && !config.Name.IsNull() {
-		res, err := d.client.Get(config.getPath())
+		res, err := d.client.Get("/dna/intent/api/v1/template-programmer/template")
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
@@ -241,7 +241,7 @@ func (d *TemplateDataSource) Read(ctx context.Context, req datasource.ReadReques
 		if value := res; len(value.Array()) > 0 {
 			value.ForEach(func(k, v gjson.Result) bool {
 				if config.Name.ValueString() == v.Get("name").String() {
-					config.Id = types.StringValue(v.Get("id").String())
+					config.Id = types.StringValue(v.Get("templateId").String())
 					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
 					return false
 				}
