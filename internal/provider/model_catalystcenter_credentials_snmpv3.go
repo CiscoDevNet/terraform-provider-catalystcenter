@@ -54,8 +54,8 @@ func (data CredentialsSNMPv3) getPath() string {
 //template:begin toBody
 func (data CredentialsSNMPv3) toBody(ctx context.Context, state CredentialsSNMPv3) string {
 	body := ""
-	if data.Id.ValueString() != "" {
-		body, _ = sjson.Set(body, "snmpV3.0.id", data.Id.ValueString())
+	if state.Id.ValueString() != "" {
+		body, _ = sjson.Set(body, "snmpV3.0.id", state.Id.ValueString())
 	}
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "snmpV3.0.description", data.Description.ValueString())

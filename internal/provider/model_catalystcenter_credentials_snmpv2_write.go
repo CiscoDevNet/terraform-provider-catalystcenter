@@ -49,8 +49,8 @@ func (data CredentialsSNMPv2Write) getPath() string {
 //template:begin toBody
 func (data CredentialsSNMPv2Write) toBody(ctx context.Context, state CredentialsSNMPv2Write) string {
 	body := ""
-	if data.Id.ValueString() != "" {
-		body, _ = sjson.Set(body, "snmpV2cWrite.0.id", data.Id.ValueString())
+	if state.Id.ValueString() != "" {
+		body, _ = sjson.Set(body, "snmpV2cWrite.0.id", state.Id.ValueString())
 	}
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "snmpV2cWrite.0.description", data.Description.ValueString())

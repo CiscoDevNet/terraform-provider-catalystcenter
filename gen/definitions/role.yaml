@@ -1,0 +1,42 @@
+---
+name: Role
+rest_endpoint: /dna/system/api/v1/role
+get_rest_endpoint: /dna/system/api/v1/roles
+put_no_id: true
+put_update_id: true
+put_id_include_path: roleId
+id_path: response.roleId
+id_from_query_path: response.roles
+get_from_all: true
+get_id_path: roleId
+doc_category: System
+attributes:
+  - model_name: role
+    response_data_path: name
+    response_model_name: name
+    tf_name: name
+    type: String
+    id: true
+    mandatory: true
+    description: The name of the role
+    example: Role1
+  - model_name: description
+    tf_name: description
+    type: String
+    description: The description of the role
+    example: Role1 description
+  - model_name: resourceTypes
+    type: List
+    mandatory: true
+    description: The resource types of the role
+    attributes:
+      - model_name: type
+        type: String
+        mandatory: true
+        description: Name of the application
+        example: Platform
+      - model_name: operations
+        type: StringList
+        mandatory: true
+        description: List of operations allowed for the application. Possible values are `gRead`, `gWrite`, `gUpdate`, `gDelete`, or some combination of these.
+        example: gRead

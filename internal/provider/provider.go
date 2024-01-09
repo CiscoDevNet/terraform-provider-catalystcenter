@@ -259,6 +259,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewPnPDeviceResource,
 		NewPnPDeviceClaimSiteResource,
 		NewProjectResource,
+		NewRoleResource,
 		NewSPProfileResource,
 		NewTemplateResource,
 	}
@@ -282,6 +283,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewNetworkProfileDataSource,
 		NewPnPDeviceDataSource,
 		NewProjectDataSource,
+		NewRoleDataSource,
 		NewSPProfileDataSource,
 		NewTemplateDataSource,
 	}

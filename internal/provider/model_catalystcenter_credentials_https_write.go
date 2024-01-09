@@ -51,8 +51,8 @@ func (data CredentialsHTTPSWrite) getPath() string {
 //template:begin toBody
 func (data CredentialsHTTPSWrite) toBody(ctx context.Context, state CredentialsHTTPSWrite) string {
 	body := ""
-	if data.Id.ValueString() != "" {
-		body, _ = sjson.Set(body, "httpsWrite.0.id", data.Id.ValueString())
+	if state.Id.ValueString() != "" {
+		body, _ = sjson.Set(body, "httpsWrite.0.id", state.Id.ValueString())
 	}
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "httpsWrite.0.description", data.Description.ValueString())

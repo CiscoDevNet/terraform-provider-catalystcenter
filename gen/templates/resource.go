@@ -74,9 +74,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
 				Computed:            true,
+				{{- if not .PutUpdateId}}
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				{{- end}}
 			},
 			{{- range  .Attributes}}
 			{{- if not .Value}}
@@ -484,7 +486,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 			{{- $id := getId .Attributes}}
 	res = res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\"" + state.{{toGoName $id.TfName}}.Value{{$id.Type}}() + "\")")
 		{{- else}}
-	res = res.Get("{{.IdFromQueryPath}}.#(id==\"" + state.Id.ValueString() + "\")")
+	res = res.Get("{{.IdFromQueryPath}}.#({{if .GetIdPath}}{{.GetIdPath}}{{else}}id{{end}}==\"" + state.Id.ValueString() + "\")")
 		{{- end}}
 	{{- end}}
 
@@ -541,6 +543,10 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
+
+	{{- if and .IdPath .PutUpdateId}}
+	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
+	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 

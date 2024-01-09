@@ -105,6 +105,7 @@ type YamlConfig struct {
 	GetFromAll               bool                  `yaml:"get_from_all"`
 	GetRequiresId            bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams      string                `yaml:"get_extra_query_params"`
+	GetIdPath                string                `yaml:"get_id_path"`
 	NoDelete                 bool                  `yaml:"no_delete"`
 	NoRead                   bool                  `yaml:"no_read"`
 	NoImport                 bool                  `yaml:"no_import"`
@@ -120,6 +121,7 @@ type YamlConfig struct {
 	PutIdIncludePath         string                `yaml:"put_id_include_path"`
 	PutIdQueryParam          string                `yaml:"put_id_query_param"`
 	PutNoId                  bool                  `yaml:"put_no_id"`
+	PutUpdateId              bool                  `yaml:"put_update_id"`
 	MinimumVersion           string                `yaml:"minimum_version"`
 	DsDescription            string                `yaml:"ds_description"`
 	ResDescription           string                `yaml:"res_description"`

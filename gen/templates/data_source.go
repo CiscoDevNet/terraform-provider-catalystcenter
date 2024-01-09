@@ -237,7 +237,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 			{{- $id := getId .Attributes}}
 	res = res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\"" + config.Id.ValueString() + "\")")
 		{{- else}}
-	res = res.Get("{{.IdFromQueryPath}}.#(id==\"" + config.Id.ValueString() + "\")")
+	res = res.Get("{{.IdFromQueryPath}}.#({{if .GetIdPath}}{{.GetIdPath}}{{else}}id{{end}}==\"" + config.Id.ValueString() + "\")")
 		{{- end}}
 	{{- end}}
 

@@ -151,8 +151,8 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	body := ""
 	{{- end}}
 	{{- if .PutIdIncludePath}}
-	if data.Id.ValueString() != "" {
-		body, _ = sjson.Set(body, "{{ .PutIdIncludePath}}", data.Id.ValueString())
+	if state.Id.ValueString() != "" {
+		body, _ = sjson.Set(body, "{{ .PutIdIncludePath}}", state.Id.ValueString())
 	}
 	{{- end}}
 	{{- range .Attributes}}

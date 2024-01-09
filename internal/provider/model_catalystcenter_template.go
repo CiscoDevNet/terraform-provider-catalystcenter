@@ -88,8 +88,8 @@ func (data Template) getPath() string {
 //template:begin toBody
 func (data Template) toBody(ctx context.Context, state Template) string {
 	body := ""
-	if data.Id.ValueString() != "" {
-		body, _ = sjson.Set(body, "id", data.Id.ValueString())
+	if state.Id.ValueString() != "" {
+		body, _ = sjson.Set(body, "id", state.Id.ValueString())
 	}
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())

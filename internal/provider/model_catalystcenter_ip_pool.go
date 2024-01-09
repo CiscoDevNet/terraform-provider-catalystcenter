@@ -55,8 +55,8 @@ func (data IPPool) getPath() string {
 //template:begin toBody
 func (data IPPool) toBody(ctx context.Context, state IPPool) string {
 	body := ""
-	if data.Id.ValueString() != "" {
-		body, _ = sjson.Set(body, "settings.ippool.0.id", data.Id.ValueString())
+	if state.Id.ValueString() != "" {
+		body, _ = sjson.Set(body, "settings.ippool.0.id", state.Id.ValueString())
 	}
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "settings.ippool.0.ipPoolName", data.Name.ValueString())
