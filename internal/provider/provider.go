@@ -262,6 +262,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewRoleResource,
 		NewSPProfileResource,
 		NewTemplateResource,
+		NewUserResource,
 	}
 }
 
@@ -286,6 +287,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewRoleDataSource,
 		NewSPProfileDataSource,
 		NewTemplateDataSource,
+		NewUserDataSource,
 	}
 }
 

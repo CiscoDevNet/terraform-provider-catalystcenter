@@ -5,6 +5,7 @@
 - BREAKING CHANGE: Rename `catalystcenter_device_claim_site` resource and data source to `catalystcenter_pnp_device_claim_site`
 - Add `catalystcenter_device` resource
 - Add `catalystcenter_role` resource and data source
+- Add `catalystcenter_user` resource and data source
 
 ## 0.1.2
 

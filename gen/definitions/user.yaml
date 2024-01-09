@@ -1,0 +1,46 @@
+---
+name: User
+rest_endpoint: /dna/system/api/v1/user
+put_no_id: true
+put_id_include_path: userId
+id_path: response.userId
+id_from_query_path: response.users
+id_from_query_path_attribute: userId
+get_from_all: true
+doc_category: System
+attributes:
+  - model_name: firstName
+    type: String
+    description: The first name
+    example: john
+  - model_name: lastName
+    type: String
+    description: The last name
+    example: doe
+  - model_name: username
+    type: String
+    mandatory: true
+    description: The username
+    example: johndoe
+  - model_name: password
+    type: String
+    mandatory: true
+    write_only: true
+    description: The password
+    example: Cisco123
+  - model_name: email
+    type: String
+    description: Email address
+    example: john.doe@cisco.com
+  - model_name: roleList
+    tf_name: role_ids
+    type: StringList
+    mandatory: true
+    description: List of role IDs
+    example: 5f8d9a3a-3c6a-4a1c-9a1b-1a4f5a4a4a4a
+    test_value: "[data.catalystcenter_role.test.id]"
+
+test_prerequisites: |
+  data "catalystcenter_role" "test" {
+    name = "OBSERVER-ROLE"
+  }
