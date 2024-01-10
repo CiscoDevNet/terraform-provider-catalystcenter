@@ -410,7 +410,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body)
 	{{- else}}
-	res, err := r.client.Post(plan.getPath() + params, body)
+	res, err := r.client.Post(plan.getPath() + params, body, func(r *cc.Req) { r.MaxAsyncWaitTime=600 })
 	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))

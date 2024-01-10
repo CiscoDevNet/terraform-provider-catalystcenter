@@ -122,7 +122,7 @@ func (r *CredentialsHTTPSWriteResource) Create(ctx context.Context, req resource
 	body := plan.toBody(ctx, CredentialsHTTPSWrite{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 600 })
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
