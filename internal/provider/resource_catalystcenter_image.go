@@ -23,7 +23,12 @@ package provider
 import (
 	"context"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -127,7 +132,6 @@ func (r *ImageResource) Configure(_ context.Context, req resource.ConfigureReque
 
 //template:end model
 
-//template:begin create
 func (r *ImageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Image
 
@@ -140,16 +144,40 @@ func (r *ImageResource) Create(ctx context.Context, req resource.CreateRequest, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Create object
-	body := plan.toBody(ctx, Image{})
-
 	params := ""
-	params += "/" + plan.Name.ValueString()
-	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 600 })
+	params += "?isThirdParty=" + plan.IsThirdParty.String()
+	params += "&thirdPartyImageFamily=" + plan.Family.ValueString()
+	params += "&thirdPartyApplicationType=" + plan.ThirdPartyApplicationType.ValueString()
+	params += "&thirdPartyVendor=" + plan.ThirdPartyVendor.ValueString()
+
+	// the body of POST will be a stream (io.Reader), as body might be larger than available memory
+	body, contentType, err := pipeMultiPartUpload(ctx, plan.SourcePath.ValueString(), plan.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to upload local file: %v", err))
+		return
+	}
+
+	client := r.clientWithHttpTimeout(15 * time.Minute)
+	request := client.NewReq("POST", plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 600 })
+
+	// Set the content type header to multipart/form-data
+	request.HttpReq.Header.Set("Content-Type", contentType)
+
+	// No logging. The tflog can only log from memory, but the body might be larger than available memory.
+	request.LogPayload = false
+
+	err = client.Authenticate()
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s", err))
+		return
+	}
+
+	res, err := client.Do(request)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
+
 	params = ""
 	params += "?name=" + plan.Name.ValueString()
 	res, err = r.client.Get("/dna/intent/api/v1/image/importation" + params)
@@ -165,7 +193,72 @@ func (r *ImageResource) Create(ctx context.Context, req resource.CreateRequest, 
 	resp.Diagnostics.Append(diags...)
 }
 
-//template:end create
+// pipeMultiPartUpload opens a file located at the sourcePath, formats the contents as a MIME multipart/form-data
+// body of a HTTP POST request (so, a file upload) and returns them as a stream.
+// The second return is the corresponding Content-Type header value, and the third an error.
+//
+// The basename is how the file would be identied internally within the upload.
+func pipeMultiPartUpload(ctx context.Context, sourcePath, basename string) (io.Reader, string, error) {
+	const dummyContentType = "application/octet-stream"
+
+	source, err := os.Open(sourcePath)
+	if err != nil {
+		return nil, dummyContentType, err
+	}
+
+	tflog.Info(ctx, "swim file opened", map[string]interface{}{"sourcePath": sourcePath})
+
+	readPipe, writePipe := io.Pipe()
+
+	mw := multipart.NewWriter(writePipe)
+
+	// data is copied in parallel, as soon as remote accepts it
+	go func() {
+		defer source.Close()
+
+		// Create a form file writer for the file field
+		partWriter, err := mw.CreateFormFile("file", basename)
+		if err != nil {
+			panic(err)
+		}
+
+		tflog.Info(ctx, "swim mw created")
+
+		// Copy the file data to the form file writer
+		var count int64
+		if count, err = io.Copy(partWriter, source); err != nil {
+			panic(err)
+		}
+
+		tflog.Info(ctx, "swim copied through pipe", map[string]interface{}{"countBytes": count})
+
+		// Close the multipart writer to get the terminating boundary
+
+		if err := mw.Close(); err != nil {
+			return
+		}
+
+		if err := writePipe.Close(); err != nil {
+			return
+		}
+
+		tflog.Info(ctx, "swim: pipe closed for writing")
+	}()
+
+	return readPipe, mw.FormDataContentType(), nil
+}
+
+// clientWithHttpTimeout returns a shallow copy of cc.Client with a modified HttpClient.Timeout value.
+// The HttpClient.Timeout cannot be overriden by Request.Context() timeout, always the lower of these applies.
+// The intent is to increase Timeout without impacting other requests on the client.
+func (r *ImageResource) clientWithHttpTimeout(timeout time.Duration) cc.Client {
+	res := *r.client
+	res.HttpClient = &http.Client{}
+	*res.HttpClient = *r.client.HttpClient
+	res.HttpClient.Timeout = timeout
+
+	return res
+}
 
 //template:begin read
 func (r *ImageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
