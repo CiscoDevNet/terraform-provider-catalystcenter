@@ -128,3 +128,28 @@ func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *Floor) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Name.IsNull() {
+		return false
+	}
+	if !data.ParentName.IsNull() {
+		return false
+	}
+	if !data.RfModel.IsNull() {
+		return false
+	}
+	if !data.Width.IsNull() {
+		return false
+	}
+	if !data.Length.IsNull() {
+		return false
+	}
+	if !data.Height.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

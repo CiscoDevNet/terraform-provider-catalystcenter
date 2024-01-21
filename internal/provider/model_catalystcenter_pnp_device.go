@@ -119,3 +119,22 @@ func (data *PnPDevice) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *PnPDevice) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.SerialNumber.IsNull() {
+		return false
+	}
+	if !data.Stack.IsNull() {
+		return false
+	}
+	if !data.Pid.IsNull() {
+		return false
+	}
+	if !data.Hostname.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

@@ -102,3 +102,22 @@ func (data *CredentialsCLI) updateFromBody(ctx context.Context, res gjson.Result
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *CredentialsCLI) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Description.IsNull() {
+		return false
+	}
+	if !data.Username.IsNull() {
+		return false
+	}
+	if !data.Password.IsNull() {
+		return false
+	}
+	if !data.EnablePassword.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

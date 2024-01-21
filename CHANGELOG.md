@@ -1,3 +1,7 @@
+## 0.1.4 (unreleased)
+
+- Fix import operation of resources
+
 ## 0.1.3
 
 - Add `catalystcenter_device_role` resource

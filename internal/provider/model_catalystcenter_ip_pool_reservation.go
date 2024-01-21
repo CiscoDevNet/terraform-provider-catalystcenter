@@ -162,3 +162,73 @@ func (data *IPPoolReservation) updateFromBody(ctx context.Context, res gjson.Res
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *IPPoolReservation) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.SiteId.IsNull() {
+		return false
+	}
+	if !data.Name.IsNull() {
+		return false
+	}
+	if !data.Type.IsNull() {
+		return false
+	}
+	if !data.Ipv6AddressSpace.IsNull() {
+		return false
+	}
+	if !data.Ipv4GlobalPool.IsNull() {
+		return false
+	}
+	if !data.Ipv4Prefix.IsNull() {
+		return false
+	}
+	if !data.Ipv4PrefixLength.IsNull() {
+		return false
+	}
+	if !data.Ipv4Subnet.IsNull() {
+		return false
+	}
+	if !data.Ipv4Gateway.IsNull() {
+		return false
+	}
+	if !data.Ipv4DhcpServers.IsNull() {
+		return false
+	}
+	if !data.Ipv4DnsServers.IsNull() {
+		return false
+	}
+	if !data.Ipv6GlobalPool.IsNull() {
+		return false
+	}
+	if !data.Ipv6Prefix.IsNull() {
+		return false
+	}
+	if !data.Ipv6PrefixLength.IsNull() {
+		return false
+	}
+	if !data.Ipv6Subnet.IsNull() {
+		return false
+	}
+	if !data.Ipv6Gateway.IsNull() {
+		return false
+	}
+	if !data.Ipv6DhcpServers.IsNull() {
+		return false
+	}
+	if !data.Ipv6DnsServers.IsNull() {
+		return false
+	}
+	if !data.Ipv4TotalHost.IsNull() {
+		return false
+	}
+	if !data.Ipv6TotalHost.IsNull() {
+		return false
+	}
+	if !data.SlaacSupport.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

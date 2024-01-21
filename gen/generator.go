@@ -106,6 +106,7 @@ type YamlConfig struct {
 	GetRequiresId            bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams      string                `yaml:"get_extra_query_params"`
 	NoDelete                 bool                  `yaml:"no_delete"`
+	NoUpdate                 bool                  `yaml:"no_update"`
 	NoRead                   bool                  `yaml:"no_read"`
 	NoImport                 bool                  `yaml:"no_import"`
 	PostUpdate               bool                  `yaml:"post_update"`

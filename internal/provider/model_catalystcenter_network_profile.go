@@ -163,3 +163,19 @@ func (data *NetworkProfile) updateFromBody(ctx context.Context, res gjson.Result
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *NetworkProfile) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Name.IsNull() {
+		return false
+	}
+	if !data.Type.IsNull() {
+		return false
+	}
+	if len(data.Templates) > 0 {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

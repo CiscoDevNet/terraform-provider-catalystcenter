@@ -148,3 +148,31 @@ func (data *AssignCredentials) updateFromBody(ctx context.Context, res gjson.Res
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *AssignCredentials) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.SiteId.IsNull() {
+		return false
+	}
+	if !data.CliId.IsNull() {
+		return false
+	}
+	if !data.SnmpV2ReadId.IsNull() {
+		return false
+	}
+	if !data.SnmpV2WriteId.IsNull() {
+		return false
+	}
+	if !data.SnmpV3Id.IsNull() {
+		return false
+	}
+	if !data.HttpsReadId.IsNull() {
+		return false
+	}
+	if !data.HttpsWriteId.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

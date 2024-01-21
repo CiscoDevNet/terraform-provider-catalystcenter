@@ -316,3 +316,52 @@ func (data *PnPDeviceClaimSite) updateFromBody(ctx context.Context, res gjson.Re
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *PnPDeviceClaimSite) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.DeviceId.IsNull() {
+		return false
+	}
+	if !data.SiteId.IsNull() {
+		return false
+	}
+	if !data.Type.IsNull() {
+		return false
+	}
+	if !data.ImageId.IsNull() {
+		return false
+	}
+	if !data.ImageSkip.IsNull() {
+		return false
+	}
+	if !data.ConfigId.IsNull() {
+		return false
+	}
+	if len(data.ConfigParameters) > 0 {
+		return false
+	}
+	if !data.RfProfile.IsNull() {
+		return false
+	}
+	if !data.StaticIp.IsNull() {
+		return false
+	}
+	if !data.SubnetMask.IsNull() {
+		return false
+	}
+	if !data.Gateway.IsNull() {
+		return false
+	}
+	if !data.VlanId.IsNull() {
+		return false
+	}
+	if !data.IpInterfaceName.IsNull() {
+		return false
+	}
+	if !data.SensorProfile.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

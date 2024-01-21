@@ -490,7 +490,12 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 		{{- end}}
 	{{- end}}
 
-	state.updateFromBody(ctx, res)
+	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
+	if state.isNull(ctx, res) {
+		state.fromBody(ctx, res)
+	} else {
+		state.updateFromBody(ctx, res)
+	}
 	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
@@ -518,6 +523,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	{{- if not .NoUpdate}}
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -546,6 +552,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 	{{- if and .IdPath .PutUpdateId}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
+	{{- end}}
 	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))

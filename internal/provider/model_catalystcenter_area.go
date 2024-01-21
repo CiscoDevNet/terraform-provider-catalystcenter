@@ -82,3 +82,16 @@ func (data *Area) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *Area) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Name.IsNull() {
+		return false
+	}
+	if !data.ParentName.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

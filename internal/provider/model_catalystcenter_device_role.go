@@ -105,3 +105,19 @@ func (data *DeviceRole) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *DeviceRole) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.DeviceId.IsNull() {
+		return false
+	}
+	if !data.Role.IsNull() {
+		return false
+	}
+	if !data.RoleSource.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

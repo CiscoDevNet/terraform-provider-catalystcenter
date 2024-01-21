@@ -168,3 +168,19 @@ func (data *Role) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *Role) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Name.IsNull() {
+		return false
+	}
+	if !data.Description.IsNull() {
+		return false
+	}
+	if len(data.ResourceTypes) > 0 {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

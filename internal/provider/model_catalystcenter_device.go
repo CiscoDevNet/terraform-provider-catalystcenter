@@ -501,3 +501,91 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.CliTransport.IsNull() {
+		return false
+	}
+	if !data.ComputeDevice.IsNull() {
+		return false
+	}
+	if !data.EnablePassword.IsNull() {
+		return false
+	}
+	if !data.ExtendedDiscoveryInfo.IsNull() {
+		return false
+	}
+	if !data.HttpPassword.IsNull() {
+		return false
+	}
+	if !data.HttpPort.IsNull() {
+		return false
+	}
+	if !data.HttpSecure.IsNull() {
+		return false
+	}
+	if !data.HttpUserName.IsNull() {
+		return false
+	}
+	if !data.IpAddress.IsNull() {
+		return false
+	}
+	if !data.MerakiOrgIds.IsNull() {
+		return false
+	}
+	if !data.NetconfPort.IsNull() {
+		return false
+	}
+	if !data.Password.IsNull() {
+		return false
+	}
+	if !data.SerialNumber.IsNull() {
+		return false
+	}
+	if !data.SnmpAuthPassphrase.IsNull() {
+		return false
+	}
+	if !data.SnmpAuthProtocol.IsNull() {
+		return false
+	}
+	if !data.SnmpMode.IsNull() {
+		return false
+	}
+	if !data.SnmpPrivPassphrase.IsNull() {
+		return false
+	}
+	if !data.SnmpPrivProtocol.IsNull() {
+		return false
+	}
+	if !data.SnmpRoCommunity.IsNull() {
+		return false
+	}
+	if !data.SnmpRwCommunity.IsNull() {
+		return false
+	}
+	if !data.SnmpRetry.IsNull() {
+		return false
+	}
+	if !data.SnmpTimeout.IsNull() {
+		return false
+	}
+	if !data.SnmpUserName.IsNull() {
+		return false
+	}
+	if !data.SnmpVersion.IsNull() {
+		return false
+	}
+	if !data.Type.IsNull() {
+		return false
+	}
+	if len(data.UpdateMgmtIpAddresses) > 0 {
+		return false
+	}
+	if !data.UserName.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

@@ -11,6 +11,7 @@ get_from_all: bool(required=False) # Set to true if GET does not support queryin
 get_requires_id: bool(required=False) # Set to true if the GET request requires an ID in the URL path
 get_extra_query_params: str(required=False) # Additional query parameters for GET request
 no_delete: bool(required=False) # Set to true if the DELETE request is not supported
+no_update: bool(required=False) # Set to true if the PUT request is not supported
 no_read: bool(required=False) # Set to true if the GET request is not supported
 no_import: bool(required=False) # Set to true if the resource does not support importing
 post_update: bool(required=False) # Set to true if the POST request is used for update

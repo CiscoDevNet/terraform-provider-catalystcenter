@@ -138,3 +138,28 @@ func (data *Building) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *Building) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Name.IsNull() {
+		return false
+	}
+	if !data.ParentName.IsNull() {
+		return false
+	}
+	if !data.Country.IsNull() {
+		return false
+	}
+	if !data.Address.IsNull() {
+		return false
+	}
+	if !data.Latitude.IsNull() {
+		return false
+	}
+	if !data.Longitude.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

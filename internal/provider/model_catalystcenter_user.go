@@ -143,3 +143,28 @@ func (data *User) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *User) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.FirstName.IsNull() {
+		return false
+	}
+	if !data.LastName.IsNull() {
+		return false
+	}
+	if !data.Username.IsNull() {
+		return false
+	}
+	if !data.Password.IsNull() {
+		return false
+	}
+	if !data.Email.IsNull() {
+		return false
+	}
+	if !data.RoleIds.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

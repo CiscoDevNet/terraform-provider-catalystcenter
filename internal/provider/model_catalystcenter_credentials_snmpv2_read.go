@@ -84,3 +84,16 @@ func (data *CredentialsSNMPv2Read) updateFromBody(ctx context.Context, res gjson
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *CredentialsSNMPv2Read) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Description.IsNull() {
+		return false
+	}
+	if !data.ReadCommunity.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

@@ -149,3 +149,31 @@ func (data *IPPool) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *IPPool) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Name.IsNull() {
+		return false
+	}
+	if !data.IpAddressSpace.IsNull() {
+		return false
+	}
+	if !data.Type.IsNull() {
+		return false
+	}
+	if !data.IpSubnet.IsNull() {
+		return false
+	}
+	if !data.Gateway.IsNull() {
+		return false
+	}
+	if !data.DhcpServerIps.IsNull() {
+		return false
+	}
+	if !data.DnsServerIps.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

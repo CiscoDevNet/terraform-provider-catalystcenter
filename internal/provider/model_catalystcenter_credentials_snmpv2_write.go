@@ -84,3 +84,16 @@ func (data *CredentialsSNMPv2Write) updateFromBody(ctx context.Context, res gjso
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *CredentialsSNMPv2Write) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Description.IsNull() {
+		return false
+	}
+	if !data.WriteCommunity.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

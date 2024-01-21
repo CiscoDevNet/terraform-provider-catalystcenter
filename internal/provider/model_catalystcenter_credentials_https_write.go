@@ -112,3 +112,22 @@ func (data *CredentialsHTTPSWrite) updateFromBody(ctx context.Context, res gjson
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *CredentialsHTTPSWrite) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Description.IsNull() {
+		return false
+	}
+	if !data.Username.IsNull() {
+		return false
+	}
+	if !data.Password.IsNull() {
+		return false
+	}
+	if !data.Port.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

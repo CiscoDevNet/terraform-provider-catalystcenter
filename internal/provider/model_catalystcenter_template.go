@@ -553,3 +553,40 @@ func (data *Template) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *Template) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.ProjectId.IsNull() {
+		return false
+	}
+	if !data.Name.IsNull() {
+		return false
+	}
+	if !data.Description.IsNull() {
+		return false
+	}
+	if len(data.DeviceTypes) > 0 {
+		return false
+	}
+	if !data.Language.IsNull() {
+		return false
+	}
+	if !data.SoftwareType.IsNull() {
+		return false
+	}
+	if !data.SoftwareVariant.IsNull() {
+		return false
+	}
+	if !data.SoftwareVersion.IsNull() {
+		return false
+	}
+	if !data.TemplateContent.IsNull() {
+		return false
+	}
+	if len(data.TemplateParams) > 0 {
+		return false
+	}
+	return true
+}
+
+//template:end isNull

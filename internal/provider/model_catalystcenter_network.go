@@ -281,3 +281,79 @@ func (data *Network) updateFromBody(ctx context.Context, res gjson.Result) {
 }
 
 //template:end updateFromBody
+
+//template:begin isNull
+func (data *Network) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.SiteId.IsNull() {
+		return false
+	}
+	if !data.DhcpServers.IsNull() {
+		return false
+	}
+	if !data.DomainName.IsNull() {
+		return false
+	}
+	if !data.PrimaryDnsServer.IsNull() {
+		return false
+	}
+	if !data.SecondaryDnsServer.IsNull() {
+		return false
+	}
+	if !data.SyslogServers.IsNull() {
+		return false
+	}
+	if !data.CatalystCenterAsSyslogServer.IsNull() {
+		return false
+	}
+	if !data.SnmpServers.IsNull() {
+		return false
+	}
+	if !data.CatalystCenterAsSnmpServer.IsNull() {
+		return false
+	}
+	if !data.NetflowCollector.IsNull() {
+		return false
+	}
+	if !data.NetflowCollectorPort.IsNull() {
+		return false
+	}
+	if !data.NtpServers.IsNull() {
+		return false
+	}
+	if !data.Timezone.IsNull() {
+		return false
+	}
+	if !data.NetworkAaaServerType.IsNull() {
+		return false
+	}
+	if !data.NetworkAaaServerPrimaryIp.IsNull() {
+		return false
+	}
+	if !data.NetworkAaaServerSecondaryIp.IsNull() {
+		return false
+	}
+	if !data.NetworkAaaServerProtocol.IsNull() {
+		return false
+	}
+	if !data.NetworkAaaServerSharedSecret.IsNull() {
+		return false
+	}
+	if !data.EndpointAaaServerType.IsNull() {
+		return false
+	}
+	if !data.EndpointAaaServerPrimaryIp.IsNull() {
+		return false
+	}
+	if !data.EndpointAaaServerSecondaryIp.IsNull() {
+		return false
+	}
+	if !data.EndpointAaaServerProtocol.IsNull() {
+		return false
+	}
+	if !data.EndpointAaaServerSharedSecret.IsNull() {
+		return false
+	}
+	return true
+}
+
+//template:end isNull
