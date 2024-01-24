@@ -23,13 +23,13 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 )
@@ -88,7 +88,6 @@ func (r *ImageDistributionResource) Configure(_ context.Context, req resource.Co
 
 //template:end model
 
-//template:begin create
 func (r *ImageDistributionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan ImageDistribution
 
@@ -111,13 +110,13 @@ func (r *ImageDistributionResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
+	compositeId := plan.DeviceUuid.ValueString() + "--" + plan.ImageUuid.ValueString()
+	plan.Id = basetypes.NewStringPointerValue(&compositeId)
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-//template:end create
 
 //template:begin read
 func (r *ImageDistributionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -131,24 +130,6 @@ func (r *ImageDistributionResource) Read(ctx context.Context, req resource.ReadR
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
-
-	params := ""
-	params += "/" + state.Id.ValueString()
-	res, err := r.client.Get(state.getPath() + params)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-
-	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
-	if state.isNull(ctx, res) {
-		state.fromBody(ctx, res)
-	} else {
-		state.updateFromBody(ctx, res)
-	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
