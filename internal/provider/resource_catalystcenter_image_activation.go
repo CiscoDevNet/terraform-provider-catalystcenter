@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -31,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 )
@@ -108,7 +110,6 @@ func (r *ImageActivationResource) Configure(_ context.Context, req resource.Conf
 
 //template:end model
 
-//template:begin create
 func (r *ImageActivationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan ImageActivation
 
@@ -131,13 +132,16 @@ func (r *ImageActivationResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
+	idList := []string{}
+	diags = plan.ImageUuidList.ElementsAs(ctx, &idList, false)
+	resp.Diagnostics.Append(diags...)
+
+	plan.Id = basetypes.NewStringValue(plan.DeviceUuid.ValueString() + "/" + strings.Join(idList, "/"))
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-//template:end create
 
 //template:begin read
 func (r *ImageActivationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
