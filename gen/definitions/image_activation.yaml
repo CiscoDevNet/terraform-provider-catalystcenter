@@ -1,0 +1,45 @@
+---
+name: Image Activation
+rest_endpoint: /dna/intent/api/v1/image/activation/device
+no_data_source: true
+res_description:
+  'This resource can activate a software image file on the chosen network device (upgrade the software on the device).
+  Every time this resource is created or re-created, the Catalyst Center considers image activation on the device.
+  (Catalyst Center does not however proceed with activation if the image is already running on the device, assuming
+  the operation has succeeded and noting this fact in its audit log.)
+  <p/>
+  When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.
+  In effect, this resource currently cannot undo an image activation.'
+no_update: true
+no_delete: true
+no_import: true
+no_read: true
+doc_category: Software Image Management (SWIM)
+skip_minimum_test: true
+attributes:
+  - model_name: deviceUuid
+    type: String
+    data_path: 0
+    description: The UUID of the network device on which to active the software image. Changing it forces the entire resource to be re-created, so that the activation occurs as newly specified.
+    requires_replace: true
+    example: 138b3181-f9c5-4271-9292-cf3152ab4d3e
+  - model_name: imageUuidList
+    type: StringList
+    data_path: 0
+    description: The list of UUIDs of the software images to activate. The UUIDs could be obtained for example from `catalystcenter_image.id`. SMU images shouldn't be specified in this list. Changing/adding/removing any UUID causes the entire resource to be re-created, so that the entire activation occurs as newly specified.
+    requires_replace: true
+  - model_name: activateLowerImageVersion
+    type: Bool
+    data_path: 0
+    description: Allow to activate a lower version of an image. Updating this attribute later does not cause image to be re-activated.
+    example: 'true'
+  - model_name: deviceUpgradeMode
+    type: String
+    data_path: 0
+    description: Device upgrade mode. Updating this attribute later does not cause image to be re-activated.
+    exclude_example: true
+  - model_name: distributeIfNeeded
+    type: Bool
+    data_path: 0
+    description: Whether to distribute the image as needed, thus negating the need for a separate `catalystcenter_image_distribution`. Updating this attribute later does not cause image to be re-activated.
+    example: 'true'
