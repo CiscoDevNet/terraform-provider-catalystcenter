@@ -283,7 +283,6 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewCredentialsSNMPv3DataSource,
 		NewDiscoveryDataSource,
 		NewFloorDataSource,
-		NewImageDistributionDataSource,
 		NewIPPoolDataSource,
 		NewIPPoolReservationDataSource,
 		NewNetworkDataSource,

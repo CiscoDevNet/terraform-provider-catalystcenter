@@ -1,7 +1,7 @@
 ---
 name: Image Distribution
 rest_endpoint: /dna/intent/api/v1/image/distribution
-ds_description: This data source shows whether the given software image file resides on the given network device.
+no_data_source: true
 res_description:
   'This resource can distribute (copy) a software image file to the chosen network device.
   <p/>
