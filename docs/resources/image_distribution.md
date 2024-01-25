@@ -3,12 +3,12 @@
 page_title: "catalystcenter_image_distribution Resource - terraform-provider-catalystcenter"
 subcategory: "Software Image Management (SWIM)"
 description: |-
-  This resource can distribute (copy) a software image file to the chosen network device.  This provider currently cannot undistribute images once created, so beware of distributing many unnecessary images.
+  This resource can distribute (copy) a software image file to the chosen network device. Every time this resource is created or re-created, the Catalyst Center considers distributying/copying the image onto the device. (Catalyst Center does not however proceed with copying if the image is already present on the device, assuming the operation has succeeded and noting this fact in its audit log.)  When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices. In effect, it currently cannot undistribute images, so beware of distributing too many unnecessary images.
 ---
 
 # catalystcenter_image_distribution (Resource)
 
-This resource can distribute (copy) a software image file to the chosen network device. <p/> This provider currently cannot undistribute images once created, so beware of distributing many unnecessary images.
+This resource can distribute (copy) a software image file to the chosen network device. Every time this resource is created or re-created, the Catalyst Center considers distributying/copying the image onto the device. (Catalyst Center does not however proceed with copying if the image is already present on the device, assuming the operation has succeeded and noting this fact in its audit log.) <p/> When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices. In effect, it currently cannot undistribute images, so beware of distributing too many unnecessary images.
 
 ## Example Usage
 

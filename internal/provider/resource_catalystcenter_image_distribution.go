@@ -56,7 +56,7 @@ func (r *ImageDistributionResource) Metadata(ctx context.Context, req resource.M
 func (r *ImageDistributionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can distribute (copy) a software image file to the chosen network device. <p/> This provider currently cannot undistribute images once created, so beware of distributing many unnecessary images.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can distribute (copy) a software image file to the chosen network device. Every time this resource is created or re-created, the Catalyst Center considers distributying/copying the image onto the device. (Catalyst Center does not however proceed with copying if the image is already present on the device, assuming the operation has succeeded and noting this fact in its audit log.) <p/> When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices. In effect, it currently cannot undistribute images, so beware of distributing too many unnecessary images.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -163,14 +163,6 @@ func (r *ImageDistributionResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
-
-	body := plan.toBody(ctx, state)
-	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-		return
-	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
