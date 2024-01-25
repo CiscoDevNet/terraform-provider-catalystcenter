@@ -69,10 +69,16 @@ func (r *ImageDistributionResource) Schema(ctx context.Context, req resource.Sch
 			"device_uuid": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The UUID of the network device to which to copy the software image file.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"image_uuid": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The UUID of the software image to copy. It could be obtained for example from `catalystcenter_image_from_url.id`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 		},
 	}

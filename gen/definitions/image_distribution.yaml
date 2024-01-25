@@ -16,9 +16,11 @@ attributes:
     type: String
     data_path: 0
     description: The UUID of the network device to which to copy the software image file.
+    requires_replace: true
     example: 138b3181-f9c5-4271-9292-cf3152ab4d3e
   - model_name: imageUuid
     type: String
     data_path: 0
     description: The UUID of the software image to copy. It could be obtained for example from `catalystcenter_image_from_url.id`.
+    requires_replace: true
     example: faa9c5f7-d093-459a-8164-cc555bbf3b80
