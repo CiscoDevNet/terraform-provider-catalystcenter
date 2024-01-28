@@ -3,12 +3,12 @@
 page_title: "catalystcenter_network_devices Data Source - terraform-provider-catalystcenter"
 subcategory: "Devices"
 description: |-
-  This data source fetches all existing network devices.
+  This data source fetches all existing network devices. The physical location of a single device can be instead obtained by data source data.catalystcenter_device_detail and to determine physical locations of multiple devices use that data source with for_each Terraform meta-argument.
 ---
 
 # catalystcenter_network_devices (Data Source)
 
-This data source fetches all existing network devices.
+This data source fetches all existing network devices. The physical location of a single device can be instead obtained by data source `data.catalystcenter_device_detail` and to determine physical locations of multiple devices use that data source with `for_each` Terraform meta-argument.
 
 ## Example Usage
 

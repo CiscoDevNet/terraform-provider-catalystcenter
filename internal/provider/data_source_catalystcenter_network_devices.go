@@ -55,7 +55,7 @@ func (d *NetworkDevicesDataSource) Metadata(_ context.Context, req datasource.Me
 func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source fetches all existing network devices.",
+		MarkdownDescription: "This data source fetches all existing network devices. The physical location of a single device can be instead obtained by data source `data.catalystcenter_device_detail` and to determine physical locations of multiple devices use that data source with `for_each` Terraform meta-argument.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -122,7 +122,7 @@ func (d *NetworkDevicesDataSource) Read(ctx context.Context, req datasource.Read
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	res, err := d.client.Get("/dna/intent/api/v1/network-device" + params)
+	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return

@@ -259,7 +259,6 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewIPPoolResource,
 		NewIPPoolReservationResource,
 		NewNetworkResource,
-		NewNetworkDevicesResource,
 		NewNetworkProfileResource,
 		NewPnPDeviceResource,
 		NewPnPDeviceClaimSiteResource,
