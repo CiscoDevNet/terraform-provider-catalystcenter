@@ -76,13 +76,13 @@ func main() {
 	// Update doc category
 	for i := range configs {
 		for _, path := range docPaths {
-			if (configs[i].NoDataSource && path == "./docs/data-sources/") ||
-				(configs[i].NoResource && path == "./docs/resources/") {
-				continue
-			}
 			filename := path + SnakeCase(configs[i].Name) + ".md"
 			content, err := os.ReadFile(filename)
 			if err != nil {
+				if (configs[i].NoDataSource && path == "./docs/data-sources/") ||
+					(configs[i].NoResource && path == "./docs/resources/") {
+					continue
+				}
 				log.Fatalf("Error opening documentation: %v", err)
 			}
 
