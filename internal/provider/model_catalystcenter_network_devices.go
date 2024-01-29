@@ -30,9 +30,7 @@ import (
 
 //template:end imports
 
-//template:begin types
 type NetworkDevices struct {
-	Id       types.String             `tfsdk:"id"`
 	Response []NetworkDevicesResponse `tfsdk:"response"`
 }
 
@@ -44,8 +42,6 @@ type NetworkDevicesResponse struct {
 	Role                types.String `tfsdk:"role"`
 	SoftwareType        types.String `tfsdk:"software_type"`
 }
-
-//template:end types
 
 //template:begin getPath
 func (data NetworkDevices) getPath() string {

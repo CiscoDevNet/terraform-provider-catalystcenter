@@ -5,6 +5,7 @@ get_no_id: true
 ds_description: 'This data source fetches all existing network devices.
   The physical location of a single device can be instead obtained by data source `data.catalystcenter_device_detail` and
   to determine physical locations of multiple devices use that data source with `for_each` Terraform meta-argument.'
+no_data_source: true
 no_resource: true
 no_update: true
 no_delete: true
