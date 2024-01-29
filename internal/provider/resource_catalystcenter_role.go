@@ -120,7 +120,7 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 	body := plan.toBody(ctx, Role{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 600 })
+	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
