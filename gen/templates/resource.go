@@ -410,7 +410,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body)
 	{{- else}}
-	res, err := r.client.Post(plan.getPath() + params, body)
+	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
 	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
@@ -535,7 +535,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	params += "?{{.PutIdQueryParam}}=" + plan.Id.ValueString()
 	{{- end}}
 	{{- if .PostUpdate}}
-	res, err := r.client.Post(plan.getPath() + params, body)
+	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
 	{{- else if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body)
 	{{- else if hasQueryParam .Attributes}}

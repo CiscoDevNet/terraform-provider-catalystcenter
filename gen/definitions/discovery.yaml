@@ -5,6 +5,7 @@ get_rest_endpoint: /dna/intent/api/v1/discovery/1/500
 get_from_all: true
 id_from_query_path: response
 put_id_include_path: id
+max_async_wait_time: 600
 doc_category: Discovery
 attributes:
   - model_name: cdpLevel

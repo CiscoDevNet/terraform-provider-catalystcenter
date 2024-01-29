@@ -131,6 +131,7 @@ type YamlConfig struct {
 	Attributes               []YamlConfigAttribute `yaml:"attributes"`
 	TestTags                 []string              `yaml:"test_tags"`
 	TestPrerequisites        string                `yaml:"test_prerequisites"`
+	MaxAsyncWaitTime         int64                 `yaml:"max_async_wait_time"`
 }
 
 type YamlConfigAttribute struct {
