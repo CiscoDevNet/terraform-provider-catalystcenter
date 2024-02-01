@@ -56,7 +56,7 @@ func (r *ImageDistributionResource) Metadata(ctx context.Context, req resource.M
 func (r *ImageDistributionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can distribute (copy) a software image file to the chosen network device. Every time this resource is created or re-created, the Catalyst Center considers distributying/copying the image onto the device. (Catalyst Center does not however proceed with copying if the image is already present on the device, assuming the operation has succeeded and noting this fact in its audit log.) <p/> When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices. In effect, it currently cannot undistribute images, so beware of distributing too many unnecessary images.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can distribute (copy) a software image file to the chosen network device. Every time this resource is created or re-created, the Catalyst Center considers distributying/copying the image onto the device. (Catalyst Center does not however proceed with copying if the image is already present on the device, assuming the operation has succeeded and noting this fact in its audit log.) <p/> When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices. In effect, this resource currently cannot be used to undo a distribution of an image.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -74,7 +74,7 @@ func (r *ImageDistributionResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"image_uuid": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The UUID of the software image to copy. It could be obtained for example from `catalystcenter_image_from_url.id`.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The UUID of the software image to copy. It could be obtained for example from `catalystcenter_image.id`.").String,
 				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),

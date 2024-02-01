@@ -9,7 +9,7 @@ res_description:
   the operation has succeeded and noting this fact in its audit log.)
   <p/>
   When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.
-  In effect, it currently cannot undistribute images, so beware of distributing too many unnecessary images.'
+  In effect, this resource currently cannot be used to undo a distribution of an image.'
 no_update: true
 no_delete: true
 no_import: true
@@ -25,6 +25,6 @@ attributes:
   - model_name: imageUuid
     type: String
     data_path: 0
-    description: The UUID of the software image to copy. It could be obtained for example from `catalystcenter_image_from_url.id`.
+    description: The UUID of the software image to copy. It could be obtained for example from `catalystcenter_image.id`.
     requires_replace: true
     example: faa9c5f7-d093-459a-8164-cc555bbf3b80
