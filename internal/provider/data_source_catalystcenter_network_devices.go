@@ -48,7 +48,10 @@ func (d *NetworkDevicesDataSource) Metadata(_ context.Context, req datasource.Me
 func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source fetches all existing network devices. The physical location of a single device can be instead obtained by data source `data.catalystcenter_device_detail` and to determine physical locations of multiple devices use that data source with `for_each` Terraform meta-argument.",
+		MarkdownDescription: "This data source fetches all network devices defined on the Catalyst Center.\n\n" +
+			"This data source does not report physical location (site) information. Obtain it instead from the data source\n" +
+			"`data.catalystcenter_device_detail`. To determine physical locations of multiple devices use the same data\n" +
+			"source with `for_each` Terraform meta-argument.",
 
 		Attributes: map[string]schema.Attribute{
 			"response": schema.ListNestedAttribute{
@@ -57,27 +60,27 @@ func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.Sc
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "UUID of the network device",
 							Computed:            true,
 						},
 						"hostname": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Hostname of the network device",
 							Computed:            true,
 						},
 						"management_ip_address": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Management IP address",
 							Computed:            true,
 						},
 						"platform_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Platform identifier",
 							Computed:            true,
 						},
 						"role": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Role of the network device, such as `ACCESS` or `DISTRIBUTION`.",
 							Computed:            true,
 						},
 						"software_type": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Type of software",
 							Computed:            true,
 						},
 					},

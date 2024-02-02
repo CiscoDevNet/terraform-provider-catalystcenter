@@ -3,12 +3,19 @@
 page_title: "catalystcenter_network_devices Data Source - terraform-provider-catalystcenter"
 subcategory: "Devices"
 description: |-
-  This data source fetches all existing network devices. The physical location of a single device can be instead obtained by data source data.catalystcenter_device_detail and to determine physical locations of multiple devices use that data source with for_each Terraform meta-argument.
+  This data source fetches all network devices defined on the Catalyst Center.
+  This data source does not report physical location (site) information. Obtain it instead from the data source
+  data.catalystcenter_device_detail. To determine physical locations of multiple devices use the same data
+  source with for_each Terraform meta-argument.
 ---
 
 # catalystcenter_network_devices (Data Source)
 
-This data source fetches all existing network devices. The physical location of a single device can be instead obtained by data source `data.catalystcenter_device_detail` and to determine physical locations of multiple devices use that data source with `for_each` Terraform meta-argument.
+This data source fetches all network devices defined on the Catalyst Center.
+
+This data source does not report physical location (site) information. Obtain it instead from the data source
+`data.catalystcenter_device_detail`. To determine physical locations of multiple devices use the same data
+source with `for_each` Terraform meta-argument.
 
 ## Example Usage
 
@@ -29,9 +36,9 @@ data "catalystcenter_network_devices" "example" {
 
 Read-Only:
 
-- `hostname` (String)
-- `id` (String)
-- `management_ip_address` (String)
-- `platform_id` (String)
-- `role` (String)
-- `software_type` (String)
+- `hostname` (String) Hostname of the network device
+- `id` (String) UUID of the network device
+- `management_ip_address` (String) Management IP address
+- `platform_id` (String) Platform identifier
+- `role` (String) Role of the network device, such as `ACCESS` or `DISTRIBUTION`.
+- `software_type` (String) Type of software
