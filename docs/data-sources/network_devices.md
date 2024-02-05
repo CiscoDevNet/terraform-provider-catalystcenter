@@ -39,6 +39,7 @@ Read-Only:
 - `hostname` (String) Hostname of the network device
 - `id` (String) UUID of the network device
 - `management_ip_address` (String) Management IP address
+- `management_state` (String) Management state of a network device. If it is not "Managed" for a device, then the `catalystcenter_network_device_detail` may fail for that device.
 - `platform_id` (String) Platform identifier
 - `role` (String) Role of the network device, such as `ACCESS` or `DISTRIBUTION`.
 - `software_type` (String) Type of software

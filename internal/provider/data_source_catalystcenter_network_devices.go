@@ -71,6 +71,10 @@ func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.Sc
 							MarkdownDescription: "Management IP address",
 							Computed:            true,
 						},
+						"management_state": schema.StringAttribute{
+							MarkdownDescription: "Management state of a network device. If it is not \"Managed\" for a device, then the `catalystcenter_network_device_detail` may fail for that device.",
+							Computed:            true,
+						},
 						"platform_id": schema.StringAttribute{
 							MarkdownDescription: "Platform identifier",
 							Computed:            true,

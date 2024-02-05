@@ -38,6 +38,7 @@ type NetworkDevicesResponse struct {
 	Id                  types.String `tfsdk:"id"`
 	Hostname            types.String `tfsdk:"hostname"`
 	ManagementIpAddress types.String `tfsdk:"management_ip_address"`
+	ManagementState     types.String `tfsdk:"management_state"`
 	PlatformId          types.String `tfsdk:"platform_id"`
 	Role                types.String `tfsdk:"role"`
 	SoftwareType        types.String `tfsdk:"software_type"`
@@ -65,6 +66,9 @@ func (data NetworkDevices) toBody(ctx context.Context, state NetworkDevices) str
 			}
 			if !item.ManagementIpAddress.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "managementIpAddress", item.ManagementIpAddress.ValueString())
+			}
+			if !item.ManagementState.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "managementState", item.ManagementState.ValueString())
 			}
 			if !item.PlatformId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "platformId", item.PlatformId.ValueString())
@@ -104,6 +108,11 @@ func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.ManagementIpAddress = types.StringNull()
 			}
+			if cValue := v.Get("managementState"); cValue.Exists() {
+				item.ManagementState = types.StringValue(cValue.String())
+			} else {
+				item.ManagementState = types.StringNull()
+			}
 			if cValue := v.Get("platformId"); cValue.Exists() {
 				item.PlatformId = types.StringValue(cValue.String())
 			} else {
@@ -130,8 +139,8 @@ func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 //template:begin updateFromBody
 func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result) {
 	for i := range data.Response {
-		keys := [...]string{"id", "hostname", "managementIpAddress", "platformId", "role", "softwareType"}
-		keyValues := [...]string{data.Response[i].Id.ValueString(), data.Response[i].Hostname.ValueString(), data.Response[i].ManagementIpAddress.ValueString(), data.Response[i].PlatformId.ValueString(), data.Response[i].Role.ValueString(), data.Response[i].SoftwareType.ValueString()}
+		keys := [...]string{"id", "hostname", "managementIpAddress", "managementState", "platformId", "role", "softwareType"}
+		keyValues := [...]string{data.Response[i].Id.ValueString(), data.Response[i].Hostname.ValueString(), data.Response[i].ManagementIpAddress.ValueString(), data.Response[i].ManagementState.ValueString(), data.Response[i].PlatformId.ValueString(), data.Response[i].Role.ValueString(), data.Response[i].SoftwareType.ValueString()}
 
 		var r gjson.Result
 		res.Get("response").ForEach(
@@ -166,6 +175,11 @@ func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result
 			data.Response[i].ManagementIpAddress = types.StringValue(value.String())
 		} else {
 			data.Response[i].ManagementIpAddress = types.StringNull()
+		}
+		if value := r.Get("managementState"); value.Exists() && !data.Response[i].ManagementState.IsNull() {
+			data.Response[i].ManagementState = types.StringValue(value.String())
+		} else {
+			data.Response[i].ManagementState = types.StringNull()
 		}
 		if value := r.Get("platformId"); value.Exists() && !data.Response[i].PlatformId.IsNull() {
 			data.Response[i].PlatformId = types.StringValue(value.String())

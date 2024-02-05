@@ -21,6 +21,9 @@ attributes:
       - model_name: managementIpAddress
         type: String
         example: 10.10.10.1
+      - model_name: managementState
+        type: String
+        example: Managed
       - model_name: platformId
         type: String
         example: C9KV-UADP-8P
