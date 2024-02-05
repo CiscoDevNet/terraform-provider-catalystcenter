@@ -126,7 +126,7 @@ func (r *ImageActivationResource) Create(ctx context.Context, req resource.Creat
 	body := plan.toBody(ctx, ImageActivation{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 600 })
+	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 90 * 60 })
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
