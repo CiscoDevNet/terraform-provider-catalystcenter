@@ -77,10 +77,10 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Optional:            true,
 			},
 			"discovery_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of Discovery.").AddStringEnumDescription("SINGLE", "RANGE", "MULTI RANGE", "CDP", "LLDP", "CIDR").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of Discovery.").AddStringEnumDescription("Single", "Range", "Multi Range", "CDP", "LLDP", "CIDR").String,
 				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("SINGLE", "RANGE", "MULTI RANGE", "CDP", "LLDP", "CIDR"),
+					stringvalidator.OneOf("Single", "Range", "Multi Range", "CDP", "LLDP", "CIDR"),
 				},
 			},
 			"enable_password_list": schema.ListAttribute{
@@ -102,7 +102,7 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Optional:            true,
 			},
 			"ip_address_list": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("A string of IP address ranges to discover.  E.g.: '172.30.0.1' for SINGLE, CDP and LLDP; '172.30.0.1-172.30.0.4' for RANGE; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for MULTI RANGE; '172.30.0.1/20' for CIDR.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR.").String,
 				Optional:            true,
 			},
 			"ip_filter_list": schema.ListAttribute{
@@ -115,14 +115,14 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("A name for the Discovery.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("A name of the discovery.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"netconf_port": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Port number for netconf as a string. It requires valid SSH credentials to work.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Port number for netconf as a string. It requires SSH protocol to work.").String,
 				Optional:            true,
 			},
 			"password_list": schema.ListAttribute{
@@ -140,11 +140,11 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Default: stringdefault.StaticString("None"),
 			},
 			"protocol_order": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("A string of comma-separated protocols (ssh/telnet), in the same order in which the connections to each device are attempted. E.g.: 'telnet': only telnet; 'ssh,telnet': ssh first, with telnet fallback.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback.").String,
 				Required:            true,
 			},
 			"retry": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Number of times to try establishing SSH connection to a device.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Number of times to try establishing SSH/Telnet connection to a device.").String,
 				Optional:            true,
 			},
 			"snmp_auth_passphrase": schema.StringAttribute{
@@ -159,18 +159,18 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"snmp_mode": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("AUTHPRIV", "AUTHNOPRIV", "NOAUTHNOPRIV").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Mode of SNMP. The `snmp_auth_protocol` and `snmp_auth_passphrase` are required for \"AuthNoPriv\" mode. Additionally, `snmp_priv_protocol` and `snmp_priv_passphrase` are required for \"AuthPriv\" mode.").AddStringEnumDescription("AuthPriv", "AuthNoPriv", "NoAuthNoPriv").String,
 				Optional:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("AUTHPRIV", "AUTHNOPRIV", "NOAUTHNOPRIV"),
+					stringvalidator.OneOf("AuthPriv", "AuthNoPriv", "NoAuthNoPriv"),
 				},
 			},
 			"snmp_priv_passphrase": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Passphrase for SNMP privacy.").String,
 				Optional:            true,
 			},
 			"snmp_priv_protocol": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("DES", "AES128").String,
+				MarkdownDescription: helpers.NewAttributeDescription("SNMP privacy protocol.").AddStringEnumDescription("DES", "AES128").String,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("DES", "AES128"),
@@ -203,8 +203,8 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringvalidator.OneOf("v2", "v3"),
 				},
 			},
-			"timeout": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Number of seconds to wait for each SSH connection to a device.").String,
+			"timeout_seconds": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Number of seconds to wait for each SSH/Telnet connection to a device.").String,
 				Optional:            true,
 			},
 			"user_name_list": schema.ListAttribute{

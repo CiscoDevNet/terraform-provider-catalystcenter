@@ -90,7 +90,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"ip_address_list": schema.StringAttribute{
-				MarkdownDescription: "A string of IP address ranges to discover.  E.g.: '172.30.0.1' for SINGLE, CDP and LLDP; '172.30.0.1-172.30.0.4' for RANGE; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for MULTI RANGE; '172.30.0.1/20' for CIDR.",
+				MarkdownDescription: "A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR.",
 				Computed:            true,
 			},
 			"ip_filter_list": schema.ListAttribute{
@@ -103,11 +103,11 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "A name for the Discovery.",
+				MarkdownDescription: "A name of the discovery.",
 				Computed:            true,
 			},
 			"netconf_port": schema.StringAttribute{
-				MarkdownDescription: "Port number for netconf as a string. It requires valid SSH credentials to work.",
+				MarkdownDescription: "Port number for netconf as a string. It requires SSH protocol to work.",
 				Computed:            true,
 			},
 			"password_list": schema.ListAttribute{
@@ -120,11 +120,11 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"protocol_order": schema.StringAttribute{
-				MarkdownDescription: "A string of comma-separated protocols (ssh/telnet), in the same order in which the connections to each device are attempted. E.g.: 'telnet': only telnet; 'ssh,telnet': ssh first, with telnet fallback.",
+				MarkdownDescription: "A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback.",
 				Computed:            true,
 			},
 			"retry": schema.Int64Attribute{
-				MarkdownDescription: "Number of times to try establishing SSH connection to a device.",
+				MarkdownDescription: "Number of times to try establishing SSH/Telnet connection to a device.",
 				Computed:            true,
 			},
 			"snmp_auth_passphrase": schema.StringAttribute{
@@ -136,15 +136,15 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"snmp_mode": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Mode of SNMP. The `snmp_auth_protocol` and `snmp_auth_passphrase` are required for \"AuthNoPriv\" mode. Additionally, `snmp_priv_protocol` and `snmp_priv_passphrase` are required for \"AuthPriv\" mode.",
 				Computed:            true,
 			},
 			"snmp_priv_passphrase": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Passphrase for SNMP privacy.",
 				Computed:            true,
 			},
 			"snmp_priv_protocol": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "SNMP privacy protocol.",
 				Computed:            true,
 			},
 			"snmp_ro_community": schema.StringAttribute{
@@ -171,8 +171,8 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "SNMP version",
 				Computed:            true,
 			},
-			"timeout": schema.Int64Attribute{
-				MarkdownDescription: "Number of seconds to wait for each SSH connection to a device.",
+			"timeout_seconds": schema.Int64Attribute{
+				MarkdownDescription: "Number of seconds to wait for each SSH/Telnet connection to a device.",
 				Computed:            true,
 			},
 			"user_name_list": schema.ListAttribute{

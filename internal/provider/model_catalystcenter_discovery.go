@@ -60,7 +60,7 @@ type Discovery struct {
 	SnmpRwCommunityDesc    types.String `tfsdk:"snmp_rw_community_desc"`
 	SnmpUserName           types.String `tfsdk:"snmp_user_name"`
 	SnmpVersion            types.String `tfsdk:"snmp_version"`
-	Timeout                types.Int64  `tfsdk:"timeout"`
+	TimeoutSeconds         types.Int64  `tfsdk:"timeout_seconds"`
 	UserNameList           types.List   `tfsdk:"user_name_list"`
 }
 
@@ -165,8 +165,8 @@ func (data Discovery) toBody(ctx context.Context, state Discovery) string {
 	if !data.SnmpVersion.IsNull() {
 		body, _ = sjson.Set(body, "snmpVersion", data.SnmpVersion.ValueString())
 	}
-	if !data.Timeout.IsNull() {
-		body, _ = sjson.Set(body, "timeout", data.Timeout.ValueInt64())
+	if !data.TimeoutSeconds.IsNull() {
+		body, _ = sjson.Set(body, "timeout", data.TimeoutSeconds.ValueInt64())
 	}
 	if !data.UserNameList.IsNull() {
 		var values []string
@@ -240,7 +240,7 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.PasswordList = types.ListNull(types.StringType)
 	}
-	if value := res.Get("preferredIpMethod"); value.Exists() {
+	if value := res.Get("preferredMgmtIPMethod"); value.Exists() {
 		data.PreferredIpMethod = types.StringValue(value.String())
 	} else {
 		data.PreferredIpMethod = types.StringValue("None")
@@ -250,15 +250,10 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.ProtocolOrder = types.StringNull()
 	}
-	if value := res.Get("retry"); value.Exists() {
+	if value := res.Get("retryCount"); value.Exists() {
 		data.Retry = types.Int64Value(value.Int())
 	} else {
 		data.Retry = types.Int64Null()
-	}
-	if value := res.Get("snmpAuthPassphrase"); value.Exists() {
-		data.SnmpAuthPassphrase = types.StringValue(value.String())
-	} else {
-		data.SnmpAuthPassphrase = types.StringNull()
 	}
 	if value := res.Get("snmpAuthProtocol"); value.Exists() {
 		data.SnmpAuthProtocol = types.StringValue(value.String())
@@ -269,11 +264,6 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 		data.SnmpMode = types.StringValue(value.String())
 	} else {
 		data.SnmpMode = types.StringNull()
-	}
-	if value := res.Get("snmpPrivPassphrase"); value.Exists() {
-		data.SnmpPrivPassphrase = types.StringValue(value.String())
-	} else {
-		data.SnmpPrivPassphrase = types.StringNull()
 	}
 	if value := res.Get("snmpPrivProtocol"); value.Exists() {
 		data.SnmpPrivProtocol = types.StringValue(value.String())
@@ -304,11 +294,6 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 		data.SnmpUserName = types.StringValue(value.String())
 	} else {
 		data.SnmpUserName = types.StringNull()
-	}
-	if value := res.Get("snmpVersion"); value.Exists() {
-		data.SnmpVersion = types.StringValue(value.String())
-	} else {
-		data.SnmpVersion = types.StringNull()
 	}
 	if value := res.Get("userNameList"); value.Exists() {
 		data.UserNameList = helpers.GetStringList(value.Array())
@@ -381,7 +366,7 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.PasswordList = types.ListNull(types.StringType)
 	}
-	if value := res.Get("preferredIpMethod"); value.Exists() && !data.PreferredIpMethod.IsNull() {
+	if value := res.Get("preferredMgmtIPMethod"); value.Exists() && !data.PreferredIpMethod.IsNull() {
 		data.PreferredIpMethod = types.StringValue(value.String())
 	} else if data.PreferredIpMethod.ValueString() != "None" {
 		data.PreferredIpMethod = types.StringNull()
@@ -391,15 +376,10 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.ProtocolOrder = types.StringNull()
 	}
-	if value := res.Get("retry"); value.Exists() && !data.Retry.IsNull() {
+	if value := res.Get("retryCount"); value.Exists() && !data.Retry.IsNull() {
 		data.Retry = types.Int64Value(value.Int())
 	} else {
 		data.Retry = types.Int64Null()
-	}
-	if value := res.Get("snmpAuthPassphrase"); value.Exists() && !data.SnmpAuthPassphrase.IsNull() {
-		data.SnmpAuthPassphrase = types.StringValue(value.String())
-	} else {
-		data.SnmpAuthPassphrase = types.StringNull()
 	}
 	if value := res.Get("snmpAuthProtocol"); value.Exists() && !data.SnmpAuthProtocol.IsNull() {
 		data.SnmpAuthProtocol = types.StringValue(value.String())
@@ -410,11 +390,6 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.SnmpMode = types.StringValue(value.String())
 	} else {
 		data.SnmpMode = types.StringNull()
-	}
-	if value := res.Get("snmpPrivPassphrase"); value.Exists() && !data.SnmpPrivPassphrase.IsNull() {
-		data.SnmpPrivPassphrase = types.StringValue(value.String())
-	} else {
-		data.SnmpPrivPassphrase = types.StringNull()
 	}
 	if value := res.Get("snmpPrivProtocol"); value.Exists() && !data.SnmpPrivProtocol.IsNull() {
 		data.SnmpPrivProtocol = types.StringValue(value.String())
@@ -445,11 +420,6 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.SnmpUserName = types.StringValue(value.String())
 	} else {
 		data.SnmpUserName = types.StringNull()
-	}
-	if value := res.Get("snmpVersion"); value.Exists() && !data.SnmpVersion.IsNull() {
-		data.SnmpVersion = types.StringValue(value.String())
-	} else {
-		data.SnmpVersion = types.StringNull()
 	}
 	if value := res.Get("userNameList"); value.Exists() && !data.UserNameList.IsNull() {
 		data.UserNameList = helpers.GetStringList(value.Array())
@@ -540,7 +510,7 @@ func (data *Discovery) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.SnmpVersion.IsNull() {
 		return false
 	}
-	if !data.Timeout.IsNull() {
+	if !data.TimeoutSeconds.IsNull() {
 		return false
 	}
 	if !data.UserNameList.IsNull() {

@@ -11,141 +11,151 @@ attributes:
   - model_name: cdpLevel
     type: Int64
     description: CDP level is the number of hops between neighbor devices.
-    example: 10
+    exclude_test: true
     exclude_example: true
   - model_name: discoveryType
     type: String
-    enum_values: [SINGLE, RANGE, MULTI RANGE, CDP, LLDP, CIDR]
+    enum_values: [Single, Range, Multi Range, CDP, LLDP, CIDR]
     mandatory: true
     description: Type of Discovery.
-    example: RANGE
+    example: Range
   - model_name: enablePasswordList
     type: StringList
     # description: Enable Password of the devices to be discovered.
+    exclude_test: true
     exclude_example: true
   - model_name: globalCredentialIdList
     type: StringList
     description: A list of IDs, which must include SNMP credential and CLI credential.
+    exclude_test: true
   - model_name: httpReadCredential
     type: String
-    # description:
+    exclude_test: true
     exclude_example: true
   - model_name: httpWriteCredential
     type: String
-    # description:
+    exclude_test: true
     exclude_example: true
   - model_name: ipAddressList
     type: String
-    description: "A string of IP address ranges to discover.  E.g.: '172.30.0.1' for SINGLE, CDP and LLDP; '172.30.0.1-172.30.0.4' for RANGE; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for MULTI RANGE; '172.30.0.1/20' for CIDR."
+    description: "A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR."
     example: 192.168.0.1-192.168.0.99
   - model_name: ipFilterList
     type: StringList
     description: A list of IP address ranges to exclude from the discovery.
+    exclude_test: true
     # example: 192.168.0.8-192.168.0.9 # a "Subnet Filter" error
     exclude_example: true
   - model_name: lldpLevel
     type: Int64
     description: LLDP level to which neighbor devices to be discovered.
-    example: 10
+    exclude_test: true
     exclude_example: true
   - model_name: name
     type: String
     mandatory: true
     id: true
-    description: A name for the Discovery.
+    description: A name of the discovery.
+    test_value: '"testing terraform provider"'
     example: disco42
   - model_name: netconfPort
-    # default_value: "830"
     type: String
-    description: Port number for netconf as a string. It requires valid SSH credentials to work.
-    example: "830"
+    description: Port number for netconf as a string. It requires SSH protocol to work.
+    example: '830'
   - model_name: passwordList
     type: StringList
     # description: Password of the devices to be discovered.
+    exclude_test: true
     exclude_example: true
   - model_name: preferredIpMethod
+    response_data_path: preferredMgmtIPMethod
     type: String
     enum_values: [None, UseLoopBack]
     default_value: None
     description: Preferred method for selecting management IP address.
-    example: UseLoopBack
+    exclude_test: true
+    exclude_example: true
   - model_name: protocolOrder
     type: String
     mandatory: true
-    description: "A string of comma-separated protocols (ssh/telnet), in the same order in which the connections to each device are attempted. E.g.: 'telnet': only telnet; 'ssh,telnet': ssh first, with telnet fallback."
-    example: ssh
+    description: "A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback."
+    example: SSH
   - model_name: retry
+    response_data_path: retryCount
     type: Int64
-    description: Number of times to try establishing SSH connection to a device.
+    description: Number of times to try establishing SSH/Telnet connection to a device.
     example: 3
   - model_name: snmpAuthPassphrase
     type: String
     description: Auth passphrase for SNMP.
+    write_only: true
+    test_value: '"8 chars+"'
     exclude_example: true
   - model_name: snmpAuthProtocol
     type: String
     description: SNMP auth protocol.
     enum_values: [SHA, MD5]
+    test_value: '"SHA"'
     exclude_example: true
   - model_name: snmpMode
     type: String
-    # description: Mode of SNMP.
-    enum_values: [AUTHPRIV, AUTHNOPRIV, NOAUTHNOPRIV]
+    description: Mode of SNMP. The `snmp_auth_protocol` and `snmp_auth_passphrase` are required for \"AuthNoPriv\" mode. Additionally, `snmp_priv_protocol` and `snmp_priv_passphrase` are required for \"AuthPriv\" mode.
+    enum_values: [AuthPriv, AuthNoPriv, NoAuthNoPriv]
+    test_value: '"AuthPriv"'
     exclude_example: true
   - model_name: snmpPrivPassphrase
     type: String
-    # description: Passphrase for SNMP privacy.
+    description: Passphrase for SNMP privacy.
+    write_only: true
+    test_value: '"8 chars+"'
     exclude_example: true
   - model_name: snmpPrivProtocol
     type: String
-    # description: SNMP privacy protocol.
+    description: SNMP privacy protocol.
+    test_value: '"AES128"'
     enum_values: [DES, AES128]
     exclude_example: true
   - model_name: snmpRoCommunity
     type: String
     description: SNMP RO community of the devices to be discovered.
+    exclude_test: true
     exclude_example: true
   - model_name: snmpRoCommunityDesc
     type: String
     description: Description for snmp_ro_community.
+    exclude_test: true
     exclude_example: true
   - model_name: snmpRwCommunity
     type: String
     description: SNMP RW community of the devices to be discovered.
+    exclude_test: true
     exclude_example: true
   - model_name: snmpRwCommunityDesc
     type: String
     description: Description for snmp_rw_community
+    exclude_test: true
     exclude_example: true
   - model_name: snmpUserName
     type: String
     description: SNMP username of the devices to be discovered.
+    test_value: '"testuser"'
     exclude_example: true
   - model_name: snmpVersion
     type: String
     description: SNMP version
     enum_values: [v2, v3]
+    write_only: true
+    test_value: '"v3"'
     exclude_example: true
-  - model_name: timeout # FIXME _seconds
+  - model_name: timeout
+    response_data_path: timeOut
+    tf_name: timeout_seconds
     type: Int64
-    description: Number of seconds to wait for each SSH connection to a device.
+    description: Number of seconds to wait for each SSH/Telnet connection to a device.
     example: 5
     write_only: true
   - model_name: userNameList
     type: StringList
     # description: Username for the devices to be discovered.
+    exclude_test: true
     exclude_example: true
-
-
-  # - model_name: globalCliCred
-  #   data_path: request
-  #   type: String
-  #   mandatory: true
-  #   description: The CLI username to use for every device under discovery.
-  #   example: user42
-  # - model_name: globalSnmpCred
-  #   data_path: request
-  #   type: String
-  #   mandatory: true
-  #   description: The SNMP credential to use for every device under discovery.
-  #   example: SNMP-RW

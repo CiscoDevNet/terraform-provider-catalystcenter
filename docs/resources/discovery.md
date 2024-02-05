@@ -14,15 +14,13 @@ This resource can manage a Discovery.
 
 ```terraform
 resource "catalystcenter_discovery" "example" {
-  discovery_type            = "RANGE"
-  global_credential_id_list = [""]
-  ip_address_list           = "192.168.0.1-192.168.0.99"
-  name                      = "disco42"
-  netconf_port              = "830"
-  preferred_ip_method       = "UseLoopBack"
-  protocol_order            = "ssh"
-  retry                     = 3
-  timeout                   = 5
+  discovery_type  = "Range"
+  ip_address_list = "192.168.0.1-192.168.0.99"
+  name            = "disco42"
+  netconf_port    = "830"
+  protocol_order  = "SSH"
+  retry           = 3
+  timeout_seconds = 5
 }
 ```
 
@@ -32,9 +30,9 @@ resource "catalystcenter_discovery" "example" {
 ### Required
 
 - `discovery_type` (String) Type of Discovery.
-  - Choices: `SINGLE`, `RANGE`, `MULTI RANGE`, `CDP`, `LLDP`, `CIDR`
-- `name` (String) A name for the Discovery.
-- `protocol_order` (String) A string of comma-separated protocols (ssh/telnet), in the same order in which the connections to each device are attempted. E.g.: 'telnet': only telnet; 'ssh,telnet': ssh first, with telnet fallback.
+  - Choices: `Single`, `Range`, `Multi Range`, `CDP`, `LLDP`, `CIDR`
+- `name` (String) A name of the discovery.
+- `protocol_order` (String) A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback.
 
 ### Optional
 
@@ -43,21 +41,23 @@ resource "catalystcenter_discovery" "example" {
 - `global_credential_id_list` (List of String) A list of IDs, which must include SNMP credential and CLI credential.
 - `http_read_credential` (String)
 - `http_write_credential` (String)
-- `ip_address_list` (String) A string of IP address ranges to discover.  E.g.: '172.30.0.1' for SINGLE, CDP and LLDP; '172.30.0.1-172.30.0.4' for RANGE; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for MULTI RANGE; '172.30.0.1/20' for CIDR.
+- `ip_address_list` (String) A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR.
 - `ip_filter_list` (List of String) A list of IP address ranges to exclude from the discovery.
 - `lldp_level` (Number) LLDP level to which neighbor devices to be discovered.
-- `netconf_port` (String) Port number for netconf as a string. It requires valid SSH credentials to work.
+- `netconf_port` (String) Port number for netconf as a string. It requires SSH protocol to work.
 - `password_list` (List of String)
 - `preferred_ip_method` (String) Preferred method for selecting management IP address.
   - Choices: `None`, `UseLoopBack`
   - Default value: `None`
-- `retry` (Number) Number of times to try establishing SSH connection to a device.
+- `retry` (Number) Number of times to try establishing SSH/Telnet connection to a device.
 - `snmp_auth_passphrase` (String) Auth passphrase for SNMP.
 - `snmp_auth_protocol` (String) SNMP auth protocol.
   - Choices: `SHA`, `MD5`
-- `snmp_mode` (String) - Choices: `AUTHPRIV`, `AUTHNOPRIV`, `NOAUTHNOPRIV`
-- `snmp_priv_passphrase` (String)
-- `snmp_priv_protocol` (String) - Choices: `DES`, `AES128`
+- `snmp_mode` (String) Mode of SNMP. The `snmp_auth_protocol` and `snmp_auth_passphrase` are required for "AuthNoPriv" mode. Additionally, `snmp_priv_protocol` and `snmp_priv_passphrase` are required for "AuthPriv" mode.
+  - Choices: `AuthPriv`, `AuthNoPriv`, `NoAuthNoPriv`
+- `snmp_priv_passphrase` (String) Passphrase for SNMP privacy.
+- `snmp_priv_protocol` (String) SNMP privacy protocol.
+  - Choices: `DES`, `AES128`
 - `snmp_ro_community` (String) SNMP RO community of the devices to be discovered.
 - `snmp_ro_community_desc` (String) Description for snmp_ro_community.
 - `snmp_rw_community` (String) SNMP RW community of the devices to be discovered.
@@ -65,7 +65,7 @@ resource "catalystcenter_discovery" "example" {
 - `snmp_user_name` (String) SNMP username of the devices to be discovered.
 - `snmp_version` (String) SNMP version
   - Choices: `v2`, `v3`
-- `timeout` (Number) Number of seconds to wait for each SSH connection to a device.
+- `timeout_seconds` (Number) Number of seconds to wait for each SSH/Telnet connection to a device.
 - `user_name_list` (List of String)
 
 ### Read-Only
