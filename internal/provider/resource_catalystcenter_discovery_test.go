@@ -21,7 +21,6 @@ package provider
 
 //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -39,11 +38,6 @@ func TestAccCcDiscovery(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "retry", "3"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcDiscoveryConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcDiscoveryConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),

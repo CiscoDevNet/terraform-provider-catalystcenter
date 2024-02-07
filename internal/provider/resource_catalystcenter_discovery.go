@@ -27,7 +27,6 @@ import (
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -45,7 +44,6 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &DiscoveryResource{}
-var _ resource.ResourceWithImportState = &DiscoveryResource{}
 
 func NewDiscoveryResource() resource.Resource {
 	return &DiscoveryResource{}
@@ -62,7 +60,7 @@ func (r *DiscoveryResource) Metadata(ctx context.Context, req resource.MetadataR
 func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Discovery.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("After discovery resource has been created, the Catalyst Center would contain device entries (if discovered). All the device entries can be subsequently obtained from data source `catalystcenter_network_devices`. Terraform currently is not able to handle `for_each` from a data source that depends on any managed resource, therefore to work around that limitation the `catalystcenter_discovery` can be placed in a different tfstate (root module) than `catalystcenter_network_devices` when the latter is used as a source of `for_each`. <p/> The discovery resource does not support updates, it needs to be destroyed and re-created instead.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -73,7 +71,7 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"cdp_level": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("CDP level is the number of hops between neighbor devices.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("CDP level is the number of hops across neighbor devices.").String,
 				Optional:            true,
 			},
 			"discovery_type": schema.StringAttribute{
@@ -322,14 +320,6 @@ func (r *DiscoveryResource) Update(ctx context.Context, req resource.UpdateReque
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
-	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-		return
-	}
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
@@ -364,8 +354,4 @@ func (r *DiscoveryResource) Delete(ctx context.Context, req resource.DeleteReque
 //template:end delete
 
 //template:begin import
-func (r *DiscoveryResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-}
-
 //template:end import

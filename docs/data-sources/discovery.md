@@ -3,12 +3,12 @@
 page_title: "catalystcenter_discovery Data Source - terraform-provider-catalystcenter"
 subcategory: "Discovery"
 description: |-
-  This data source can read the Discovery.
+  This data source retrieves information about a discovery. It is however not intended to be used to retrieve the devices discovered, so instead please use data source catalystcenter_network_devices that can read all existing network devices, including the discovered ones.
 ---
 
 # catalystcenter_discovery (Data Source)
 
-This data source can read the Discovery.
+This data source retrieves information about a discovery. It is however not intended to be used to retrieve the devices discovered, so instead please use data source `catalystcenter_network_devices` that can read all existing network devices, including the discovered ones.
 
 ## Example Usage
 
@@ -27,7 +27,7 @@ data "catalystcenter_discovery" "example" {
 
 ### Read-Only
 
-- `cdp_level` (Number) CDP level is the number of hops between neighbor devices.
+- `cdp_level` (Number) CDP level is the number of hops across neighbor devices.
 - `discovery_type` (String) Type of Discovery.
 - `enable_password_list` (List of String)
 - `global_credential_id_list` (List of String) A list of IDs, which must include SNMP credential and CLI credential.

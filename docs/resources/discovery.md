@@ -3,12 +3,12 @@
 page_title: "catalystcenter_discovery Resource - terraform-provider-catalystcenter"
 subcategory: "Discovery"
 description: |-
-  This resource can manage a Discovery.
+  After discovery resource has been created, the Catalyst Center would contain device entries (if discovered). All the device entries can be subsequently obtained from data source catalystcenter_network_devices. Terraform currently is not able to handle for_each from a data source that depends on any managed resource, therefore to work around that limitation the catalystcenter_discovery can be placed in a different tfstate (root module) than catalystcenter_network_devices when the latter is used as a source of for_each.  The discovery resource does not support updates, it needs to be destroyed and re-created instead.
 ---
 
 # catalystcenter_discovery (Resource)
 
-This resource can manage a Discovery.
+After discovery resource has been created, the Catalyst Center would contain device entries (if discovered). All the device entries can be subsequently obtained from data source `catalystcenter_network_devices`. Terraform currently is not able to handle `for_each` from a data source that depends on any managed resource, therefore to work around that limitation the `catalystcenter_discovery` can be placed in a different tfstate (root module) than `catalystcenter_network_devices` when the latter is used as a source of `for_each`. <p/> The discovery resource does not support updates, it needs to be destroyed and re-created instead.
 
 ## Example Usage
 
@@ -36,7 +36,7 @@ resource "catalystcenter_discovery" "example" {
 
 ### Optional
 
-- `cdp_level` (Number) CDP level is the number of hops between neighbor devices.
+- `cdp_level` (Number) CDP level is the number of hops across neighbor devices.
 - `enable_password_list` (List of String)
 - `global_credential_id_list` (List of String) A list of IDs, which must include SNMP credential and CLI credential.
 - `http_read_credential` (String)
@@ -71,11 +71,3 @@ resource "catalystcenter_discovery" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
-
-## Import
-
-Import is supported using the following syntax:
-
-```shell
-terraform import catalystcenter_discovery.example "disco42"
-```

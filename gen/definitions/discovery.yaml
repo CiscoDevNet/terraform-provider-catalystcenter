@@ -2,15 +2,29 @@
 name: Discovery
 rest_endpoint: /dna/intent/api/v1/discovery
 get_rest_endpoint: /dna/intent/api/v1/discovery/1/500
+res_description:
+  'After discovery resource has been created, the Catalyst Center would contain device entries (if discovered).
+  All the device entries can be subsequently obtained from data source `catalystcenter_network_devices`. Terraform
+  currently is not able to handle `for_each` from a data source that depends on any managed resource, therefore to work
+  around that limitation the `catalystcenter_discovery` can be placed in a different tfstate (root module) than
+  `catalystcenter_network_devices` when the latter is used as a source of `for_each`.
+  <p/>
+  The discovery resource does not support updates, it needs to be destroyed and re-created instead.'
+ds_description:
+  'This data source retrieves information about a discovery. It is however not intended to be used to retrieve
+  the devices discovered, so instead please use data source `catalystcenter_network_devices` that can read all existing
+  network devices, including the discovered ones.'
+skip_minimum_test: true
+no_update: true
+no_import: true
 get_from_all: true
 id_from_query_path: response
-put_id_include_path: id
 max_async_wait_time: 600
 doc_category: Discovery
 attributes:
   - model_name: cdpLevel
     type: Int64
-    description: CDP level is the number of hops between neighbor devices.
+    description: CDP level is the number of hops across neighbor devices.
     exclude_test: true
     exclude_example: true
   - model_name: discoveryType

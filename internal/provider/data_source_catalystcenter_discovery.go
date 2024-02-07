@@ -56,7 +56,7 @@ func (d *DiscoveryDataSource) Metadata(_ context.Context, req datasource.Metadat
 func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Discovery.",
+		MarkdownDescription: "This data source retrieves information about a discovery. It is however not intended to be used to retrieve the devices discovered, so instead please use data source `catalystcenter_network_devices` that can read all existing network devices, including the discovered ones.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -64,7 +64,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Required:            true,
 			},
 			"cdp_level": schema.Int64Attribute{
-				MarkdownDescription: "CDP level is the number of hops between neighbor devices.",
+				MarkdownDescription: "CDP level is the number of hops across neighbor devices.",
 				Computed:            true,
 			},
 			"discovery_type": schema.StringAttribute{

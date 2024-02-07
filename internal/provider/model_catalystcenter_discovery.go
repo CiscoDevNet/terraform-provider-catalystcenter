@@ -76,9 +76,6 @@ func (data Discovery) getPath() string {
 //template:begin toBody
 func (data Discovery) toBody(ctx context.Context, state Discovery) string {
 	body := ""
-	if state.Id.ValueString() != "" {
-		body, _ = sjson.Set(body, "id", state.Id.ValueString())
-	}
 	if !data.CdpLevel.IsNull() {
 		body, _ = sjson.Set(body, "cdpLevel", data.CdpLevel.ValueInt64())
 	}
