@@ -29,6 +29,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -73,6 +75,9 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 			"cdp_level": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("CDP level is the number of hops across neighbor devices.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"discovery_type": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Type of Discovery.").AddStringEnumDescription("Single", "Range", "Multi Range", "CDP", "LLDP", "CIDR").String,
@@ -80,37 +85,61 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Validators: []validator.String{
 					stringvalidator.OneOf("Single", "Range", "Multi Range", "CDP", "LLDP", "CIDR"),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"enable_password_list": schema.ListAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				ElementType:         types.StringType,
 				Optional:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 			},
 			"global_credential_id_list": schema.ListAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("A list of IDs, which must include SNMP credential and CLI credential.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 			},
 			"http_read_credential": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"http_write_credential": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"ip_address_list": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"ip_filter_list": schema.ListAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("A list of IP address ranges to exclude from the discovery.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 			},
 			"lldp_level": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("LLDP level to which neighbor devices to be discovered.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("A name of the discovery.").String,
@@ -122,11 +151,17 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 			"netconf_port": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Port number for netconf as a string. It requires SSH protocol to work.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"password_list": schema.ListAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				ElementType:         types.StringType,
 				Optional:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 			},
 			"preferred_ip_method": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Preferred method for selecting management IP address.").AddStringEnumDescription("None", "UseLoopBack").AddDefaultValueDescription("None").String,
@@ -136,24 +171,39 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringvalidator.OneOf("None", "UseLoopBack"),
 				},
 				Default: stringdefault.StaticString("None"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"protocol_order": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"retry": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Number of times to try establishing SSH/Telnet connection to a device.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_auth_passphrase": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Auth passphrase for SNMP.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_auth_protocol": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP auth protocol.").AddStringEnumDescription("SHA", "MD5").String,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("SHA", "MD5"),
+				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"snmp_mode": schema.StringAttribute{
@@ -162,10 +212,16 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Validators: []validator.String{
 					stringvalidator.OneOf("AuthPriv", "AuthNoPriv", "NoAuthNoPriv"),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_priv_passphrase": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Passphrase for SNMP privacy.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_priv_protocol": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP privacy protocol.").AddStringEnumDescription("DES", "AES128").String,
@@ -173,26 +229,44 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Validators: []validator.String{
 					stringvalidator.OneOf("DES", "AES128"),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_ro_community": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP RO community of the devices to be discovered.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_ro_community_desc": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Description for snmp_ro_community.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_rw_community": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP RW community of the devices to be discovered.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_rw_community_desc": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Description for snmp_rw_community").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_user_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP username of the devices to be discovered.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"snmp_version": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP version").AddStringEnumDescription("v2", "v3").String,
@@ -200,15 +274,24 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Validators: []validator.String{
 					stringvalidator.OneOf("v2", "v3"),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"timeout_seconds": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Number of seconds to wait for each SSH/Telnet connection to a device.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"user_name_list": schema.ListAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				ElementType:         types.StringType,
 				Optional:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 			},
 		},
 	}
