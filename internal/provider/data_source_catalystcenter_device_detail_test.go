@@ -21,6 +21,7 @@ package provider
 
 //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -30,6 +31,9 @@ import (
 
 //template:begin testAccDataSource
 func TestAccDataSourceCcDeviceDetail(t *testing.T) {
+	if os.Getenv("INVENTORY") == "" {
+		t.Skip("skipping test, set environment variable INVENTORY")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "policy_tag_name", ""))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "nw_device_role", "CORE"))

@@ -5,6 +5,7 @@ get_no_id: true
 no_data_source: true
 no_resource: true
 doc_category: Inventory
+test_tags: [INVENTORY]
 attributes:
   - model_name: response
     type: List

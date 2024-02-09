@@ -18,12 +18,16 @@
 package provider
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccDataSourceCcNetworkDevices(t *testing.T) {
+	if os.Getenv("INVENTORY") == "" {
+		t.Skip("skipping test, set environment variable INVENTORY")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "response.0.id", "e0ba1a00-b69b-45aa-8c13-4cdfb59afe65"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "response.0.hostname", "sw2.ciscotest.com"))
@@ -44,20 +48,8 @@ func TestAccDataSourceCcNetworkDevices(t *testing.T) {
 }
 
 func testAccDataSourceCcNetworkDevicesConfig() string {
-	config := `resource "catalystcenter_network_devices" "test" {` + "\n"
-	config += `	response = [{` + "\n"
-	config += `	  id = "e0ba1a00-b69b-45aa-8c13-4cdfb59afe65"` + "\n"
-	config += `	  hostname = "sw2.ciscotest.com"` + "\n"
-	config += `	  management_ip_address = "10.10.10.1"` + "\n"
-	config += `	  platform_id = "C9KV-UADP-8P"` + "\n"
-	config += `	  role = "CORE"` + "\n"
-	config += `	  software_type = "IOS-XE"` + "\n"
-	config += `	}]` + "\n"
-	config += `}` + "\n"
-
-	config += `
+	config := `
 		data "catalystcenter_network_devices" "test" {
-			id = catalystcenter_network_devices.test.id
 		}
 	`
 	return config

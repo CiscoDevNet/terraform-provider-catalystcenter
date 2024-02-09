@@ -31,6 +31,9 @@ import (
 
 //template:begin testAcc
 func TestAccCcImageDistribution(t *testing.T) {
+	if os.Getenv("IMAGE_DISTRIBUTION") == "" {
+		t.Skip("skipping test, set environment variable IMAGE_DISTRIBUTION")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_image_distribution.test", "device_uuid", "138b3181-f9c5-4271-9292-cf3152ab4d3e"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_image_distribution.test", "image_uuid", "faa9c5f7-d093-459a-8164-cc555bbf3b80"))

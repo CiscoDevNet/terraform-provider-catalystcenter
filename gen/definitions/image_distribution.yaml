@@ -15,6 +15,7 @@ no_delete: true
 no_import: true
 no_read: true
 doc_category: Software Image Management (SWIM)
+test_tags: [IMAGE_DISTRIBUTION]
 attributes:
   - model_name: deviceUuid
     type: String
