@@ -137,9 +137,9 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and (len .DefaultValue) (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference}}
-				PlanModifiers: []planmodifier.{{.Type}}{
-					{{snakeCase .Type}}planmodifier.RequiresReplace(),
+				{{- if or .Id .Reference .RequiresReplace}}
+				PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
+					{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 				},
 				{{- end}}
 				{{- if or (eq .Type "List") (eq .Type "Set")}}
