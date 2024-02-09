@@ -19,27 +19,27 @@ skip_minimum_test: true
 attributes:
   - model_name: deviceUuid
     type: String
-    data_path: 0
+    data_path: '0'
     description: The UUID of the network device on which to active the software image. Changing it forces the entire resource to be re-created, so that the activation occurs as newly specified.
     requires_replace: true
     example: 138b3181-f9c5-4271-9292-cf3152ab4d3e
   - model_name: imageUuidList
     type: StringList
-    data_path: 0
+    data_path: '0'
     description: The list of UUIDs of the software images to activate. The UUIDs could be obtained for example from `catalystcenter_image.id`. SMU images shouldn't be specified in this list. Changing/adding/removing any UUID causes the entire resource to be re-created, so that the entire activation occurs as newly specified.
     requires_replace: true
   - model_name: activateLowerImageVersion
     type: Bool
-    data_path: 0
+    data_path: '0'
     description: Allow to activate a lower version of an image. Updating this attribute later does not cause image to be re-activated.
     example: 'true'
   - model_name: deviceUpgradeMode
     type: String
-    data_path: 0
+    data_path: '0'
     description: Device upgrade mode. Updating this attribute later does not cause image to be re-activated.
     exclude_example: true
   - model_name: distributeIfNeeded
     type: Bool
-    data_path: 0
+    data_path: '0'
     description: Whether to distribute the image as needed, thus negating the need for a separate `catalystcenter_image_distribution`. Updating this attribute later does not cause image to be re-activated.
     example: 'true'

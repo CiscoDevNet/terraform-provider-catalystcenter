@@ -27,7 +27,7 @@ attributes:
     tf_name: family
     type: String
     description: Third party image family
-    data_path: 0
+    data_path: '0'
     response_data_path: response.0.family
     requires_replace: true
     exclude_example: true
@@ -45,13 +45,13 @@ attributes:
     id: true
     query_param: true
     response_data_path: response.0.name
-    data_path: 0
+    data_path: '0'
     requires_replace: true
     example: basename(\"../software.bin\")
   - model_name: thirdPartyVendor
     type: String
     description: Third party Vendor
-    data_path: 0
+    data_path: '0'
     response_data_path: response.0.vendor
     requires_replace: true
     exclude_example: true
@@ -59,7 +59,7 @@ attributes:
     type: Bool
     default_value: false
     description: Whether the software image is from a third party.
-    data_path: 0
+    data_path: '0'
     write_only: true
     requires_replace: true
     exclude_example: true
