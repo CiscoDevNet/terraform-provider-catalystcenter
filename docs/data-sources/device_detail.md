@@ -43,7 +43,7 @@ data "catalystcenter_device_detail" "example" {
 - `nw_device_name` (String) Name of the device.
 - `nw_device_role` (String) Network device role, such as CORE.
 - `nw_device_type` (String) Type of network device.
-- `os_type` (String) Corresponds to the `catalystcenter_network_devices.response.*.software_type`.
+- `os_type` (String) Corresponds to the `catalystcenter_network_devices.devices.*.software_type`.
 - `overall_health` (Number) Overall numerical health score.
 - `platform_id` (String) Platform identifier, such as "C9KV-UADP-8P".
 - `policy_tag_name` (String) Policy tag name.

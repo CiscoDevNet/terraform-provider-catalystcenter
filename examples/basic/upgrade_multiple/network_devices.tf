@@ -9,7 +9,7 @@ data "catalystcenter_device_detail" "this" {
 
 locals {
   devices_raw = {
-    for v in data.catalystcenter_network_devices.this.response : v.id => {
+    for v in data.catalystcenter_network_devices.this.devices : v.id => {
       management_ip_address = v.management_ip_address
       management_state      = v.management_state
       platform_id           = v.platform_id

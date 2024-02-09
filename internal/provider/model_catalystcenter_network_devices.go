@@ -31,10 +31,10 @@ import (
 //template:end imports
 
 type NetworkDevices struct {
-	Response []NetworkDevicesResponse `tfsdk:"response"`
+	Devices []NetworkDevicesDevices `tfsdk:"devices"`
 }
 
-type NetworkDevicesResponse struct {
+type NetworkDevicesDevices struct {
 	Id                  types.String `tfsdk:"id"`
 	Hostname            types.String `tfsdk:"hostname"`
 	ManagementIpAddress types.String `tfsdk:"management_ip_address"`
@@ -54,9 +54,9 @@ func (data NetworkDevices) getPath() string {
 //template:begin toBody
 func (data NetworkDevices) toBody(ctx context.Context, state NetworkDevices) string {
 	body := ""
-	if len(data.Response) > 0 {
+	if len(data.Devices) > 0 {
 		body, _ = sjson.Set(body, "response", []interface{}{})
-		for _, item := range data.Response {
+		for _, item := range data.Devices {
 			itemBody := ""
 			if !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
@@ -90,9 +90,9 @@ func (data NetworkDevices) toBody(ctx context.Context, state NetworkDevices) str
 //template:begin fromBody
 func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response"); value.Exists() {
-		data.Response = make([]NetworkDevicesResponse, 0)
+		data.Devices = make([]NetworkDevicesDevices, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := NetworkDevicesResponse{}
+			item := NetworkDevicesDevices{}
 			if cValue := v.Get("id"); cValue.Exists() {
 				item.Id = types.StringValue(cValue.String())
 			} else {
@@ -128,7 +128,7 @@ func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.SoftwareType = types.StringNull()
 			}
-			data.Response = append(data.Response, item)
+			data.Devices = append(data.Devices, item)
 			return true
 		})
 	}
@@ -138,9 +138,9 @@ func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 
 //template:begin updateFromBody
 func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result) {
-	for i := range data.Response {
+	for i := range data.Devices {
 		keys := [...]string{"id", "hostname", "managementIpAddress", "managementState", "platformId", "role", "softwareType"}
-		keyValues := [...]string{data.Response[i].Id.ValueString(), data.Response[i].Hostname.ValueString(), data.Response[i].ManagementIpAddress.ValueString(), data.Response[i].ManagementState.ValueString(), data.Response[i].PlatformId.ValueString(), data.Response[i].Role.ValueString(), data.Response[i].SoftwareType.ValueString()}
+		keyValues := [...]string{data.Devices[i].Id.ValueString(), data.Devices[i].Hostname.ValueString(), data.Devices[i].ManagementIpAddress.ValueString(), data.Devices[i].ManagementState.ValueString(), data.Devices[i].PlatformId.ValueString(), data.Devices[i].Role.ValueString(), data.Devices[i].SoftwareType.ValueString()}
 
 		var r gjson.Result
 		res.Get("response").ForEach(
@@ -161,40 +161,40 @@ func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result
 				return true
 			},
 		)
-		if value := r.Get("id"); value.Exists() && !data.Response[i].Id.IsNull() {
-			data.Response[i].Id = types.StringValue(value.String())
+		if value := r.Get("id"); value.Exists() && !data.Devices[i].Id.IsNull() {
+			data.Devices[i].Id = types.StringValue(value.String())
 		} else {
-			data.Response[i].Id = types.StringNull()
+			data.Devices[i].Id = types.StringNull()
 		}
-		if value := r.Get("hostname"); value.Exists() && !data.Response[i].Hostname.IsNull() {
-			data.Response[i].Hostname = types.StringValue(value.String())
+		if value := r.Get("hostname"); value.Exists() && !data.Devices[i].Hostname.IsNull() {
+			data.Devices[i].Hostname = types.StringValue(value.String())
 		} else {
-			data.Response[i].Hostname = types.StringNull()
+			data.Devices[i].Hostname = types.StringNull()
 		}
-		if value := r.Get("managementIpAddress"); value.Exists() && !data.Response[i].ManagementIpAddress.IsNull() {
-			data.Response[i].ManagementIpAddress = types.StringValue(value.String())
+		if value := r.Get("managementIpAddress"); value.Exists() && !data.Devices[i].ManagementIpAddress.IsNull() {
+			data.Devices[i].ManagementIpAddress = types.StringValue(value.String())
 		} else {
-			data.Response[i].ManagementIpAddress = types.StringNull()
+			data.Devices[i].ManagementIpAddress = types.StringNull()
 		}
-		if value := r.Get("managementState"); value.Exists() && !data.Response[i].ManagementState.IsNull() {
-			data.Response[i].ManagementState = types.StringValue(value.String())
+		if value := r.Get("managementState"); value.Exists() && !data.Devices[i].ManagementState.IsNull() {
+			data.Devices[i].ManagementState = types.StringValue(value.String())
 		} else {
-			data.Response[i].ManagementState = types.StringNull()
+			data.Devices[i].ManagementState = types.StringNull()
 		}
-		if value := r.Get("platformId"); value.Exists() && !data.Response[i].PlatformId.IsNull() {
-			data.Response[i].PlatformId = types.StringValue(value.String())
+		if value := r.Get("platformId"); value.Exists() && !data.Devices[i].PlatformId.IsNull() {
+			data.Devices[i].PlatformId = types.StringValue(value.String())
 		} else {
-			data.Response[i].PlatformId = types.StringNull()
+			data.Devices[i].PlatformId = types.StringNull()
 		}
-		if value := r.Get("role"); value.Exists() && !data.Response[i].Role.IsNull() {
-			data.Response[i].Role = types.StringValue(value.String())
+		if value := r.Get("role"); value.Exists() && !data.Devices[i].Role.IsNull() {
+			data.Devices[i].Role = types.StringValue(value.String())
 		} else {
-			data.Response[i].Role = types.StringNull()
+			data.Devices[i].Role = types.StringNull()
 		}
-		if value := r.Get("softwareType"); value.Exists() && !data.Response[i].SoftwareType.IsNull() {
-			data.Response[i].SoftwareType = types.StringValue(value.String())
+		if value := r.Get("softwareType"); value.Exists() && !data.Devices[i].SoftwareType.IsNull() {
+			data.Devices[i].SoftwareType = types.StringValue(value.String())
 		} else {
-			data.Response[i].SoftwareType = types.StringNull()
+			data.Devices[i].SoftwareType = types.StringNull()
 		}
 	}
 }
@@ -203,7 +203,7 @@ func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result
 
 //template:begin isNull
 func (data *NetworkDevices) isNull(ctx context.Context, res gjson.Result) bool {
-	if len(data.Response) > 0 {
+	if len(data.Devices) > 0 {
 		return false
 	}
 	return true

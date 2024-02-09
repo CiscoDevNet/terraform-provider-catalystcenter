@@ -157,7 +157,7 @@ func (d *DeviceDetailDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 			},
 			"os_type": schema.StringAttribute{
-				MarkdownDescription: "Corresponds to the `catalystcenter_network_devices.response.*.software_type`.",
+				MarkdownDescription: "Corresponds to the `catalystcenter_network_devices.devices.*.software_type`.",
 				Computed:            true,
 			},
 		},

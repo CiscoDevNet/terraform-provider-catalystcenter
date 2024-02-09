@@ -29,12 +29,12 @@ func TestAccDataSourceCcNetworkDevices(t *testing.T) {
 		t.Skip("skipping test, set environment variable INVENTORY")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "response.0.id", "e0ba1a00-b69b-45aa-8c13-4cdfb59afe65"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "response.0.hostname", "sw2.ciscotest.com"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "response.0.management_ip_address", "10.10.10.1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "response.0.platform_id", "C9KV-UADP-8P"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "response.0.role", "CORE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "response.0.software_type", "IOS-XE"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.id", "e0ba1a00-b69b-45aa-8c13-4cdfb59afe65"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.hostname", "sw2.ciscotest.com"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.management_ip_address", "10.10.10.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.platform_id", "C9KV-UADP-8P"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.role", "CORE"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.software_type", "IOS-XE"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

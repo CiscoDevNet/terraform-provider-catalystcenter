@@ -54,7 +54,7 @@ func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.Sc
 			"source with `for_each` Terraform meta-argument.",
 
 		Attributes: map[string]schema.Attribute{
-			"response": schema.ListNestedAttribute{
+			"devices": schema.ListNestedAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{

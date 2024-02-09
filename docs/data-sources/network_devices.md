@@ -29,10 +29,10 @@ data "catalystcenter_network_devices" "example" {
 
 ### Read-Only
 
-- `response` (Attributes List) (see [below for nested schema](#nestedatt--response))
+- `devices` (Attributes List) (see [below for nested schema](#nestedatt--devices))
 
-<a id="nestedatt--response"></a>
-### Nested Schema for `response`
+<a id="nestedatt--devices"></a>
+### Nested Schema for `devices`
 
 Read-Only:
 

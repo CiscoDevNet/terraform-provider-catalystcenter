@@ -125,6 +125,6 @@ attributes:
     data_path: response
   - model_name: osType
     type: String
-    description: Corresponds to the `catalystcenter_network_devices.response.*.software_type`.
+    description: Corresponds to the `catalystcenter_network_devices.devices.*.software_type`.
     example: IOS-XE
     data_path: response

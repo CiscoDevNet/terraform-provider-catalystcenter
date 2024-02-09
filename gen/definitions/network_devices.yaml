@@ -8,6 +8,7 @@ doc_category: Inventory
 test_tags: [INVENTORY]
 attributes:
   - model_name: response
+    tf_name: devices
     type: List
     attributes:
       - model_name: id
