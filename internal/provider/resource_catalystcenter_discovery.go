@@ -90,7 +90,7 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"enable_password_list": schema.ListAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable passwords of the devices to be discovered.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 				PlanModifiers: []planmodifier.List{
@@ -156,7 +156,7 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"password_list": schema.ListAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Passwords of the devices to be discovered.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 				PlanModifiers: []planmodifier.List{
@@ -286,7 +286,7 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"user_name_list": schema.ListAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Usernames for the devices to be discovered.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 				PlanModifiers: []planmodifier.List{

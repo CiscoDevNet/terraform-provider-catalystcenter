@@ -29,7 +29,7 @@ data "catalystcenter_discovery" "example" {
 
 - `cdp_level` (Number) CDP level is the number of hops across neighbor devices.
 - `discovery_type` (String) Type of Discovery.
-- `enable_password_list` (List of String)
+- `enable_password_list` (List of String) Enable passwords of the devices to be discovered.
 - `global_credential_id_list` (List of String) A list of IDs, which must include SNMP credential and CLI credential.
 - `http_read_credential` (String)
 - `http_write_credential` (String)
@@ -38,7 +38,7 @@ data "catalystcenter_discovery" "example" {
 - `lldp_level` (Number) LLDP level to which neighbor devices to be discovered.
 - `name` (String) A name of the discovery.
 - `netconf_port` (String) Port number for netconf as a string. It requires SSH protocol to work.
-- `password_list` (List of String)
+- `password_list` (List of String) Passwords of the devices to be discovered.
 - `preferred_ip_method` (String) Preferred method for selecting management IP address.
 - `protocol_order` (String) A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback.
 - `retry` (Number) Number of times to try establishing SSH/Telnet connection to a device.
@@ -54,4 +54,4 @@ data "catalystcenter_discovery" "example" {
 - `snmp_user_name` (String) SNMP username of the devices to be discovered.
 - `snmp_version` (String) SNMP version
 - `timeout_seconds` (Number) Number of seconds to wait for each SSH/Telnet connection to a device.
-- `user_name_list` (List of String)
+- `user_name_list` (List of String) Usernames for the devices to be discovered.

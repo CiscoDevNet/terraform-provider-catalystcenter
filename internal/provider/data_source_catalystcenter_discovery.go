@@ -72,7 +72,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"enable_password_list": schema.ListAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Enable passwords of the devices to be discovered.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
@@ -111,7 +111,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"password_list": schema.ListAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Passwords of the devices to be discovered.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
@@ -176,7 +176,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"user_name_list": schema.ListAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Usernames for the devices to be discovered.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},

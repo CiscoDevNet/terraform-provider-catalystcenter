@@ -37,7 +37,7 @@ attributes:
     requires_replace: true
   - model_name: enablePasswordList
     type: StringList
-    # description: Enable Password of the devices to be discovered.
+    description: Enable passwords of the devices to be discovered.
     exclude_test: true
     exclude_example: true
     requires_replace: true
@@ -89,7 +89,7 @@ attributes:
     requires_replace: true
   - model_name: passwordList
     type: StringList
-    # description: Password of the devices to be discovered.
+    description: Passwords of the devices to be discovered.
     exclude_test: true
     exclude_example: true
     requires_replace: true
@@ -197,7 +197,7 @@ attributes:
     requires_replace: true
   - model_name: userNameList
     type: StringList
-    # description: Username for the devices to be discovered.
+    description: Usernames for the devices to be discovered.
     exclude_test: true
     exclude_example: true
     requires_replace: true
