@@ -4,10 +4,7 @@ rest_endpoint: /dna/intent/api/v1/network-device
 get_no_id: true
 no_data_source: true
 no_resource: true
-no_update: true
-no_delete: true
-no_import: true
-doc_category: Devices
+doc_category: Inventory
 attributes:
   - model_name: response
     type: List

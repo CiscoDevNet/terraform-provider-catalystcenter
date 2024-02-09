@@ -5,11 +5,7 @@ id_query_param: searchBy
 get_extra_query_params: '&identifier=uuid'
 ds_description: This data source fetches device's details, including the assigned physical location.
 no_resource: true
-no_update: true
-no_delete: true
-no_import: true
-no_read: true
-doc_category: Devices
+doc_category: Inventory
 attributes:
   - model_name: policyTagName
     type: String
