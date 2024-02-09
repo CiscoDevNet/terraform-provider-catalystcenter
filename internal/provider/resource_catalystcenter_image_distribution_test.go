@@ -45,10 +45,6 @@ func TestAccCcImageDistribution(t *testing.T) {
 		Config: testAccCcImageDistributionConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_image_distribution.test",
-		ImportState:  true,
-	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

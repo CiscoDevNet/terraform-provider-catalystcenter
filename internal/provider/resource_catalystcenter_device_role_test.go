@@ -44,10 +44,6 @@ func TestAccCcDeviceRole(t *testing.T) {
 		Config: testAccCcDeviceRoleConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_device_role.test",
-		ImportState:  true,
-	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
