@@ -85,6 +85,14 @@ func (data Template) getPath() string {
 
 //template:end getPath
 
+//template:begin getPathDelete
+
+func (data Template) getPathDelete() string {
+	return "/dna/intent/api/v1/template-programmer/template"
+}
+
+//template:end getPathDelete
+
 //template:begin toBody
 func (data Template) toBody(ctx context.Context, state Template) string {
 	body := ""

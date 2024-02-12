@@ -1,0 +1,34 @@
+---
+name: Associate Site to Network Profile
+rest_endpoint: /dna/intent/api/v1/networkprofile/%v/site/%v
+no_read: true
+no_data_source: true
+delete_no_id: true
+post_update: true
+no_import: true
+skip_minimum_test: true
+doc_category: Network Settings
+attributes:
+  - model_name: networkProfileId
+    type: String
+    reference: true
+    id: true
+    description: Network-Profile Id to be associated
+    example: ff19242d-9989-434c-beee-92b16b6b30a3
+    test_value: catalystcenter_network_profile.example.id
+  - model_name: siteId
+    type: String
+    reference: true
+    description: Site Id to be associated
+    example: ef6afe65-3248-49ca-8f33-e391419cd160
+    test_value: catalystcenter_area.test.id
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+
+  resource "catalystcenter_network_profile" "example" {
+    name = "Profile1"
+    type = "switching"
+  }

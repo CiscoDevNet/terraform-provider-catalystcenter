@@ -106,6 +106,7 @@ type YamlConfig struct {
 	GetRequiresId            bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams      string                `yaml:"get_extra_query_params"`
 	NoDelete                 bool                  `yaml:"no_delete"`
+	DeleteNoId               bool                  `yaml:"delete_no_id"`
 	NoUpdate                 bool                  `yaml:"no_update"`
 	NoRead                   bool                  `yaml:"no_read"`
 	NoImport                 bool                  `yaml:"no_import"`
@@ -194,6 +195,11 @@ func CamelCase(s string) string {
 		g = append(g, strings.Title(value))
 	}
 	return strings.Join(g, "")
+}
+
+// Templating helper function to check if string contains another string
+func StrContains(s, substr string) bool {
+	return strings.Contains(s, substr)
 }
 
 // Templating helper function to convert string to snake case
@@ -319,6 +325,7 @@ func GetFromAllPath(config YamlConfig) string {
 var functions = template.FuncMap{
 	"toGoName":              ToGoName,
 	"camelCase":             CamelCase,
+	"strContains":           StrContains,
 	"snakeCase":             SnakeCase,
 	"sprintf":               fmt.Sprintf,
 	"toLower":               strings.ToLower,

@@ -23,16 +23,12 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -43,25 +39,24 @@ import (
 //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &SPProfileResource{}
-var _ resource.ResourceWithImportState = &SPProfileResource{}
+var _ resource.Resource = &AssociateSiteToNetworkProfileResource{}
 
-func NewSPProfileResource() resource.Resource {
-	return &SPProfileResource{}
+func NewAssociateSiteToNetworkProfileResource() resource.Resource {
+	return &AssociateSiteToNetworkProfileResource{}
 }
 
-type SPProfileResource struct {
+type AssociateSiteToNetworkProfileResource struct {
 	client *cc.Client
 }
 
-func (r *SPProfileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sp_profile"
+func (r *AssociateSiteToNetworkProfileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_associate_site_to_network_profile"
 }
 
-func (r *SPProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *AssociateSiteToNetworkProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a SP Profile.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage an Associate Site to Network Profile.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -71,29 +66,25 @@ func (r *SPProfileResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The name of the SP profile").String,
+			"network_profile_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Network-Profile Id to be associated").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"model": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The model").AddStringEnumDescription("4-class-model", "5-class-model", "6-class-model", "8-class-model").String,
+			"site_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Site Id to be associated").String,
 				Required:            true,
-				Validators: []validator.String{
-					stringvalidator.OneOf("4-class-model", "5-class-model", "6-class-model", "8-class-model"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
-			},
-			"wan_provider": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The WAN provider").String,
-				Required:            true,
 			},
 		},
 	}
 }
 
-func (r *SPProfileResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *AssociateSiteToNetworkProfileResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -104,8 +95,8 @@ func (r *SPProfileResource) Configure(_ context.Context, req resource.ConfigureR
 //template:end model
 
 //template:begin create
-func (r *SPProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan SPProfile
+func (r *AssociateSiteToNetworkProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan AssociateSiteToNetworkProfile
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -117,7 +108,7 @@ func (r *SPProfileResource) Create(ctx context.Context, req resource.CreateReque
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, SPProfile{})
+	body := plan.toBody(ctx, AssociateSiteToNetworkProfile{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -125,7 +116,7 @@ func (r *SPProfileResource) Create(ctx context.Context, req resource.CreateReque
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.Name.ValueString()))
+	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkProfileId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -136,8 +127,8 @@ func (r *SPProfileResource) Create(ctx context.Context, req resource.CreateReque
 //template:end create
 
 //template:begin read
-func (r *SPProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state SPProfile
+func (r *AssociateSiteToNetworkProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state AssociateSiteToNetworkProfile
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -148,24 +139,6 @@ func (r *SPProfileResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	params := ""
-	res, err := r.client.Get(state.getPath() + params)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-	res = res.Get("response.0.value.#(spProfileName==\"" + state.Name.ValueString() + "\")")
-
-	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
-	if state.isNull(ctx, res) {
-		state.fromBody(ctx, res)
-	} else {
-		state.updateFromBody(ctx, res)
-	}
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
@@ -175,8 +148,8 @@ func (r *SPProfileResource) Read(ctx context.Context, req resource.ReadRequest, 
 //template:end read
 
 //template:begin update
-func (r *SPProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state SPProfile
+func (r *AssociateSiteToNetworkProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state AssociateSiteToNetworkProfile
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -195,7 +168,7 @@ func (r *SPProfileResource) Update(ctx context.Context, req resource.UpdateReque
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -210,8 +183,8 @@ func (r *SPProfileResource) Update(ctx context.Context, req resource.UpdateReque
 //template:end update
 
 //template:begin delete
-func (r *SPProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state SPProfile
+func (r *AssociateSiteToNetworkProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state AssociateSiteToNetworkProfile
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -221,7 +194,7 @@ func (r *SPProfileResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPathDelete() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -235,8 +208,4 @@ func (r *SPProfileResource) Delete(ctx context.Context, req resource.DeleteReque
 //template:end delete
 
 //template:begin import
-func (r *SPProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-}
-
 //template:end import
