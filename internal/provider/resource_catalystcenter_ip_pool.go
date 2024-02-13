@@ -37,6 +37,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 //template:end imports
@@ -129,7 +130,6 @@ func (r *IPPoolResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 //template:end model
 
-//template:begin create
 func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan IPPool
 
@@ -152,12 +152,13 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 	params = ""
-	res, err = r.client.Get("/api/v2/ippool" + params)
+	// TODO: move GetUntil to be a client method r.client.GetUntil; call the method from the usual template.
+	res, err = GetUntil(r.client, "/api/v2/ippool" + params, "response.#(ipPoolName==\"" + plan.Name.ValueString() + "\").id")
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(ipPoolName==\"" + plan.Name.ValueString() + "\").id").String())
+	plan.Id = types.StringValue(res.String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -165,7 +166,62 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(diags...)
 }
 
-//template:end create
+// GetUntil performs client.Get with pagination until it can return a response matching gjson.Get(jsonSearch).
+// If last page is reached the return value is simply gjson.Get(jsonSearch) of that page.
+func GetUntil(client *cc.Client, path string, jsonSearch string, mods ...func(*cc.Req)) (gjson.Result, error) {
+	selectArray := "response"
+	page := 0
+	limit := -1
+	offset := 0
+
+	for requests := 0; requests < 100; requests++ {
+		page, err := client.Get(pathWithOffset(path, offset), mods...)
+		if err != nil {
+			return page, err
+		}
+
+		res := page.Get(jsonSearch)
+		if res.Exists() {
+			return res, nil
+		}
+
+		entries := page.Get(selectArray)
+		if !entries.IsArray() {
+			return res, fmt.Errorf("expected a JSON array, but instead got %s", entries.Type)
+		}
+
+		arr := entries.Array()
+		num := len(arr)
+
+		if limit == -1 {
+			// Auto-detect a limit if obtained 25, 50, 100, ... items.
+			if num == 25 || num % 50 == 0 {
+				limit = num
+			}
+		}
+
+		if len(arr) < limit || limit == -1 {
+			return res, nil
+		}
+
+		offset += limit*9/10
+		// Advance the offset with a 10% overlap: a limited protection against concurrent deletes.
+	}
+
+	return gjson.Parse("null"), fmt.Errorf("too many HTTP GET requests needed, aborting after page %d, offset %d", page, offset)
+}
+
+func pathWithOffset(path string, offset int) string {
+	if offset <= 0 {
+		return path
+	}
+	sep := "?"
+	if strings.Contains(path, "?") {
+		sep = "&"
+	}
+
+	return fmt.Sprintf("%s%soffset=%d", path, sep, offset)
+}
 
 //template:begin read
 func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
