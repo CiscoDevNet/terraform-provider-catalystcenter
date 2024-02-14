@@ -49,10 +49,6 @@ func TestAccCcPnPDeviceClaimSite(t *testing.T) {
 		Config: testAccCcPnPDeviceClaimSiteConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_pnp_device_claim_site.test",
-		ImportState:  true,
-	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

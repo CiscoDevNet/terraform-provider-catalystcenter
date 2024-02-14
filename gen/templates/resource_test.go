@@ -124,7 +124,7 @@ func TestAccCc{{camelCase .Name}}(t *testing.T) {
 		Config: {{if .TestPrerequisites}}testAccCc{{camelCase .Name}}PrerequisitesConfig+{{end}}testAccCc{{camelCase .Name}}Config_all(),
 		Check: resource.ComposeTestCheckFunc(checks...),
 	})
-	{{- if and (not (hasReference .Attributes)) (not (hasQueryParam .Attributes))}}
+	{{- if and (not .NoImport) (not (hasReference .Attributes)) (not (hasQueryParam .Attributes))}}
 	steps = append(steps, resource.TestStep{
 		ResourceName:  "catalystcenter_{{snakeCase $name}}.test",
 		ImportState:   true,

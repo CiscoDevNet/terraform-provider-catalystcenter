@@ -35,6 +35,7 @@ skip_minimum_test: bool(required=False) # Do not perform a "minimum" (only manda
 attributes: list(include('attribute'), required=False) # List of attributes
 test_tags: list(str(), required=False) # List of test tags, tests are only executed if an environment variable with one of these tags is configured
 test_prerequisites: str(required=False) # HCL code that is included in the acceptance tests to define prerequisites
+max_async_wait_time: int(required=False) # Max wait time for async task in the API, in seconds
 ---
 attribute:
   model_name: str(required=False) # Name of the attribute in the model (payload)
@@ -45,13 +46,14 @@ attribute:
   response_data_path: str(required=False) # Path to the attribute in the response model structure
   id: bool(required=False) # Set to true if the attribute is part of the ID
   reference: bool(required=False) # Set to true if the attribute is a reference being used in the path (URL) of the REST endpoint
+  requires_replace: bool(required=False) # Set to true if the attribute update forces Terraform to destroy/recreate the entire resource
   query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for GET, POST and PUT requests
   data_source_query: bool(required=False) # Set to true if the attribute is an alternative query parameter for the data source
   mandatory: bool(required=False) # Set to true if the attribute is mandatory
   write_only: bool(required=False) # Set to true if the attribute is write-only, meaning we cannot read the value
   write_changes_only: bool(required=False) # Set to true if the attribute should only be written (included in PUT payload) if it has changed
   exclude_test: bool(required=False) # Exclude attribute from example (documentation) and acceptance test
-  exclude_example: bool(required=False) # Exclude attribute from acceptance test only (example/documentation is still generated)
+  exclude_example: bool(required=False) # Exclude attribute from example (documentation)
   description: str(required=False) # Attribute description
   example: any(str(), int(), bool(), num(), required=False) # Example value for documentation, also used for acceptance test
   enum_values: list(str(), required=False) # List of enum values, only relevant if type is "String"

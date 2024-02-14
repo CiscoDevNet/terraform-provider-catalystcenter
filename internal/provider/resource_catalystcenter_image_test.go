@@ -30,18 +30,24 @@ import (
 //template:end imports
 
 //template:begin testAcc
-func TestAccCcDeviceRole(t *testing.T) {
-	if os.Getenv("INVENTORY") == "" {
-		t.Skip("skipping test, set environment variable INVENTORY")
+func TestAccCcImage(t *testing.T) {
+	if os.Getenv("TEST_IMAGE_FROM_FILE") == "" {
+		t.Skip("skipping test, set environment variable TEST_IMAGE_FROM_FILE")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_role.test", "device_id", "12345678-1234-1234-1234-123456789012"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_role.test", "role", "ACCESS"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_role.test", "role_source", "MANUAL"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_image.test", "third_party_application_type", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_image.test", "family", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_image.test", "name", "basename(\"../software.bin\")"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_image.test", "third_party_vendor", ""))
 
 	var steps []resource.TestStep
+	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
+		steps = append(steps, resource.TestStep{
+			Config: testAccCcImageConfig_minimum(),
+		})
+	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcDeviceRoleConfig_all(),
+		Config: testAccCcImageConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -58,11 +64,10 @@ func TestAccCcDeviceRole(t *testing.T) {
 //template:end testPrerequisites
 
 //template:begin testAccConfigMinimal
-func testAccCcDeviceRoleConfig_minimum() string {
-	config := `resource "catalystcenter_device_role" "test" {` + "\n"
-	config += `	device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	role = "ACCESS"` + "\n"
-	config += `	role_source = "MANUAL"` + "\n"
+func testAccCcImageConfig_minimum() string {
+	config := `resource "catalystcenter_image" "test" {` + "\n"
+	config += `	source_path = "../software.bin"` + "\n"
+	config += `	name = "basename(\"../software.bin\")"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -70,11 +75,14 @@ func testAccCcDeviceRoleConfig_minimum() string {
 //template:end testAccConfigMinimal
 
 //template:begin testAccConfigAll
-func testAccCcDeviceRoleConfig_all() string {
-	config := `resource "catalystcenter_device_role" "test" {` + "\n"
-	config += `	device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	role = "ACCESS"` + "\n"
-	config += `	role_source = "MANUAL"` + "\n"
+func testAccCcImageConfig_all() string {
+	config := `resource "catalystcenter_image" "test" {` + "\n"
+	config += `	third_party_application_type = ""` + "\n"
+	config += `	family = ""` + "\n"
+	config += `	source_path = "../software.bin"` + "\n"
+	config += `	name = "basename(\"../software.bin\")"` + "\n"
+	config += `	third_party_vendor = ""` + "\n"
+	config += `	is_third_party = ` + "\n"
 	config += `}` + "\n"
 	return config
 }

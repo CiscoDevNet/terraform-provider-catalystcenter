@@ -1,0 +1,31 @@
+---
+name: Image Distribution
+rest_endpoint: /dna/intent/api/v1/image/distribution
+no_data_source: true
+res_description:
+  'This resource can distribute (copy) a software image file to the chosen network device.
+  Every time this resource is created or re-created, the Catalyst Center considers distributying/copying the image onto the device.
+  (Catalyst Center does not however proceed with copying if the image is already present on the device, assuming
+  the operation has succeeded and noting this fact in its audit log.)
+  <p/>
+  When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.
+  In effect, this resource currently cannot be used to undo a distribution of an image.'
+no_update: true
+no_delete: true
+no_import: true
+no_read: true
+doc_category: Software Image Management (SWIM)
+test_tags: [IMAGE_DISTRIBUTION]
+attributes:
+  - model_name: deviceUuid
+    type: String
+    data_path: '0'
+    description: The UUID of the network device to which to copy the software image file.
+    requires_replace: true
+    example: 138b3181-f9c5-4271-9292-cf3152ab4d3e
+  - model_name: imageUuid
+    type: String
+    data_path: '0'
+    description: The UUID of the software image to copy. It could be obtained for example from `catalystcenter_image.id`.
+    requires_replace: true
+    example: faa9c5f7-d093-459a-8164-cc555bbf3b80

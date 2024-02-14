@@ -1,0 +1,203 @@
+---
+name: Discovery
+rest_endpoint: /dna/intent/api/v1/discovery
+get_rest_endpoint: /dna/intent/api/v1/discovery/1/500
+res_description:
+  'After discovery resource has been created, the Catalyst Center would contain device entries (if discovered).
+  All the device entries can be subsequently obtained from data source `catalystcenter_network_devices`. Terraform
+  currently is not able to handle `for_each` from a data source that depends on any managed resource, therefore to work
+  around that limitation the `catalystcenter_discovery` can be placed in a different tfstate (root module) than
+  `catalystcenter_network_devices` when the latter is used as a source of `for_each`.
+  <p/>
+  The discovery resource does not support updates, it needs to be destroyed and re-created instead.'
+ds_description:
+  'This data source retrieves information about a discovery. It is however not intended to be used to retrieve
+  the devices discovered, so instead please use data source `catalystcenter_network_devices` that can read all existing
+  network devices, including the discovered ones.'
+skip_minimum_test: true
+no_update: true
+no_import: true
+get_from_all: true
+id_from_query_path: response
+max_async_wait_time: 600
+doc_category: Discovery
+attributes:
+  - model_name: cdpLevel
+    type: Int64
+    description: CDP level is the number of hops across neighbor devices.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: discoveryType
+    type: String
+    enum_values: [Single, Range, Multi Range, CDP, LLDP, CIDR]
+    mandatory: true
+    description: Type of Discovery.
+    example: Range
+    requires_replace: true
+  - model_name: enablePasswordList
+    type: StringList
+    description: Enable passwords of the devices to be discovered.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: globalCredentialIdList
+    type: StringList
+    description: A list of IDs, which must include SNMP credential and CLI credential.
+    exclude_test: true
+    requires_replace: true
+  - model_name: httpReadCredential
+    type: String
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: httpWriteCredential
+    type: String
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: ipAddressList
+    type: String
+    description: "A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR."
+    example: 192.168.0.1-192.168.0.99
+    requires_replace: true
+  - model_name: ipFilterList
+    type: StringList
+    description: A list of IP address ranges to exclude from the discovery.
+    exclude_test: true
+    # example: 192.168.0.8-192.168.0.9 # a "Subnet Filter" error
+    exclude_example: true
+    requires_replace: true
+  - model_name: lldpLevel
+    type: Int64
+    description: LLDP level to which neighbor devices to be discovered.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: name
+    type: String
+    mandatory: true
+    id: true
+    description: A name of the discovery.
+    test_value: '"testing terraform provider"'
+    example: disco42
+    requires_replace: true
+  - model_name: netconfPort
+    type: String
+    description: Port number for netconf as a string. It requires SSH protocol to work.
+    example: '830'
+    requires_replace: true
+  - model_name: passwordList
+    type: StringList
+    description: Passwords of the devices to be discovered.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: preferredIpMethod
+    response_data_path: preferredMgmtIPMethod
+    type: String
+    enum_values: [None, UseLoopBack]
+    default_value: None
+    description: Preferred method for selecting management IP address.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: protocolOrder
+    type: String
+    mandatory: true
+    description: "A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback."
+    example: SSH
+    requires_replace: true
+  - model_name: retry
+    response_data_path: retryCount
+    type: Int64
+    description: Number of times to try establishing SSH/Telnet connection to a device.
+    example: 3
+    requires_replace: true
+  - model_name: snmpAuthPassphrase
+    type: String
+    description: Auth passphrase for SNMP.
+    write_only: true
+    test_value: '"8 chars+"'
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpAuthProtocol
+    type: String
+    description: SNMP auth protocol.
+    enum_values: [SHA, MD5]
+    test_value: '"SHA"'
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpMode
+    type: String
+    description: Mode of SNMP. The `snmp_auth_protocol` and `snmp_auth_passphrase` are required for \"AuthNoPriv\" mode. Additionally, `snmp_priv_protocol` and `snmp_priv_passphrase` are required for \"AuthPriv\" mode.
+    enum_values: [AuthPriv, AuthNoPriv, NoAuthNoPriv]
+    test_value: '"AuthPriv"'
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpPrivPassphrase
+    type: String
+    description: Passphrase for SNMP privacy.
+    write_only: true
+    test_value: '"8 chars+"'
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpPrivProtocol
+    type: String
+    description: SNMP privacy protocol.
+    test_value: '"AES128"'
+    enum_values: [DES, AES128]
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpRoCommunity
+    type: String
+    description: SNMP RO community of the devices to be discovered.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpRoCommunityDesc
+    type: String
+    description: Description for snmp_ro_community.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpRwCommunity
+    type: String
+    description: SNMP RW community of the devices to be discovered.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpRwCommunityDesc
+    type: String
+    description: Description for snmp_rw_community
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpUserName
+    type: String
+    description: SNMP username of the devices to be discovered.
+    test_value: '"testuser"'
+    exclude_example: true
+    requires_replace: true
+  - model_name: snmpVersion
+    type: String
+    description: SNMP version
+    enum_values: [v2, v3]
+    write_only: true
+    test_value: '"v3"'
+    exclude_example: true
+    requires_replace: true
+  - model_name: timeout
+    response_data_path: timeOut
+    tf_name: timeout_seconds
+    type: Int64
+    description: Number of seconds to wait for each SSH/Telnet connection to a device.
+    example: 5
+    write_only: true
+    requires_replace: true
+  - model_name: userNameList
+    type: StringList
+    description: Usernames for the devices to be discovered.
+    exclude_test: true
+    exclude_example: true
+    requires_replace: true
