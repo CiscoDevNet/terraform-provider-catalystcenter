@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.1.4 (unreleased)
+## 0.1.4
 
 - Fix import operation of resources
 - Add `catalystcenter_device_detail` data source
