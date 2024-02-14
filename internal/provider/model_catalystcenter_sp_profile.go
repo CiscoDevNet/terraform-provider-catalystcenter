@@ -47,6 +47,14 @@ func (data SPProfile) getPath() string {
 
 //template:end getPath
 
+//template:begin getPathDelete
+
+func (data SPProfile) getPathDelete() string {
+	return "/dna/intent/api/v2/sp-profile"
+}
+
+//template:end getPathDelete
+
 //template:begin toBody
 func (data SPProfile) toBody(ctx context.Context, state SPProfile) string {
 	body := ""

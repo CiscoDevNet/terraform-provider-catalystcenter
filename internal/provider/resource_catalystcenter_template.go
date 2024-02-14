@@ -345,7 +345,7 @@ func (r *TemplateResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete("/dna/intent/api/v1/template-programmer/template" + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPathDelete() + "/" + state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

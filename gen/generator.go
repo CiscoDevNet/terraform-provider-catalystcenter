@@ -106,6 +106,7 @@ type YamlConfig struct {
 	GetRequiresId            bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams      string                `yaml:"get_extra_query_params"`
 	NoDelete                 bool                  `yaml:"no_delete"`
+	DeleteNoId               bool                  `yaml:"delete_no_id"`
 	NoUpdate                 bool                  `yaml:"no_update"`
 	NoRead                   bool                  `yaml:"no_read"`
 	NoImport                 bool                  `yaml:"no_import"`
@@ -321,6 +322,7 @@ func GetFromAllPath(config YamlConfig) string {
 var functions = template.FuncMap{
 	"toGoName":              ToGoName,
 	"camelCase":             CamelCase,
+	"strContains":           strings.Contains,
 	"snakeCase":             SnakeCase,
 	"sprintf":               fmt.Sprintf,
 	"toLower":               strings.ToLower,

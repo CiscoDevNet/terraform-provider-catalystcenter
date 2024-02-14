@@ -50,6 +50,14 @@ func (data Image) getPath() string {
 
 //template:end getPath
 
+//template:begin getPathDelete
+
+func (data Image) getPathDelete() string {
+	return "/api/v1/image/importation"
+}
+
+//template:end getPathDelete
+
 //template:begin toBody
 func (data Image) toBody(ctx context.Context, state Image) string {
 	body := ""

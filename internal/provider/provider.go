@@ -242,6 +242,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewAreaResource,
 		NewAssignCredentialsResource,
+		NewAssociateSiteToNetworkProfileResource,
 		NewBuildingResource,
 		NewCredentialsCLIResource,
 		NewCredentialsHTTPSReadResource,
