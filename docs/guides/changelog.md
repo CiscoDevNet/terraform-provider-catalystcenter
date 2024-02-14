@@ -10,6 +10,13 @@ description: |-
 ## 0.1.4 (unreleased)
 
 - Fix import operation of resources
+- Add `catalystcenter_device_detail` data source
+- Add `catalystcenter_device_discovery` resource and data source
+- Add `catalystcenter_device_network_devices` data source
+- Add `catalystcenter_device_image` resource
+- Add `catalystcenter_device_image_activation` resource
+- Add `catalystcenter_device_image_distribution` resource
+- Add `catalystcenter_device_associate_site_to_network_profile` resource
 
 ## 0.1.3
 
