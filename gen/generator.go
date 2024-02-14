@@ -197,11 +197,6 @@ func CamelCase(s string) string {
 	return strings.Join(g, "")
 }
 
-// Templating helper function to check if string contains another string
-func StrContains(s, substr string) bool {
-	return strings.Contains(s, substr)
-}
-
 // Templating helper function to convert string to snake case
 func SnakeCase(s string) string {
 	var g []string
@@ -325,7 +320,7 @@ func GetFromAllPath(config YamlConfig) string {
 var functions = template.FuncMap{
 	"toGoName":              ToGoName,
 	"camelCase":             CamelCase,
-	"strContains":           StrContains,
+	"strContains":           strings.Contains,
 	"snakeCase":             SnakeCase,
 	"sprintf":               fmt.Sprintf,
 	"toLower":               strings.ToLower,
