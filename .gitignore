@@ -33,3 +33,14 @@ website/vendor
 
 # Keep windows files with windows line endings
 *.winfile eol=crlf
+./bin
+# for use in TF_LOG_PATH
+log*.txt
+# Cisco software images
+*.bin
+# Terraform lockfile. While this file is usually committed on deployable TF repos,
+# here it tends to accumulate a lot of unnecessary hashes from transient plugin
+# compilations in dev environment.
+.terraform.lock.hcl
+# Transient Terraform backend lock
+.terraform.tfstate.lock.info

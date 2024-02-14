@@ -1,0 +1,34 @@
+---
+name: Network Devices
+rest_endpoint: /dna/intent/api/v1/network-device
+get_no_id: true
+no_data_source: true
+no_resource: true
+doc_category: Inventory
+test_tags: [INVENTORY]
+attributes:
+  - model_name: response
+    tf_name: devices
+    type: List
+    attributes:
+      - model_name: id
+        type: String
+        example: e0ba1a00-b69b-45aa-8c13-4cdfb59afe65
+      - model_name: hostname
+        type: String
+        example: sw2.ciscotest.com
+      - model_name: managementIpAddress
+        type: String
+        example: 10.10.10.1
+      - model_name: managementState
+        type: String
+        example: Managed
+      - model_name: platformId
+        type: String
+        example: C9KV-UADP-8P
+      - model_name: role
+        type: String
+        example: CORE
+      - model_name: softwareType
+        type: String
+        example: IOS-XE

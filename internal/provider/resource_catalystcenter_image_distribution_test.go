@@ -30,18 +30,22 @@ import (
 //template:end imports
 
 //template:begin testAcc
-func TestAccCcDeviceRole(t *testing.T) {
-	if os.Getenv("INVENTORY") == "" {
-		t.Skip("skipping test, set environment variable INVENTORY")
+func TestAccCcImageDistribution(t *testing.T) {
+	if os.Getenv("IMAGE_DISTRIBUTION") == "" {
+		t.Skip("skipping test, set environment variable IMAGE_DISTRIBUTION")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_role.test", "device_id", "12345678-1234-1234-1234-123456789012"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_role.test", "role", "ACCESS"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_role.test", "role_source", "MANUAL"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_image_distribution.test", "device_uuid", "138b3181-f9c5-4271-9292-cf3152ab4d3e"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_image_distribution.test", "image_uuid", "faa9c5f7-d093-459a-8164-cc555bbf3b80"))
 
 	var steps []resource.TestStep
+	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
+		steps = append(steps, resource.TestStep{
+			Config: testAccCcImageDistributionConfig_minimum(),
+		})
+	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcDeviceRoleConfig_all(),
+		Config: testAccCcImageDistributionConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -58,11 +62,8 @@ func TestAccCcDeviceRole(t *testing.T) {
 //template:end testPrerequisites
 
 //template:begin testAccConfigMinimal
-func testAccCcDeviceRoleConfig_minimum() string {
-	config := `resource "catalystcenter_device_role" "test" {` + "\n"
-	config += `	device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	role = "ACCESS"` + "\n"
-	config += `	role_source = "MANUAL"` + "\n"
+func testAccCcImageDistributionConfig_minimum() string {
+	config := `resource "catalystcenter_image_distribution" "test" {` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -70,11 +71,10 @@ func testAccCcDeviceRoleConfig_minimum() string {
 //template:end testAccConfigMinimal
 
 //template:begin testAccConfigAll
-func testAccCcDeviceRoleConfig_all() string {
-	config := `resource "catalystcenter_device_role" "test" {` + "\n"
-	config += `	device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	role = "ACCESS"` + "\n"
-	config += `	role_source = "MANUAL"` + "\n"
+func testAccCcImageDistributionConfig_all() string {
+	config := `resource "catalystcenter_image_distribution" "test" {` + "\n"
+	config += `	device_uuid = "138b3181-f9c5-4271-9292-cf3152ab4d3e"` + "\n"
+	config += `	image_uuid = "faa9c5f7-d093-459a-8164-cc555bbf3b80"` + "\n"
 	config += `}` + "\n"
 	return config
 }

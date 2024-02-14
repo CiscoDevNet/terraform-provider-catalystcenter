@@ -252,7 +252,11 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewCredentialsSNMPv3Resource,
 		NewDeviceResource,
 		NewDeviceRoleResource,
+		NewDiscoveryResource,
 		NewFloorResource,
+		NewImageResource,
+		NewImageActivationResource,
+		NewImageDistributionResource,
 		NewIPPoolResource,
 		NewIPPoolReservationResource,
 		NewNetworkResource,
@@ -269,6 +273,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 
 func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		NewNetworkDevicesDataSource, // manually maintained
 		NewAreaDataSource,
 		NewAssignCredentialsDataSource,
 		NewBuildingDataSource,
@@ -278,6 +283,8 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewCredentialsSNMPv2ReadDataSource,
 		NewCredentialsSNMPv2WriteDataSource,
 		NewCredentialsSNMPv3DataSource,
+		NewDeviceDetailDataSource,
+		NewDiscoveryDataSource,
 		NewFloorDataSource,
 		NewIPPoolDataSource,
 		NewIPPoolReservationDataSource,

@@ -132,6 +132,7 @@ type YamlConfig struct {
 	Attributes               []YamlConfigAttribute `yaml:"attributes"`
 	TestTags                 []string              `yaml:"test_tags"`
 	TestPrerequisites        string                `yaml:"test_prerequisites"`
+	MaxAsyncWaitTime         int64                 `yaml:"max_async_wait_time"`
 }
 
 type YamlConfigAttribute struct {
@@ -143,6 +144,7 @@ type YamlConfigAttribute struct {
 	ResponseDataPath  string                `yaml:"response_data_path"`
 	Id                bool                  `yaml:"id"`
 	Reference         bool                  `yaml:"reference"`
+	RequiresReplace   bool                  `yaml:"requires_replace"`
 	QueryParam        bool                  `yaml:"query_param"`
 	DataSourceQuery   bool                  `yaml:"data_source_query"`
 	Mandatory         bool                  `yaml:"mandatory"`
