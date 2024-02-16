@@ -1,0 +1,29 @@
+---
+name: SDA Fabric Site
+rest_endpoint: /dna/intent/api/v1/business/sda/fabric-site
+get_rest_endpoint: /dna/intent/api/v1/sda/fabricSites
+delete_rest_endpoint: /dna/intent/api/v1/sda/fabricSites
+get_from_all: true
+id_from_query_path: response
+no_update: true
+skip_minimum_test: true
+doc_category: SDA
+attributes:
+  - model_name: siteNameHierarchy
+    type: String
+    id: true
+    data_source_query: true
+    description: Existing site name hierarchy available at global level
+    example: Global/Site1
+    test_value: '"${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"'
+  - model_name: fabricType
+    type: String
+    description: Type of SD-Access Fabric
+    enum_values: [FABRIC_SITE, FABRIC_ZONE]
+    example: FABRIC_SITE
+    default_value: FABRIC_SITE
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
