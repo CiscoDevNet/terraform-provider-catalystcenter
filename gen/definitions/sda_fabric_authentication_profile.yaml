@@ -1,0 +1,41 @@
+---
+name: SDA Fabric Authentication Profile
+rest_endpoint: /dna/intent/api/v1/business/sda/authentication-profile
+id_from_attribute: true
+id_query_param: siteNameHierarchy
+delete_id_query_param: siteNameHierarchy
+no_update: true
+skip_minimum_test: true
+doc_category: SDA
+attributes:
+  - model_name: siteNameHierarchy
+    data_path: "0"
+    response_data_path: siteNameHierarchy
+    type: String
+    id: true
+    description: Path of SDA Fabric Site
+    example: Global/Site1
+    test_value: 'catalystcenter_sda_fabric_site.test.site_name_hierarchy'
+  - model_name: authenticateTemplateName
+    tf_name: authentication_template_name    
+    data_path: "0"
+    response_data_path: authenticateTemplateName
+    type: String
+    mandatory: true
+    requires_replace: true  # PUT is there but requires more parameters, therefore we use DELETE/POST to update
+    description: Authentication Template Name
+    enum_values:
+      - No Authentication
+      - Open Authentication
+      - Closed Authentication
+      - Low Impact
+    example: No Authentication
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_sda_fabric_site" "test" {
+    site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"
+    fabric_type = "FABRIC_SITE"
+  }

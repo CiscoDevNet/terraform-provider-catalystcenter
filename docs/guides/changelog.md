@@ -11,6 +11,7 @@ description: |-
 
 - Add `catalystcenter_sda_fabric_site` resource and data source
 - Add `catalystcenter_template_version` resource and data source
+- Add `catalystcenter_sda_fabric_authentication_profile` resource and data source
 
 ## 0.1.4
 
