@@ -1,3 +1,8 @@
+## 0.1.5 (unreleased)
+
+- Add `catalystcenter_sda_fabric_site` resource and data source
+- Add `catalystcenter_template_version` resource and data source
+
 ## 0.1.4
 
 - Fix import operation of resources
