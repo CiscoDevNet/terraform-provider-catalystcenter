@@ -1,10 +1,9 @@
 ---
 name: SDA Fabric Site
 rest_endpoint: /dna/intent/api/v1/business/sda/fabric-site
-get_rest_endpoint: /dna/intent/api/v1/sda/fabricSites
-delete_rest_endpoint: /dna/intent/api/v1/sda/fabricSites
-get_from_all: true
-id_from_query_path: response
+id_from_attribute: true
+id_query_param: siteNameHierarchy
+delete_id_query_param: siteNameHierarchy
 no_update: true
 skip_minimum_test: true
 doc_category: SDA
@@ -20,6 +19,8 @@ attributes:
     type: String
     description: Type of SD-Access Fabric
     enum_values: [FABRIC_SITE, FABRIC_ZONE]
+    write_only: true  # when configuring FABRIC_SITE, GET return FABRIC_LAN (v2.3.7.4)
+    requires_replace: true  # PUT not implemented
     example: FABRIC_SITE
     default_value: FABRIC_SITE
 test_prerequisites: |

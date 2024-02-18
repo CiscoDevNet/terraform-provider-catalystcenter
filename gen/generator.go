@@ -123,6 +123,7 @@ type YamlConfig struct {
 	PutIdQueryParam          string                `yaml:"put_id_query_param"`
 	PutNoId                  bool                  `yaml:"put_no_id"`
 	PutUpdateId              bool                  `yaml:"put_update_id"`
+	DeleteIdQueryParam       string                `yaml:"delete_id_query_param"`
 	MinimumVersion           string                `yaml:"minimum_version"`
 	DsDescription            string                `yaml:"ds_description"`
 	ResDescription           string                `yaml:"res_description"`

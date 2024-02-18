@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.21.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-testing v1.6.0
-	github.com/netascode/go-catalystcenter v0.1.3
+	github.com/netascode/go-catalystcenter v0.1.4
 	github.com/tidwall/gjson v1.17.1
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/tools v0.18.0

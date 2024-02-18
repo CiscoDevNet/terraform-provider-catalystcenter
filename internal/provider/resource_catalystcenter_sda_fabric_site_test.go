@@ -31,7 +31,6 @@ import (
 //template:begin testAcc
 func TestAccCcSDAFabricSite(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_fabric_site.test", "fabric_type", "FABRIC_SITE"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{

@@ -48,10 +48,6 @@ func (data SDAFabricSite) getPath() string {
 
 //template:begin getPathDelete
 
-func (data SDAFabricSite) getPathDelete() string {
-	return "/dna/intent/api/v1/sda/fabricSites"
-}
-
 //template:end getPathDelete
 
 //template:begin toBody
@@ -75,11 +71,6 @@ func (data *SDAFabricSite) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.SiteNameHierarchy = types.StringNull()
 	}
-	if value := res.Get("fabricType"); value.Exists() {
-		data.FabricType = types.StringValue(value.String())
-	} else {
-		data.FabricType = types.StringValue("FABRIC_SITE")
-	}
 }
 
 //template:end fromBody
@@ -90,11 +81,6 @@ func (data *SDAFabricSite) updateFromBody(ctx context.Context, res gjson.Result)
 		data.SiteNameHierarchy = types.StringValue(value.String())
 	} else {
 		data.SiteNameHierarchy = types.StringNull()
-	}
-	if value := res.Get("fabricType"); value.Exists() && !data.FabricType.IsNull() {
-		data.FabricType = types.StringValue(value.String())
-	} else if data.FabricType.ValueString() != "FABRIC_SITE" {
-		data.FabricType = types.StringNull()
 	}
 }
 

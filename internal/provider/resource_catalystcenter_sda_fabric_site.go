@@ -87,6 +87,9 @@ func (r *SDAFabricSiteResource) Schema(ctx context.Context, req resource.SchemaR
 					stringvalidator.OneOf("FABRIC_SITE", "FABRIC_ZONE"),
 				},
 				Default: stringdefault.StaticString("FABRIC_SITE"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 		},
 	}
@@ -124,13 +127,7 @@ func (r *SDAFabricSiteResource) Create(ctx context.Context, req resource.CreateR
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	params = ""
-	res, err = r.client.Get("/dna/intent/api/v1/sda/fabricSites" + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-	plan.Id = types.StringValue(res.Get("response.#(siteNameHierarchy==\"" + plan.SiteNameHierarchy.ValueString() + "\").id").String())
+	plan.Id = types.StringValue(fmt.Sprint(plan.SiteNameHierarchy.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -154,7 +151,8 @@ func (r *SDAFabricSiteResource) Read(ctx context.Context, req resource.ReadReque
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	res, err := r.client.Get("/dna/intent/api/v1/sda/fabricSites" + params)
+	params += "?siteNameHierarchy=" + state.Id.ValueString()
+	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -162,7 +160,6 @@ func (r *SDAFabricSiteResource) Read(ctx context.Context, req resource.ReadReque
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -218,7 +215,7 @@ func (r *SDAFabricSiteResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPathDelete() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "?siteNameHierarchy=" + state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

@@ -31,7 +31,6 @@ import (
 //template:begin testAccDataSource
 func TestAccDataSourceCcSDAFabricSite(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_sda_fabric_site.test", "fabric_type", "FABRIC_SITE"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

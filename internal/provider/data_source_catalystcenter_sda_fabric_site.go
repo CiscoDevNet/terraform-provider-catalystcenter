@@ -111,7 +111,7 @@ func (d *SDAFabricSiteDataSource) Read(ctx context.Context, req datasource.ReadR
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 	if config.Id.IsNull() && !config.SiteNameHierarchy.IsNull() {
-		res, err := d.client.Get("/dna/intent/api/v1/sda/fabricSites")
+		res, err := d.client.Get(config.getPath())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
@@ -134,12 +134,12 @@ func (d *SDAFabricSiteDataSource) Read(ctx context.Context, req datasource.ReadR
 	}
 
 	params := ""
-	res, err := d.client.Get("/dna/intent/api/v1/sda/fabricSites" + params)
+	params += "?siteNameHierarchy=" + config.Id.ValueString()
+	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
-	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 
