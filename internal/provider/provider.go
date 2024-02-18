@@ -268,6 +268,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewSDAFabricSiteResource,
 		NewSPProfileResource,
 		NewTemplateResource,
+		NewTemplateVersionResource,
 		NewUserResource,
 	}
 }
@@ -297,6 +298,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewSDAFabricSiteDataSource,
 		NewSPProfileDataSource,
 		NewTemplateDataSource,
+		NewTemplateVersionDataSource,
 		NewUserDataSource,
 	}
 }
