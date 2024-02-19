@@ -8,6 +8,7 @@ put_id_include_path: id
 put_no_id: true
 id_path: response.data
 id_from_query_path_attribute: templateId
+get_extra_query_params: "?unCommitted=true"
 doc_category: Templates
 attributes:
   - model_name: project_id
@@ -147,7 +148,6 @@ attributes:
         enum_values:
           - SINGLE_SELECT
           - MULTI_SELECT
-        mandatory: true
         description: Type of selection
         example: SINGLE_SELECT
       - model_name: selectionValues

@@ -187,10 +187,11 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	{{- $getFromAllPath := getFromAllPath .}}
 	{{- $idFromQueryPathAttribute := .IdFromQueryPathAttribute}}
 	{{- $getRestEndpoint := .GetRestEndpoint}}
+	{{- $getExtraQueryParams := .GetExtraQueryParams}}
 	{{- range .Attributes}}
 	{{- if .DataSourceQuery}}
 	if config.Id.IsNull() && !config.{{toGoName .TfName}}.IsNull() {
-		res, err := d.client.Get({{if $getRestEndpoint}}"{{$getRestEndpoint}}"{{else}}config.getPath(){{end}})
+		res, err := d.client.Get({{if $getRestEndpoint}}"{{$getRestEndpoint}}"{{else}}config.getPath(){{end}}{{if $getExtraQueryParams}} + "{{$getExtraQueryParams}}"{{end}})
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
