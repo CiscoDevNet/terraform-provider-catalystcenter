@@ -79,19 +79,19 @@ func (r *BuildingResource) Schema(ctx context.Context, req resource.SchemaReques
 			},
 			"country": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The country of the building").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The address of the building").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"latitude": schema.Float64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Latitude").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"longitude": schema.Float64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Longitude").String,
-				Required:            true,
+				Optional:            true,
 			},
 		},
 	}
