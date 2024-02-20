@@ -36,6 +36,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 //template:end imports
@@ -227,7 +228,6 @@ func (r *TemplateResource) Configure(_ context.Context, req resource.ConfigureRe
 
 //template:end model
 
-//template:begin create
 func (r *TemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Template
 
@@ -249,15 +249,24 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.data").String())
+	data := res.Get("response.data").String()
+	// In case of validation errors/warnings the template ID is encoded in data
+	if gjson.Get(data, "templateId").Exists() {
+		plan.Id = types.StringValue(gjson.Get(data, "templateId").String())
+		// Check for validation errors
+		gjson.Get(data, "templateErrors").ForEach(func(k, v gjson.Result) bool {
+			resp.Diagnostics.AddWarning("Template Validation Warning", fmt.Sprintf("Template Validation Warning: line number: %s, type: %s, message: %s", v.Get("lineNumber").String(), v.Get("type").String(), v.Get("message").String()))
+			return true
+		})
+	} else {
+		plan.Id = types.StringValue(res.Get("response.data").String())
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-//template:end create
 
 //template:begin read
 func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
