@@ -31,7 +31,7 @@ import (
 //template:end imports
 
 //template:begin types
-type SDAFabricAuthenticationProfile struct {
+type FabricAuthenticationProfile struct {
 	Id                         types.String `tfsdk:"id"`
 	SiteNameHierarchy          types.String `tfsdk:"site_name_hierarchy"`
 	AuthenticationTemplateName types.String `tfsdk:"authentication_template_name"`
@@ -40,7 +40,7 @@ type SDAFabricAuthenticationProfile struct {
 //template:end types
 
 //template:begin getPath
-func (data SDAFabricAuthenticationProfile) getPath() string {
+func (data FabricAuthenticationProfile) getPath() string {
 	return "/dna/intent/api/v1/business/sda/authentication-profile"
 }
 
@@ -51,7 +51,7 @@ func (data SDAFabricAuthenticationProfile) getPath() string {
 //template:end getPathDelete
 
 //template:begin toBody
-func (data SDAFabricAuthenticationProfile) toBody(ctx context.Context, state SDAFabricAuthenticationProfile) string {
+func (data FabricAuthenticationProfile) toBody(ctx context.Context, state FabricAuthenticationProfile) string {
 	body := ""
 	if !data.SiteNameHierarchy.IsNull() {
 		body, _ = sjson.Set(body, "0.siteNameHierarchy", data.SiteNameHierarchy.ValueString())
@@ -65,7 +65,7 @@ func (data SDAFabricAuthenticationProfile) toBody(ctx context.Context, state SDA
 //template:end toBody
 
 //template:begin fromBody
-func (data *SDAFabricAuthenticationProfile) fromBody(ctx context.Context, res gjson.Result) {
+func (data *FabricAuthenticationProfile) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("siteNameHierarchy"); value.Exists() {
 		data.SiteNameHierarchy = types.StringValue(value.String())
 	} else {
@@ -81,7 +81,7 @@ func (data *SDAFabricAuthenticationProfile) fromBody(ctx context.Context, res gj
 //template:end fromBody
 
 //template:begin updateFromBody
-func (data *SDAFabricAuthenticationProfile) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *FabricAuthenticationProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("siteNameHierarchy"); value.Exists() && !data.SiteNameHierarchy.IsNull() {
 		data.SiteNameHierarchy = types.StringValue(value.String())
 	} else {
@@ -97,7 +97,7 @@ func (data *SDAFabricAuthenticationProfile) updateFromBody(ctx context.Context, 
 //template:end updateFromBody
 
 //template:begin isNull
-func (data *SDAFabricAuthenticationProfile) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *FabricAuthenticationProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.SiteNameHierarchy.IsNull() {
 		return false
 	}

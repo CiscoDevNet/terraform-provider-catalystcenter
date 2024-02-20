@@ -44,25 +44,25 @@ import (
 //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &SDAFabricSiteResource{}
-var _ resource.ResourceWithImportState = &SDAFabricSiteResource{}
+var _ resource.Resource = &FabricSiteResource{}
+var _ resource.ResourceWithImportState = &FabricSiteResource{}
 
-func NewSDAFabricSiteResource() resource.Resource {
-	return &SDAFabricSiteResource{}
+func NewFabricSiteResource() resource.Resource {
+	return &FabricSiteResource{}
 }
 
-type SDAFabricSiteResource struct {
+type FabricSiteResource struct {
 	client *cc.Client
 }
 
-func (r *SDAFabricSiteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sda_fabric_site"
+func (r *FabricSiteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_site"
 }
 
-func (r *SDAFabricSiteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *FabricSiteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a SDA Fabric Site.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Fabric Site.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -95,7 +95,7 @@ func (r *SDAFabricSiteResource) Schema(ctx context.Context, req resource.SchemaR
 	}
 }
 
-func (r *SDAFabricSiteResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *FabricSiteResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -106,8 +106,8 @@ func (r *SDAFabricSiteResource) Configure(_ context.Context, req resource.Config
 //template:end model
 
 //template:begin create
-func (r *SDAFabricSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan SDAFabricSite
+func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan FabricSite
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -119,7 +119,7 @@ func (r *SDAFabricSiteResource) Create(ctx context.Context, req resource.CreateR
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, SDAFabricSite{})
+	body := plan.toBody(ctx, FabricSite{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -138,8 +138,8 @@ func (r *SDAFabricSiteResource) Create(ctx context.Context, req resource.CreateR
 //template:end create
 
 //template:begin read
-func (r *SDAFabricSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state SDAFabricSite
+func (r *FabricSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state FabricSite
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -177,8 +177,8 @@ func (r *SDAFabricSiteResource) Read(ctx context.Context, req resource.ReadReque
 //template:end read
 
 //template:begin update
-func (r *SDAFabricSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state SDAFabricSite
+func (r *FabricSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state FabricSite
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -204,8 +204,8 @@ func (r *SDAFabricSiteResource) Update(ctx context.Context, req resource.UpdateR
 //template:end update
 
 //template:begin delete
-func (r *SDAFabricSiteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state SDAFabricSite
+func (r *FabricSiteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state FabricSite
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -229,7 +229,7 @@ func (r *SDAFabricSiteResource) Delete(ctx context.Context, req resource.DeleteR
 //template:end delete
 
 //template:begin import
-func (r *SDAFabricSiteResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *FabricSiteResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 

@@ -1,5 +1,5 @@
 ---
-name: SDA Fabric Site
+name: Fabric Site
 rest_endpoint: /dna/intent/api/v1/business/sda/fabric-site
 id_from_attribute: true
 id_query_param: siteNameHierarchy

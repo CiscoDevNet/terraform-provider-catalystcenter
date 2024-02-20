@@ -29,17 +29,17 @@ import (
 //template:end imports
 
 //template:begin testAcc
-func TestAccCcSDAFabricAuthenticationProfile(t *testing.T) {
+func TestAccCcFabricAuthenticationProfile(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_fabric_authentication_profile.test", "authentication_template_name", "No Authentication"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_authentication_profile.test", "authentication_template_name", "No Authentication"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcSDAFabricAuthenticationProfilePrerequisitesConfig + testAccCcSDAFabricAuthenticationProfileConfig_all(),
+		Config: testAccCcFabricAuthenticationProfilePrerequisitesConfig + testAccCcFabricAuthenticationProfileConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_sda_fabric_authentication_profile.test",
+		ResourceName: "catalystcenter_fabric_authentication_profile.test",
 		ImportState:  true,
 	})
 
@@ -53,7 +53,7 @@ func TestAccCcSDAFabricAuthenticationProfile(t *testing.T) {
 //template:end testAcc
 
 //template:begin testPrerequisites
-const testAccCcSDAFabricAuthenticationProfilePrerequisitesConfig = `
+const testAccCcFabricAuthenticationProfilePrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
@@ -67,8 +67,8 @@ resource "catalystcenter_sda_fabric_site" "test" {
 //template:end testPrerequisites
 
 //template:begin testAccConfigMinimal
-func testAccCcSDAFabricAuthenticationProfileConfig_minimum() string {
-	config := `resource "catalystcenter_sda_fabric_authentication_profile" "test" {` + "\n"
+func testAccCcFabricAuthenticationProfileConfig_minimum() string {
+	config := `resource "catalystcenter_fabric_authentication_profile" "test" {` + "\n"
 	config += `	site_name_hierarchy = catalystcenter_sda_fabric_site.test.site_name_hierarchy` + "\n"
 	config += `	authentication_template_name = "No Authentication"` + "\n"
 	config += `}` + "\n"
@@ -78,8 +78,8 @@ func testAccCcSDAFabricAuthenticationProfileConfig_minimum() string {
 //template:end testAccConfigMinimal
 
 //template:begin testAccConfigAll
-func testAccCcSDAFabricAuthenticationProfileConfig_all() string {
-	config := `resource "catalystcenter_sda_fabric_authentication_profile" "test" {` + "\n"
+func testAccCcFabricAuthenticationProfileConfig_all() string {
+	config := `resource "catalystcenter_fabric_authentication_profile" "test" {` + "\n"
 	config += `	site_name_hierarchy = catalystcenter_sda_fabric_site.test.site_name_hierarchy` + "\n"
 	config += `	authentication_template_name = "No Authentication"` + "\n"
 	config += `}` + "\n"

@@ -36,26 +36,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &SDAFabricAuthenticationProfileDataSource{}
-	_ datasource.DataSourceWithConfigure = &SDAFabricAuthenticationProfileDataSource{}
+	_ datasource.DataSource              = &FabricAuthenticationProfileDataSource{}
+	_ datasource.DataSourceWithConfigure = &FabricAuthenticationProfileDataSource{}
 )
 
-func NewSDAFabricAuthenticationProfileDataSource() datasource.DataSource {
-	return &SDAFabricAuthenticationProfileDataSource{}
+func NewFabricAuthenticationProfileDataSource() datasource.DataSource {
+	return &FabricAuthenticationProfileDataSource{}
 }
 
-type SDAFabricAuthenticationProfileDataSource struct {
+type FabricAuthenticationProfileDataSource struct {
 	client *cc.Client
 }
 
-func (d *SDAFabricAuthenticationProfileDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sda_fabric_authentication_profile"
+func (d *FabricAuthenticationProfileDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_authentication_profile"
 }
 
-func (d *SDAFabricAuthenticationProfileDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *FabricAuthenticationProfileDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the SDA Fabric Authentication Profile.",
+		MarkdownDescription: "This data source can read the Fabric Authentication Profile.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -74,7 +74,7 @@ func (d *SDAFabricAuthenticationProfileDataSource) Schema(ctx context.Context, r
 	}
 }
 
-func (d *SDAFabricAuthenticationProfileDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *FabricAuthenticationProfileDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -85,8 +85,8 @@ func (d *SDAFabricAuthenticationProfileDataSource) Configure(_ context.Context, 
 //template:end model
 
 //template:begin read
-func (d *SDAFabricAuthenticationProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config SDAFabricAuthenticationProfile
+func (d *FabricAuthenticationProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config FabricAuthenticationProfile
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

@@ -29,15 +29,14 @@ import (
 //template:end imports
 
 //template:begin testAccDataSource
-func TestAccDataSourceCcSDAFabricAuthenticationProfile(t *testing.T) {
+func TestAccDataSourceCcFabricSite(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_sda_fabric_authentication_profile.test", "authentication_template_name", "No Authentication"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcSDAFabricAuthenticationProfilePrerequisitesConfig + testAccDataSourceCcSDAFabricAuthenticationProfileConfig(),
+				Config: testAccDataSourceCcFabricSitePrerequisitesConfig + testAccDataSourceCcFabricSiteConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -47,29 +46,25 @@ func TestAccDataSourceCcSDAFabricAuthenticationProfile(t *testing.T) {
 //template:end testAccDataSource
 
 //template:begin testPrerequisites
-const testAccDataSourceCcSDAFabricAuthenticationProfilePrerequisitesConfig = `
+const testAccDataSourceCcFabricSitePrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
-}
-resource "catalystcenter_sda_fabric_site" "test" {
-  site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"
-  fabric_type = "FABRIC_SITE"
 }
 `
 
 //template:end testPrerequisites
 
 //template:begin testAccDataSourceConfig
-func testAccDataSourceCcSDAFabricAuthenticationProfileConfig() string {
-	config := `resource "catalystcenter_sda_fabric_authentication_profile" "test" {` + "\n"
-	config += `	site_name_hierarchy = catalystcenter_sda_fabric_site.test.site_name_hierarchy` + "\n"
-	config += `	authentication_template_name = "No Authentication"` + "\n"
+func testAccDataSourceCcFabricSiteConfig() string {
+	config := `resource "catalystcenter_fabric_site" "test" {` + "\n"
+	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
+	config += `	fabric_type = "FABRIC_SITE"` + "\n"
 	config += `}` + "\n"
 
 	config += `
-		data "catalystcenter_sda_fabric_authentication_profile" "test" {
-			id = catalystcenter_sda_fabric_authentication_profile.test.id
+		data "catalystcenter_fabric_site" "test" {
+			id = catalystcenter_fabric_site.test.id
 		}
 	`
 	return config

@@ -31,7 +31,7 @@ import (
 //template:end imports
 
 //template:begin types
-type SDAFabricSite struct {
+type FabricSite struct {
 	Id                types.String `tfsdk:"id"`
 	SiteNameHierarchy types.String `tfsdk:"site_name_hierarchy"`
 	FabricType        types.String `tfsdk:"fabric_type"`
@@ -40,7 +40,7 @@ type SDAFabricSite struct {
 //template:end types
 
 //template:begin getPath
-func (data SDAFabricSite) getPath() string {
+func (data FabricSite) getPath() string {
 	return "/dna/intent/api/v1/business/sda/fabric-site"
 }
 
@@ -51,7 +51,7 @@ func (data SDAFabricSite) getPath() string {
 //template:end getPathDelete
 
 //template:begin toBody
-func (data SDAFabricSite) toBody(ctx context.Context, state SDAFabricSite) string {
+func (data FabricSite) toBody(ctx context.Context, state FabricSite) string {
 	body := ""
 	if !data.SiteNameHierarchy.IsNull() {
 		body, _ = sjson.Set(body, "siteNameHierarchy", data.SiteNameHierarchy.ValueString())
@@ -65,7 +65,7 @@ func (data SDAFabricSite) toBody(ctx context.Context, state SDAFabricSite) strin
 //template:end toBody
 
 //template:begin fromBody
-func (data *SDAFabricSite) fromBody(ctx context.Context, res gjson.Result) {
+func (data *FabricSite) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("siteNameHierarchy"); value.Exists() {
 		data.SiteNameHierarchy = types.StringValue(value.String())
 	} else {
@@ -76,7 +76,7 @@ func (data *SDAFabricSite) fromBody(ctx context.Context, res gjson.Result) {
 //template:end fromBody
 
 //template:begin updateFromBody
-func (data *SDAFabricSite) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *FabricSite) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("siteNameHierarchy"); value.Exists() && !data.SiteNameHierarchy.IsNull() {
 		data.SiteNameHierarchy = types.StringValue(value.String())
 	} else {
@@ -87,7 +87,7 @@ func (data *SDAFabricSite) updateFromBody(ctx context.Context, res gjson.Result)
 //template:end updateFromBody
 
 //template:begin isNull
-func (data *SDAFabricSite) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *FabricSite) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.SiteNameHierarchy.IsNull() {
 		return false
 	}

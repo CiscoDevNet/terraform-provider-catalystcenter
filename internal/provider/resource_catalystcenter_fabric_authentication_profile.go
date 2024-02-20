@@ -43,25 +43,25 @@ import (
 //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &SDAFabricAuthenticationProfileResource{}
-var _ resource.ResourceWithImportState = &SDAFabricAuthenticationProfileResource{}
+var _ resource.Resource = &FabricAuthenticationProfileResource{}
+var _ resource.ResourceWithImportState = &FabricAuthenticationProfileResource{}
 
-func NewSDAFabricAuthenticationProfileResource() resource.Resource {
-	return &SDAFabricAuthenticationProfileResource{}
+func NewFabricAuthenticationProfileResource() resource.Resource {
+	return &FabricAuthenticationProfileResource{}
 }
 
-type SDAFabricAuthenticationProfileResource struct {
+type FabricAuthenticationProfileResource struct {
 	client *cc.Client
 }
 
-func (r *SDAFabricAuthenticationProfileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sda_fabric_authentication_profile"
+func (r *FabricAuthenticationProfileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_authentication_profile"
 }
 
-func (r *SDAFabricAuthenticationProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *FabricAuthenticationProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a SDA Fabric Authentication Profile.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Fabric Authentication Profile.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -92,7 +92,7 @@ func (r *SDAFabricAuthenticationProfileResource) Schema(ctx context.Context, req
 	}
 }
 
-func (r *SDAFabricAuthenticationProfileResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *FabricAuthenticationProfileResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -103,8 +103,8 @@ func (r *SDAFabricAuthenticationProfileResource) Configure(_ context.Context, re
 //template:end model
 
 //template:begin create
-func (r *SDAFabricAuthenticationProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan SDAFabricAuthenticationProfile
+func (r *FabricAuthenticationProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan FabricAuthenticationProfile
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -116,7 +116,7 @@ func (r *SDAFabricAuthenticationProfileResource) Create(ctx context.Context, req
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, SDAFabricAuthenticationProfile{})
+	body := plan.toBody(ctx, FabricAuthenticationProfile{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -135,8 +135,8 @@ func (r *SDAFabricAuthenticationProfileResource) Create(ctx context.Context, req
 //template:end create
 
 //template:begin read
-func (r *SDAFabricAuthenticationProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state SDAFabricAuthenticationProfile
+func (r *FabricAuthenticationProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state FabricAuthenticationProfile
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -174,8 +174,8 @@ func (r *SDAFabricAuthenticationProfileResource) Read(ctx context.Context, req r
 //template:end read
 
 //template:begin update
-func (r *SDAFabricAuthenticationProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state SDAFabricAuthenticationProfile
+func (r *FabricAuthenticationProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state FabricAuthenticationProfile
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -201,8 +201,8 @@ func (r *SDAFabricAuthenticationProfileResource) Update(ctx context.Context, req
 //template:end update
 
 //template:begin delete
-func (r *SDAFabricAuthenticationProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state SDAFabricAuthenticationProfile
+func (r *FabricAuthenticationProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state FabricAuthenticationProfile
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -226,7 +226,7 @@ func (r *SDAFabricAuthenticationProfileResource) Delete(ctx context.Context, req
 //template:end delete
 
 //template:begin import
-func (r *SDAFabricAuthenticationProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *FabricAuthenticationProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 

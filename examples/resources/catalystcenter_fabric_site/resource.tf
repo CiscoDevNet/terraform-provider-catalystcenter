@@ -1,4 +1,4 @@
-resource "catalystcenter_sda_fabric_site" "example" {
+resource "catalystcenter_fabric_site" "example" {
   site_name_hierarchy = "Global/Site1"
   fabric_type         = "FABRIC_SITE"
 }

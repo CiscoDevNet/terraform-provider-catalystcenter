@@ -1,1 +1,0 @@
-terraform import catalystcenter_sda_fabric_authentication_profile.example "Global/Site1"

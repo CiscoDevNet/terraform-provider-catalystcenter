@@ -1,5 +1,5 @@
 ---
-name: SDA Fabric Authentication Profile
+name: Fabric Authentication Profile
 rest_endpoint: /dna/intent/api/v1/business/sda/authentication-profile
 id_from_attribute: true
 id_query_param: siteNameHierarchy

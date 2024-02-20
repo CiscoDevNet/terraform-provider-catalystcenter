@@ -40,26 +40,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &SDAFabricSiteDataSource{}
-	_ datasource.DataSourceWithConfigure = &SDAFabricSiteDataSource{}
+	_ datasource.DataSource              = &FabricSiteDataSource{}
+	_ datasource.DataSourceWithConfigure = &FabricSiteDataSource{}
 )
 
-func NewSDAFabricSiteDataSource() datasource.DataSource {
-	return &SDAFabricSiteDataSource{}
+func NewFabricSiteDataSource() datasource.DataSource {
+	return &FabricSiteDataSource{}
 }
 
-type SDAFabricSiteDataSource struct {
+type FabricSiteDataSource struct {
 	client *cc.Client
 }
 
-func (d *SDAFabricSiteDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sda_fabric_site"
+func (d *FabricSiteDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_site"
 }
 
-func (d *SDAFabricSiteDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *FabricSiteDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the SDA Fabric Site.",
+		MarkdownDescription: "This data source can read the Fabric Site.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -79,7 +79,7 @@ func (d *SDAFabricSiteDataSource) Schema(ctx context.Context, req datasource.Sch
 		},
 	}
 }
-func (d *SDAFabricSiteDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *FabricSiteDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -88,7 +88,7 @@ func (d *SDAFabricSiteDataSource) ConfigValidators(ctx context.Context) []dataso
 	}
 }
 
-func (d *SDAFabricSiteDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *FabricSiteDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -99,8 +99,8 @@ func (d *SDAFabricSiteDataSource) Configure(_ context.Context, req datasource.Co
 //template:end model
 
 //template:begin read
-func (d *SDAFabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config SDAFabricSite
+func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config FabricSite
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

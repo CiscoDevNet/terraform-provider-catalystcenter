@@ -29,16 +29,16 @@ import (
 //template:end imports
 
 //template:begin testAcc
-func TestAccCcSDAFabricSite(t *testing.T) {
+func TestAccCcFabricSite(t *testing.T) {
 	var checks []resource.TestCheckFunc
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcSDAFabricSitePrerequisitesConfig + testAccCcSDAFabricSiteConfig_all(),
+		Config: testAccCcFabricSitePrerequisitesConfig + testAccCcFabricSiteConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_sda_fabric_site.test",
+		ResourceName: "catalystcenter_fabric_site.test",
 		ImportState:  true,
 	})
 
@@ -52,7 +52,7 @@ func TestAccCcSDAFabricSite(t *testing.T) {
 //template:end testAcc
 
 //template:begin testPrerequisites
-const testAccCcSDAFabricSitePrerequisitesConfig = `
+const testAccCcFabricSitePrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
@@ -62,8 +62,8 @@ resource "catalystcenter_area" "test" {
 //template:end testPrerequisites
 
 //template:begin testAccConfigMinimal
-func testAccCcSDAFabricSiteConfig_minimum() string {
-	config := `resource "catalystcenter_sda_fabric_site" "test" {` + "\n"
+func testAccCcFabricSiteConfig_minimum() string {
+	config := `resource "catalystcenter_fabric_site" "test" {` + "\n"
 	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
 	config += `}` + "\n"
 	return config
@@ -72,8 +72,8 @@ func testAccCcSDAFabricSiteConfig_minimum() string {
 //template:end testAccConfigMinimal
 
 //template:begin testAccConfigAll
-func testAccCcSDAFabricSiteConfig_all() string {
-	config := `resource "catalystcenter_sda_fabric_site" "test" {` + "\n"
+func testAccCcFabricSiteConfig_all() string {
+	config := `resource "catalystcenter_fabric_site" "test" {` + "\n"
 	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
 	config += `	fabric_type = "FABRIC_SITE"` + "\n"
 	config += `}` + "\n"
