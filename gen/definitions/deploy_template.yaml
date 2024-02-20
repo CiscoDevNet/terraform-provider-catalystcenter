@@ -4,6 +4,7 @@ rest_endpoint: /dna/intent/api/v2/template-programmer/template/deploy
 no_delete: true
 no_update: true
 no_read: true
+no_import: true
 no_data_source: true
 skip_minimum_test: true
 doc_category: Templates
@@ -12,7 +13,7 @@ attributes:
   - model_name: templateId
     type: String
     id: true
-    description: UUID of template to be provisioned
+    description: ID of template to be provisioned
     test_value: catalystcenter_template_version.example.id
     example: 12345678-1234-1234-1234-123456789012
   - model_name: forcePushTemplate
@@ -35,7 +36,7 @@ attributes:
       - model_name: templateId
         type: String
         id: true
-        description: UUID of template to be provisioned
+        description: ID of template to be provisioned
       - model_name: forcePushTemplate
         type: Bool
         description: Force Push Template
@@ -76,7 +77,7 @@ attributes:
           - model_name: versionedTemplateId
             type: String
             mandatory: true
-            description: Versioned templateUUID to be provisioned
+            description: Versioned template ID to be provisioned
   - model_name: targetInfo
     type: List
     mandatory: true
@@ -88,7 +89,7 @@ attributes:
         example: SW01
       - model_name: id
         type: String
-        description: UUID of target is required if targetType is MANAGED_DEVICE_UUID
+        description: ID of device is required if `type` is MANAGED_DEVICE_UUID
         exclude_test: true
       - model_name: params
         type: Map
@@ -113,7 +114,7 @@ attributes:
       - model_name: versionedTemplateId
         type: String
         mandatory: true
-        description: Versioned templateUUID to be provisioned
+        description: Versioned template ID to be provisioned
         example: 12345678-1234-1234-1234-123456789012
         test_value: catalystcenter_template_version.example.id
 test_prerequisites: |
