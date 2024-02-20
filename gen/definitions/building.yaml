@@ -30,12 +30,14 @@ attributes:
     type: String
     description: The country of the building
     example: United States
+    minimum_test_value: '"United States"'
   - model_name: address
     data_path: site.building
     response_data_path: response.0.additionalInfo.0.attributes.address
     type: String
     description: The address of the building
     example: 150 W Tasman Dr, San Jose
+    minimum_test_value: '"150 W Tasman Dr, San Jose"'
   - model_name: latitude
     data_path: site.building
     response_data_path: response.0.additionalInfo.0.attributes.latitude
