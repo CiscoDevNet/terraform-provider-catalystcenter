@@ -91,8 +91,6 @@ Required:
 
 - `data_type` (String) Datatype of template parameter
   - Choices: `STRING`, `INTEGER`, `IPADDRESS`, `MACADDRESS`, `SECTIONDIVIDER`
-- `selection_type` (String) Type of selection
-  - Choices: `SINGLE_SELECT`, `MULTI_SELECT`
 
 Optional:
 
@@ -107,6 +105,8 @@ Optional:
 - `parameter_name` (String) Name of the template parameter
 - `ranges` (Attributes List) List of ranges (see [below for nested schema](#nestedatt--template_params--ranges))
 - `required` (Boolean) Is parameter required
+- `selection_type` (String) Type of selection
+  - Choices: `SINGLE_SELECT`, `MULTI_SELECT`
 - `selection_values` (Map of String) Selection values
 
 <a id="nestedatt--template_params--ranges"></a>

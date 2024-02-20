@@ -1,0 +1,146 @@
+---
+name: Deploy Template
+rest_endpoint: /dna/intent/api/v2/template-programmer/template/deploy
+no_delete: true
+no_update: true
+no_read: true
+no_import: true
+no_data_source: true
+skip_minimum_test: true
+doc_category: Templates
+test_tags: [TEMPLATES]
+attributes:
+  - model_name: templateId
+    type: String
+    id: true
+    description: ID of template to be provisioned
+    test_value: catalystcenter_template_version.example.id
+    example: 12345678-1234-1234-1234-123456789012
+  - model_name: forcePushTemplate
+    type: Bool
+    description: Force Push Template
+    example: false
+  - model_name: isComposite
+    type: Bool
+    description: Composite template flag
+    example: false
+  - model_name: mainTemplateId
+    type: String
+    description: Composite Template ID
+    exclude_test: true
+  - model_name: memberTemplateDeploymentInfo
+    type: List
+    description: Member Template Deployment Info
+    exclude_test: true
+    attributes:
+      - model_name: templateId
+        type: String
+        id: true
+        description: ID of template to be provisioned
+      - model_name: forcePushTemplate
+        type: Bool
+        description: Force Push Template
+      - model_name: isComposite
+        type: Bool
+        description: Composite template flag
+      - model_name: mainTemplateId
+        type: String
+        description: Composite Template ID
+      - model_name: targetInfo
+        type: List
+        mandatory: true
+        description: Target info to deploy template
+        attributes:
+          - model_name: hostName
+            type: String
+            description: Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
+          - model_name: id
+            type: String
+            description: UUID of target is required if targetType is MANAGED_DEVICE_UUID
+          - model_name: params
+            type: Map
+            description:  Template params/values to be provisioned
+          - model_name: resourceParams
+            type: Map
+            description: Resource params to be provisioned
+          - model_name: type
+            type: String
+            enum_values:
+              - MANAGED_DEVICE_IP
+              - MANAGED_DEVICE_UUID
+              - PRE_PROVISIONED_SERIAL
+              - PRE_PROVISIONED_MAC
+              - DEFAULT
+              - MANAGED_DEVICE_HOSTNAME
+            mandatory: true
+            description: Target type of device
+          - model_name: versionedTemplateId
+            type: String
+            mandatory: true
+            description: Versioned template ID to be provisioned
+  - model_name: targetInfo
+    type: List
+    mandatory: true
+    description: Target info to deploy template
+    attributes:
+      - model_name: hostName
+        type: String
+        description: Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
+        example: SW01
+      - model_name: id
+        type: String
+        description: ID of device is required if `type` is MANAGED_DEVICE_UUID
+        exclude_test: true
+      - model_name: params
+        type: Map
+        description:  Template params/values to be provisioned
+        exclude_test: true
+      - model_name: resourceParams
+        type: Map
+        description: Resource params to be provisioned
+        exclude_test: true
+      - model_name: type
+        type: String
+        enum_values:
+          - MANAGED_DEVICE_IP
+          - MANAGED_DEVICE_UUID
+          - PRE_PROVISIONED_SERIAL
+          - PRE_PROVISIONED_MAC
+          - DEFAULT
+          - MANAGED_DEVICE_HOSTNAME
+        mandatory: true
+        description: Target type of device
+        example: MANAGED_DEVICE_HOSTNAME
+      - model_name: versionedTemplateId
+        type: String
+        mandatory: true
+        description: Versioned template ID to be provisioned
+        example: 12345678-1234-1234-1234-123456789012
+        test_value: catalystcenter_template_version.example.id
+test_prerequisites: |
+  resource "catalystcenter_project" "test" {
+    name        = "Project1"
+  }
+
+  resource "catalystcenter_template" "test" {
+    project_id  = catalystcenter_project.test.id
+    name        = "Template1"
+    description = "My description"
+    device_types = [
+      {
+        product_family = "Switches and Hubs"
+        product_series = "Cisco Catalyst 9300 Series Switches"
+        product_type   = "Cisco Catalyst 9300 Switch"
+      }
+    ]
+    language         = "JINJA"
+    software_type    = "IOS-XE"
+    software_variant = "XE"
+    software_version = "16.12.1a"
+    template_content = "hostname SW1"
+  }
+
+  resource "catalystcenter_template_version" "example" {
+    template_id = catalystcenter_template.test.id
+    comments    = "New Version"
+  }

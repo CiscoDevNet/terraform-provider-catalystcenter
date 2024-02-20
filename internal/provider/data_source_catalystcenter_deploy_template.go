@@ -24,14 +24,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
-	"github.com/tidwall/gjson"
 )
 
 //template:end imports
@@ -40,53 +37,81 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &NetworkProfileDataSource{}
-	_ datasource.DataSourceWithConfigure = &NetworkProfileDataSource{}
+	_ datasource.DataSource              = &DeployTemplateDataSource{}
+	_ datasource.DataSourceWithConfigure = &DeployTemplateDataSource{}
 )
 
-func NewNetworkProfileDataSource() datasource.DataSource {
-	return &NetworkProfileDataSource{}
+func NewDeployTemplateDataSource() datasource.DataSource {
+	return &DeployTemplateDataSource{}
 }
 
-type NetworkProfileDataSource struct {
+type DeployTemplateDataSource struct {
 	client *cc.Client
 }
 
-func (d *NetworkProfileDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_network_profile"
+func (d *DeployTemplateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_deploy_template"
 }
 
-func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DeployTemplateDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Network Profile.",
+		MarkdownDescription: "This data source can read the Deploy Template.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Optional:            true,
+				Required:            true,
+			},
+			"template_id": schema.StringAttribute{
+				MarkdownDescription: "Main template UUID of versioned template",
 				Computed:            true,
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the network profile",
-				Optional:            true,
+			"force_push_template": schema.BoolAttribute{
+				MarkdownDescription: "Force Push Template",
 				Computed:            true,
 			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: "Profile type",
+			"is_composite": schema.BoolAttribute{
+				MarkdownDescription: "Composite template flag",
 				Computed:            true,
 			},
-			"templates": schema.ListNestedAttribute{
-				MarkdownDescription: "",
+			"main_template_id": schema.StringAttribute{
+				MarkdownDescription: "Main template UUID of versioned template",
+				Computed:            true,
+			},
+			"member_template_deployment_info": schema.StringAttribute{
+				MarkdownDescription: "Member Template Deployment Info",
+				Computed:            true,
+			},
+			"target_info": schema.ListNestedAttribute{
+				MarkdownDescription: "Target info to deploy template",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"type": schema.StringAttribute{
-							MarkdownDescription: "Template type",
+						"host_name": schema.StringAttribute{
+							MarkdownDescription: "Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME",
 							Computed:            true,
 						},
-						"template_id": schema.StringAttribute{
-							MarkdownDescription: "Template ID",
+						"id": schema.StringAttribute{
+							MarkdownDescription: "UUID of target is required if targetType is MANAGED_DEVICE_UUID",
+							Computed:            true,
+						},
+						"params": schema.MapAttribute{
+							MarkdownDescription: "Template params/values to be provisioned",
+							ElementType:         types.StringType,
+							Computed:            true,
+						},
+						"resource_params": schema.MapAttribute{
+							MarkdownDescription: "Resource params to be provisioned",
+							ElementType:         types.StringType,
+							Computed:            true,
+						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: "Target type of device",
+							Computed:            true,
+						},
+						"versioned_template_id": schema.StringAttribute{
+							MarkdownDescription: "Versioned templateUUID to be provisioned",
 							Computed:            true,
 						},
 					},
@@ -95,16 +120,8 @@ func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.Sc
 		},
 	}
 }
-func (d *NetworkProfileDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
-	return []datasource.ConfigValidator{
-		datasourcevalidator.ExactlyOneOf(
-			path.MatchRoot("id"),
-			path.MatchRoot("name"),
-		),
-	}
-}
 
-func (d *NetworkProfileDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *DeployTemplateDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -115,8 +132,8 @@ func (d *NetworkProfileDataSource) Configure(_ context.Context, req datasource.C
 //template:end model
 
 //template:begin read
-func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config NetworkProfile
+func (d *DeployTemplateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config DeployTemplate
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
@@ -126,32 +143,9 @@ func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.Name.IsNull() {
-		res, err := d.client.Get(config.getPath() + "?populated=true")
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
-			return
-		}
-		if value := res.Get("response"); len(value.Array()) > 0 {
-			value.ForEach(func(k, v gjson.Result) bool {
-				if config.Name.ValueString() == v.Get("name").String() {
-					config.Id = types.StringValue(v.Get("siteProfileUuid").String())
-					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
-					return false
-				}
-				return true
-			})
-		}
-
-		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", config.Name.ValueString()))
-			return
-		}
-	}
 
 	params := ""
 	params += "/" + config.Id.ValueString()
-	params += "?populated=true"
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

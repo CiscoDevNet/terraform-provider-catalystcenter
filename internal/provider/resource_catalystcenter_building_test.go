@@ -70,10 +70,6 @@ func testAccCcBuildingConfig_minimum() string {
 	config := `resource "catalystcenter_building" "test" {` + "\n"
 	config += `	name = "Building1"` + "\n"
 	config += `	parent_name = "Global"` + "\n"
-	config += `	country = "United States"` + "\n"
-	config += `	address = "150 W Tasman Dr, San Jose"` + "\n"
-	config += `	latitude = 37.338` + "\n"
-	config += `	longitude = -121.832` + "\n"
 	config += `}` + "\n"
 	return config
 }

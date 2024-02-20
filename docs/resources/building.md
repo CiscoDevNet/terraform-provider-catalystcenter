@@ -28,12 +28,15 @@ resource "catalystcenter_building" "example" {
 
 ### Required
 
+- `name` (String) The name of the building
+- `parent_name` (String) The path of the parent area, e.g. `Global/Area5`. `Global` in case of root area.
+
+### Optional
+
 - `address` (String) The address of the building
 - `country` (String) The country of the building
 - `latitude` (Number) Latitude
 - `longitude` (Number) Longitude
-- `name` (String) The name of the building
-- `parent_name` (String) The path of the parent area, e.g. `Global/Area5`. `Global` in case of root area.
 
 ### Read-Only
 
