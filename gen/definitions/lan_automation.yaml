@@ -1,0 +1,91 @@
+---
+name: LAN Automation
+rest_endpoint: /dna/intent/api/v1/lan-automation
+get_rest_endpoint: /dna/intent/api/v1/lan-automation/status
+no_update: true
+id_path: response.id
+doc_category: LAN Automation
+res_description:
+  'This resource can Start LAN Automation on resource creation and Stop LAN Automation on resource deletion'
+test_tags: [LANAUTO]
+attributes:
+  - model_name: discoveredDeviceSiteNameHierarchy
+    data_path: "0"
+    response_data_path: response.0.discoveredDeviceSiteNameHierarchy
+    type: String
+    mandatory: true
+    description: Discovered device site name.
+    example: Global/Area1/Area2
+  - model_name: primaryDeviceManagmentIPAddress
+    data_path: "0"
+    response_data_path: response.0.primaryDeviceManagmentIPAddress
+    tf_name: primary_device_management_ip_address
+    type: String
+    mandatory: true
+    description: Primary seed management IP address.
+    example: 1.2.3.4
+  - model_name: peerDeviceManagmentIPAddress
+    data_path: "0"
+    response_data_path: response.0.peerDeviceManagmentIPAddress
+    tf_name: peer_device_management_ip_address
+    type: String
+    description: Secondary seed management IP address.
+    example: 1.2.3.5
+  - model_name: primaryDeviceInterfaceNames
+    data_path: "0"
+    response_data_path: response.0.primaryDeviceInterfaceNames
+    type: StringList
+    mandatory: true
+    description: The list of interfaces on primary seed via which the discovered devices are connected.
+    example: HundredGigE1/0/1
+  - model_name: ipPools
+    data_path: "0"
+    response_data_path: response.0.ipPools
+    type: List
+    description: The list of IP pools with its name and role.
+    attributes:
+      - model_name: ipPoolName
+        type: String
+        mandatory: true
+        id: true
+        description: Name of the IP pool.
+        example: POOL1
+      - model_name: ipPoolRole
+        type: String
+        enum_values: [MAIN_POOL, PHYSICAL_LINK_POOL]
+        mandatory: true
+        id: true
+        description: Role of the IP pool.
+        example: MAIN_POOL
+  - model_name: multicastEnabled
+    data_path: "0"
+    response_data_path: response.0.multicatEnabled
+    type: Bool
+    description: To enable underlay native multicast.
+    example: true
+  - model_name: hostNamePrefix
+    data_path: "0"
+    response_data_path: response.0.hostNamePrefix
+    type: String
+    description: Host name prefix which shall be assigned to the discovered device.
+    example: TEST
+  - model_name: hostNameFileId
+    data_path: "0"
+    response_data_path: response.0.hostNameFileId
+    type: String
+    description: File ID of the CSV file containing the host name list.
+    exclude_test: true
+    example: 1234
+  - model_name: isisDomainPwd
+    data_path: "0"
+    response_data_path: response.0.isisDomainPwd
+    tf_name: isis_domain_password
+    type: String
+    description: ISIS domain password.
+    example: cisco123
+  - model_name: redistributeIsisToBgp
+    data_path: "0"
+    response_data_path: response.0.redistributeIsisToBgp
+    type: Bool
+    description: Advertise LAN Automation summary route into BGP. 
+    example: true
