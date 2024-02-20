@@ -74,6 +74,7 @@ attributes:
     response_data_path: response.0.hostNameFileId
     type: String
     description: File ID of the CSV file containing the host name list.
+    exclude_test: true
     example: 1234
   - model_name: isisDomainPwd
     data_path: "0"
