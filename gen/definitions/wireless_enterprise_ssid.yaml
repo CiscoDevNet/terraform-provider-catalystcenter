@@ -1,0 +1,185 @@
+---
+name: Wireless Enterprise SSID
+rest_endpoint: /dna/intent/api/v1/enterprise-ssid
+id_query_param: ssidName
+id_from_attribute: true
+doc_category: Wireless
+attributes:
+  - model_name: name
+    type: String
+    response_data_path: 0.ssidDetails.0.name
+    id: true
+    description: SSID Name
+    example: mySSID1
+  - model_name: securityLevel
+    type: String
+    response_data_path: 0.ssidDetails.0.securityLevel
+    enum_values:
+      - wpa2_enterprise
+      - wpa2_personal
+      - open
+      - wpa3_enterprise
+      - wpa3_personal
+      - wpa2_wpa3_personal
+      - wpa2_wpa3_enterprise
+    mandatory: true
+    description: Security Level
+    example: wpa3_enterprise
+  - model_name: passphrase
+    type: String
+    description: Passphrase
+    write_only: true
+    example: Cisco123
+  - model_name: enableFastLane
+    type: Bool
+    response_data_path: 0.ssidDetails.0.enableFastLane
+    description: Enable FastLane
+    example: false
+  - model_name: enableMACFiltering
+    tf_name: enable_mac_filtering
+    type: Bool
+    response_data_path: 0.ssidDetails.0.enableMACFiltering
+    description: Enable MAC Filtering
+    example: false
+  - model_name: trafficType
+    type: String
+    response_data_path: 0.ssidDetails.0.trafficType
+    description: Traffic Type
+    enum_values:
+      - voicedata
+      - data
+    example: data
+  - model_name: radioPolicy
+    type: String
+    response_data_path: 0.ssidDetails.0.radioPolicy
+    description: Radio Policy
+    enum_values:
+      - Triple band operation(2.4GHz, 5GHz and 6GHz)
+      - Triple band operation with band select
+      - 5GHz only
+      - 2.4GHz only
+      - 6GHz only
+    example: Triple band operation(2.4GHz, 5GHz and 6GHz)
+    write_only: true
+  - model_name: enableBroadcastSSID
+    tf_name: enable_broadcast_ssid
+    response_data_path: 0.ssidDetails.0.enableBroadcastSSID
+    type: Bool
+    description: Enable Broadcast SSID
+    example: true
+  - model_name: fastTransition
+    type: String
+    response_data_path: 0.ssidDetails.0.fastTransition
+    description: Fast Transition
+    enum_values:
+      - Adaptive
+      - Enable
+      - Disable
+    example: Adaptive
+  - model_name: enableSessionTimeOut
+    type: Bool
+    response_data_path: 0.ssidDetails.0.enableSessionTimeOut
+    description: Enable Session Timeout
+    example: true
+  - model_name: sessionTimeOut
+    type: Int64
+    response_data_path: 0.ssidDetails.0.sessionTimeOut
+    description: Session Time Out
+    example: 1800
+  - model_name: enableClientExclusion
+    type: Bool
+    response_data_path: 0.ssidDetails.0.enableClientExclusion
+    description: Enable Client Exclusion
+    example: true
+  - model_name: clientExclusionTimeout
+    type: Int64
+    response_data_path: 0.ssidDetails.0.clientExclusionTimeout
+    description: Client Exclusion Timeout
+    example: 180
+  - model_name: enableBasicServiceSetMaxIdle
+    type: Bool
+    response_data_path: 0.ssidDetails.0.enableBasicServiceSetMaxIdle
+    description: Enable Basic Service Set Max Idle
+    example: true
+  - model_name: basicServiceSetClientIdleTimeout
+    type: Int64
+    response_data_path: 0.ssidDetails.0.basicServiceSetClientIdleTimeout
+    description: Basic Service Set Client Idle Timeout
+    example: 300
+  - model_name: enableDirectedMulticastService
+    type: Bool
+    response_data_path: 0.ssidDetails.0.enableDirectedMulticastService
+    description: Enable Directed Multicast Service
+    example: true
+  - model_name: enableNeighborList
+    type: Bool
+    response_data_path: 0.ssidDetails.0.enableNeighborList
+    description: Enable Neighbor List
+    example: true
+  - model_name: mfpClientProtection
+    type: String
+    description: Mfp Client Protection
+    response_data_path: 0.ssidDetails.0.mfpClientProtection
+    enum_values:
+      - voicedata
+      - data
+    example: data
+  - model_name: nasOptions
+    type: StringList
+    response_data_path: 0.ssidDetails.0.nasOptions
+    description: Nas Options
+    exclude_test: true
+  - model_name: profileName
+    type: String
+    response_data_path: 0.ssidDetails.0.profileName
+    description: Profile Name
+    exclude_test: true
+  - model_name: policyProfileName
+    type: String
+    response_data_path: 0.ssidDetails.0.policyProfileName
+    description: Policy Profile Name
+    exclude_test: true
+  - model_name: aaaOverride
+    tf_name: aaa_override
+    type: Bool
+    response_data_path: 0.ssidDetails.0.aaaOverride
+    description: AAA Override
+    exclude_test: true
+  - model_name: coverageHoleDetectionEnable
+    type: Bool
+    response_data_path: 0.ssidDetails.0.coverageHoleDetectionEnable
+    description: Coverage Hole Detection Enable
+    exclude_test: true
+  - model_name: protectedManagementFrame
+    type: String
+    response_data_path: 0.ssidDetails.0.protectedManagementFrame
+    description: Protected Management Frame
+    enum_values:
+      - Optional
+      - Disabled
+      - Required
+    example: Disabled
+  - model_name: multiPSKSettings
+    tf_name: multi_psk_settings
+    response_data_path: 0.ssidDetails.0.multiPSKSettings
+    type: List
+    description: Multi PSK Settings (Only applicable for SSID with PERSONAL auth type and PSK)
+    exclude_test: true
+    attributes:
+      - model_name: priority
+        type: String
+        description: Priority
+      - model_name: passphraseType
+        type: String
+        enum_values:
+         - ASCII
+         - HEX
+        description: Passphrase Type
+      - model_name: passphrase
+        type: String
+        description: Passphrase
+  - model_name: clientRateLimit
+    type: Int64
+    response_data_path: 0.ssidDetails.0.clientRateLimit
+    description: Client Rate Limit (in bits per second)
+    exclude_test: true
