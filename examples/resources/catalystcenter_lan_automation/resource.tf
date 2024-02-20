@@ -11,7 +11,6 @@ resource "catalystcenter_lan_automation" "example" {
   ]
   multicast_enabled        = true
   host_name_prefix         = "TEST"
-  host_name_file_id        = "1234"
   isis_domain_password     = "cisco123"
   redistribute_isis_to_bgp = true
 }

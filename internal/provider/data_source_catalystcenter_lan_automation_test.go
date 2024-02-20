@@ -43,7 +43,6 @@ func TestAccDataSourceCcLANAutomation(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_role", "MAIN_POOL"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "multicast_enabled", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "host_name_prefix", "TEST"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "host_name_file_id", "1234"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "isis_domain_password", "cisco123"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "redistribute_isis_to_bgp", "true"))
 	resource.Test(t, resource.TestCase{
@@ -76,7 +75,6 @@ func testAccDataSourceCcLANAutomationConfig() string {
 	config += `	}]` + "\n"
 	config += `	multicast_enabled = true` + "\n"
 	config += `	host_name_prefix = "TEST"` + "\n"
-	config += `	host_name_file_id = "1234"` + "\n"
 	config += `	isis_domain_password = "cisco123"` + "\n"
 	config += `	redistribute_isis_to_bgp = true` + "\n"
 	config += `}` + "\n"

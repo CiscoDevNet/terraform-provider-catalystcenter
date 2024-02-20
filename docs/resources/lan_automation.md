@@ -26,7 +26,6 @@ resource "catalystcenter_lan_automation" "example" {
   ]
   multicast_enabled        = true
   host_name_prefix         = "TEST"
-  host_name_file_id        = "1234"
   isis_domain_password     = "cisco123"
   redistribute_isis_to_bgp = true
 }
@@ -48,7 +47,7 @@ resource "catalystcenter_lan_automation" "example" {
 - `ip_pools` (Attributes List) The list of IP pools with its name and role. (see [below for nested schema](#nestedatt--ip_pools))
 - `isis_domain_password` (String) ISIS domain password.
 - `multicast_enabled` (Boolean) To enable underlay native multicast.
-- `peer_device_management_ip_address` (String) The list of interfaces on primary seed via which the discovered devices are connected.
+- `peer_device_management_ip_address` (String) Secondary seed management IP address.
 - `redistribute_isis_to_bgp` (Boolean) Advertise LAN Automation summary route into BGP.
 
 ### Read-Only

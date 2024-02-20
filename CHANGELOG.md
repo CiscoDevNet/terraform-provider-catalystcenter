@@ -7,6 +7,7 @@
 - Make `country`, `address`, `latitude` and `longitude` attributes of `catalystcenter_building` resource optional
 - Make `selection_type` attribute of `catalystcenter_template` resource optional
 - Add `catalystcenter_deploy_template` resource
+- Add `catalystcenter_lan_automation` resource and data source
 
 ## 0.1.4
 
