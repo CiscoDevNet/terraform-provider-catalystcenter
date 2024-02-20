@@ -71,7 +71,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				},
 			},
 			"template_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Main template UUID of versioned template").String,
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of template to be provisioned").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -86,12 +86,69 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				Optional:            true,
 			},
 			"main_template_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Main template UUID of versioned template").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Composite Template ID").String,
 				Optional:            true,
 			},
-			"member_template_deployment_info": schema.StringAttribute{
+			"member_template_deployment_info": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Member Template Deployment Info").String,
 				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"template_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of template to be provisioned").String,
+							Required:            true,
+						},
+						"force_push_template": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Force Push Template").String,
+							Optional:            true,
+						},
+						"is_composite": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Composite template flag").String,
+							Optional:            true,
+						},
+						"main_template_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Composite Template ID").String,
+							Optional:            true,
+						},
+						"target_info": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Target info to deploy template").String,
+							Required:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"host_name": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME").String,
+										Optional:            true,
+									},
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of target is required if targetType is MANAGED_DEVICE_UUID").String,
+										Optional:            true,
+									},
+									"params": schema.MapAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Template params/values to be provisioned").String,
+										ElementType:         types.StringType,
+										Optional:            true,
+									},
+									"resource_params": schema.MapAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Resource params to be provisioned").String,
+										ElementType:         types.StringType,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Target type of device").AddStringEnumDescription("MANAGED_DEVICE_IP", "MANAGED_DEVICE_UUID", "PRE_PROVISIONED_SERIAL", "PRE_PROVISIONED_MAC", "DEFAULT", "MANAGED_DEVICE_HOSTNAME").String,
+										Required:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("MANAGED_DEVICE_IP", "MANAGED_DEVICE_UUID", "PRE_PROVISIONED_SERIAL", "PRE_PROVISIONED_MAC", "DEFAULT", "MANAGED_DEVICE_HOSTNAME"),
+										},
+									},
+									"versioned_template_id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Versioned templateUUID to be provisioned").String,
+										Required:            true,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			"target_info": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Target info to deploy template").String,

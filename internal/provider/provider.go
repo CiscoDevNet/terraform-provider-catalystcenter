@@ -287,7 +287,6 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewCredentialsSNMPv2ReadDataSource,
 		NewCredentialsSNMPv2WriteDataSource,
 		NewCredentialsSNMPv3DataSource,
-		NewDeployTemplateDataSource,
 		NewDeviceDetailDataSource,
 		NewDiscoveryDataSource,
 		NewFloorDataSource,

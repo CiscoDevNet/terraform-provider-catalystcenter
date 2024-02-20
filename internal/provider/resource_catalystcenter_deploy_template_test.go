@@ -41,11 +41,6 @@ func TestAccCcDeployTemplate(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "target_info.0.type", "MANAGED_DEVICE_HOSTNAME"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcDeployTemplatePrerequisitesConfig + testAccCcDeployTemplateConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcDeployTemplatePrerequisitesConfig + testAccCcDeployTemplateConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),

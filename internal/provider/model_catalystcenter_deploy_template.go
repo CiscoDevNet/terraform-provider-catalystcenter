@@ -33,16 +33,33 @@ import (
 
 //template:begin types
 type DeployTemplate struct {
-	Id                           types.String               `tfsdk:"id"`
-	TemplateId                   types.String               `tfsdk:"template_id"`
-	ForcePushTemplate            types.Bool                 `tfsdk:"force_push_template"`
-	IsComposite                  types.Bool                 `tfsdk:"is_composite"`
-	MainTemplateId               types.String               `tfsdk:"main_template_id"`
-	MemberTemplateDeploymentInfo types.String               `tfsdk:"member_template_deployment_info"`
-	TargetInfo                   []DeployTemplateTargetInfo `tfsdk:"target_info"`
+	Id                           types.String                                 `tfsdk:"id"`
+	TemplateId                   types.String                                 `tfsdk:"template_id"`
+	ForcePushTemplate            types.Bool                                   `tfsdk:"force_push_template"`
+	IsComposite                  types.Bool                                   `tfsdk:"is_composite"`
+	MainTemplateId               types.String                                 `tfsdk:"main_template_id"`
+	MemberTemplateDeploymentInfo []DeployTemplateMemberTemplateDeploymentInfo `tfsdk:"member_template_deployment_info"`
+	TargetInfo                   []DeployTemplateTargetInfo                   `tfsdk:"target_info"`
+}
+
+type DeployTemplateMemberTemplateDeploymentInfo struct {
+	TemplateId        types.String                                           `tfsdk:"template_id"`
+	ForcePushTemplate types.Bool                                             `tfsdk:"force_push_template"`
+	IsComposite       types.Bool                                             `tfsdk:"is_composite"`
+	MainTemplateId    types.String                                           `tfsdk:"main_template_id"`
+	TargetInfo        []DeployTemplateMemberTemplateDeploymentInfoTargetInfo `tfsdk:"target_info"`
 }
 
 type DeployTemplateTargetInfo struct {
+	HostName            types.String `tfsdk:"host_name"`
+	Id                  types.String `tfsdk:"id"`
+	Params              types.Map    `tfsdk:"params"`
+	ResourceParams      types.Map    `tfsdk:"resource_params"`
+	Type                types.String `tfsdk:"type"`
+	VersionedTemplateId types.String `tfsdk:"versioned_template_id"`
+}
+
+type DeployTemplateMemberTemplateDeploymentInfoTargetInfo struct {
 	HostName            types.String `tfsdk:"host_name"`
 	Id                  types.String `tfsdk:"id"`
 	Params              types.Map    `tfsdk:"params"`
@@ -79,8 +96,53 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 	if !data.MainTemplateId.IsNull() {
 		body, _ = sjson.Set(body, "mainTemplateId", data.MainTemplateId.ValueString())
 	}
-	if !data.MemberTemplateDeploymentInfo.IsNull() {
-		body, _ = sjson.Set(body, "memberTemplateDeploymentInfo", data.MemberTemplateDeploymentInfo.ValueString())
+	if len(data.MemberTemplateDeploymentInfo) > 0 {
+		body, _ = sjson.Set(body, "memberTemplateDeploymentInfo", []interface{}{})
+		for _, item := range data.MemberTemplateDeploymentInfo {
+			itemBody := ""
+			if !item.TemplateId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "templateId", item.TemplateId.ValueString())
+			}
+			if !item.ForcePushTemplate.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "forcePushTemplate", item.ForcePushTemplate.ValueBool())
+			}
+			if !item.IsComposite.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "isComposite", item.IsComposite.ValueBool())
+			}
+			if !item.MainTemplateId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "mainTemplateId", item.MainTemplateId.ValueString())
+			}
+			if len(item.TargetInfo) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "targetInfo", []interface{}{})
+				for _, childItem := range item.TargetInfo {
+					itemChildBody := ""
+					if !childItem.HostName.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "hostName", childItem.HostName.ValueString())
+					}
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Params.IsNull() {
+						var values map[string]string
+						childItem.Params.ElementsAs(ctx, &values, false)
+						itemChildBody, _ = sjson.Set(itemChildBody, "params", values)
+					}
+					if !childItem.ResourceParams.IsNull() {
+						var values map[string]string
+						childItem.ResourceParams.ElementsAs(ctx, &values, false)
+						itemChildBody, _ = sjson.Set(itemChildBody, "resourceParams", values)
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					if !childItem.VersionedTemplateId.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "versionedTemplateId", childItem.VersionedTemplateId.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "targetInfo.-1", itemChildBody)
+				}
+			}
+			body, _ = sjson.SetRaw(body, "memberTemplateDeploymentInfo.-1", itemBody)
+		}
 	}
 	if len(data.TargetInfo) > 0 {
 		body, _ = sjson.Set(body, "targetInfo", []interface{}{})
@@ -139,9 +201,70 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 		data.MainTemplateId = types.StringNull()
 	}
 	if value := res.Get("memberTemplateDeploymentInfo"); value.Exists() {
-		data.MemberTemplateDeploymentInfo = types.StringValue(value.String())
-	} else {
-		data.MemberTemplateDeploymentInfo = types.StringNull()
+		data.MemberTemplateDeploymentInfo = make([]DeployTemplateMemberTemplateDeploymentInfo, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := DeployTemplateMemberTemplateDeploymentInfo{}
+			if cValue := v.Get("templateId"); cValue.Exists() {
+				item.TemplateId = types.StringValue(cValue.String())
+			} else {
+				item.TemplateId = types.StringNull()
+			}
+			if cValue := v.Get("forcePushTemplate"); cValue.Exists() {
+				item.ForcePushTemplate = types.BoolValue(cValue.Bool())
+			} else {
+				item.ForcePushTemplate = types.BoolNull()
+			}
+			if cValue := v.Get("isComposite"); cValue.Exists() {
+				item.IsComposite = types.BoolValue(cValue.Bool())
+			} else {
+				item.IsComposite = types.BoolNull()
+			}
+			if cValue := v.Get("mainTemplateId"); cValue.Exists() {
+				item.MainTemplateId = types.StringValue(cValue.String())
+			} else {
+				item.MainTemplateId = types.StringNull()
+			}
+			if cValue := v.Get("targetInfo"); cValue.Exists() {
+				item.TargetInfo = make([]DeployTemplateMemberTemplateDeploymentInfoTargetInfo, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := DeployTemplateMemberTemplateDeploymentInfoTargetInfo{}
+					if ccValue := cv.Get("hostName"); ccValue.Exists() {
+						cItem.HostName = types.StringValue(ccValue.String())
+					} else {
+						cItem.HostName = types.StringNull()
+					}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					if ccValue := cv.Get("params"); ccValue.Exists() {
+						cItem.Params = helpers.GetStringMap(ccValue.Map())
+					} else {
+						cItem.Params = types.MapNull(types.StringType)
+					}
+					if ccValue := cv.Get("resourceParams"); ccValue.Exists() {
+						cItem.ResourceParams = helpers.GetStringMap(ccValue.Map())
+					} else {
+						cItem.ResourceParams = types.MapNull(types.StringType)
+					}
+					if ccValue := cv.Get("type"); ccValue.Exists() {
+						cItem.Type = types.StringValue(ccValue.String())
+					} else {
+						cItem.Type = types.StringNull()
+					}
+					if ccValue := cv.Get("versionedTemplateId"); ccValue.Exists() {
+						cItem.VersionedTemplateId = types.StringValue(ccValue.String())
+					} else {
+						cItem.VersionedTemplateId = types.StringNull()
+					}
+					item.TargetInfo = append(item.TargetInfo, cItem)
+					return true
+				})
+			}
+			data.MemberTemplateDeploymentInfo = append(data.MemberTemplateDeploymentInfo, item)
+			return true
+		})
 	}
 	if value := res.Get("targetInfo"); value.Exists() {
 		data.TargetInfo = make([]DeployTemplateTargetInfo, 0)
@@ -207,10 +330,103 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 	} else {
 		data.MainTemplateId = types.StringNull()
 	}
-	if value := res.Get("memberTemplateDeploymentInfo"); value.Exists() && !data.MemberTemplateDeploymentInfo.IsNull() {
-		data.MemberTemplateDeploymentInfo = types.StringValue(value.String())
-	} else {
-		data.MemberTemplateDeploymentInfo = types.StringNull()
+	for i := range data.MemberTemplateDeploymentInfo {
+		keys := [...]string{"templateId"}
+		keyValues := [...]string{data.MemberTemplateDeploymentInfo[i].TemplateId.ValueString()}
+
+		var r gjson.Result
+		res.Get("memberTemplateDeploymentInfo").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("templateId"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TemplateId.IsNull() {
+			data.MemberTemplateDeploymentInfo[i].TemplateId = types.StringValue(value.String())
+		} else {
+			data.MemberTemplateDeploymentInfo[i].TemplateId = types.StringNull()
+		}
+		if value := r.Get("forcePushTemplate"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].ForcePushTemplate.IsNull() {
+			data.MemberTemplateDeploymentInfo[i].ForcePushTemplate = types.BoolValue(value.Bool())
+		} else {
+			data.MemberTemplateDeploymentInfo[i].ForcePushTemplate = types.BoolNull()
+		}
+		if value := r.Get("isComposite"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].IsComposite.IsNull() {
+			data.MemberTemplateDeploymentInfo[i].IsComposite = types.BoolValue(value.Bool())
+		} else {
+			data.MemberTemplateDeploymentInfo[i].IsComposite = types.BoolNull()
+		}
+		if value := r.Get("mainTemplateId"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].MainTemplateId.IsNull() {
+			data.MemberTemplateDeploymentInfo[i].MainTemplateId = types.StringValue(value.String())
+		} else {
+			data.MemberTemplateDeploymentInfo[i].MainTemplateId = types.StringNull()
+		}
+		for ci := range data.MemberTemplateDeploymentInfo[i].TargetInfo {
+			keys := [...]string{"hostName", "id", "type", "versionedTemplateId"}
+			keyValues := [...]string{data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].HostName.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Id.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Type.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].VersionedTemplateId.ValueString()}
+
+			var cr gjson.Result
+			r.Get("targetInfo").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("hostName"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].HostName.IsNull() {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].HostName = types.StringValue(value.String())
+			} else {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].HostName = types.StringNull()
+			}
+			if value := cr.Get("id"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Id.IsNull() {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Id = types.StringValue(value.String())
+			} else {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Id = types.StringNull()
+			}
+			if value := cr.Get("params"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Params.IsNull() {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Params = helpers.GetStringMap(value.Map())
+			} else {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Params = types.MapNull(types.StringType)
+			}
+			if value := cr.Get("resourceParams"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams.IsNull() {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams = helpers.GetStringMap(value.Map())
+			} else {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams = types.MapNull(types.StringType)
+			}
+			if value := cr.Get("type"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Type.IsNull() {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Type = types.StringValue(value.String())
+			} else {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Type = types.StringNull()
+			}
+			if value := cr.Get("versionedTemplateId"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].VersionedTemplateId.IsNull() {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].VersionedTemplateId = types.StringValue(value.String())
+			} else {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].VersionedTemplateId = types.StringNull()
+			}
+		}
 	}
 	for i := range data.TargetInfo {
 		keys := [...]string{"hostName", "id", "type", "versionedTemplateId"}
@@ -284,7 +500,7 @@ func (data *DeployTemplate) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.MainTemplateId.IsNull() {
 		return false
 	}
-	if !data.MemberTemplateDeploymentInfo.IsNull() {
+	if len(data.MemberTemplateDeploymentInfo) > 0 {
 		return false
 	}
 	if len(data.TargetInfo) > 0 {
