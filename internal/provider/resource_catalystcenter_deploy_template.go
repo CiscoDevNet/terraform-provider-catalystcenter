@@ -26,7 +26,6 @@ import (
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -43,7 +42,6 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &DeployTemplateResource{}
-var _ resource.ResourceWithImportState = &DeployTemplateResource{}
 
 func NewDeployTemplateResource() resource.Resource {
 	return &DeployTemplateResource{}
@@ -71,7 +69,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				},
 			},
 			"template_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("UUID of template to be provisioned").String,
+				MarkdownDescription: helpers.NewAttributeDescription("ID of template to be provisioned").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -95,7 +93,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"template_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("UUID of template to be provisioned").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of template to be provisioned").String,
 							Required:            true,
 						},
 						"force_push_template": schema.BoolAttribute{
@@ -120,7 +118,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 										Optional:            true,
 									},
 									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID of target is required if targetType is MANAGED_DEVICE_UUID").String,
+										MarkdownDescription: helpers.NewAttributeDescription("ID of device is required if targetType is MANAGED_DEVICE_UUID").String,
 										Optional:            true,
 									},
 									"params": schema.MapAttribute{
@@ -141,7 +139,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 										},
 									},
 									"versioned_template_id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Versioned templateUUID to be provisioned").String,
+										MarkdownDescription: helpers.NewAttributeDescription("Versioned template ID to be provisioned").String,
 										Required:            true,
 									},
 								},
@@ -160,7 +158,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 							Optional:            true,
 						},
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("UUID of target is required if targetType is MANAGED_DEVICE_UUID").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of device is required if `type` is MANAGED_DEVICE_UUID").String,
 							Optional:            true,
 						},
 						"params": schema.MapAttribute{
@@ -181,7 +179,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 							},
 						},
 						"versioned_template_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Versioned templateUUID to be provisioned").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Versioned template ID to be provisioned").String,
 							Required:            true,
 						},
 					},
@@ -302,8 +300,4 @@ func (r *DeployTemplateResource) Delete(ctx context.Context, req resource.Delete
 //template:end delete
 
 //template:begin import
-func (r *DeployTemplateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-}
-
 //template:end import

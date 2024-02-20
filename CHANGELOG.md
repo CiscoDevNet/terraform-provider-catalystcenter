@@ -4,6 +4,9 @@
 - Add `catalystcenter_template_version` resource and data source
 - Add `catalystcenter_sda_fabric_authentication_profile` resource and data source
 - Fix handling of validation warnings when creating templates
+- Make `country`, `address`, `latitude` and `longitude` attributes of `catalystcenter_building` resource optional
+- Make `selection_type` attribute of `catalystcenter_template` resource optional
+- Add `catalystcenter_deploy_template` resource
 
 ## 0.1.4
 

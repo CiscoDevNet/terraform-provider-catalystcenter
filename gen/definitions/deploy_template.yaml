@@ -56,7 +56,7 @@ attributes:
             description: Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
           - model_name: id
             type: String
-            description: UUID of target is required if targetType is MANAGED_DEVICE_UUID
+            description: ID of device is required if targetType is MANAGED_DEVICE_UUID
           - model_name: params
             type: Map
             description:  Template params/values to be provisioned

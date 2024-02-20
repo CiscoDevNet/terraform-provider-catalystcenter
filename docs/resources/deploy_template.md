@@ -33,7 +33,7 @@ resource "catalystcenter_deploy_template" "example" {
 ### Required
 
 - `target_info` (Attributes List) Target info to deploy template (see [below for nested schema](#nestedatt--target_info))
-- `template_id` (String) UUID of template to be provisioned
+- `template_id` (String) ID of template to be provisioned
 
 ### Optional
 
@@ -53,12 +53,12 @@ Required:
 
 - `type` (String) Target type of device
   - Choices: `MANAGED_DEVICE_IP`, `MANAGED_DEVICE_UUID`, `PRE_PROVISIONED_SERIAL`, `PRE_PROVISIONED_MAC`, `DEFAULT`, `MANAGED_DEVICE_HOSTNAME`
-- `versioned_template_id` (String) Versioned templateUUID to be provisioned
+- `versioned_template_id` (String) Versioned template ID to be provisioned
 
 Optional:
 
 - `host_name` (String) Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
-- `id` (String) UUID of target is required if targetType is MANAGED_DEVICE_UUID
+- `id` (String) ID of device is required if `type` is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
 - `resource_params` (Map of String) Resource params to be provisioned
 
@@ -69,7 +69,7 @@ Optional:
 Required:
 
 - `target_info` (Attributes List) Target info to deploy template (see [below for nested schema](#nestedatt--member_template_deployment_info--target_info))
-- `template_id` (String) UUID of template to be provisioned
+- `template_id` (String) ID of template to be provisioned
 
 Optional:
 
@@ -84,19 +84,11 @@ Required:
 
 - `type` (String) Target type of device
   - Choices: `MANAGED_DEVICE_IP`, `MANAGED_DEVICE_UUID`, `PRE_PROVISIONED_SERIAL`, `PRE_PROVISIONED_MAC`, `DEFAULT`, `MANAGED_DEVICE_HOSTNAME`
-- `versioned_template_id` (String) Versioned templateUUID to be provisioned
+- `versioned_template_id` (String) Versioned template ID to be provisioned
 
 Optional:
 
 - `host_name` (String) Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
-- `id` (String) UUID of target is required if targetType is MANAGED_DEVICE_UUID
+- `id` (String) ID of device is required if targetType is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
 - `resource_params` (Map of String) Resource params to be provisioned
-
-## Import
-
-Import is supported using the following syntax:
-
-```shell
-terraform import catalystcenter_deploy_template.example "12345678-1234-1234-1234-123456789012"
-```

@@ -45,10 +45,6 @@ func TestAccCcDeployTemplate(t *testing.T) {
 		Config: testAccCcDeployTemplatePrerequisitesConfig + testAccCcDeployTemplateConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_deploy_template.test",
-		ImportState:  true,
-	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
