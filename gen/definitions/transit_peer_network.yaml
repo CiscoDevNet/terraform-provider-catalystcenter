@@ -46,7 +46,7 @@ attributes:
         requires_replace: true
         type: String
         mandatory: true
-        description: Autonomous System Number
+        description: Site Name Hierarchy where device is provisioned
         example: "Global/Area1"
       - model_name: deviceManagementIpAddress
         requires_replace: true

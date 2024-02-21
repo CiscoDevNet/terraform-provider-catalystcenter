@@ -39,4 +39,4 @@ data "catalystcenter_transit_peer_network" "example" {
 Read-Only:
 
 - `device_management_ip_address` (String) Device Management Ip Address of provisioned device
-- `site_name_hierarchy` (String) Autonomous System Number
+- `site_name_hierarchy` (String) Site Name Hierarchy where device is provisioned

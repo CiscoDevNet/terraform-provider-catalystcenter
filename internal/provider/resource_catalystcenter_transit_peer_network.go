@@ -111,7 +111,7 @@ func (r *TransitPeerNetworkResource) Schema(ctx context.Context, req resource.Sc
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"site_name_hierarchy": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Autonomous System Number").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Site Name Hierarchy where device is provisioned").String,
 							Required:            true,
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.RequiresReplace(),

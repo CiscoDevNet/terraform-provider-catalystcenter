@@ -90,7 +90,7 @@ func (d *TransitPeerNetworkDataSource) Schema(ctx context.Context, req datasourc
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"site_name_hierarchy": schema.StringAttribute{
-							MarkdownDescription: "Autonomous System Number",
+							MarkdownDescription: "Site Name Hierarchy where device is provisioned",
 							Computed:            true,
 						},
 						"device_management_ip_address": schema.StringAttribute{
