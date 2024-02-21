@@ -1,0 +1,56 @@
+---
+name: Transit Peer Network
+rest_endpoint: /dna/intent/api/v1/business/sda/transit-peer-network
+id_from_attribute: true
+id_query_param: transitPeerNetworkName
+delete_id_query_param: transitPeerNetworkName
+no_update: true
+skip_minimum_test: true
+doc_category: SDA
+attributes:
+  - model_name: transitPeerNetworkName
+    type: String
+    id: true
+    data_source_query: true
+    description: Transit Peer Network Name
+    example: TRANSIT_1
+  - model_name: transitPeerNetworkType
+    type: String
+    mandatory: true
+    description: Transit Peer Network Type
+    enum_values: [ip_transit, sda_transit_with_lisp_bgp, sda_transit_with_pub_sub]
+    requires_replace: true  # PUT not implemented
+    example: ip_transit
+  - model_name: routingProtocolName
+    data_path: ipTransitSettings
+    type: String
+    mandatory: true
+    requires_replace: true
+    description: Routing Protocol Name
+    enum_values: [BGP]
+    example: BGP
+  - model_name: autonomousSystemNumber
+    data_path: ipTransitSettings
+    type: String
+    mandatory: true
+    requires_replace: true
+    description: Autonomous System Number
+    example: "65010"
+  - model_name: transitControlPlaneSettings
+    data_path: sdaTransitSettings
+    write_only: true
+    type: List
+    description: Transit Control Plane Settings info
+    attributes:
+      - model_name: siteNameHierarchy
+        requires_replace: true
+        type: String
+        mandatory: true
+        description: Autonomous System Number
+        example: "Global/Area1"
+      - model_name: deviceManagementIpAddress
+        requires_replace: true
+        type: String
+        mandatory: true
+        description: Device Management Ip Address of provisioned device
+        example: "10.0.0.1"
