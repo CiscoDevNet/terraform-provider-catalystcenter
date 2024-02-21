@@ -15,7 +15,7 @@ attributes:
     id: true
     description: Path of SDA Fabric Site
     example: Global/Site1
-    test_value: 'catalystcenter_sda_fabric_site.test.site_name_hierarchy'
+    test_value: 'catalystcenter_fabric_site.test.site_name_hierarchy'
   - model_name: authenticateTemplateName
     tf_name: authentication_template_name    
     data_path: "0"
@@ -35,7 +35,7 @@ test_prerequisites: |
     name        = "Area1"
     parent_name = "Global"
   }
-  resource "catalystcenter_sda_fabric_site" "test" {
+  resource "catalystcenter_fabric_site" "test" {
     site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"
     fabric_type = "FABRIC_SITE"
   }

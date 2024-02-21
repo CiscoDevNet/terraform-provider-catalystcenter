@@ -58,7 +58,7 @@ resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
 }
-resource "catalystcenter_sda_fabric_site" "test" {
+resource "catalystcenter_fabric_site" "test" {
   site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"
   fabric_type = "FABRIC_SITE"
 }
@@ -69,7 +69,7 @@ resource "catalystcenter_sda_fabric_site" "test" {
 //template:begin testAccConfigMinimal
 func testAccCcFabricAuthenticationProfileConfig_minimum() string {
 	config := `resource "catalystcenter_fabric_authentication_profile" "test" {` + "\n"
-	config += `	site_name_hierarchy = catalystcenter_sda_fabric_site.test.site_name_hierarchy` + "\n"
+	config += `	site_name_hierarchy = catalystcenter_fabric_site.test.site_name_hierarchy` + "\n"
 	config += `	authentication_template_name = "No Authentication"` + "\n"
 	config += `}` + "\n"
 	return config
@@ -80,7 +80,7 @@ func testAccCcFabricAuthenticationProfileConfig_minimum() string {
 //template:begin testAccConfigAll
 func testAccCcFabricAuthenticationProfileConfig_all() string {
 	config := `resource "catalystcenter_fabric_authentication_profile" "test" {` + "\n"
-	config += `	site_name_hierarchy = catalystcenter_sda_fabric_site.test.site_name_hierarchy` + "\n"
+	config += `	site_name_hierarchy = catalystcenter_fabric_site.test.site_name_hierarchy` + "\n"
 	config += `	authentication_template_name = "No Authentication"` + "\n"
 	config += `}` + "\n"
 	return config

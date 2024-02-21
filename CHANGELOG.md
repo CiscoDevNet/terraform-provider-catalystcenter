@@ -8,6 +8,7 @@
 - Make `selection_type` attribute of `catalystcenter_template` resource optional
 - Add `catalystcenter_deploy_template` resource
 - Add `catalystcenter_lan_automation` resource and data source
+- Add `catalystcenter_wireless_enterprise_ssid` resource and data source
 
 ## 0.1.4
 
