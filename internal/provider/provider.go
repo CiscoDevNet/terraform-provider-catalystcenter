@@ -274,6 +274,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewTemplateVersionResource,
 		NewUserResource,
 		NewWirelessEnterpriseSSIDResource,
+		NewWirelessRFProfileResource,
 	}
 }
 
@@ -307,6 +308,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewTemplateVersionDataSource,
 		NewUserDataSource,
 		NewWirelessEnterpriseSSIDDataSource,
+		NewWirelessRFProfileDataSource,
 	}
 }
 

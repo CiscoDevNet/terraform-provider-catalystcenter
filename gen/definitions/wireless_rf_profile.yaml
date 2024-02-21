@@ -1,0 +1,228 @@
+---
+name: Wireless RF Profile
+rest_endpoint: /dna/intent/api/v1/wireless/rf-profile
+id_query_param: rf-profile-name
+id_from_attribute: true
+post_update: true
+skip_minimum_test: true  # Issue with v2.3.7.4 where updated profiles (POST) can no longer be retrieved or deleted
+res_description:
+  'This resource manages a Wireless RF Profile.
+  <p/>
+  Updating or re-creating this resource might lead to subsequent failures when modifying the resource due to a known API issue.'
+doc_category: Wireless
+attributes:
+  - model_name: name
+    type: String
+    response_data_path: response.0.name
+    id: true
+    description: RF Profile Name
+    example: RF_Profile_1
+  - model_name: defaultRfProfile
+    type: Bool
+    response_data_path: response.0.defaultRfProfile
+    mandatory: true
+    description: is Default Rf Profile
+    example: false
+  - model_name: enableRadioTypeA
+    type: Bool
+    response_data_path: response.0.enableRadioTypeA
+    mandatory: true
+    description: Enable Radio Type A
+    example: true
+  - model_name: enableRadioTypeB
+    type: Bool
+    response_data_path: response.0.enableRadioTypeB
+    mandatory: true
+    description: Enable Radio Type B
+    example: true
+  - model_name: enableRadioTypeC
+    type: Bool
+    response_data_path: response.0.enableRadioTypeC
+    description: Enable Radio Type C (6GHz)
+    example: false
+  - model_name: channelWidth
+    type: String
+    mandatory: true
+    response_data_path: response.0.channelWidth
+    description: Channel Width
+    example: "20"
+  - model_name: enableCustom
+    type: Bool
+    response_data_path: response.0.enableCustom
+    mandatory: true
+    description: Enable Custom
+    example: true
+  - model_name: enableBrownField
+    type: Bool
+    response_data_path: response.0.enableBrownField
+    mandatory: true
+    description: Enable Brown Field
+    example: false
+  - model_name: parentProfile
+    tf_name: radio_type_a_parent_profile
+    data_path: radioTypeAProperties
+    response_data_path: response.0.radioTypeAProperties.parentProfile
+    type: String
+    description: Radio TypeA Properties - Parent Profile
+    example: CUSTOM
+  - model_name: radioChannels
+    tf_name: radio_type_a_radio_channels
+    data_path: radioTypeAProperties
+    response_data_path: response.0.radioTypeAProperties.radioChannels
+    type: String
+    description: Radio TypeA Properties - Radio Channels
+    example: "36,40,44,48,52,56,60,64,144,149,153,157,161,165,169,173"
+  - model_name: dataRates
+    tf_name: radio_type_a_data_rates
+    data_path: radioTypeAProperties
+    response_data_path: response.0.radioTypeAProperties.dataRates
+    type: String
+    description: Radio TypeA Properties - Data Rates
+    example: "6,9,12,18,24,36,48,54"
+  - model_name: mandatoryDataRates
+    tf_name: radio_type_a_mandatory_data_rates
+    data_path: radioTypeAProperties
+    response_data_path: response.0.radioTypeAProperties.mandatoryDataRates
+    type: String
+    description: Radio TypeA Properties - Mandatory Data Rates
+    example: "12,24"  
+  - model_name: powerThresholdV1
+    tf_name: radio_type_a_power_treshold_v1
+    data_path: radioTypeAProperties
+    response_data_path: response.0.radioTypeAProperties.powerThresholdV1
+    type: Int64
+    description: Radio TypeA Properties - Power Threshold V1
+    example: -60
+  - model_name: rxSopThreshold
+    tf_name: radio_type_a_rx_sop_threshold
+    data_path: radioTypeAProperties
+    response_data_path: response.0.radioTypeAProperties.rxSopThreshold
+    type: String
+    description: Radio TypeA Properties - Rx Sop Threshold
+    example: LOW
+  - model_name: minPowerLevel
+    tf_name: radio_type_a_min_power_level
+    data_path: radioTypeAProperties
+    response_data_path: response.0.radioTypeAProperties.minPowerLevel
+    type: Int64
+    description: Radio TypeA Properties - Min Power Level
+    example: 8
+  - model_name: maxPowerLevel
+    tf_name: radio_type_a_max_power_level
+    data_path: radioTypeAProperties
+    response_data_path: response.0.radioTypeAProperties.maxPowerLevel
+    type: Int64
+    description: Radio TypeA Properties - Max Power Level
+    example: 20
+  - model_name: parentProfile
+    tf_name: radio_type_b_parent_profile
+    data_path: radioTypeBProperties
+    response_data_path: response.0.radioTypeBProperties.parentProfile
+    type: String
+    description: Radio TypeB Properties - Parent Profile
+    example: CUSTOM
+  - model_name: radioChannels
+    tf_name: radio_type_b_radio_channels
+    data_path: radioTypeBProperties
+    response_data_path: response.0.radioTypeBProperties.radioChannels
+    type: String
+    description: Radio TypeB Properties - Radio Channels
+    example: "1,6,11"
+  - model_name: dataRates
+    tf_name: radio_type_b_data_rates
+    data_path: radioTypeBProperties
+    response_data_path: response.0.radioTypeBProperties.dataRates
+    type: String
+    description: Radio TypeB Properties - Data Rates
+    example: "9,11,12,18,24,36,48,54"
+  - model_name: mandatoryDataRates
+    tf_name: radio_type_b_mandatory_data_rates
+    data_path: radioTypeBProperties
+    response_data_path: response.0.radioTypeBProperties.mandatoryDataRates
+    type: String
+    description: Radio TypeB Properties - Mandatory Data Rates
+    example: "12"  
+  - model_name: powerThresholdV1
+    tf_name: radio_type_b_power_treshold_v1
+    data_path: radioTypeBProperties
+    response_data_path: response.0.radioTypeBProperties.powerThresholdV1
+    type: Int64
+    description: Radio TypeB Properties - Power Threshold V1
+    example: -60
+  - model_name: rxSopThreshold
+    tf_name: radio_type_b_rx_sop_threshold
+    data_path: radioTypeBProperties
+    response_data_path: response.0.radioTypeBProperties.rxSopThreshold
+    type: String
+    description: Radio TypeB Properties - Rx Sop Threshold
+    example: LOW
+  - model_name: minPowerLevel
+    tf_name: radio_type_b_min_power_level
+    data_path: radioTypeBProperties
+    response_data_path: response.0.radioTypeBProperties.minPowerLevel
+    type: Int64
+    description: Radio TypeB Properties - Min Power Level
+    example: 8
+  - model_name: maxPowerLevel
+    tf_name: radio_type_b_max_power_level
+    data_path: radioTypeBProperties
+    response_data_path: response.0.radioTypeBProperties.maxPowerLevel
+    type: Int64
+    description: Radio TypeB Properties - Max Power Level
+    example: 20
+  - model_name: parentProfile
+    tf_name: radio_type_c_parent_profile
+    data_path: radioTypeCProperties
+    response_data_path: response.0.radioTypeCProperties.parentProfile
+    type: String
+    description: Radio TypeC Properties - Parent Profile
+    exclude_test: true
+  - model_name: radioChannels
+    tf_name: radio_type_c_radio_channels
+    data_path: radioTypeCProperties
+    response_data_path: response.0.radioTypeCProperties.radioChannels
+    type: String
+    description: Radio TypeC Properties - Radio Channels
+    exclude_test: true
+  - model_name: dataRates
+    tf_name: radio_type_c_data_rates
+    data_path: radioTypeCProperties
+    response_data_path: response.0.radioTypeCProperties.dataRates
+    type: String
+    description: Radio TypeC Properties - Data Rates
+    exclude_test: true
+  - model_name: mandatoryDataRates
+    tf_name: radio_type_c_mandatory_data_rates
+    data_path: radioTypeCProperties
+    response_data_path: response.0.radioTypeCProperties.mandatoryDataRates
+    type: String
+    description: Radio TypeC Properties - Mandatory Data Rates
+    exclude_test: true
+  - model_name: powerThresholdV1
+    tf_name: radio_type_c_power_treshold_v1
+    data_path: radioTypeCProperties
+    response_data_path: response.0.radioTypeCProperties.powerThresholdV1
+    type: Int64
+    description: Radio TypeC Properties - Power Threshold V1
+    exclude_test: true
+  - model_name: rxSopThreshold
+    tf_name: radio_type_c_rx_sop_threshold
+    data_path: radioTypeCProperties
+    response_data_path: response.0.radioTypeCProperties.rxSopThreshold
+    type: String
+    description: Radio TypeC Properties - Rx Sop Threshold
+    exclude_test: true
+  - model_name: minPowerLevel
+    tf_name: radio_type_c_min_power_level
+    data_path: radioTypeCProperties
+    response_data_path: response.0.radioTypeCProperties.minPowerLevel
+    type: Int64
+    description: Radio TypeC Properties - Min Power Level
+    exclude_test: true
+  - model_name: maxPowerLevel
+    tf_name: radio_type_c_max_power_level
+    data_path: radioTypeCProperties
+    response_data_path: response.0.radioTypeCProperties.maxPowerLevel
+    type: Int64
+    description: Radio TypeC Properties - Max Power Level
+    exclude_test: true
