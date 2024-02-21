@@ -21,6 +21,7 @@ package provider
 
 //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,8 +29,10 @@ import (
 
 //template:end imports
 
-//template:begin testAccDataSource
 func TestAccDataSourceCcWirelessRFProfile(t *testing.T) {
+	if os.Getenv("WIRELESS_RF_PROFILE") == "" {
+		t.Skip("skipping test, set environment variable WIRELESS_RF_PROFILE")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_rf_profile.test", "name", "RF_Profile_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_rf_profile.test", "default_rf_profile", "false"))
@@ -66,8 +69,6 @@ func TestAccDataSourceCcWirelessRFProfile(t *testing.T) {
 		},
 	})
 }
-
-//template:end testAccDataSource
 
 //template:begin testPrerequisites
 //template:end testPrerequisites
