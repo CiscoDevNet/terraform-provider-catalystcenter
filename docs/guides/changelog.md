@@ -19,6 +19,7 @@ description: |-
 - Add `catalystcenter_lan_automation` resource and data source
 - Add `catalystcenter_wireless_enterprise_ssid` resource and data source
 - Add `catalystcenter_wireless_rf_profile` resource and data source
+- Add `catalystcenter_transit_peer_network` resource and data source
 
 ## 0.1.4
 
