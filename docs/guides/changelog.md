@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.1.5 (unreleased)
+## 0.1.5
 
 - Add `catalystcenter_fabric_site` resource and data source
 - Add `catalystcenter_template_version` resource and data source
