@@ -1,0 +1,29 @@
+---
+name: Fabric Virtual Network
+rest_endpoint: /dna/intent/api/v1/virtual-network
+id_query_param: virtualNetworkName
+delete_id_query_param: virtualNetworkName
+id_from_attribute: true
+doc_category: SDA
+attributes:
+  - model_name: virtualNetworkName
+    type: String
+    id: true
+    description: Virtual Network Name to be assigned at global level
+    example: SDA_VN1
+  - model_name: isGuestVirtualNetwork
+    tf_name: is_guest
+    type: Bool
+    description: Guest Virtual Network enablement flag
+    default_value: false
+    example: false
+  - model_name: scalableGroupNames
+    tf_name: sg_names
+    type: StringList
+    description: Scalable Groups to be associated to virtual network
+    example: "Employees"
+  - model_name: vManageVpnId
+    tf_name: vmanage_vpn_id
+    type: String
+    description: vManage vpn id for SD-WAN
+    exclude_test: true
