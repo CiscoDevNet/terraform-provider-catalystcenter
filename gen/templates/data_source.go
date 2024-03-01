@@ -228,7 +228,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
-	res, err := d.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}config.getPath(){{end}} + params)
+	res, err := d.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}config.getPath(){{end}} + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return

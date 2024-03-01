@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -115,7 +116,7 @@ func (d *FloorDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 
 	params := ""
 	params += "/" + config.Id.ValueString()
-	res, err := d.client.Get("/api/v1/dna-maps-service/domains" + params)
+	res, err := d.client.Get("/api/v1/dna-maps-service/domains" + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return

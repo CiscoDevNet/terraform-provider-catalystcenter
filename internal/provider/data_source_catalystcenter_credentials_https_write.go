@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -142,7 +143,7 @@ func (d *CredentialsHTTPSWriteDataSource) Read(ctx context.Context, req datasour
 	}
 
 	params := ""
-	res, err := d.client.Get(config.getPath() + params)
+	res, err := d.client.Get(config.getPath() + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return

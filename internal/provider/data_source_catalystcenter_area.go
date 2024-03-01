@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -135,7 +136,7 @@ func (d *AreaDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	params := ""
 	params += "?id=" + config.Id.ValueString()
-	res, err := d.client.Get("/dna/intent/api/v2/site" + params)
+	res, err := d.client.Get("/dna/intent/api/v2/site" + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return

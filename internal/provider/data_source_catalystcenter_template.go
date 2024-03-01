@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -258,7 +259,7 @@ func (d *TemplateDataSource) Read(ctx context.Context, req datasource.ReadReques
 	params := ""
 	params += "/" + config.Id.ValueString()
 	params += "?unCommitted=true"
-	res, err := d.client.Get("/dna/intent/api/v1/template-programmer/template" + params)
+	res, err := d.client.Get("/dna/intent/api/v1/template-programmer/template" + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return

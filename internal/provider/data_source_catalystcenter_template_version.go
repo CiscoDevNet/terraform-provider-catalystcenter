@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -99,7 +100,7 @@ func (d *TemplateVersionDataSource) Read(ctx context.Context, req datasource.Rea
 
 	params := ""
 	params += "/" + config.Id.ValueString()
-	res, err := d.client.Get(config.getPath() + params)
+	res, err := d.client.Get(config.getPath() + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
