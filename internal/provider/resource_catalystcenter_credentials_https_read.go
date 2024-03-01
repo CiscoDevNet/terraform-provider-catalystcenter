@@ -122,13 +122,13 @@ func (r *CredentialsHTTPSReadResource) Create(ctx context.Context, req resource.
 	body := plan.toBody(ctx, CredentialsHTTPSRead{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
 	params = ""
-	res, err = r.client.Get(plan.getPath() + params)
+	res, err = r.client.Get(plan.getPath() + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -157,7 +157,7 @@ func (r *CredentialsHTTPSReadResource) Read(ctx context.Context, req resource.Re
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.client.Get(state.getPath() + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -203,7 +203,7 @@ func (r *CredentialsHTTPSReadResource) Update(ctx context.Context, req resource.
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
+	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -229,7 +229,7 @@ func (r *CredentialsHTTPSReadResource) Delete(ctx context.Context, req resource.
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "/" + strings.Replace(state.Id.ValueString(), " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

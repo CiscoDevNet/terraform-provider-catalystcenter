@@ -247,7 +247,7 @@ func (r *WirelessEnterpriseSSIDResource) Create(ctx context.Context, req resourc
 	body := plan.toBody(ctx, WirelessEnterpriseSSID{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -277,7 +277,7 @@ func (r *WirelessEnterpriseSSIDResource) Read(ctx context.Context, req resource.
 
 	params := ""
 	params += "?ssidName=" + state.Id.ValueString()
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.client.Get(state.getPath() + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -322,7 +322,7 @@ func (r *WirelessEnterpriseSSIDResource) Update(ctx context.Context, req resourc
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
+	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -348,7 +348,7 @@ func (r *WirelessEnterpriseSSIDResource) Delete(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "/" + strings.Replace(state.Id.ValueString(), " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

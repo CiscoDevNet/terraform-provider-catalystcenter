@@ -214,7 +214,7 @@ func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest
 
 	params := ""
 	params += "/" + plan.SiteId.ValueString()
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -244,7 +244,7 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	params := ""
 	params += "/" + state.Id.ValueString()
-	res, err := r.client.Get("/api/v1/commonsetting/global" + params)
+	res, err := r.client.Get("/api/v1/commonsetting/global" + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -290,7 +290,7 @@ func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest
 	body := plan.toBody(ctx, state)
 	params := ""
 	params += "/" + plan.SiteId.ValueString()
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return

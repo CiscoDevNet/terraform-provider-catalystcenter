@@ -324,13 +324,13 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 	body := plan.toBody(ctx, Discovery{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 600 })
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body, func(r *cc.Req) { r.MaxAsyncWaitTime = 600 })
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
 	params = ""
-	res, err = r.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
+	res, err = r.client.Get("/dna/intent/api/v1/discovery/1/500" + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -359,7 +359,7 @@ func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	res, err := r.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
+	res, err := r.client.Get("/dna/intent/api/v1/discovery/1/500" + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -423,7 +423,7 @@ func (r *DiscoveryResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "/" + strings.Replace(state.Id.ValueString(), " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

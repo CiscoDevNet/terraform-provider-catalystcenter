@@ -146,13 +146,13 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 	body := plan.toBody(ctx, IPPool{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
 	params = ""
-	res, err = r.client.Get("/api/v2/ippool" + params)
+	res, err = r.client.Get("/api/v2/ippool" + strings.Replace(params, " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -182,7 +182,7 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	params := ""
 	params += "/" + state.Id.ValueString()
-	res, err := r.client.Get("/api/v2/ippool" + params)
+	res, err := r.client.Get("/api/v2/ippool" + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -227,7 +227,7 @@ func (r *IPPoolResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
+	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -253,7 +253,7 @@ func (r *IPPoolResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "/" + strings.Replace(state.Id.ValueString(), " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

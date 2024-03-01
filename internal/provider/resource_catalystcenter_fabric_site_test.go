@@ -54,7 +54,7 @@ func TestAccCcFabricSite(t *testing.T) {
 //template:begin testPrerequisites
 const testAccCcFabricSitePrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
-  name        = "Area1"
+  name        = "Area 1"
   parent_name = "Global"
 }
 `

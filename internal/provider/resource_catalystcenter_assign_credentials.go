@@ -132,7 +132,7 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 
 	params := ""
 	params += "/" + plan.SiteId.ValueString()
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -162,7 +162,7 @@ func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadR
 
 	params := ""
 	params += "/" + state.Id.ValueString()
-	res, err := r.client.Get("/api/v1/commonsetting/global" + params)
+	res, err := r.client.Get("/api/v1/commonsetting/global" + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -208,7 +208,7 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 	body := plan.toBody(ctx, state)
 	params := ""
 	params += "/" + plan.SiteId.ValueString()
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return

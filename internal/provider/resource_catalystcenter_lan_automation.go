@@ -158,7 +158,7 @@ func (r *LANAutomationResource) Create(ctx context.Context, req resource.CreateR
 	body := plan.toBody(ctx, LANAutomation{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -188,7 +188,7 @@ func (r *LANAutomationResource) Read(ctx context.Context, req resource.ReadReque
 
 	params := ""
 	params += "/" + state.Id.ValueString()
-	res, err := r.client.Get("/dna/intent/api/v1/lan-automation/status" + params)
+	res, err := r.client.Get("/dna/intent/api/v1/lan-automation/status" + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -251,7 +251,7 @@ func (r *LANAutomationResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "/" + strings.Replace(state.Id.ValueString(), " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

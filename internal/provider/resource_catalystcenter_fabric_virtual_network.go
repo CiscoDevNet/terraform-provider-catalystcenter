@@ -123,7 +123,7 @@ func (r *FabricVirtualNetworkResource) Create(ctx context.Context, req resource.
 	body := plan.toBody(ctx, FabricVirtualNetwork{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -153,7 +153,7 @@ func (r *FabricVirtualNetworkResource) Read(ctx context.Context, req resource.Re
 
 	params := ""
 	params += "?virtualNetworkName=" + state.Id.ValueString()
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.client.Get(state.getPath() + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -198,7 +198,7 @@ func (r *FabricVirtualNetworkResource) Update(ctx context.Context, req resource.
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
+	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -224,7 +224,7 @@ func (r *FabricVirtualNetworkResource) Delete(ctx context.Context, req resource.
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "?virtualNetworkName=" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "?virtualNetworkName=" + strings.Replace(state.Id.ValueString(), " ", "+", -1))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

@@ -114,7 +114,7 @@ func (r *TemplateVersionResource) Create(ctx context.Context, req resource.Creat
 	body := plan.toBody(ctx, TemplateVersion{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -144,7 +144,7 @@ func (r *TemplateVersionResource) Read(ctx context.Context, req resource.ReadReq
 
 	params := ""
 	params += "/" + state.Id.ValueString()
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.client.Get(state.getPath() + strings.Replace(params, " ", "+", -1))
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -189,7 +189,7 @@ func (r *TemplateVersionResource) Update(ctx context.Context, req resource.Updat
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
+	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+strings.Replace(params, " ", "+", -1), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
