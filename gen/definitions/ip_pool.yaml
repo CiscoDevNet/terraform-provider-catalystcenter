@@ -57,4 +57,3 @@ attributes:
     type: StringList
     description: List of DNS Server IPs
     example: 2.3.4.5
-
