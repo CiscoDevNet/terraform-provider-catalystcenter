@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -282,7 +283,7 @@ func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, r
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "/" + state.Id.ValueString()
+	params += "/" + url.QueryEscape(state.Id.ValueString())
 	params += "?unCommitted=true"
 	res, err := r.client.Get("/dna/intent/api/v1/template-programmer/template" + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
@@ -355,7 +356,7 @@ func (r *TemplateResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPathDelete() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPathDelete() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

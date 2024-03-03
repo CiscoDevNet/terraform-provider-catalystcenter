@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -256,7 +257,7 @@ func (d *TemplateDataSource) Read(ctx context.Context, req datasource.ReadReques
 	}
 
 	params := ""
-	params += "/" + config.Id.ValueString()
+	params += "/" + url.QueryEscape(config.Id.ValueString())
 	params += "?unCommitted=true"
 	res, err := d.client.Get("/dna/intent/api/v1/template-programmer/template" + params)
 	if err != nil {

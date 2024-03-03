@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -170,7 +171,7 @@ func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequ
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "/" + state.Id.ValueString()
+	params += "/" + url.QueryEscape(state.Id.ValueString())
 	params += "?populated=true"
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
@@ -217,7 +218,7 @@ func (r *NetworkProfileResource) Update(ctx context.Context, req resource.Update
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+plan.Id.ValueString()+params, body)
+	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -243,7 +244,7 @@ func (r *NetworkProfileResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

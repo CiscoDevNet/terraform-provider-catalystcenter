@@ -24,6 +24,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -420,7 +421,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	params := ""
 	{{- if hasQueryParam .Attributes}}
 		{{- $queryParam := getQueryParam .Attributes}}
-	params += "/" + plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
+	params += "/" + url.QueryEscape(plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
 	{{- end}}
 	{{- if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
@@ -440,7 +441,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	params = ""
 		{{- if hasQueryParam .Attributes}}
 		{{- $queryParam := getQueryParam .Attributes}}
-	params += "?{{$queryParam.ModelName}}=" + plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
+	params += "?{{$queryParam.ModelName}}=" + url.QueryEscape(plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
 		{{- end}}
 	res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
 	if err != nil {
@@ -477,12 +478,12 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 
 	params := ""
 	{{- if .IdQueryParam}}
-	params += "?{{.IdQueryParam}}=" + state.Id.ValueString()
+	params += "?{{.IdQueryParam}}=" + url.QueryEscape(state.Id.ValueString())
 	{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
 		{{- $queryParam := getQueryParam .Attributes}}
-	params += "?{{$queryParam.ModelName}}=" + state.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
+	params += "?{{$queryParam.ModelName}}=" + url.QueryEscape(state.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}
-	params += "/" + state.Id.ValueString()
+	params += "/" + url.QueryEscape(state.Id.ValueString())
 	{{- end}}
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
@@ -544,10 +545,10 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	params := ""
 	{{- if hasQueryParam .Attributes}}
 		{{- $queryParam := getQueryParam .Attributes}}
-	params += "/" + plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
+	params += "/" + url.QueryEscape(plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
 	{{- end}}
 	{{- if .PutIdQueryParam}}
-	params += "?{{.PutIdQueryParam}}=" + plan.Id.ValueString()
+	params += "?{{.PutIdQueryParam}}=" + url.QueryEscape(plan.Id.ValueString())
 	{{- end}}
 	{{- if .PostUpdate}}
 	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
@@ -558,7 +559,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- else if .PutNoId}}
 	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
 	{{- else}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + plan.Id.ValueString() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
 	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
@@ -594,9 +595,9 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- if .DeleteNoId}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}})
 	{{- else if .DeleteIdQueryParam}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + state.Id.ValueString())
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()))
 	{{- else}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + state.Id.ValueString())
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()))
 	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))

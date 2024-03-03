@@ -24,6 +24,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -218,12 +219,12 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 
 	params := ""
 	{{- if .IdQueryParam}}
-	params += "?{{.IdQueryParam}}=" + config.Id.ValueString()
+	params += "?{{.IdQueryParam}}=" + url.QueryEscape(config.Id.ValueString())
 	{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
 		{{- $queryParam := getQueryParam .Attributes}}
-	params += "?{{$queryParam.ModelName}}=" + config.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}()
+	params += "?{{$queryParam.ModelName}}=" + url.QueryEscape(config.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}
-	params += "/" + config.Id.ValueString()
+	params += "/" + url.QueryEscape(config.Id.ValueString())
 	{{- end}}
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"

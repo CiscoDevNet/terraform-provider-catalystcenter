@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -150,7 +151,7 @@ func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	params := ""
-	params += "/" + config.Id.ValueString()
+	params += "/" + url.QueryEscape(config.Id.ValueString())
 	params += "?populated=true"
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {

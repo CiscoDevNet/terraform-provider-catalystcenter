@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strconv"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -80,7 +81,7 @@ type TemplateTemplateParamsRanges struct {
 
 //template:begin getPath
 func (data Template) getPath() string {
-	return fmt.Sprintf("/dna/intent/api/v1/template-programmer/project/%v/template", data.ProjectId.ValueString())
+	return fmt.Sprintf("/dna/intent/api/v1/template-programmer/project/%v/template", url.QueryEscape(data.ProjectId.ValueString()))
 }
 
 //template:end getPath

@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -188,7 +189,7 @@ func (d *DeviceDetailDataSource) Read(ctx context.Context, req datasource.ReadRe
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "?searchBy=" + config.Id.ValueString()
+	params += "?searchBy=" + url.QueryEscape(config.Id.ValueString())
 	params += "&identifier=uuid"
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {

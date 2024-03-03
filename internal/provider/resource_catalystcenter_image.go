@@ -26,6 +26,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -274,7 +275,7 @@ func (r *ImageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?imageUuid=" + state.Id.ValueString()
+	params += "?imageUuid=" + url.QueryEscape(state.Id.ValueString())
 	res, err := r.client.Get("/dna/intent/api/v1/image/importation" + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -338,7 +339,7 @@ func (r *ImageResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPathDelete() + "/" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPathDelete() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -41,7 +42,7 @@ type AssociateSiteToNetworkProfile struct {
 
 //template:begin getPath
 func (data AssociateSiteToNetworkProfile) getPath() string {
-	return fmt.Sprintf("/dna/intent/api/v1/networkprofile/%v/site/%v", data.NetworkProfileId.ValueString(), data.SiteId.ValueString())
+	return fmt.Sprintf("/dna/intent/api/v1/networkprofile/%v/site/%v", url.QueryEscape(data.NetworkProfileId.ValueString()), url.QueryEscape(data.SiteId.ValueString()))
 }
 
 //template:end getPath

@@ -23,6 +23,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -148,7 +149,7 @@ func (r *FabricAuthenticationProfileResource) Read(ctx context.Context, req reso
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?siteNameHierarchy=" + state.Id.ValueString()
+	params += "?siteNameHierarchy=" + url.QueryEscape(state.Id.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -212,7 +213,7 @@ func (r *FabricAuthenticationProfileResource) Delete(ctx context.Context, req re
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "?siteNameHierarchy=" + state.Id.ValueString())
+	res, err := r.client.Delete(state.getPath() + "?siteNameHierarchy=" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

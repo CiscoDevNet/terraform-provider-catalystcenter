@@ -25,6 +25,6 @@ attributes:
     default_value: FABRIC_SITE
 test_prerequisites: |
   resource "catalystcenter_area" "test" {
-    name        = "Area1"
+    name        = "Area 1"
     parent_name = "Global"
   }

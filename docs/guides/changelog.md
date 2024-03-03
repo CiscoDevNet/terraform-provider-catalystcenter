@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.6 (unreleased)
+
+- Fix issue with unencoded characters ending up in parts of the URL
+
 ## 0.1.5
 
 - Add `catalystcenter_fabric_site` resource and data source
