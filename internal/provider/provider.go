@@ -275,6 +275,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewTemplateVersionResource,
 		NewTransitPeerNetworkResource,
 		NewUserResource,
+		NewVirtualNetworkToFabricSiteResource,
 		NewWirelessEnterpriseSSIDResource,
 		NewWirelessRFProfileResource,
 	}
