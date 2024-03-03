@@ -266,6 +266,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewLANAutomationResource,
 		NewNetworkResource,
 		NewNetworkProfileResource,
+		NewPNPConfigPreviewResource,
 		NewPnPDeviceResource,
 		NewPnPDeviceClaimSiteResource,
 		NewProjectResource,
