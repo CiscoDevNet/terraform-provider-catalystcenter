@@ -3,12 +3,12 @@
 page_title: "catalystcenter_virtual_network_to_fabric_site Resource - terraform-provider-catalystcenter"
 subcategory: "SDA"
 description: |-
-  Add virtual network (VN) to SDA Fabric Site
+  Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.
 ---
 
 # catalystcenter_virtual_network_to_fabric_site (Resource)
 
-Add virtual network (VN) to SDA Fabric Site
+Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.
 
 ## Example Usage
 

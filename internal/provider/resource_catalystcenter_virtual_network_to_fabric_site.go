@@ -58,7 +58,7 @@ func (r *VirtualNetworkToFabricSiteResource) Metadata(ctx context.Context, req r
 func (r *VirtualNetworkToFabricSiteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Add virtual network (VN) to SDA Fabric Site").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
