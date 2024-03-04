@@ -72,7 +72,7 @@ func (d *FabricVirtualNetworkDataSource) Schema(ctx context.Context, req datasou
 				MarkdownDescription: "Guest Virtual Network enablement flag",
 				Computed:            true,
 			},
-			"sg_names": schema.ListAttribute{
+			"sg_names": schema.SetAttribute{
 				MarkdownDescription: "Scalable Groups to be associated to virtual network",
 				ElementType:         types.StringType,
 				Computed:            true,

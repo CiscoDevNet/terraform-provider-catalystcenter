@@ -34,7 +34,7 @@ attributes:
   - model_name: primaryDeviceInterfaceNames
     data_path: "0"
     response_data_path: response.0.primaryDeviceInterfaceNames
-    type: List
+    type: Set
     element_type: String
     mandatory: true
     description: The list of interfaces on primary seed via which the discovered devices are connected.

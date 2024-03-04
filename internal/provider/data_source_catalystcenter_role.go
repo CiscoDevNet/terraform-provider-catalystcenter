@@ -85,7 +85,7 @@ func (d *RoleDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 							MarkdownDescription: "Name of the application",
 							Computed:            true,
 						},
-						"operations": schema.ListAttribute{
+						"operations": schema.SetAttribute{
 							MarkdownDescription: "List of operations allowed for the application. Possible values are `gRead`, `gWrite`, `gUpdate`, `gDelete`, or some combination of these.",
 							ElementType:         types.StringType,
 							Computed:            true,

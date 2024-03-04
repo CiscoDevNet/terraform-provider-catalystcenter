@@ -68,7 +68,7 @@ func (d *NetworkDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				MarkdownDescription: "The site ID",
 				Required:            true,
 			},
-			"dhcp_servers": schema.ListAttribute{
+			"dhcp_servers": schema.SetAttribute{
 				MarkdownDescription: "List of DHCP server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,
@@ -85,7 +85,7 @@ func (d *NetworkDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				MarkdownDescription: "Secondary DNS server IP",
 				Computed:            true,
 			},
-			"syslog_servers": schema.ListAttribute{
+			"syslog_servers": schema.SetAttribute{
 				MarkdownDescription: "List of Syslog server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,
@@ -94,7 +94,7 @@ func (d *NetworkDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				MarkdownDescription: "Use Catalyst Center as Syslog server",
 				Computed:            true,
 			},
-			"snmp_servers": schema.ListAttribute{
+			"snmp_servers": schema.SetAttribute{
 				MarkdownDescription: "List of SNMP server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,
@@ -111,7 +111,7 @@ func (d *NetworkDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				MarkdownDescription: "Netflow collector port",
 				Computed:            true,
 			},
-			"ntp_servers": schema.ListAttribute{
+			"ntp_servers": schema.SetAttribute{
 				MarkdownDescription: "List of NTP server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,

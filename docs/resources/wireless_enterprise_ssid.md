@@ -65,7 +65,7 @@ resource "catalystcenter_wireless_enterprise_ssid" "example" {
 - `mfp_client_protection` (String) Mfp Client Protection
   - Choices: `voicedata`, `data`
 - `multi_psk_settings` (Attributes List) Multi PSK Settings (Only applicable for SSID with PERSONAL auth type and PSK) (see [below for nested schema](#nestedatt--multi_psk_settings))
-- `nas_options` (List of String) Nas Options
+- `nas_options` (Set of String) Nas Options
 - `passphrase` (String) Passphrase
 - `policy_profile_name` (String) Policy Profile Name
 - `profile_name` (String) Profile Name

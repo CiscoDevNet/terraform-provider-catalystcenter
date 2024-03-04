@@ -54,7 +54,7 @@ attributes:
     example: 1.2.3.4
   - model_name: merakiOrgId
     tf_name: meraki_org_ids
-    type: List
+    type: Set
     element_type: String
     description: Selected Meraki organizations for which the devices needs to be imported
     example: 12345678901234567890

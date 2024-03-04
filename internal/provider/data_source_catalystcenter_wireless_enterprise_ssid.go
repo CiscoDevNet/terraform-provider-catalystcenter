@@ -136,7 +136,7 @@ func (d *WirelessEnterpriseSSIDDataSource) Schema(ctx context.Context, req datas
 				MarkdownDescription: "Mfp Client Protection",
 				Computed:            true,
 			},
-			"nas_options": schema.ListAttribute{
+			"nas_options": schema.SetAttribute{
 				MarkdownDescription: "Nas Options",
 				ElementType:         types.StringType,
 				Computed:            true,

@@ -52,7 +52,7 @@ type WirelessEnterpriseSSID struct {
 	EnableDirectedMulticastService   types.Bool                               `tfsdk:"enable_directed_multicast_service"`
 	EnableNeighborList               types.Bool                               `tfsdk:"enable_neighbor_list"`
 	MfpClientProtection              types.String                             `tfsdk:"mfp_client_protection"`
-	NasOptions                       types.List                               `tfsdk:"nas_options"`
+	NasOptions                       types.Set                                `tfsdk:"nas_options"`
 	ProfileName                      types.String                             `tfsdk:"profile_name"`
 	PolicyProfileName                types.String                             `tfsdk:"policy_profile_name"`
 	AaaOverride                      types.Bool                               `tfsdk:"aaa_override"`
@@ -265,9 +265,9 @@ func (data *WirelessEnterpriseSSID) fromBody(ctx context.Context, res gjson.Resu
 		data.MfpClientProtection = types.StringNull()
 	}
 	if value := res.Get("0.ssidDetails.0.nasOptions"); value.Exists() {
-		data.NasOptions = helpers.GetStringList(value.Array())
+		data.NasOptions = helpers.GetStringSet(value.Array())
 	} else {
-		data.NasOptions = types.ListNull(types.StringType)
+		data.NasOptions = types.SetNull(types.StringType)
 	}
 	if value := res.Get("0.ssidDetails.0.profileName"); value.Exists() {
 		data.ProfileName = types.StringValue(value.String())
@@ -409,9 +409,9 @@ func (data *WirelessEnterpriseSSID) updateFromBody(ctx context.Context, res gjso
 		data.MfpClientProtection = types.StringNull()
 	}
 	if value := res.Get("0.ssidDetails.0.nasOptions"); value.Exists() && !data.NasOptions.IsNull() {
-		data.NasOptions = helpers.GetStringList(value.Array())
+		data.NasOptions = helpers.GetStringSet(value.Array())
 	} else {
-		data.NasOptions = types.ListNull(types.StringType)
+		data.NasOptions = types.SetNull(types.StringType)
 	}
 	if value := res.Get("0.ssidDetails.0.profileName"); value.Exists() && !data.ProfileName.IsNull() {
 		data.ProfileName = types.StringValue(value.String())

@@ -37,7 +37,7 @@ type LANAutomation struct {
 	DiscoveredDeviceSiteNameHierarchy types.String           `tfsdk:"discovered_device_site_name_hierarchy"`
 	PrimaryDeviceManagementIpAddress  types.String           `tfsdk:"primary_device_management_ip_address"`
 	PeerDeviceManagementIpAddress     types.String           `tfsdk:"peer_device_management_ip_address"`
-	PrimaryDeviceInterfaceNames       types.List             `tfsdk:"primary_device_interface_names"`
+	PrimaryDeviceInterfaceNames       types.Set              `tfsdk:"primary_device_interface_names"`
 	IpPools                           []LANAutomationIpPools `tfsdk:"ip_pools"`
 	MulticastEnabled                  types.Bool             `tfsdk:"multicast_enabled"`
 	HostNamePrefix                    types.String           `tfsdk:"host_name_prefix"`
@@ -132,9 +132,9 @@ func (data *LANAutomation) fromBody(ctx context.Context, res gjson.Result) {
 		data.PeerDeviceManagementIpAddress = types.StringNull()
 	}
 	if value := res.Get("response.0.primaryDeviceInterfaceNames"); value.Exists() {
-		data.PrimaryDeviceInterfaceNames = helpers.GetStringList(value.Array())
+		data.PrimaryDeviceInterfaceNames = helpers.GetStringSet(value.Array())
 	} else {
-		data.PrimaryDeviceInterfaceNames = types.ListNull(types.StringType)
+		data.PrimaryDeviceInterfaceNames = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.0.ipPools"); value.Exists() {
 		data.IpPools = make([]LANAutomationIpPools, 0)
@@ -201,9 +201,9 @@ func (data *LANAutomation) updateFromBody(ctx context.Context, res gjson.Result)
 		data.PeerDeviceManagementIpAddress = types.StringNull()
 	}
 	if value := res.Get("response.0.primaryDeviceInterfaceNames"); value.Exists() && !data.PrimaryDeviceInterfaceNames.IsNull() {
-		data.PrimaryDeviceInterfaceNames = helpers.GetStringList(value.Array())
+		data.PrimaryDeviceInterfaceNames = helpers.GetStringSet(value.Array())
 	} else {
-		data.PrimaryDeviceInterfaceNames = types.ListNull(types.StringType)
+		data.PrimaryDeviceInterfaceNames = types.SetNull(types.StringType)
 	}
 	for i := range data.IpPools {
 		keys := [...]string{"ipPoolName", "ipPoolRole"}

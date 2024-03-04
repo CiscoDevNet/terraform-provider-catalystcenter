@@ -36,7 +36,7 @@ type FabricVirtualNetwork struct {
 	Id                 types.String `tfsdk:"id"`
 	VirtualNetworkName types.String `tfsdk:"virtual_network_name"`
 	IsGuest            types.Bool   `tfsdk:"is_guest"`
-	SgNames            types.List   `tfsdk:"sg_names"`
+	SgNames            types.Set    `tfsdk:"sg_names"`
 	VmanageVpnId       types.String `tfsdk:"vmanage_vpn_id"`
 }
 
@@ -88,9 +88,9 @@ func (data *FabricVirtualNetwork) fromBody(ctx context.Context, res gjson.Result
 		data.IsGuest = types.BoolValue(false)
 	}
 	if value := res.Get("scalableGroupNames"); value.Exists() {
-		data.SgNames = helpers.GetStringList(value.Array())
+		data.SgNames = helpers.GetStringSet(value.Array())
 	} else {
-		data.SgNames = types.ListNull(types.StringType)
+		data.SgNames = types.SetNull(types.StringType)
 	}
 	if value := res.Get("vManageVpnId"); value.Exists() {
 		data.VmanageVpnId = types.StringValue(value.String())
@@ -114,9 +114,9 @@ func (data *FabricVirtualNetwork) updateFromBody(ctx context.Context, res gjson.
 		data.IsGuest = types.BoolNull()
 	}
 	if value := res.Get("scalableGroupNames"); value.Exists() && !data.SgNames.IsNull() {
-		data.SgNames = helpers.GetStringList(value.Array())
+		data.SgNames = helpers.GetStringSet(value.Array())
 	} else {
-		data.SgNames = types.ListNull(types.StringType)
+		data.SgNames = types.SetNull(types.StringType)
 	}
 	if value := res.Get("vManageVpnId"); value.Exists() && !data.VmanageVpnId.IsNull() {
 		data.VmanageVpnId = types.StringValue(value.String())

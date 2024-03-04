@@ -106,12 +106,12 @@ func (r *IPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: helpers.NewAttributeDescription("The gateway for the IP pool").String,
 				Optional:            true,
 			},
-			"dhcp_server_ips": schema.ListAttribute{
+			"dhcp_server_ips": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of DHCP Server IPs").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"dns_server_ips": schema.ListAttribute{
+			"dns_server_ips": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of DNS Server IPs").String,
 				ElementType:         types.StringType,
 				Optional:            true,

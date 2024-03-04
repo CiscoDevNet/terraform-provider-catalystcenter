@@ -41,7 +41,6 @@ func TestAccCcDevice(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "http_secure", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "http_user_name", "admin"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "ip_address", "1.2.3.4"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "meraki_org_ids.0", "12345678901234567890"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "netconf_port", "830"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "password", "cisco123"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "serial_number", "FOC12345678"))

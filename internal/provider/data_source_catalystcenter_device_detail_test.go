@@ -49,7 +49,6 @@ func TestAccDataSourceCcDeviceDetail(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "collection_status", "SUCCESS"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "maintenance_mode", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "software_version", "17.12.20230427:145516"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "tag_id_list.0", ""))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "overall_health", "10"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "management_ip_address", "10.10.10.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_detail.test", "memory", "39.186811767835785"))

@@ -125,7 +125,7 @@ attributes:
       - data
     example: data
   - model_name: nasOptions
-    type: List
+    type: Set
     element_type: String
     response_data_path: 0.ssidDetails.0.nasOptions
     description: Nas Options

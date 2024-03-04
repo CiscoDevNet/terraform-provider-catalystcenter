@@ -36,7 +36,7 @@ attributes:
         description: Name of the application
         example: Platform
       - model_name: operations
-        type: List
+        type: Set
         element_type: String
         mandatory: true
         description: List of operations allowed for the application. Possible values are `gRead`, `gWrite`, `gUpdate`, `gDelete`, or some combination of these.

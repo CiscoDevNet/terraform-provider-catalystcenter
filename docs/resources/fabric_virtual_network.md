@@ -31,7 +31,7 @@ resource "catalystcenter_fabric_virtual_network" "example" {
 
 - `is_guest` (Boolean) Guest Virtual Network enablement flag
   - Default value: `false`
-- `sg_names` (List of String) Scalable Groups to be associated to virtual network
+- `sg_names` (Set of String) Scalable Groups to be associated to virtual network
 - `vmanage_vpn_id` (String) vManage vpn id for SD-WAN
 
 ### Read-Only

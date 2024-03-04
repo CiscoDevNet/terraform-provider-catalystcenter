@@ -31,5 +31,5 @@ data "catalystcenter_user" "example" {
 - `first_name` (String) The first name
 - `last_name` (String) The last name
 - `password` (String) The password
-- `role_ids` (List of String) List of role IDs
+- `role_ids` (Set of String) List of role IDs
 - `username` (String) The username

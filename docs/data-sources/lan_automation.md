@@ -34,7 +34,7 @@ data "catalystcenter_lan_automation" "example" {
 - `isis_domain_password` (String) ISIS domain password.
 - `multicast_enabled` (Boolean) To enable underlay native multicast.
 - `peer_device_management_ip_address` (String) Secondary seed management IP address.
-- `primary_device_interface_names` (List of String) The list of interfaces on primary seed via which the discovered devices are connected.
+- `primary_device_interface_names` (Set of String) The list of interfaces on primary seed via which the discovered devices are connected.
 - `primary_device_management_ip_address` (String) Primary seed management IP address.
 - `redistribute_isis_to_bgp` (Boolean) Advertise LAN Automation summary route into BGP.
 

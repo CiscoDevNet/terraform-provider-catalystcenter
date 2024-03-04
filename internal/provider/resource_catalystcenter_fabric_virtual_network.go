@@ -84,7 +84,7 @@ func (r *FabricVirtualNetworkResource) Schema(ctx context.Context, req resource.
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
 			},
-			"sg_names": schema.ListAttribute{
+			"sg_names": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Scalable Groups to be associated to virtual network").String,
 				ElementType:         types.StringType,
 				Optional:            true,

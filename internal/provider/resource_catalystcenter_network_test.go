@@ -32,17 +32,13 @@ import (
 //template:begin testAcc
 func TestAccCcNetwork(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "dhcp_servers.0", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "domain_name", "cisco.com"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "primary_dns_server", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "secondary_dns_server", "1.2.3.5"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "syslog_servers.0", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "catalyst_center_as_syslog_server", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "snmp_servers.0", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "catalyst_center_as_snmp_server", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "netflow_collector", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "netflow_collector_port", "1234"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "ntp_servers.0", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_network.test", "timezone", "Europe/Vienna"))
 
 	var steps []resource.TestStep

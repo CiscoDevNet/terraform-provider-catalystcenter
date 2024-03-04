@@ -29,7 +29,7 @@ resource "catalystcenter_user" "example" {
 ### Required
 
 - `password` (String) The password
-- `role_ids` (List of String) List of role IDs
+- `role_ids` (Set of String) List of role IDs
 - `username` (String) The username
 
 ### Optional

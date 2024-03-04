@@ -41,7 +41,7 @@ type Role struct {
 
 type RoleResourceTypes struct {
 	Type       types.String `tfsdk:"type"`
-	Operations types.List   `tfsdk:"operations"`
+	Operations types.Set    `tfsdk:"operations"`
 }
 
 //template:end types
@@ -107,9 +107,9 @@ func (data *Role) fromBody(ctx context.Context, res gjson.Result) {
 				item.Type = types.StringNull()
 			}
 			if cValue := v.Get("operations"); cValue.Exists() {
-				item.Operations = helpers.GetStringList(cValue.Array())
+				item.Operations = helpers.GetStringSet(cValue.Array())
 			} else {
-				item.Operations = types.ListNull(types.StringType)
+				item.Operations = types.SetNull(types.StringType)
 			}
 			data.ResourceTypes = append(data.ResourceTypes, item)
 			return true
@@ -160,9 +160,9 @@ func (data *Role) updateFromBody(ctx context.Context, res gjson.Result) {
 			data.ResourceTypes[i].Type = types.StringNull()
 		}
 		if value := r.Get("operations"); value.Exists() && !data.ResourceTypes[i].Operations.IsNull() {
-			data.ResourceTypes[i].Operations = helpers.GetStringList(value.Array())
+			data.ResourceTypes[i].Operations = helpers.GetStringSet(value.Array())
 		} else {
-			data.ResourceTypes[i].Operations = types.ListNull(types.StringType)
+			data.ResourceTypes[i].Operations = types.SetNull(types.StringType)
 		}
 	}
 }

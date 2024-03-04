@@ -79,7 +79,7 @@ func (r *NetworkResource) Schema(ctx context.Context, req resource.SchemaRequest
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"dhcp_servers": schema.ListAttribute{
+			"dhcp_servers": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of DHCP server IPs").String,
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -96,7 +96,7 @@ func (r *NetworkResource) Schema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: helpers.NewAttributeDescription("Secondary DNS server IP").String,
 				Optional:            true,
 			},
-			"syslog_servers": schema.ListAttribute{
+			"syslog_servers": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of Syslog server IPs").String,
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -105,7 +105,7 @@ func (r *NetworkResource) Schema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: helpers.NewAttributeDescription("Use Catalyst Center as Syslog server").String,
 				Optional:            true,
 			},
-			"snmp_servers": schema.ListAttribute{
+			"snmp_servers": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of SNMP server IPs").String,
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -122,7 +122,7 @@ func (r *NetworkResource) Schema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: helpers.NewAttributeDescription("Netflow collector port").String,
 				Optional:            true,
 			},
-			"ntp_servers": schema.ListAttribute{
+			"ntp_servers": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of NTP server IPs").String,
 				ElementType:         types.StringType,
 				Optional:            true,

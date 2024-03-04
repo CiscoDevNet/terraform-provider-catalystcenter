@@ -48,14 +48,14 @@ attributes:
   - model_name: dhcpServerIps
     data_path: settings.ippool.0
     response_data_path: response.dhcpServerIps
-    type: List
+    type: Set
     element_type: String
     description: List of DHCP Server IPs
     example: 1.2.3.4
   - model_name: dnsServerIps
     data_path: settings.ippool.0
     response_data_path: response.dnsServerIps
-    type: List
+    type: Set
     element_type: String
     description: List of DNS Server IPs
     example: 2.3.4.5

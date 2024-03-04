@@ -83,7 +83,7 @@ func (d *UserDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				MarkdownDescription: "Email address",
 				Computed:            true,
 			},
-			"role_ids": schema.ListAttribute{
+			"role_ids": schema.SetAttribute{
 				MarkdownDescription: "List of role IDs",
 				ElementType:         types.StringType,
 				Computed:            true,

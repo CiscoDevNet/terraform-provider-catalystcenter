@@ -46,7 +46,7 @@ resource "catalystcenter_role" "example" {
 
 Required:
 
-- `operations` (List of String) List of operations allowed for the application. Possible values are `gRead`, `gWrite`, `gUpdate`, `gDelete`, or some combination of these.
+- `operations` (Set of String) List of operations allowed for the application. Possible values are `gRead`, `gWrite`, `gUpdate`, `gDelete`, or some combination of these.
 - `type` (String) Name of the application
 
 ## Import

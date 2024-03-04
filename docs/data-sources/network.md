@@ -30,7 +30,7 @@ data "catalystcenter_network" "example" {
 
 - `catalyst_center_as_snmp_server` (Boolean) Use Catalyst Center as SNMP server
 - `catalyst_center_as_syslog_server` (Boolean) Use Catalyst Center as Syslog server
-- `dhcp_servers` (List of String) List of DHCP server IPs
+- `dhcp_servers` (Set of String) List of DHCP server IPs
 - `domain_name` (String) Domain name
 - `endpoint_aaa_server_primary_ip` (String) In case of `ISE` server type, this is the PAN IP address, in case of `AAA` this is the primary IP address
 - `endpoint_aaa_server_protocol` (String) Server protocol
@@ -44,9 +44,9 @@ data "catalystcenter_network" "example" {
 - `network_aaa_server_secondary_ip` (String) In case of `ISE` server type, this is the PSN IP address, in case of `AAA` this is a secondary IP address
 - `network_aaa_server_shared_secret` (String) Only relevant for type `ISE`, shared secret
 - `network_aaa_server_type` (String) Type of network AAA server
-- `ntp_servers` (List of String) List of NTP server IPs
+- `ntp_servers` (Set of String) List of NTP server IPs
 - `primary_dns_server` (String) Primary DNS server IP
 - `secondary_dns_server` (String) Secondary DNS server IP
-- `snmp_servers` (List of String) List of SNMP server IPs
-- `syslog_servers` (List of String) List of Syslog server IPs
+- `snmp_servers` (Set of String) List of SNMP server IPs
+- `syslog_servers` (Set of String) List of Syslog server IPs
 - `timezone` (String) Timezone, e.g. `Africa/Abidjan`

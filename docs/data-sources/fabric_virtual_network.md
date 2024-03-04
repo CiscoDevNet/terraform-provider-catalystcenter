@@ -28,6 +28,6 @@ data "catalystcenter_fabric_virtual_network" "example" {
 ### Read-Only
 
 - `is_guest` (Boolean) Guest Virtual Network enablement flag
-- `sg_names` (List of String) Scalable Groups to be associated to virtual network
+- `sg_names` (Set of String) Scalable Groups to be associated to virtual network
 - `virtual_network_name` (String) Virtual Network Name to be assigned at global level
 - `vmanage_vpn_id` (String) vManage vpn id for SD-WAN

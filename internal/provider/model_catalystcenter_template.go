@@ -67,7 +67,7 @@ type TemplateTemplateParams struct {
 	ParameterName         types.String                   `tfsdk:"parameter_name"`
 	Ranges                []TemplateTemplateParamsRanges `tfsdk:"ranges"`
 	Required              types.Bool                     `tfsdk:"required"`
-	DefaultSelectedValues types.List                     `tfsdk:"default_selected_values"`
+	DefaultSelectedValues types.Set                      `tfsdk:"default_selected_values"`
 	SelectionType         types.String                   `tfsdk:"selection_type"`
 	SelectionValues       types.Map                      `tfsdk:"selection_values"`
 }
@@ -338,9 +338,9 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 				item.Required = types.BoolNull()
 			}
 			if cValue := v.Get("selection.defaultSelectedValues"); cValue.Exists() {
-				item.DefaultSelectedValues = helpers.GetStringList(cValue.Array())
+				item.DefaultSelectedValues = helpers.GetStringSet(cValue.Array())
 			} else {
-				item.DefaultSelectedValues = types.ListNull(types.StringType)
+				item.DefaultSelectedValues = types.SetNull(types.StringType)
 			}
 			if cValue := v.Get("selection.selectionType"); cValue.Exists() {
 				item.SelectionType = types.StringValue(cValue.String())
@@ -544,9 +544,9 @@ func (data *Template) updateFromBody(ctx context.Context, res gjson.Result) {
 			data.TemplateParams[i].Required = types.BoolNull()
 		}
 		if value := r.Get("selection.defaultSelectedValues"); value.Exists() && !data.TemplateParams[i].DefaultSelectedValues.IsNull() {
-			data.TemplateParams[i].DefaultSelectedValues = helpers.GetStringList(value.Array())
+			data.TemplateParams[i].DefaultSelectedValues = helpers.GetStringSet(value.Array())
 		} else {
-			data.TemplateParams[i].DefaultSelectedValues = types.ListNull(types.StringType)
+			data.TemplateParams[i].DefaultSelectedValues = types.SetNull(types.StringType)
 		}
 		if value := r.Get("selection.selectionType"); value.Exists() && !data.TemplateParams[i].SelectionType.IsNull() {
 			data.TemplateParams[i].SelectionType = types.StringValue(value.String())

@@ -90,7 +90,7 @@ func (r *UserResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: helpers.NewAttributeDescription("Email address").String,
 				Optional:            true,
 			},
-			"role_ids": schema.ListAttribute{
+			"role_ids": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of role IDs").String,
 				ElementType:         types.StringType,
 				Required:            true,

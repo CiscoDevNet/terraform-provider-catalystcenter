@@ -34,7 +34,7 @@ attributes:
     example: john.doe@cisco.com
   - model_name: roleList
     tf_name: role_ids
-    type: List
+    type: Set
     element_type: String
     mandatory: true
     description: List of role IDs

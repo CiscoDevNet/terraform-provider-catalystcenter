@@ -117,7 +117,7 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"meraki_org_ids": schema.ListAttribute{
+			"meraki_org_ids": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Selected Meraki organizations for which the devices needs to be imported").String,
 				ElementType:         types.StringType,
 				Optional:            true,

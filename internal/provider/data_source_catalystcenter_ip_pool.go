@@ -89,12 +89,12 @@ func (d *IPPoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "The gateway for the IP pool",
 				Computed:            true,
 			},
-			"dhcp_server_ips": schema.ListAttribute{
+			"dhcp_server_ips": schema.SetAttribute{
 				MarkdownDescription: "List of DHCP Server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"dns_server_ips": schema.ListAttribute{
+			"dns_server_ips": schema.SetAttribute{
 				MarkdownDescription: "List of DNS Server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,

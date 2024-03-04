@@ -37,7 +37,7 @@ resource "catalystcenter_lan_automation" "example" {
 ### Required
 
 - `discovered_device_site_name_hierarchy` (String) Discovered device site name.
-- `primary_device_interface_names` (List of String) The list of interfaces on primary seed via which the discovered devices are connected.
+- `primary_device_interface_names` (Set of String) The list of interfaces on primary seed via which the discovered devices are connected.
 - `primary_device_management_ip_address` (String) Primary seed management IP address.
 
 ### Optional

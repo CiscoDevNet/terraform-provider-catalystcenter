@@ -120,7 +120,7 @@ func (d *DeviceDetailDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "Software version on the device.",
 				Computed:            true,
 			},
-			"tag_id_list": schema.ListAttribute{
+			"tag_id_list": schema.SetAttribute{
 				MarkdownDescription: "Tags assigned to the device.",
 				ElementType:         types.StringType,
 				Computed:            true,

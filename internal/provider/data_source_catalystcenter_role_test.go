@@ -34,7 +34,6 @@ func TestAccDataSourceCcRole(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_role.test", "name", "Role1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_role.test", "description", "Role1 description"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_role.test", "resource_types.0.type", "Platform"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_role.test", "resource_types.0.operations.0", "gRead"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

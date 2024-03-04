@@ -39,8 +39,8 @@ type IPPool struct {
 	Type           types.String `tfsdk:"type"`
 	IpSubnet       types.String `tfsdk:"ip_subnet"`
 	Gateway        types.String `tfsdk:"gateway"`
-	DhcpServerIps  types.List   `tfsdk:"dhcp_server_ips"`
-	DnsServerIps   types.List   `tfsdk:"dns_server_ips"`
+	DhcpServerIps  types.Set    `tfsdk:"dhcp_server_ips"`
+	DnsServerIps   types.Set    `tfsdk:"dns_server_ips"`
 }
 
 //template:end types
@@ -106,14 +106,14 @@ func (data *IPPool) fromBody(ctx context.Context, res gjson.Result) {
 		data.Gateway = types.StringNull()
 	}
 	if value := res.Get("response.dhcpServerIps"); value.Exists() {
-		data.DhcpServerIps = helpers.GetStringList(value.Array())
+		data.DhcpServerIps = helpers.GetStringSet(value.Array())
 	} else {
-		data.DhcpServerIps = types.ListNull(types.StringType)
+		data.DhcpServerIps = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.dnsServerIps"); value.Exists() {
-		data.DnsServerIps = helpers.GetStringList(value.Array())
+		data.DnsServerIps = helpers.GetStringSet(value.Array())
 	} else {
-		data.DnsServerIps = types.ListNull(types.StringType)
+		data.DnsServerIps = types.SetNull(types.StringType)
 	}
 }
 
@@ -137,14 +137,14 @@ func (data *IPPool) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Gateway = types.StringNull()
 	}
 	if value := res.Get("response.dhcpServerIps"); value.Exists() && !data.DhcpServerIps.IsNull() {
-		data.DhcpServerIps = helpers.GetStringList(value.Array())
+		data.DhcpServerIps = helpers.GetStringSet(value.Array())
 	} else {
-		data.DhcpServerIps = types.ListNull(types.StringType)
+		data.DhcpServerIps = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.dnsServerIps"); value.Exists() && !data.DnsServerIps.IsNull() {
-		data.DnsServerIps = helpers.GetStringList(value.Array())
+		data.DnsServerIps = helpers.GetStringSet(value.Array())
 	} else {
-		data.DnsServerIps = types.ListNull(types.StringType)
+		data.DnsServerIps = types.SetNull(types.StringType)
 	}
 }
 

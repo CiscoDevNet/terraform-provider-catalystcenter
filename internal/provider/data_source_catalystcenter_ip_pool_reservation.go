@@ -100,12 +100,12 @@ func (d *IPPoolReservationDataSource) Schema(ctx context.Context, req datasource
 				MarkdownDescription: "The gateway for the IP pool reservation",
 				Computed:            true,
 			},
-			"ipv4_dhcp_servers": schema.ListAttribute{
+			"ipv4_dhcp_servers": schema.SetAttribute{
 				MarkdownDescription: "List of DHCP Server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"ipv4_dns_servers": schema.ListAttribute{
+			"ipv4_dns_servers": schema.SetAttribute{
 				MarkdownDescription: "List of DNS Server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,
@@ -130,12 +130,12 @@ func (d *IPPoolReservationDataSource) Schema(ctx context.Context, req datasource
 				MarkdownDescription: "The gateway for the IP pool reservation",
 				Computed:            true,
 			},
-			"ipv6_dhcp_servers": schema.ListAttribute{
+			"ipv6_dhcp_servers": schema.SetAttribute{
 				MarkdownDescription: "List of DHCP Server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"ipv6_dns_servers": schema.ListAttribute{
+			"ipv6_dns_servers": schema.SetAttribute{
 				MarkdownDescription: "List of DNS Server IPs",
 				ElementType:         types.StringType,
 				Computed:            true,

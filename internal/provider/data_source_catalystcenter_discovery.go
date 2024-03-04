@@ -71,12 +71,12 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "Type of Discovery.",
 				Computed:            true,
 			},
-			"enable_password_list": schema.ListAttribute{
+			"enable_password_list": schema.SetAttribute{
 				MarkdownDescription: "Enable passwords of the devices to be discovered.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"global_credential_id_list": schema.ListAttribute{
+			"global_credential_id_list": schema.SetAttribute{
 				MarkdownDescription: "A list of IDs, which must include SNMP credential and CLI credential.",
 				ElementType:         types.StringType,
 				Computed:            true,
@@ -93,7 +93,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR.",
 				Computed:            true,
 			},
-			"ip_filter_list": schema.ListAttribute{
+			"ip_filter_list": schema.SetAttribute{
 				MarkdownDescription: "A list of IP address ranges to exclude from the discovery.",
 				ElementType:         types.StringType,
 				Computed:            true,
@@ -110,7 +110,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "Port number for netconf as a string. It requires SSH protocol to work.",
 				Computed:            true,
 			},
-			"password_list": schema.ListAttribute{
+			"password_list": schema.SetAttribute{
 				MarkdownDescription: "Passwords of the devices to be discovered.",
 				ElementType:         types.StringType,
 				Computed:            true,
@@ -175,7 +175,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "Number of seconds to wait for each SSH/Telnet connection to a device.",
 				Computed:            true,
 			},
-			"user_name_list": schema.ListAttribute{
+			"user_name_list": schema.SetAttribute{
 				MarkdownDescription: "Usernames for the devices to be discovered.",
 				ElementType:         types.StringType,
 				Computed:            true,

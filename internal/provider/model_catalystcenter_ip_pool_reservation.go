@@ -42,15 +42,15 @@ type IPPoolReservation struct {
 	Ipv4PrefixLength types.Int64  `tfsdk:"ipv4_prefix_length"`
 	Ipv4Subnet       types.String `tfsdk:"ipv4_subnet"`
 	Ipv4Gateway      types.String `tfsdk:"ipv4_gateway"`
-	Ipv4DhcpServers  types.List   `tfsdk:"ipv4_dhcp_servers"`
-	Ipv4DnsServers   types.List   `tfsdk:"ipv4_dns_servers"`
+	Ipv4DhcpServers  types.Set    `tfsdk:"ipv4_dhcp_servers"`
+	Ipv4DnsServers   types.Set    `tfsdk:"ipv4_dns_servers"`
 	Ipv6GlobalPool   types.String `tfsdk:"ipv6_global_pool"`
 	Ipv6Prefix       types.Bool   `tfsdk:"ipv6_prefix"`
 	Ipv6PrefixLength types.Int64  `tfsdk:"ipv6_prefix_length"`
 	Ipv6Subnet       types.String `tfsdk:"ipv6_subnet"`
 	Ipv6Gateway      types.String `tfsdk:"ipv6_gateway"`
-	Ipv6DhcpServers  types.List   `tfsdk:"ipv6_dhcp_servers"`
-	Ipv6DnsServers   types.List   `tfsdk:"ipv6_dns_servers"`
+	Ipv6DhcpServers  types.Set    `tfsdk:"ipv6_dhcp_servers"`
+	Ipv6DnsServers   types.Set    `tfsdk:"ipv6_dns_servers"`
 	Ipv4TotalHost    types.Int64  `tfsdk:"ipv4_total_host"`
 	Ipv6TotalHost    types.Int64  `tfsdk:"ipv6_total_host"`
 	SlaacSupport     types.Bool   `tfsdk:"slaac_support"`

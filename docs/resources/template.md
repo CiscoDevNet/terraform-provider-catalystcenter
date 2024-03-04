@@ -95,7 +95,7 @@ Required:
 Optional:
 
 - `binding` (String) Bind to source
-- `default_selected_values` (List of String) Default selection values
+- `default_selected_values` (Set of String) Default selection values
 - `default_value` (String) Default value of template parameter
 - `description` (String) Description of template parameter
 - `display_name` (String) Display name of template parameter

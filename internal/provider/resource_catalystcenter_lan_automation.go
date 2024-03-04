@@ -84,7 +84,7 @@ func (r *LANAutomationResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: helpers.NewAttributeDescription("Secondary seed management IP address.").String,
 				Optional:            true,
 			},
-			"primary_device_interface_names": schema.ListAttribute{
+			"primary_device_interface_names": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The list of interfaces on primary seed via which the discovered devices are connected.").String,
 				ElementType:         types.StringType,
 				Required:            true,

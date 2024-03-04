@@ -83,7 +83,7 @@ resource "catalystcenter_device" "example" {
 - `http_port` (String) HTTP port of the device
 - `http_secure` (Boolean) Enable HTTPS
 - `http_user_name` (String) HTTP username of the device
-- `meraki_org_ids` (List of String) Selected Meraki organizations for which the devices needs to be imported
+- `meraki_org_ids` (Set of String) Selected Meraki organizations for which the devices needs to be imported
 - `netconf_port` (String) NETCONF port of the device
 - `serial_number` (String) Serial number of the device
 - `update_mgmt_ip_addresses` (Attributes List) IP address of the device to be mapped to New IP address (see [below for nested schema](#nestedatt--update_mgmt_ip_addresses))

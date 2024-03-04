@@ -50,4 +50,4 @@ data "catalystcenter_device_detail" "example" {
 - `serial_number` (String) Serial number of the device.
 - `site_hierarchy_graph_id` (String) Identifier of the site hierarchy graph where the device is assigned, such as "/2b0a78ee-482e-4b4d-ae85-df289873cbbb/76b11b6a-d94a-431b-8bab-fd16b09f5d40/adad4a8a-17ec-4be3-a4b5-b6549b840afe/e8ce8788-9b13-46ec-86c8-740f7ea443c1/".
 - `software_version` (String) Software version on the device.
-- `tag_id_list` (List of String) Tags assigned to the device.
+- `tag_id_list` (Set of String) Tags assigned to the device.

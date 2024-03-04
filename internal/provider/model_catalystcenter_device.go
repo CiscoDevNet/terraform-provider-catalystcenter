@@ -43,7 +43,7 @@ type Device struct {
 	HttpSecure            types.Bool                    `tfsdk:"http_secure"`
 	HttpUserName          types.String                  `tfsdk:"http_user_name"`
 	IpAddress             types.String                  `tfsdk:"ip_address"`
-	MerakiOrgIds          types.List                    `tfsdk:"meraki_org_ids"`
+	MerakiOrgIds          types.Set                     `tfsdk:"meraki_org_ids"`
 	NetconfPort           types.String                  `tfsdk:"netconf_port"`
 	Password              types.String                  `tfsdk:"password"`
 	SerialNumber          types.String                  `tfsdk:"serial_number"`
@@ -226,9 +226,9 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 		data.IpAddress = types.StringNull()
 	}
 	if value := res.Get("merakiOrgId"); value.Exists() {
-		data.MerakiOrgIds = helpers.GetStringList(value.Array())
+		data.MerakiOrgIds = helpers.GetStringSet(value.Array())
 	} else {
-		data.MerakiOrgIds = types.ListNull(types.StringType)
+		data.MerakiOrgIds = types.SetNull(types.StringType)
 	}
 	if value := res.Get("netconfPort"); value.Exists() {
 		data.NetconfPort = types.StringValue(value.String())
@@ -380,9 +380,9 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.IpAddress = types.StringNull()
 	}
 	if value := res.Get("merakiOrgId"); value.Exists() && !data.MerakiOrgIds.IsNull() {
-		data.MerakiOrgIds = helpers.GetStringList(value.Array())
+		data.MerakiOrgIds = helpers.GetStringSet(value.Array())
 	} else {
-		data.MerakiOrgIds = types.ListNull(types.StringType)
+		data.MerakiOrgIds = types.SetNull(types.StringType)
 	}
 	if value := res.Get("netconfPort"); value.Exists() && !data.NetconfPort.IsNull() {
 		data.NetconfPort = types.StringValue(value.String())

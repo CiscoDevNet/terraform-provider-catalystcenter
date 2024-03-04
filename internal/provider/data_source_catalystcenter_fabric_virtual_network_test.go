@@ -33,7 +33,6 @@ func TestAccDataSourceCcFabricVirtualNetwork(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_virtual_network.test", "virtual_network_name", "SDA_VN1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_virtual_network.test", "is_guest", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_virtual_network.test", "sg_names.0", "Employees"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

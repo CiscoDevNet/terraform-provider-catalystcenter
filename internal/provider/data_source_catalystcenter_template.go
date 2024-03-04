@@ -182,7 +182,7 @@ func (d *TemplateDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 							MarkdownDescription: "Is parameter required",
 							Computed:            true,
 						},
-						"default_selected_values": schema.ListAttribute{
+						"default_selected_values": schema.SetAttribute{
 							MarkdownDescription: "Default selection values",
 							ElementType:         types.StringType,
 							Computed:            true,

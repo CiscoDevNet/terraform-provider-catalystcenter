@@ -59,7 +59,7 @@ Read-Only:
 
 - `binding` (String) Bind to source
 - `data_type` (String) Datatype of template parameter
-- `default_selected_values` (List of String) Default selection values
+- `default_selected_values` (Set of String) Default selection values
 - `default_value` (String) Default value of template parameter
 - `description` (String) Description of template parameter
 - `display_name` (String) Display name of template parameter

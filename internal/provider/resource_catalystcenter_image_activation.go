@@ -28,8 +28,8 @@ import (
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -76,12 +76,12 @@ func (r *ImageActivationResource) Schema(ctx context.Context, req resource.Schem
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"image_uuid_list": schema.ListAttribute{
+			"image_uuid_list": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The list of UUIDs of the software images to activate. The UUIDs could be obtained for example from `catalystcenter_image.id`. SMU images shouldn't be specified in this list. Changing/adding/removing any UUID causes the entire resource to be re-created, so that the entire activation occurs as newly specified.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"activate_lower_image_version": schema.BoolAttribute{

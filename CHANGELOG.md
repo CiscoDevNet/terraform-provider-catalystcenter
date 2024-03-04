@@ -1,6 +1,7 @@
 ## 0.1.6 (unreleased)
 
 - Fix issue with unencoded characters ending up in parts of the URL
+- Use `set` type for list attributes with primitive values
 
 ## 0.1.5
 

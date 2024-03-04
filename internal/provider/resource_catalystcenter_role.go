@@ -82,7 +82,7 @@ func (r *RoleResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 							MarkdownDescription: helpers.NewAttributeDescription("Name of the application").String,
 							Required:            true,
 						},
-						"operations": schema.ListAttribute{
+						"operations": schema.SetAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("List of operations allowed for the application. Possible values are `gRead`, `gWrite`, `gUpdate`, `gDelete`, or some combination of these.").String,
 							ElementType:         types.StringType,
 							Required:            true,

@@ -39,7 +39,7 @@ type User struct {
 	Username  types.String `tfsdk:"username"`
 	Password  types.String `tfsdk:"password"`
 	Email     types.String `tfsdk:"email"`
-	RoleIds   types.List   `tfsdk:"role_ids"`
+	RoleIds   types.Set    `tfsdk:"role_ids"`
 }
 
 //template:end types
@@ -105,9 +105,9 @@ func (data *User) fromBody(ctx context.Context, res gjson.Result) {
 		data.Email = types.StringNull()
 	}
 	if value := res.Get("roleList"); value.Exists() {
-		data.RoleIds = helpers.GetStringList(value.Array())
+		data.RoleIds = helpers.GetStringSet(value.Array())
 	} else {
-		data.RoleIds = types.ListNull(types.StringType)
+		data.RoleIds = types.SetNull(types.StringType)
 	}
 }
 
@@ -136,9 +136,9 @@ func (data *User) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Email = types.StringNull()
 	}
 	if value := res.Get("roleList"); value.Exists() && !data.RoleIds.IsNull() {
-		data.RoleIds = helpers.GetStringList(value.Array())
+		data.RoleIds = helpers.GetStringSet(value.Array())
 	} else {
-		data.RoleIds = types.ListNull(types.StringType)
+		data.RoleIds = types.SetNull(types.StringType)
 	}
 }
 

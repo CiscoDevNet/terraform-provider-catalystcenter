@@ -48,7 +48,7 @@ type DeviceDetail struct {
 	CollectionStatus       types.String `tfsdk:"collection_status"`
 	MaintenanceMode        types.Bool   `tfsdk:"maintenance_mode"`
 	SoftwareVersion        types.String `tfsdk:"software_version"`
-	TagIdList              types.List   `tfsdk:"tag_id_list"`
+	TagIdList              types.Set    `tfsdk:"tag_id_list"`
 	OverallHealth          types.Int64  `tfsdk:"overall_health"`
 	ManagementIpAddress    types.String `tfsdk:"management_ip_address"`
 	Memory                 types.String `tfsdk:"memory"`
@@ -224,9 +224,9 @@ func (data *DeviceDetail) fromBody(ctx context.Context, res gjson.Result) {
 		data.SoftwareVersion = types.StringNull()
 	}
 	if value := res.Get("response.tagIdList"); value.Exists() {
-		data.TagIdList = helpers.GetStringList(value.Array())
+		data.TagIdList = helpers.GetStringSet(value.Array())
 	} else {
-		data.TagIdList = types.ListNull(types.StringType)
+		data.TagIdList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.overallHealth"); value.Exists() {
 		data.OverallHealth = types.Int64Value(value.Int())
@@ -350,9 +350,9 @@ func (data *DeviceDetail) updateFromBody(ctx context.Context, res gjson.Result) 
 		data.SoftwareVersion = types.StringNull()
 	}
 	if value := res.Get("response.tagIdList"); value.Exists() && !data.TagIdList.IsNull() {
-		data.TagIdList = helpers.GetStringList(value.Array())
+		data.TagIdList = helpers.GetStringSet(value.Array())
 	} else {
-		data.TagIdList = types.ListNull(types.StringType)
+		data.TagIdList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.overallHealth"); value.Exists() && !data.OverallHealth.IsNull() {
 		data.OverallHealth = types.Int64Value(value.Int())

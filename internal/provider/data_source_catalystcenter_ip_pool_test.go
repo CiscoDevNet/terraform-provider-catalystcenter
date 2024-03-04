@@ -34,8 +34,6 @@ func TestAccDataSourceCcIPPool(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool.test", "name", "MyPool1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool.test", "ip_subnet", "21.1.1.0/24"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool.test", "gateway", "21.1.1.1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool.test", "dhcp_server_ips.0", "1.2.3.4"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool.test", "dns_server_ips.0", "2.3.4.5"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

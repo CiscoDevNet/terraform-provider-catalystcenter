@@ -76,7 +76,7 @@ func (d *LANAutomationDataSource) Schema(ctx context.Context, req datasource.Sch
 				MarkdownDescription: "Secondary seed management IP address.",
 				Computed:            true,
 			},
-			"primary_device_interface_names": schema.ListAttribute{
+			"primary_device_interface_names": schema.SetAttribute{
 				MarkdownDescription: "The list of interfaces on primary seed via which the discovered devices are connected.",
 				ElementType:         types.StringType,
 				Computed:            true,

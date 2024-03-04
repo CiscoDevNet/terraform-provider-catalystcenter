@@ -30,7 +30,7 @@ resource "catalystcenter_image_activation" "example" {
 - `device_upgrade_mode` (String) Device upgrade mode. Updating this attribute later does not cause image to be re-activated.
 - `device_uuid` (String) The UUID of the network device on which to active the software image. Changing it forces the entire resource to be re-created, so that the activation occurs as newly specified.
 - `distribute_if_needed` (Boolean) Whether to distribute the image as needed, thus negating the need for a separate `catalystcenter_image_distribution`. Updating this attribute later does not cause image to be re-activated.
-- `image_uuid_list` (List of String) The list of UUIDs of the software images to activate. The UUIDs could be obtained for example from `catalystcenter_image.id`. SMU images shouldn't be specified in this list. Changing/adding/removing any UUID causes the entire resource to be re-created, so that the entire activation occurs as newly specified.
+- `image_uuid_list` (Set of String) The list of UUIDs of the software images to activate. The UUIDs could be obtained for example from `catalystcenter_image.id`. SMU images shouldn't be specified in this list. Changing/adding/removing any UUID causes the entire resource to be re-created, so that the entire activation occurs as newly specified.
 
 ### Read-Only
 

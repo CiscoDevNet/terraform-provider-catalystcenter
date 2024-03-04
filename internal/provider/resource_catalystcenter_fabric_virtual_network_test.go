@@ -34,7 +34,6 @@ func TestAccCcFabricVirtualNetwork(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_virtual_network.test", "virtual_network_name", "SDA_VN1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_virtual_network.test", "is_guest", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_virtual_network.test", "sg_names.0", "Employees"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {

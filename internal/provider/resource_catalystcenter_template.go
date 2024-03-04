@@ -195,7 +195,7 @@ func (r *TemplateResource) Schema(ctx context.Context, req resource.SchemaReques
 							MarkdownDescription: helpers.NewAttributeDescription("Is parameter required").String,
 							Optional:            true,
 						},
-						"default_selected_values": schema.ListAttribute{
+						"default_selected_values": schema.SetAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Default selection values").String,
 							ElementType:         types.StringType,
 							Optional:            true,

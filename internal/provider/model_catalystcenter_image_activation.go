@@ -35,7 +35,7 @@ import (
 type ImageActivation struct {
 	Id                        types.String `tfsdk:"id"`
 	DeviceUuid                types.String `tfsdk:"device_uuid"`
-	ImageUuidList             types.List   `tfsdk:"image_uuid_list"`
+	ImageUuidList             types.Set    `tfsdk:"image_uuid_list"`
 	ActivateLowerImageVersion types.Bool   `tfsdk:"activate_lower_image_version"`
 	DeviceUpgradeMode         types.String `tfsdk:"device_upgrade_mode"`
 	DistributeIfNeeded        types.Bool   `tfsdk:"distribute_if_needed"`
@@ -83,9 +83,9 @@ func (data *ImageActivation) fromBody(ctx context.Context, res gjson.Result) {
 		data.DeviceUuid = types.StringNull()
 	}
 	if value := res.Get("0.imageUuidList"); value.Exists() {
-		data.ImageUuidList = helpers.GetStringList(value.Array())
+		data.ImageUuidList = helpers.GetStringSet(value.Array())
 	} else {
-		data.ImageUuidList = types.ListNull(types.StringType)
+		data.ImageUuidList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("0.activateLowerImageVersion"); value.Exists() {
 		data.ActivateLowerImageVersion = types.BoolValue(value.Bool())
@@ -114,9 +114,9 @@ func (data *ImageActivation) updateFromBody(ctx context.Context, res gjson.Resul
 		data.DeviceUuid = types.StringNull()
 	}
 	if value := res.Get("0.imageUuidList"); value.Exists() && !data.ImageUuidList.IsNull() {
-		data.ImageUuidList = helpers.GetStringList(value.Array())
+		data.ImageUuidList = helpers.GetStringSet(value.Array())
 	} else {
-		data.ImageUuidList = types.ListNull(types.StringType)
+		data.ImageUuidList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("0.activateLowerImageVersion"); value.Exists() && !data.ActivateLowerImageVersion.IsNull() {
 		data.ActivateLowerImageVersion = types.BoolValue(value.Bool())

@@ -31,8 +31,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -90,20 +90,20 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"enable_password_list": schema.ListAttribute{
+			"enable_password_list": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable passwords of the devices to be discovered.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.RequiresReplace(),
 				},
 			},
-			"global_credential_id_list": schema.ListAttribute{
+			"global_credential_id_list": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("A list of IDs, which must include SNMP credential and CLI credential.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"http_read_credential": schema.StringAttribute{
@@ -127,12 +127,12 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"ip_filter_list": schema.ListAttribute{
+			"ip_filter_list": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("A list of IP address ranges to exclude from the discovery.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"lldp_level": schema.Int64Attribute{
@@ -156,12 +156,12 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"password_list": schema.ListAttribute{
+			"password_list": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Passwords of the devices to be discovered.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 			"preferred_ip_method": schema.StringAttribute{
@@ -286,12 +286,12 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 					int64planmodifier.RequiresReplace(),
 				},
 			},
-			"user_name_list": schema.ListAttribute{
+			"user_name_list": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Usernames for the devices to be discovered.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.RequiresReplace(),
 				},
 			},
 		},

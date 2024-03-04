@@ -37,15 +37,15 @@ resource "catalystcenter_discovery" "example" {
 ### Optional
 
 - `cdp_level` (Number) CDP level is the number of hops across neighbor devices.
-- `enable_password_list` (List of String) Enable passwords of the devices to be discovered.
-- `global_credential_id_list` (List of String) A list of IDs, which must include SNMP credential and CLI credential.
+- `enable_password_list` (Set of String) Enable passwords of the devices to be discovered.
+- `global_credential_id_list` (Set of String) A list of IDs, which must include SNMP credential and CLI credential.
 - `http_read_credential` (String)
 - `http_write_credential` (String)
 - `ip_address_list` (String) A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR.
-- `ip_filter_list` (List of String) A list of IP address ranges to exclude from the discovery.
+- `ip_filter_list` (Set of String) A list of IP address ranges to exclude from the discovery.
 - `lldp_level` (Number) LLDP level to which neighbor devices to be discovered.
 - `netconf_port` (String) Port number for netconf as a string. It requires SSH protocol to work.
-- `password_list` (List of String) Passwords of the devices to be discovered.
+- `password_list` (Set of String) Passwords of the devices to be discovered.
 - `preferred_ip_method` (String) Preferred method for selecting management IP address.
   - Choices: `None`, `UseLoopBack`
   - Default value: `None`
@@ -66,7 +66,7 @@ resource "catalystcenter_discovery" "example" {
 - `snmp_version` (String) SNMP version
   - Choices: `v2`, `v3`
 - `timeout_seconds` (Number) Number of seconds to wait for each SSH/Telnet connection to a device.
-- `user_name_list` (List of String) Usernames for the devices to be discovered.
+- `user_name_list` (Set of String) Usernames for the devices to be discovered.
 
 ### Read-Only
 

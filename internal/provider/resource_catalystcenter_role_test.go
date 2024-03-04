@@ -35,7 +35,6 @@ func TestAccCcRole(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_role.test", "name", "Role1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_role.test", "description", "Role1 description"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_role.test", "resource_types.0.type", "Platform"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_role.test", "resource_types.0.operations.0", "gRead"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {

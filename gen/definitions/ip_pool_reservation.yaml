@@ -68,13 +68,13 @@ attributes:
     description: The gateway for the IP pool reservation
     example: 172.32.1.1
   - model_name: ipv4DhcpServers
-    type: List
+    type: Set
     element_type: String
     write_only: true
     description: List of DHCP Server IPs
     example: 1.2.3.4
   - model_name: ipv4DnsServers
-    type: List
+    type: Set
     element_type: String
     write_only: true
     description: List of DNS Server IPs
@@ -111,14 +111,14 @@ attributes:
     example: "2001:db8:85a3:0:100::1"
     exclude_test: true
   - model_name: ipv6DhcpServers
-    type: List
+    type: Set
     element_type: String
     write_only: true
     description: List of DHCP Server IPs
     example: "2001:db8::1234"
     exclude_test: true
   - model_name: ipv6DnsServers
-    type: List
+    type: Set
     element_type: String
     write_only: true
     description: List of DNS Server IPs

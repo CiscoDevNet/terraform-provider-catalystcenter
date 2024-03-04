@@ -28,8 +28,8 @@ data "catalystcenter_ip_pool" "example" {
 
 ### Read-Only
 
-- `dhcp_server_ips` (List of String) List of DHCP Server IPs
-- `dns_server_ips` (List of String) List of DNS Server IPs
+- `dhcp_server_ips` (Set of String) List of DHCP Server IPs
+- `dns_server_ips` (Set of String) List of DNS Server IPs
 - `gateway` (String) The gateway for the IP pool
 - `ip_address_space` (String) IP address version
 - `ip_subnet` (String) The IP subnet of the IP pool

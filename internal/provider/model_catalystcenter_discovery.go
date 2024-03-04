@@ -36,16 +36,16 @@ type Discovery struct {
 	Id                     types.String `tfsdk:"id"`
 	CdpLevel               types.Int64  `tfsdk:"cdp_level"`
 	DiscoveryType          types.String `tfsdk:"discovery_type"`
-	EnablePasswordList     types.List   `tfsdk:"enable_password_list"`
-	GlobalCredentialIdList types.List   `tfsdk:"global_credential_id_list"`
+	EnablePasswordList     types.Set    `tfsdk:"enable_password_list"`
+	GlobalCredentialIdList types.Set    `tfsdk:"global_credential_id_list"`
 	HttpReadCredential     types.String `tfsdk:"http_read_credential"`
 	HttpWriteCredential    types.String `tfsdk:"http_write_credential"`
 	IpAddressList          types.String `tfsdk:"ip_address_list"`
-	IpFilterList           types.List   `tfsdk:"ip_filter_list"`
+	IpFilterList           types.Set    `tfsdk:"ip_filter_list"`
 	LldpLevel              types.Int64  `tfsdk:"lldp_level"`
 	Name                   types.String `tfsdk:"name"`
 	NetconfPort            types.String `tfsdk:"netconf_port"`
-	PasswordList           types.List   `tfsdk:"password_list"`
+	PasswordList           types.Set    `tfsdk:"password_list"`
 	PreferredIpMethod      types.String `tfsdk:"preferred_ip_method"`
 	ProtocolOrder          types.String `tfsdk:"protocol_order"`
 	Retry                  types.Int64  `tfsdk:"retry"`
@@ -61,7 +61,7 @@ type Discovery struct {
 	SnmpUserName           types.String `tfsdk:"snmp_user_name"`
 	SnmpVersion            types.String `tfsdk:"snmp_version"`
 	TimeoutSeconds         types.Int64  `tfsdk:"timeout_seconds"`
-	UserNameList           types.List   `tfsdk:"user_name_list"`
+	UserNameList           types.Set    `tfsdk:"user_name_list"`
 }
 
 //template:end types
@@ -188,14 +188,14 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 		data.DiscoveryType = types.StringNull()
 	}
 	if value := res.Get("enablePasswordList"); value.Exists() {
-		data.EnablePasswordList = helpers.GetStringList(value.Array())
+		data.EnablePasswordList = helpers.GetStringSet(value.Array())
 	} else {
-		data.EnablePasswordList = types.ListNull(types.StringType)
+		data.EnablePasswordList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("globalCredentialIdList"); value.Exists() {
-		data.GlobalCredentialIdList = helpers.GetStringList(value.Array())
+		data.GlobalCredentialIdList = helpers.GetStringSet(value.Array())
 	} else {
-		data.GlobalCredentialIdList = types.ListNull(types.StringType)
+		data.GlobalCredentialIdList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("httpReadCredential"); value.Exists() {
 		data.HttpReadCredential = types.StringValue(value.String())
@@ -213,9 +213,9 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 		data.IpAddressList = types.StringNull()
 	}
 	if value := res.Get("ipFilterList"); value.Exists() {
-		data.IpFilterList = helpers.GetStringList(value.Array())
+		data.IpFilterList = helpers.GetStringSet(value.Array())
 	} else {
-		data.IpFilterList = types.ListNull(types.StringType)
+		data.IpFilterList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("lldpLevel"); value.Exists() {
 		data.LldpLevel = types.Int64Value(value.Int())
@@ -233,9 +233,9 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 		data.NetconfPort = types.StringNull()
 	}
 	if value := res.Get("passwordList"); value.Exists() {
-		data.PasswordList = helpers.GetStringList(value.Array())
+		data.PasswordList = helpers.GetStringSet(value.Array())
 	} else {
-		data.PasswordList = types.ListNull(types.StringType)
+		data.PasswordList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("preferredMgmtIPMethod"); value.Exists() {
 		data.PreferredIpMethod = types.StringValue(value.String())
@@ -293,9 +293,9 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 		data.SnmpUserName = types.StringNull()
 	}
 	if value := res.Get("userNameList"); value.Exists() {
-		data.UserNameList = helpers.GetStringList(value.Array())
+		data.UserNameList = helpers.GetStringSet(value.Array())
 	} else {
-		data.UserNameList = types.ListNull(types.StringType)
+		data.UserNameList = types.SetNull(types.StringType)
 	}
 }
 
@@ -314,14 +314,14 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.DiscoveryType = types.StringNull()
 	}
 	if value := res.Get("enablePasswordList"); value.Exists() && !data.EnablePasswordList.IsNull() {
-		data.EnablePasswordList = helpers.GetStringList(value.Array())
+		data.EnablePasswordList = helpers.GetStringSet(value.Array())
 	} else {
-		data.EnablePasswordList = types.ListNull(types.StringType)
+		data.EnablePasswordList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("globalCredentialIdList"); value.Exists() && !data.GlobalCredentialIdList.IsNull() {
-		data.GlobalCredentialIdList = helpers.GetStringList(value.Array())
+		data.GlobalCredentialIdList = helpers.GetStringSet(value.Array())
 	} else {
-		data.GlobalCredentialIdList = types.ListNull(types.StringType)
+		data.GlobalCredentialIdList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("httpReadCredential"); value.Exists() && !data.HttpReadCredential.IsNull() {
 		data.HttpReadCredential = types.StringValue(value.String())
@@ -339,9 +339,9 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.IpAddressList = types.StringNull()
 	}
 	if value := res.Get("ipFilterList"); value.Exists() && !data.IpFilterList.IsNull() {
-		data.IpFilterList = helpers.GetStringList(value.Array())
+		data.IpFilterList = helpers.GetStringSet(value.Array())
 	} else {
-		data.IpFilterList = types.ListNull(types.StringType)
+		data.IpFilterList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("lldpLevel"); value.Exists() && !data.LldpLevel.IsNull() {
 		data.LldpLevel = types.Int64Value(value.Int())
@@ -359,9 +359,9 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.NetconfPort = types.StringNull()
 	}
 	if value := res.Get("passwordList"); value.Exists() && !data.PasswordList.IsNull() {
-		data.PasswordList = helpers.GetStringList(value.Array())
+		data.PasswordList = helpers.GetStringSet(value.Array())
 	} else {
-		data.PasswordList = types.ListNull(types.StringType)
+		data.PasswordList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("preferredMgmtIPMethod"); value.Exists() && !data.PreferredIpMethod.IsNull() {
 		data.PreferredIpMethod = types.StringValue(value.String())
@@ -419,9 +419,9 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.SnmpUserName = types.StringNull()
 	}
 	if value := res.Get("userNameList"); value.Exists() && !data.UserNameList.IsNull() {
-		data.UserNameList = helpers.GetStringList(value.Array())
+		data.UserNameList = helpers.GetStringSet(value.Array())
 	} else {
-		data.UserNameList = types.ListNull(types.StringType)
+		data.UserNameList = types.SetNull(types.StringType)
 	}
 }
 

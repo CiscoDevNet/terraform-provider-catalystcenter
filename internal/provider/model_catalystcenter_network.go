@@ -35,17 +35,17 @@ import (
 type Network struct {
 	Id                            types.String `tfsdk:"id"`
 	SiteId                        types.String `tfsdk:"site_id"`
-	DhcpServers                   types.List   `tfsdk:"dhcp_servers"`
+	DhcpServers                   types.Set    `tfsdk:"dhcp_servers"`
 	DomainName                    types.String `tfsdk:"domain_name"`
 	PrimaryDnsServer              types.String `tfsdk:"primary_dns_server"`
 	SecondaryDnsServer            types.String `tfsdk:"secondary_dns_server"`
-	SyslogServers                 types.List   `tfsdk:"syslog_servers"`
+	SyslogServers                 types.Set    `tfsdk:"syslog_servers"`
 	CatalystCenterAsSyslogServer  types.Bool   `tfsdk:"catalyst_center_as_syslog_server"`
-	SnmpServers                   types.List   `tfsdk:"snmp_servers"`
+	SnmpServers                   types.Set    `tfsdk:"snmp_servers"`
 	CatalystCenterAsSnmpServer    types.Bool   `tfsdk:"catalyst_center_as_snmp_server"`
 	NetflowCollector              types.String `tfsdk:"netflow_collector"`
 	NetflowCollectorPort          types.Int64  `tfsdk:"netflow_collector_port"`
-	NtpServers                    types.List   `tfsdk:"ntp_servers"`
+	NtpServers                    types.Set    `tfsdk:"ntp_servers"`
 	Timezone                      types.String `tfsdk:"timezone"`
 	NetworkAaaServerType          types.String `tfsdk:"network_aaa_server_type"`
 	NetworkAaaServerPrimaryIp     types.String `tfsdk:"network_aaa_server_primary_ip"`
@@ -153,9 +153,9 @@ func (data Network) toBody(ctx context.Context, state Network) string {
 //template:begin fromBody
 func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.#(key=\"dhcp.server\").value"); value.Exists() {
-		data.DhcpServers = helpers.GetStringList(value.Array())
+		data.DhcpServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.DhcpServers = types.ListNull(types.StringType)
+		data.DhcpServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.#(key=\"dns.server\").value.0.domainName"); value.Exists() {
 		data.DomainName = types.StringValue(value.String())
@@ -173,9 +173,9 @@ func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
 		data.SecondaryDnsServer = types.StringNull()
 	}
 	if value := res.Get("response.#(key=\"syslog.server\").value.0.ipAddresses"); value.Exists() {
-		data.SyslogServers = helpers.GetStringList(value.Array())
+		data.SyslogServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.SyslogServers = types.ListNull(types.StringType)
+		data.SyslogServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.#(key=\"syslog.server\").value.0.configureDnacIP"); value.Exists() {
 		data.CatalystCenterAsSyslogServer = types.BoolValue(value.Bool())
@@ -183,9 +183,9 @@ func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
 		data.CatalystCenterAsSyslogServer = types.BoolNull()
 	}
 	if value := res.Get("response.#(key=\"snmp.trap.receiver\").value.0.ipAddresses"); value.Exists() {
-		data.SnmpServers = helpers.GetStringList(value.Array())
+		data.SnmpServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.SnmpServers = types.ListNull(types.StringType)
+		data.SnmpServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.#(key=\"snmp.trap.receiver\").value.0.configureDnacIP"); value.Exists() {
 		data.CatalystCenterAsSnmpServer = types.BoolValue(value.Bool())
@@ -203,9 +203,9 @@ func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
 		data.NetflowCollectorPort = types.Int64Null()
 	}
 	if value := res.Get("response.#(key=\"ntp.server\").value"); value.Exists() {
-		data.NtpServers = helpers.GetStringList(value.Array())
+		data.NtpServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.NtpServers = types.ListNull(types.StringType)
+		data.NtpServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.#(key=\"timezone.site\").value.0"); value.Exists() {
 		data.Timezone = types.StringValue(value.String())
@@ -219,9 +219,9 @@ func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
 //template:begin updateFromBody
 func (data *Network) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.#(key=\"dhcp.server\").value"); value.Exists() && !data.DhcpServers.IsNull() {
-		data.DhcpServers = helpers.GetStringList(value.Array())
+		data.DhcpServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.DhcpServers = types.ListNull(types.StringType)
+		data.DhcpServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.#(key=\"dns.server\").value.0.domainName"); value.Exists() && !data.DomainName.IsNull() {
 		data.DomainName = types.StringValue(value.String())
@@ -239,9 +239,9 @@ func (data *Network) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.SecondaryDnsServer = types.StringNull()
 	}
 	if value := res.Get("response.#(key=\"syslog.server\").value.0.ipAddresses"); value.Exists() && !data.SyslogServers.IsNull() {
-		data.SyslogServers = helpers.GetStringList(value.Array())
+		data.SyslogServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.SyslogServers = types.ListNull(types.StringType)
+		data.SyslogServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.#(key=\"syslog.server\").value.0.configureDnacIP"); value.Exists() && !data.CatalystCenterAsSyslogServer.IsNull() {
 		data.CatalystCenterAsSyslogServer = types.BoolValue(value.Bool())
@@ -249,9 +249,9 @@ func (data *Network) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.CatalystCenterAsSyslogServer = types.BoolNull()
 	}
 	if value := res.Get("response.#(key=\"snmp.trap.receiver\").value.0.ipAddresses"); value.Exists() && !data.SnmpServers.IsNull() {
-		data.SnmpServers = helpers.GetStringList(value.Array())
+		data.SnmpServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.SnmpServers = types.ListNull(types.StringType)
+		data.SnmpServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.#(key=\"snmp.trap.receiver\").value.0.configureDnacIP"); value.Exists() && !data.CatalystCenterAsSnmpServer.IsNull() {
 		data.CatalystCenterAsSnmpServer = types.BoolValue(value.Bool())
@@ -269,9 +269,9 @@ func (data *Network) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.NetflowCollectorPort = types.Int64Null()
 	}
 	if value := res.Get("response.#(key=\"ntp.server\").value"); value.Exists() && !data.NtpServers.IsNull() {
-		data.NtpServers = helpers.GetStringList(value.Array())
+		data.NtpServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.NtpServers = types.ListNull(types.StringType)
+		data.NtpServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.#(key=\"timezone.site\").value.0"); value.Exists() && !data.Timezone.IsNull() {
 		data.Timezone = types.StringValue(value.String())

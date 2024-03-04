@@ -28,8 +28,8 @@ data "catalystcenter_ip_pool_reservation" "example" {
 
 ### Read-Only
 
-- `ipv4_dhcp_servers` (List of String) List of DHCP Server IPs
-- `ipv4_dns_servers` (List of String) List of DNS Server IPs
+- `ipv4_dhcp_servers` (Set of String) List of DHCP Server IPs
+- `ipv4_dns_servers` (Set of String) List of DNS Server IPs
 - `ipv4_gateway` (String) The gateway for the IP pool reservation
 - `ipv4_global_pool` (String) IPv4 Global pool address with cidr, example: 175.175.0.0/16
 - `ipv4_prefix` (Boolean) If this value is `true`, the `ipv4_prefix_length` attribute must be provided, if it is `false`, the `ipv4_total_host` attribute must be provided
@@ -37,8 +37,8 @@ data "catalystcenter_ip_pool_reservation" "example" {
 - `ipv4_subnet` (String) The IPv4 subnet
 - `ipv4_total_host` (Number) The total number of IPv4 hosts
 - `ipv6_address_space` (Boolean) If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required
-- `ipv6_dhcp_servers` (List of String) List of DHCP Server IPs
-- `ipv6_dns_servers` (List of String) List of DNS Server IPs
+- `ipv6_dhcp_servers` (Set of String) List of DHCP Server IPs
+- `ipv6_dns_servers` (Set of String) List of DNS Server IPs
 - `ipv6_gateway` (String) The gateway for the IP pool reservation
 - `ipv6_global_pool` (String) IPv6 Global pool address with cidr, example: 2001:db8:85a3::/64
 - `ipv6_prefix` (Boolean) If this value is `true`, the `ipv6_prefix_length` attribute must be provided, if it is `false`, the `ipv6_total_host` attribute must be provided

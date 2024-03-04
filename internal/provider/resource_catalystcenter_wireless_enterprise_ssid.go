@@ -162,7 +162,7 @@ func (r *WirelessEnterpriseSSIDResource) Schema(ctx context.Context, req resourc
 					stringvalidator.OneOf("voicedata", "data"),
 				},
 			},
-			"nas_options": schema.ListAttribute{
+			"nas_options": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Nas Options").String,
 				ElementType:         types.StringType,
 				Optional:            true,

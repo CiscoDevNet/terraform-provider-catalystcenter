@@ -38,7 +38,6 @@ func TestAccDataSourceCcLANAutomation(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "discovered_device_site_name_hierarchy", "Global/Area1/Area2"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "primary_device_management_ip_address", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "peer_device_management_ip_address", "1.2.3.5"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "primary_device_interface_names.0", "HundredGigE1/0/1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_name", "POOL1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_role", "MAIN_POOL"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "multicast_enabled", "true"))
