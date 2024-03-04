@@ -32,6 +32,14 @@ func Contains(s []string, str string) bool {
 	return false
 }
 
+func GetStringMap(result map[string]gjson.Result) types.Map {
+	v := make(map[string]attr.Value)
+	for key, value := range result {
+		v[key] = types.StringValue(value.String())
+	}
+	return types.MapValueMust(types.StringType, v)
+}
+
 func GetStringList(result []gjson.Result) types.List {
 	v := make([]attr.Value, len(result))
 	for r := range result {
@@ -40,10 +48,26 @@ func GetStringList(result []gjson.Result) types.List {
 	return types.ListValueMust(types.StringType, v)
 }
 
-func GetStringMap(result map[string]gjson.Result) types.Map {
-	v := make(map[string]attr.Value)
-	for key, value := range result {
-		v[key] = types.StringValue(value.String())
+func GetInt64List(result []gjson.Result) types.List {
+	v := make([]attr.Value, len(result))
+	for r := range result {
+		v[r] = types.Int64Value(result[r].Int())
 	}
-	return types.MapValueMust(types.StringType, v)
+	return types.ListValueMust(types.Int64Type, v)
+}
+
+func GetStringSet(result []gjson.Result) types.Set {
+	v := make([]attr.Value, len(result))
+	for r := range result {
+		v[r] = types.StringValue(result[r].String())
+	}
+	return types.SetValueMust(types.StringType, v)
+}
+
+func GetInt64Set(result []gjson.Result) types.Set {
+	v := make([]attr.Value, len(result))
+	for r := range result {
+		v[r] = types.Int64Value(result[r].Int())
+	}
+	return types.SetValueMust(types.Int64Type, v)
 }

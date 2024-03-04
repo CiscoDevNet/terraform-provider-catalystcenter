@@ -19,7 +19,8 @@ attributes:
     example: false
   - model_name: scalableGroupNames
     tf_name: sg_names
-    type: StringList
+    type: List
+    element_type: String
     description: Scalable Groups to be associated to virtual network
     example: "Employees"
   - model_name: vManageVpnId

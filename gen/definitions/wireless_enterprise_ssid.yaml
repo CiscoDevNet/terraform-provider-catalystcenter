@@ -125,7 +125,8 @@ attributes:
       - data
     example: data
   - model_name: nasOptions
-    type: StringList
+    type: List
+    element_type: String
     response_data_path: 0.ssidDetails.0.nasOptions
     description: Nas Options
     exclude_test: true

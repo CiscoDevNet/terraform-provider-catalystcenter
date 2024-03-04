@@ -76,9 +76,11 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 			},
 			{{- range  .Attributes}}
 			{{- if not .Value}}
-			"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
+			"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 				MarkdownDescription: "{{.Description}}",
-				{{- if eq .Type "StringList"}}
+				{{- if isListSet .}}
+				ElementType:         types.{{.ElementType}}Type,
+				{{- else if eq .Type "Map"}}
 				ElementType:         types.StringType,
 				{{- end}}
 				{{- if or .Reference .QueryParam}}
@@ -89,36 +91,42 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- end}}
 				Computed:            true,
 				{{- end}}
-				{{- if or (eq .Type "List") (eq .Type "Set")}}
+				{{- if isNestedListSet .}}
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						{{- range  .Attributes}}
 						{{- if not .Value}}
-						"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
+						"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 							MarkdownDescription: "{{.Description}}",
-							{{- if or (eq .Type "StringList") (eq .Type "Map")}}
+							{{- if isListSet .}}
+							ElementType:         types.{{.ElementType}}Type,
+							{{- else if eq .Type "Map"}}
 							ElementType:         types.StringType,
 							{{- end}}
 							Computed:            true,
-							{{- if or (eq .Type "List") (eq .Type "Set")}}
+							{{- if isNestedListSet .}}
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									{{- range  .Attributes}}
 									{{- if not .Value}}
-									"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
+									"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 										MarkdownDescription: "{{.Description}}",
-										{{- if or (eq .Type "StringList") (eq .Type "Map")}}
+										{{- if isListSet .}}
+										ElementType:         types.{{.ElementType}}Type,
+										{{- else if eq .Type "Map"}}
 										ElementType:         types.StringType,
 										{{- end}}
 										Computed:            true,
-										{{- if or (eq .Type "List") (eq .Type "Set")}}
+										{{- if isNestedListSet .}}
 										NestedObject: schema.NestedAttributeObject{
 											Attributes: map[string]schema.Attribute{
 												{{- range  .Attributes}}
 												{{- if not .Value}}
-												"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
+												"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 													MarkdownDescription: "{{.Description}}",
-													{{- if or (eq .Type "StringList") (eq .Type "Map")}}
+													{{- if isListSet .}}
+													ElementType:         types.{{.ElementType}}Type,
+													{{- else if eq .Type "Map"}}
 													ElementType:         types.StringType,
 													{{- end}}
 													Computed:            true,

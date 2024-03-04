@@ -34,7 +34,8 @@ attributes:
     example: john.doe@cisco.com
   - model_name: roleList
     tf_name: role_ids
-    type: StringList
+    type: List
+    element_type: String
     mandatory: true
     description: List of role IDs
     example: 5f8d9a3a-3c6a-4a1c-9a1b-1a4f5a4a4a4a

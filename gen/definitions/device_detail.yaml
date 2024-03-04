@@ -78,7 +78,8 @@ attributes:
     data_path: response
     example: '17.12.20230427:145516'
   - model_name: tagIdList
-    type: StringList
+    type: List
+    element_type: String
     description: Tags assigned to the device.
     data_path: response
     # example: '["mytag"]'

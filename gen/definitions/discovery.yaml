@@ -36,13 +36,15 @@ attributes:
     example: Range
     requires_replace: true
   - model_name: enablePasswordList
-    type: StringList
+    type: List
+    element_type: String
     description: Enable passwords of the devices to be discovered.
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: globalCredentialIdList
-    type: StringList
+    type: List
+    element_type: String
     description: A list of IDs, which must include SNMP credential and CLI credential.
     exclude_test: true
     requires_replace: true
@@ -62,7 +64,8 @@ attributes:
     example: 192.168.0.1-192.168.0.99
     requires_replace: true
   - model_name: ipFilterList
-    type: StringList
+    type: List
+    element_type: String
     description: A list of IP address ranges to exclude from the discovery.
     exclude_test: true
     # example: 192.168.0.8-192.168.0.9 # a "Subnet Filter" error
@@ -88,7 +91,8 @@ attributes:
     example: '830'
     requires_replace: true
   - model_name: passwordList
-    type: StringList
+    type: List
+    element_type: String
     description: Passwords of the devices to be discovered.
     exclude_test: true
     exclude_example: true
@@ -196,7 +200,8 @@ attributes:
     write_only: true
     requires_replace: true
   - model_name: userNameList
-    type: StringList
+    type: List
+    element_type: String
     description: Usernames for the devices to be discovered.
     exclude_test: true
     exclude_example: true

@@ -25,7 +25,8 @@ attributes:
     requires_replace: true
     example: 138b3181-f9c5-4271-9292-cf3152ab4d3e
   - model_name: imageUuidList
-    type: StringList
+    type: List
+    element_type: String
     data_path: '0'
     description: The list of UUIDs of the software images to activate. The UUIDs could be obtained for example from `catalystcenter_image.id`. SMU images shouldn't be specified in this list. Changing/adding/removing any UUID causes the entire resource to be re-created, so that the entire activation occurs as newly specified.
     requires_replace: true

@@ -138,7 +138,8 @@ attributes:
         example: false
       - model_name: defaultSelectedValues
         data_path: selection
-        type: StringList
+        type: List
+        element_type: String
         description: Default selection values
         example: host1
         exclude_test: true

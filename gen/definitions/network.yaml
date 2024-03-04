@@ -17,7 +17,8 @@ attributes:
     data_path: settings
     response_data_path: 'response.#(key=\"dhcp.server\").value'
     tf_name: dhcp_servers
-    type: StringList
+    type: List
+    element_type: String
     description: List of DHCP server IPs
     example: 1.2.3.4
   - model_name: domainName
@@ -44,7 +45,8 @@ attributes:
     data_path: settings.syslogServer
     response_data_path: 'response.#(key=\"syslog.server\").value.0.ipAddresses'
     tf_name: syslog_servers
-    type: StringList
+    type: List
+    element_type: String
     description: List of Syslog server IPs
     example: 1.2.3.4
   - model_name: configureDnacIP
@@ -58,7 +60,8 @@ attributes:
     data_path: settings.snmpServer
     response_data_path: 'response.#(key=\"snmp.trap.receiver\").value.0.ipAddresses'
     tf_name: snmp_servers
-    type: StringList
+    type: List
+    element_type: String
     description: List of SNMP server IPs
     example: 1.2.3.4
   - model_name: configureDnacIP
@@ -86,7 +89,8 @@ attributes:
     data_path: settings
     response_data_path: 'response.#(key=\"ntp.server\").value'
     tf_name: ntp_servers
-    type: StringList
+    type: List
+    element_type: String
     description: List of NTP server IPs
     example: 1.2.3.4
   - model_name: timezone
