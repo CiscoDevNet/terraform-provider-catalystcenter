@@ -5,7 +5,7 @@ no_update: true
 no_import: true
 no_data_source: true
 skip_minimum_test: true
-res_description: Add virtual network (VN) to SDA Fabric Site
+res_description: Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.
 doc_category: SDA
 attributes:
   - model_name: virtualNetworkName
