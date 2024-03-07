@@ -151,8 +151,8 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	params = ""
-	res, err = r.client.Get("/api/v2/ippool?limit=500" + params)
+
+	res, err = r.client.Get("/api/v2/ippool?limit=500")
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
