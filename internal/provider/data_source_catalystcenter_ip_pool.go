@@ -121,7 +121,6 @@ func (d *IPPoolDataSource) Configure(_ context.Context, req datasource.Configure
 
 //template:end model
 
-//template:begin read
 func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config IPPool
 
@@ -134,7 +133,7 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 	if config.Id.IsNull() && !config.Name.IsNull() {
-		res, err := d.client.Get("/api/v2/ippool")
+		res, err := d.client.Get("/api/v2/ippool?limit=500")
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
@@ -171,5 +170,3 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-//template:end read

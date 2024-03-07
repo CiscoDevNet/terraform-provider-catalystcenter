@@ -130,7 +130,6 @@ func (r *IPPoolResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 //template:end model
 
-//template:begin create
 func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan IPPool
 
@@ -152,8 +151,8 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	params = ""
-	res, err = r.client.Get("/api/v2/ippool" + params)
+
+	res, err = r.client.Get("/api/v2/ippool?limit=500")
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -165,8 +164,6 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-//template:end create
 
 //template:begin read
 func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
