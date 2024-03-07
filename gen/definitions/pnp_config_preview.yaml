@@ -1,0 +1,28 @@
+---
+name: PNP Config Preview
+rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device/site-config-preview
+res_description:
+  'This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.'
+no_data_source: true
+no_update: true
+no_delete: true
+no_import: true
+no_read: true
+id_path: response.id
+doc_category: Plug and Play
+test_tags: [PNP]
+skip_minimum_test: true
+attributes:
+  - model_name: deviceId
+    type: String
+    description: The device ID
+    example: 65e422375b4b6e40ef3423f8
+  - model_name: siteId
+    type: String
+    description: The site ID
+    example: 12345678-1234-1234-1234-123456789012
+  - model_name: type
+    type: String
+    enum_values: [Default, StackSwitch, AccessPoint, Sensor, MobilityExpress]
+    description: The device type
+    example: Default
