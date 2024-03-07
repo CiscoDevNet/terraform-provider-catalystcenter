@@ -3,12 +3,12 @@
 page_title: "catalystcenter_pnp_config_preview Resource - terraform-provider-catalystcenter"
 subcategory: "Plug and Play"
 description: |-
-  This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.
+  This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed, updated or refreshed, no actions are done either on Catalyst Center or on devices. After creating this resource the config can be previewed in the GUI of Catalyst Center.
 ---
 
 # catalystcenter_pnp_config_preview (Resource)
 
-This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.
+This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed, updated or refreshed, no actions are done either on Catalyst Center or on devices. After creating this resource the config can be previewed in the GUI of Catalyst Center.
 
 ## Example Usage
 

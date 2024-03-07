@@ -58,7 +58,7 @@ func (r *PNPConfigPreviewResource) Metadata(ctx context.Context, req resource.Me
 func (r *PNPConfigPreviewResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed, updated or refreshed, no actions are done either on Catalyst Center or on devices. After creating this resource the config can be previewed in the GUI of Catalyst Center.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

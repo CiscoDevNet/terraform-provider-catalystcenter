@@ -2,6 +2,7 @@
 
 - Fix issue with unencoded characters ending up in parts of the URL
 - Use `set` type for list attributes with primitive values
+- Add `catalystcenter_pnp_config_preview` resource
 
 ## 0.1.5
 

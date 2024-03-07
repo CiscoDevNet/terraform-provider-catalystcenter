@@ -2,7 +2,7 @@
 name: PNP Config Preview
 rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device/site-config-preview
 res_description:
-  'This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.'
+  'This resource triggers a preview for site-based Day 0 Configuration. When this resource is destroyed, updated or refreshed, no actions are done either on Catalyst Center or on devices. After creating this resource the config can be previewed in the GUI of Catalyst Center.'
 no_data_source: true
 no_update: true
 no_delete: true
