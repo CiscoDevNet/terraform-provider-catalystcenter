@@ -24,7 +24,7 @@ resource "catalystcenter_virtual_network_to_fabric_site" "example" {
 
 ### Required
 
-- `site_name_hierarchy` (String) Path of sda Fabric Site
+- `site_name_hierarchy` (String) Path of SDA Fabric Site, e.g. `Global/Area1
 - `virtual_network_name` (String) Virtual Network Name, that is created at Global level
 
 ### Read-Only

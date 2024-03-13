@@ -19,7 +19,7 @@ attributes:
     mandatory: true
     data_source_query: true
     type: String
-    description: Path of sda Fabric Site
+    description: Path of SDA Fabric Site, e.g. `Global/Area1
     example: "Global/Area1"
     test_value: catalystcenter_fabric_site.test.site_name_hierarchy
 test_prerequisites: |

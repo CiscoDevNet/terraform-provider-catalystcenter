@@ -73,7 +73,7 @@ func (r *VirtualNetworkToFabricSiteResource) Schema(ctx context.Context, req res
 				Required:            true,
 			},
 			"site_name_hierarchy": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Path of sda Fabric Site").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Path of SDA Fabric Site, e.g. `Global/Area1").String,
 				Required:            true,
 			},
 		},
