@@ -3,12 +3,12 @@
 page_title: "catalystcenter_wireless_profile Resource - terraform-provider-catalystcenter"
 subcategory: "Wireless"
 description: |-
-  This resource creates wireless network profile. To associate wireless network profile with site use catalystcenterassociatesitetonetwork_profile resource
+  This resource creates a wireless network profile. To associate a wireless network profile with a site, use the catalystcenter_associate_site_to_network_profile resource.
 ---
 
 # catalystcenter_wireless_profile (Resource)
 
-This resource creates wireless network profile. To associate wireless network profile with site use catalystcenter_associate_site_to_network_profile resource
+This resource creates a wireless network profile. To associate a wireless network profile with a site, use the `catalystcenter_associate_site_to_network_profile` resource.
 
 ## Example Usage
 
