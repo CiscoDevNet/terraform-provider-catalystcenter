@@ -4,6 +4,8 @@
 - Use `set` type for list attributes with primitive values
 - Add `catalystcenter_pnp_config_preview` resource
 - Add `catalystcenter_virtual_network_to_fabric_site` resource
+- Add `catalystcenter_wireless_profile` resource
+- Add `catalystcenter_virtual_network_ip_pool` resource
 
 ## 0.1.5
 
