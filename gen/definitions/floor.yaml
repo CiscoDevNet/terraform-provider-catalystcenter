@@ -23,6 +23,13 @@ attributes:
     description: The path of the parent building, e.g. `Global/Building1`
     example: Global/Building1
     test_value: '"${catalystcenter_building.test.parent_name}/${catalystcenter_building.test.name}"'
+  - model_name: floorNumber
+    data_path: site.floor
+    response_data_path: floorIndex
+    requires_replace: true
+    type: Int64
+    description: Floor number
+    example: 1
   - model_name: rfModel
     data_path: site.floor
     type: String

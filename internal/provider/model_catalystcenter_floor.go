@@ -32,13 +32,14 @@ import (
 
 //template:begin types
 type Floor struct {
-	Id         types.String  `tfsdk:"id"`
-	Name       types.String  `tfsdk:"name"`
-	ParentName types.String  `tfsdk:"parent_name"`
-	RfModel    types.String  `tfsdk:"rf_model"`
-	Width      types.Float64 `tfsdk:"width"`
-	Length     types.Float64 `tfsdk:"length"`
-	Height     types.Float64 `tfsdk:"height"`
+	Id          types.String  `tfsdk:"id"`
+	Name        types.String  `tfsdk:"name"`
+	ParentName  types.String  `tfsdk:"parent_name"`
+	FloorNumber types.Int64   `tfsdk:"floor_number"`
+	RfModel     types.String  `tfsdk:"rf_model"`
+	Width       types.Float64 `tfsdk:"width"`
+	Length      types.Float64 `tfsdk:"length"`
+	Height      types.Float64 `tfsdk:"height"`
 }
 
 //template:end types
@@ -59,6 +60,9 @@ func (data Floor) toBody(ctx context.Context, state Floor) string {
 	}
 	if !data.ParentName.IsNull() {
 		body, _ = sjson.Set(body, "site.floor.parentName", data.ParentName.ValueString())
+	}
+	if !data.FloorNumber.IsNull() {
+		body, _ = sjson.Set(body, "site.floor.floorNumber", data.FloorNumber.ValueInt64())
 	}
 	if !data.RfModel.IsNull() {
 		body, _ = sjson.Set(body, "site.floor.rfModel", data.RfModel.ValueString())
@@ -83,6 +87,11 @@ func (data *Floor) fromBody(ctx context.Context, res gjson.Result) {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("floorIndex"); value.Exists() {
+		data.FloorNumber = types.Int64Value(value.Int())
+	} else {
+		data.FloorNumber = types.Int64Null()
 	}
 	if value := res.Get("geometry.width"); value.Exists() {
 		data.Width = types.Float64Value(value.Float())
@@ -110,6 +119,11 @@ func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
+	if value := res.Get("floorIndex"); value.Exists() && !data.FloorNumber.IsNull() {
+		data.FloorNumber = types.Int64Value(value.Int())
+	} else {
+		data.FloorNumber = types.Int64Null()
+	}
 	if value := res.Get("geometry.width"); value.Exists() && !data.Width.IsNull() {
 		data.Width = types.Float64Value(value.Float())
 	} else {
@@ -135,6 +149,9 @@ func (data *Floor) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.ParentName.IsNull() {
+		return false
+	}
+	if !data.FloorNumber.IsNull() {
 		return false
 	}
 	if !data.RfModel.IsNull() {

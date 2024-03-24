@@ -71,6 +71,10 @@ func (d *FloorDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				MarkdownDescription: "The path of the parent building, e.g. `Global/Building1`",
 				Computed:            true,
 			},
+			"floor_number": schema.Int64Attribute{
+				MarkdownDescription: "Floor number",
+				Computed:            true,
+			},
 			"rf_model": schema.StringAttribute{
 				MarkdownDescription: "The RF model",
 				Computed:            true,
