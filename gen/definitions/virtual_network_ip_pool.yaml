@@ -1,5 +1,5 @@
 ---
-name: SDA Virtual Network IP Pool
+name: Virtual Network IP Pool
 rest_endpoint: /dna/intent/api/v1/business/sda/virtualnetwork/ippool
 no_update: true
 no_import: true

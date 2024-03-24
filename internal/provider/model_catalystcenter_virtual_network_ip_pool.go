@@ -31,7 +31,7 @@ import (
 //template:end imports
 
 //template:begin types
-type SDAVirtualNetworkIPPool struct {
+type VirtualNetworkIPPool struct {
 	Id                   types.String `tfsdk:"id"`
 	VirtualNetworkName   types.String `tfsdk:"virtual_network_name"`
 	SiteNameHierarchy    types.String `tfsdk:"site_name_hierarchy"`
@@ -54,7 +54,7 @@ type SDAVirtualNetworkIPPool struct {
 //template:end types
 
 //template:begin getPath
-func (data SDAVirtualNetworkIPPool) getPath() string {
+func (data VirtualNetworkIPPool) getPath() string {
 	return "/dna/intent/api/v1/business/sda/virtualnetwork/ippool"
 }
 
@@ -65,7 +65,7 @@ func (data SDAVirtualNetworkIPPool) getPath() string {
 //template:end getPathDelete
 
 //template:begin toBody
-func (data SDAVirtualNetworkIPPool) toBody(ctx context.Context, state SDAVirtualNetworkIPPool) string {
+func (data VirtualNetworkIPPool) toBody(ctx context.Context, state VirtualNetworkIPPool) string {
 	body := ""
 	if !data.VirtualNetworkName.IsNull() {
 		body, _ = sjson.Set(body, "virtualNetworkName", data.VirtualNetworkName.ValueString())
@@ -121,7 +121,7 @@ func (data SDAVirtualNetworkIPPool) toBody(ctx context.Context, state SDAVirtual
 //template:end toBody
 
 //template:begin fromBody
-func (data *SDAVirtualNetworkIPPool) fromBody(ctx context.Context, res gjson.Result) {
+func (data *VirtualNetworkIPPool) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("virtualNetworkName"); value.Exists() {
 		data.VirtualNetworkName = types.StringValue(value.String())
 	} else {
@@ -202,7 +202,7 @@ func (data *SDAVirtualNetworkIPPool) fromBody(ctx context.Context, res gjson.Res
 //template:end fromBody
 
 //template:begin updateFromBody
-func (data *SDAVirtualNetworkIPPool) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *VirtualNetworkIPPool) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("virtualNetworkName"); value.Exists() && !data.VirtualNetworkName.IsNull() {
 		data.VirtualNetworkName = types.StringValue(value.String())
 	} else {
@@ -283,7 +283,7 @@ func (data *SDAVirtualNetworkIPPool) updateFromBody(ctx context.Context, res gjs
 //template:end updateFromBody
 
 //template:begin isNull
-func (data *SDAVirtualNetworkIPPool) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *VirtualNetworkIPPool) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.VirtualNetworkName.IsNull() {
 		return false
 	}

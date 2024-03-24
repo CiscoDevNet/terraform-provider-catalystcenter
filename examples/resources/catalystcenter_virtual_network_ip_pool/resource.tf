@@ -1,4 +1,4 @@
-resource "catalystcenter_sda_virtual_network_ip_pool" "example" {
+resource "catalystcenter_virtual_network_ip_pool" "example" {
   virtual_network_name  = "SDA_VN1"
   site_name_hierarchy   = "Global/Area1"
   layer2_only           = false

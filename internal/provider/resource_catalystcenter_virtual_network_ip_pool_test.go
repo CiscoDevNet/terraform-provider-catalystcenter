@@ -29,21 +29,21 @@ import (
 //template:end imports
 
 //template:begin testAcc
-func TestAccCcSDAVirtualNetworkIPPool(t *testing.T) {
+func TestAccCcVirtualNetworkIPPool(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "layer2_only", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "vlan_id", "401"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "vlan_name", "VLAN401"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "traffic_type", "DATA"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "l2_flooding_enabled", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "wireless_pool", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "ip_directed_broadcast", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "common_pool", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sda_virtual_network_ip_pool.test", "bridge_mode_vm", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "layer2_only", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "vlan_id", "401"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "vlan_name", "VLAN401"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "traffic_type", "DATA"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "l2_flooding_enabled", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "wireless_pool", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "ip_directed_broadcast", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "common_pool", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "bridge_mode_vm", "false"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcSDAVirtualNetworkIPPoolPrerequisitesConfig + testAccCcSDAVirtualNetworkIPPoolConfig_all(),
+		Config: testAccCcVirtualNetworkIPPoolPrerequisitesConfig + testAccCcVirtualNetworkIPPoolConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -57,7 +57,7 @@ func TestAccCcSDAVirtualNetworkIPPool(t *testing.T) {
 //template:end testAcc
 
 //template:begin testPrerequisites
-const testAccCcSDAVirtualNetworkIPPoolPrerequisitesConfig = `
+const testAccCcVirtualNetworkIPPoolPrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
@@ -97,8 +97,8 @@ resource "catalystcenter_virtual_network_to_fabric_site" "test" {
 //template:end testPrerequisites
 
 //template:begin testAccConfigMinimal
-func testAccCcSDAVirtualNetworkIPPoolConfig_minimum() string {
-	config := `resource "catalystcenter_sda_virtual_network_ip_pool" "test" {` + "\n"
+func testAccCcVirtualNetworkIPPoolConfig_minimum() string {
+	config := `resource "catalystcenter_virtual_network_ip_pool" "test" {` + "\n"
 	config += `	virtual_network_name = catalystcenter_virtual_network_to_fabric_site.test.virtual_network_name` + "\n"
 	config += `	site_name_hierarchy = catalystcenter_virtual_network_to_fabric_site.test.site_name_hierarchy` + "\n"
 	config += `	vlan_name = "VLAN401"` + "\n"
@@ -110,8 +110,8 @@ func testAccCcSDAVirtualNetworkIPPoolConfig_minimum() string {
 //template:end testAccConfigMinimal
 
 //template:begin testAccConfigAll
-func testAccCcSDAVirtualNetworkIPPoolConfig_all() string {
-	config := `resource "catalystcenter_sda_virtual_network_ip_pool" "test" {` + "\n"
+func testAccCcVirtualNetworkIPPoolConfig_all() string {
+	config := `resource "catalystcenter_virtual_network_ip_pool" "test" {` + "\n"
 	config += `	virtual_network_name = catalystcenter_virtual_network_to_fabric_site.test.virtual_network_name` + "\n"
 	config += `	site_name_hierarchy = catalystcenter_virtual_network_to_fabric_site.test.site_name_hierarchy` + "\n"
 	config += `	layer2_only = false` + "\n"

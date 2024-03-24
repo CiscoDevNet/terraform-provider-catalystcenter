@@ -46,21 +46,21 @@ import (
 //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &SDAVirtualNetworkIPPoolResource{}
+var _ resource.Resource = &VirtualNetworkIPPoolResource{}
 
-func NewSDAVirtualNetworkIPPoolResource() resource.Resource {
-	return &SDAVirtualNetworkIPPoolResource{}
+func NewVirtualNetworkIPPoolResource() resource.Resource {
+	return &VirtualNetworkIPPoolResource{}
 }
 
-type SDAVirtualNetworkIPPoolResource struct {
+type VirtualNetworkIPPoolResource struct {
 	client *cc.Client
 }
 
-func (r *SDAVirtualNetworkIPPoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sda_virtual_network_ip_pool"
+func (r *VirtualNetworkIPPoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_virtual_network_ip_pool"
 }
 
-func (r *SDAVirtualNetworkIPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *VirtualNetworkIPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: helpers.NewAttributeDescription("Manages IP Pool in SDA Virtual Network").String,
@@ -197,7 +197,7 @@ func (r *SDAVirtualNetworkIPPoolResource) Schema(ctx context.Context, req resour
 	}
 }
 
-func (r *SDAVirtualNetworkIPPoolResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *VirtualNetworkIPPoolResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -207,8 +207,8 @@ func (r *SDAVirtualNetworkIPPoolResource) Configure(_ context.Context, req resou
 
 //template:end model
 
-func (r *SDAVirtualNetworkIPPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan SDAVirtualNetworkIPPool
+func (r *VirtualNetworkIPPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan VirtualNetworkIPPool
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -220,7 +220,7 @@ func (r *SDAVirtualNetworkIPPoolResource) Create(ctx context.Context, req resour
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, SDAVirtualNetworkIPPool{})
+	body := plan.toBody(ctx, VirtualNetworkIPPool{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -237,8 +237,8 @@ func (r *SDAVirtualNetworkIPPoolResource) Create(ctx context.Context, req resour
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r *SDAVirtualNetworkIPPoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state SDAVirtualNetworkIPPool
+func (r *VirtualNetworkIPPoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state VirtualNetworkIPPool
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -278,8 +278,8 @@ func (r *SDAVirtualNetworkIPPoolResource) Read(ctx context.Context, req resource
 }
 
 //template:begin update
-func (r *SDAVirtualNetworkIPPoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state SDAVirtualNetworkIPPool
+func (r *VirtualNetworkIPPoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state VirtualNetworkIPPool
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -304,8 +304,8 @@ func (r *SDAVirtualNetworkIPPoolResource) Update(ctx context.Context, req resour
 
 //template:end update
 
-func (r *SDAVirtualNetworkIPPoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state SDAVirtualNetworkIPPool
+func (r *VirtualNetworkIPPoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state VirtualNetworkIPPool
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
