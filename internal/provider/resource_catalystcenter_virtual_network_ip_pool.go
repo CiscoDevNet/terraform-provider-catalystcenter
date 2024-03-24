@@ -230,7 +230,6 @@ func (r *VirtualNetworkIPPoolResource) Create(ctx context.Context, req resource.
 	}
 
 	plan.Id = basetypes.NewStringValue(plan.IpPoolName.ValueString() + "-" + plan.VirtualNetworkName.ValueString() + "-" + plan.SiteNameHierarchy.ValueString())
-	time.Sleep(15 * time.Second)
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
