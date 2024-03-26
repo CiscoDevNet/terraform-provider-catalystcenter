@@ -14,12 +14,13 @@ This resource can manage a Floor.
 
 ```terraform
 resource "catalystcenter_floor" "example" {
-  name        = "Floor1"
-  parent_name = "Global/Building1"
-  rf_model    = "Drywall Office Only"
-  width       = 30.5
-  length      = 50.5
-  height      = 3.5
+  name         = "Floor1"
+  parent_name  = "Global/Building1"
+  floor_number = 1
+  rf_model     = "Drywall Office Only"
+  width        = 30.5
+  length       = 50.5
+  height       = 3.5
 }
 ```
 
@@ -35,6 +36,10 @@ resource "catalystcenter_floor" "example" {
 - `rf_model` (String) The RF model
   - Choices: `Cubes And Walled Offices`, `Drywall Office Only`, `Indoor High Ceiling`, `Outdoor Open Space`
 - `width` (Number) Width
+
+### Optional
+
+- `floor_number` (Number) Floor number
 
 ### Read-Only
 

@@ -33,6 +33,7 @@ import (
 func TestAccCcFloor(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "name", "Floor1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "floor_number", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "width", "30.5"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "length", "50.5"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "height", "3.5"))
@@ -96,6 +97,7 @@ func testAccCcFloorConfig_all() string {
 	config := `resource "catalystcenter_floor" "test" {` + "\n"
 	config += `	name = "Floor1"` + "\n"
 	config += `	parent_name = "${catalystcenter_building.test.parent_name}/${catalystcenter_building.test.name}"` + "\n"
+	config += `	floor_number = 1` + "\n"
 	config += `	rf_model = "Drywall Office Only"` + "\n"
 	config += `	width = 30.5` + "\n"
 	config += `	length = 50.5` + "\n"

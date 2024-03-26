@@ -27,6 +27,7 @@ data "catalystcenter_floor" "example" {
 
 ### Read-Only
 
+- `floor_number` (Number) Floor number
 - `height` (Number) Height
 - `length` (Number) Length
 - `name` (String) The name of the floor

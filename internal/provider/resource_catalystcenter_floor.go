@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -79,6 +80,13 @@ func (r *FloorResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 			"parent_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The path of the parent building, e.g. `Global/Building1`").String,
 				Required:            true,
+			},
+			"floor_number": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Floor number").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"rf_model": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The RF model").AddStringEnumDescription("Cubes And Walled Offices", "Drywall Office Only", "Indoor High Ceiling", "Outdoor Open Space").String,
