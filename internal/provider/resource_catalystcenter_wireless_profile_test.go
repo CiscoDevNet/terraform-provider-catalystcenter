@@ -31,7 +31,6 @@ import (
 func TestAccCcWirelessProfile(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "name", "Wireless_Profile_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.name", "mySSID1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.enable_fabric", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.enable_flex_connect", "false"))
 
@@ -57,7 +56,7 @@ func TestAccCcWirelessProfile(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcWirelessProfilePrerequisitesConfig = `
-resource "catalystcenter_wireless_enterprise_ssid" "example" {
+resource "catalystcenter_wireless_enterprise_ssid" "test" {
   name                                  = "mySSID1"
   security_level                        = "wpa3_enterprise"
   passphrase                            = "Cisco123"
@@ -82,7 +81,7 @@ func testAccCcWirelessProfileConfig_all() string {
 	config := `resource "catalystcenter_wireless_profile" "test" {` + "\n"
 	config += `	name = "Wireless_Profile_1"` + "\n"
 	config += `	ssid_details = [{` + "\n"
-	config += `	  name = "mySSID1"` + "\n"
+	config += `	  name = catalystcenter_wireless_enterprise_ssid.test.name` + "\n"
 	config += `	  enable_fabric = true` + "\n"
 	config += `	  enable_flex_connect = false` + "\n"
 	config += `	}]` + "\n"

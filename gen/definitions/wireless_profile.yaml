@@ -31,6 +31,7 @@ attributes:
         id: true
         description: Ssid Name
         example: mySSID1
+        test_value: catalystcenter_wireless_enterprise_ssid.test.name
       - model_name: enableFabric
         type: Bool
         description: "`true` if ssid is fabric else `false`"
@@ -64,7 +65,7 @@ attributes:
         exclude_test: true
         example: mySSID1_profile
 test_prerequisites: |
-  resource "catalystcenter_wireless_enterprise_ssid" "example" {
+  resource "catalystcenter_wireless_enterprise_ssid" "test" {
     name                                  = "mySSID1"
     security_level                        = "wpa3_enterprise"
     passphrase                            = "Cisco123"
