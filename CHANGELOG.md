@@ -6,6 +6,7 @@
 - Add `catalystcenter_virtual_network_to_fabric_site` resource
 - Add `catalystcenter_wireless_profile` resource
 - Add `catalystcenter_virtual_network_ip_pool` resource
+- Add `floor_number` attribute to `catalystcenter_floor` resource and data source
 
 ## 0.1.5
 
