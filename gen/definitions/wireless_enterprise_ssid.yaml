@@ -159,7 +159,7 @@ attributes:
       - Optional
       - Disabled
       - Required
-    example: Disabled
+    example: Required
   - model_name: multiPSKSettings
     tf_name: multi_psk_settings
     response_data_path: 0.ssidDetails.0.multiPSKSettings

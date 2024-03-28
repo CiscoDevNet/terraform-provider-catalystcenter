@@ -17,5 +17,5 @@ resource "catalystcenter_wireless_enterprise_ssid" "example" {
   enable_directed_multicast_service     = true
   enable_neighbor_list                  = true
   mfp_client_protection                 = "data"
-  protected_management_frame            = "Disabled"
+  protected_management_frame            = "Required"
 }

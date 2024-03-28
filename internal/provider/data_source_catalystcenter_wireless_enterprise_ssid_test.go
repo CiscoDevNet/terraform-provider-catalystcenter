@@ -45,7 +45,7 @@ func TestAccDataSourceCcWirelessEnterpriseSSID(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "enable_directed_multicast_service", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "enable_neighbor_list", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "mfp_client_protection", "data"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "protected_management_frame", "Disabled"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "protected_management_frame", "Required"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -84,7 +84,7 @@ func testAccDataSourceCcWirelessEnterpriseSSIDConfig() string {
 	config += `	enable_directed_multicast_service = true` + "\n"
 	config += `	enable_neighbor_list = true` + "\n"
 	config += `	mfp_client_protection = "data"` + "\n"
-	config += `	protected_management_frame = "Disabled"` + "\n"
+	config += `	protected_management_frame = "Required"` + "\n"
 	config += `}` + "\n"
 
 	config += `

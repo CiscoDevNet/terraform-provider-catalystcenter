@@ -46,7 +46,7 @@ func TestAccCcWirelessEnterpriseSSID(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_enterprise_ssid.test", "enable_directed_multicast_service", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_enterprise_ssid.test", "enable_neighbor_list", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_enterprise_ssid.test", "mfp_client_protection", "data"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_enterprise_ssid.test", "protected_management_frame", "Disabled"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_enterprise_ssid.test", "protected_management_frame", "Required"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -107,7 +107,7 @@ func testAccCcWirelessEnterpriseSSIDConfig_all() string {
 	config += `	enable_directed_multicast_service = true` + "\n"
 	config += `	enable_neighbor_list = true` + "\n"
 	config += `	mfp_client_protection = "data"` + "\n"
-	config += `	protected_management_frame = "Disabled"` + "\n"
+	config += `	protected_management_frame = "Required"` + "\n"
 	config += `}` + "\n"
 	return config
 }
