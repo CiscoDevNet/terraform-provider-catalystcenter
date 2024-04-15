@@ -36,5 +36,12 @@ data "catalystcenter_network_profile" "example" {
 
 Read-Only:
 
-- `template_id` (String) Template ID
+- `attributes` (Attributes List) (see [below for nested schema](#nestedatt--templates--attributes))
 - `type` (String) Template type
+
+<a id="nestedatt--templates--attributes"></a>
+### Nested Schema for `templates.attributes`
+
+Read-Only:
+
+- `template_id` (String) Template ID

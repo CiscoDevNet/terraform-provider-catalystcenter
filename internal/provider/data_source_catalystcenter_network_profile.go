@@ -84,9 +84,17 @@ func (d *NetworkProfileDataSource) Schema(ctx context.Context, req datasource.Sc
 							MarkdownDescription: "Template type",
 							Computed:            true,
 						},
-						"template_id": schema.StringAttribute{
-							MarkdownDescription: "Template ID",
+						"attributes": schema.ListNestedAttribute{
+							MarkdownDescription: "",
 							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"template_id": schema.StringAttribute{
+										MarkdownDescription: "Template ID",
+										Computed:            true,
+									},
+								},
+							},
 						},
 					},
 				},

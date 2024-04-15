@@ -18,8 +18,12 @@ resource "catalystcenter_network_profile" "example" {
   type = "switching"
   templates = [
     {
-      type        = "cli.templates"
-      template_id = "f8297e86-35b0-486c-8752-6169aa5eb43c"
+      type = "cli.templates"
+      attributes = [
+        {
+          template_id = "f8297e86-35b0-486c-8752-6169aa5eb43c"
+        }
+      ]
     }
   ]
 }
@@ -47,9 +51,19 @@ resource "catalystcenter_network_profile" "example" {
 
 Required:
 
-- `template_id` (String) Template ID
 - `type` (String) Template type
   - Choices: `cli.templates`, `day0.templates`
+
+Optional:
+
+- `attributes` (Attributes List) (see [below for nested schema](#nestedatt--templates--attributes))
+
+<a id="nestedatt--templates--attributes"></a>
+### Nested Schema for `templates.attributes`
+
+Required:
+
+- `template_id` (String) Template ID
 
 ## Import
 

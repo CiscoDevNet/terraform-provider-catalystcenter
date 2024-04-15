@@ -33,14 +33,39 @@ attributes:
         enum_values: [cli.templates, day0.templates]
         description: Template type
         example: cli.templates
-      - model_name: key
-        data_path: attribs.0
-        type: String
-        value: template.id
-      - model_name: value
-        tf_name: template_id
-        data_path: attribs.0
-        type: String
-        id: true
-        description: Template ID
-        example: f8297e86-35b0-486c-8752-6169aa5eb43c
+      - model_name: attribs
+        tf_name: attributes
+        type: List
+        attributes:
+          - model_name: key
+            type: String
+            value: template.id
+          - model_name: value
+            tf_name: template_id
+            type: String
+            id: true
+            description: Template ID
+            example: f8297e86-35b0-486c-8752-6169aa5eb43c
+            test_value: catalystcenter_template.test.id
+test_prerequisites: |
+  resource "catalystcenter_project" "test" {
+    name        = "Project1"
+  }
+
+  resource "catalystcenter_template" "test" {
+    project_id  = catalystcenter_project.test.id
+    name        = "Template1"
+    description = "My description"
+    device_types = [
+      {
+        product_family = "Switches and Hubs"
+        product_series = "Cisco Catalyst 9300 Series Switches"
+        product_type   = "Cisco Catalyst 9300 Switch"
+      }
+    ]
+    language         = "JINJA"
+    software_type    = "IOS-XE"
+    software_variant = "XE"
+    software_version = "16.12.1a"
+    template_content = "hostname SW1"
+  }

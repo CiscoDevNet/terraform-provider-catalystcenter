@@ -37,7 +37,11 @@ type NetworkProfile struct {
 }
 
 type NetworkProfileTemplates struct {
-	Type       types.String `tfsdk:"type"`
+	Type       types.String                        `tfsdk:"type"`
+	Attributes []NetworkProfileTemplatesAttributes `tfsdk:"attributes"`
+}
+
+type NetworkProfileTemplatesAttributes struct {
 	TemplateId types.String `tfsdk:"template_id"`
 }
 
@@ -66,9 +70,16 @@ func (data NetworkProfile) toBody(ctx context.Context, state NetworkProfile) str
 			if !item.Type.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "key", item.Type.ValueString())
 			}
-			itemBody, _ = sjson.Set(itemBody, "attribs.0.key", "template.id")
-			if !item.TemplateId.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "attribs.0.value", item.TemplateId.ValueString())
+			if len(item.Attributes) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "attribs", []interface{}{})
+				for _, childItem := range item.Attributes {
+					itemChildBody := ""
+					itemChildBody, _ = sjson.Set(itemChildBody, "key", "template.id")
+					if !childItem.TemplateId.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "value", childItem.TemplateId.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "attribs.-1", itemChildBody)
+				}
 			}
 			body, _ = sjson.SetRaw(body, "profileAttributes.-1", itemBody)
 		}
@@ -99,10 +110,18 @@ func (data *NetworkProfile) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Type = types.StringNull()
 			}
-			if cValue := v.Get("attribs.0.value"); cValue.Exists() {
-				item.TemplateId = types.StringValue(cValue.String())
-			} else {
-				item.TemplateId = types.StringNull()
+			if cValue := v.Get("attribs"); cValue.Exists() {
+				item.Attributes = make([]NetworkProfileTemplatesAttributes, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := NetworkProfileTemplatesAttributes{}
+					if ccValue := cv.Get("value"); ccValue.Exists() {
+						cItem.TemplateId = types.StringValue(ccValue.String())
+					} else {
+						cItem.TemplateId = types.StringNull()
+					}
+					item.Attributes = append(item.Attributes, cItem)
+					return true
+				})
 			}
 			data.Templates = append(data.Templates, item)
 			return true
@@ -125,8 +144,8 @@ func (data *NetworkProfile) updateFromBody(ctx context.Context, res gjson.Result
 		data.Type = types.StringNull()
 	}
 	for i := range data.Templates {
-		keys := [...]string{"key", "attribs.0.value"}
-		keyValues := [...]string{data.Templates[i].Type.ValueString(), data.Templates[i].TemplateId.ValueString()}
+		keys := [...]string{"key"}
+		keyValues := [...]string{data.Templates[i].Type.ValueString()}
 
 		var r gjson.Result
 		res.Get("response.profileAttributes").ForEach(
@@ -152,10 +171,34 @@ func (data *NetworkProfile) updateFromBody(ctx context.Context, res gjson.Result
 		} else {
 			data.Templates[i].Type = types.StringNull()
 		}
-		if value := r.Get("attribs.0.value"); value.Exists() && !data.Templates[i].TemplateId.IsNull() {
-			data.Templates[i].TemplateId = types.StringValue(value.String())
-		} else {
-			data.Templates[i].TemplateId = types.StringNull()
+		for ci := range data.Templates[i].Attributes {
+			keys := [...]string{"value"}
+			keyValues := [...]string{data.Templates[i].Attributes[ci].TemplateId.ValueString()}
+
+			var cr gjson.Result
+			r.Get("attribs").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("value"); value.Exists() && !data.Templates[i].Attributes[ci].TemplateId.IsNull() {
+				data.Templates[i].Attributes[ci].TemplateId = types.StringValue(value.String())
+			} else {
+				data.Templates[i].Attributes[ci].TemplateId = types.StringNull()
+			}
 		}
 	}
 }
