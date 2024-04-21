@@ -1,4 +1,4 @@
-## 0.1.7 (unreleased)
+## 0.1.7
 
 - BREAKING CHANGE: Add support for multiple CLI and Day0 templates to `catalystcenter_network_profile` resource and data source
 
