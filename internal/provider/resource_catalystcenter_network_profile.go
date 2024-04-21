@@ -96,9 +96,17 @@ func (r *NetworkProfileResource) Schema(ctx context.Context, req resource.Schema
 								stringvalidator.OneOf("cli.templates", "day0.templates"),
 							},
 						},
-						"template_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Template ID").String,
-							Required:            true,
+						"attributes": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"template_id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Template ID").String,
+										Required:            true,
+									},
+								},
+							},
 						},
 					},
 				},

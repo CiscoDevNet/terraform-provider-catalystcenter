@@ -32,13 +32,12 @@ func TestAccDataSourceCcNetworkProfile(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_profile.test", "name", "Profile1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_profile.test", "type", "switching"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_profile.test", "templates.0.type", "cli.templates"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_profile.test", "templates.0.template_id", "f8297e86-35b0-486c-8752-6169aa5eb43c"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcNetworkProfileConfig(),
+				Config: testAccDataSourceCcNetworkProfilePrerequisitesConfig + testAccDataSourceCcNetworkProfileConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -48,6 +47,30 @@ func TestAccDataSourceCcNetworkProfile(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceCcNetworkProfilePrerequisitesConfig = `
+resource "catalystcenter_project" "test" {
+  name        = "Project1"
+}
+
+resource "catalystcenter_template" "test" {
+  project_id  = catalystcenter_project.test.id
+  name        = "Template1"
+  description = "My description"
+  device_types = [
+    {
+      product_family = "Switches and Hubs"
+      product_series = "Cisco Catalyst 9300 Series Switches"
+      product_type   = "Cisco Catalyst 9300 Switch"
+    }
+  ]
+  language         = "JINJA"
+  software_type    = "IOS-XE"
+  software_variant = "XE"
+  software_version = "16.12.1a"
+  template_content = "hostname SW1"
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
@@ -57,7 +80,9 @@ func testAccDataSourceCcNetworkProfileConfig() string {
 	config += `	type = "switching"` + "\n"
 	config += `	templates = [{` + "\n"
 	config += `	  type = "cli.templates"` + "\n"
-	config += `	  template_id = "f8297e86-35b0-486c-8752-6169aa5eb43c"` + "\n"
+	config += `	  attributes = [{` + "\n"
+	config += `		template_id = catalystcenter_template.test.id` + "\n"
+	config += `	}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
