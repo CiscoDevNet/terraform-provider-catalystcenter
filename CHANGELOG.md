@@ -1,3 +1,7 @@
+## 0.1.7 (unreleased)
+
+- BREAKING CHANGE: Add support for multiple CLI and Day0 templates to `catalystcenter_network_profile` resource and data source
+
 ## 0.1.6
 
 - Fix issue with unencoded characters ending up in parts of the URL
