@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcVirtualNetworkIPPool(t *testing.T) {
+	if os.Getenv("VIRTUAL_NETWORK_IP_POOL") == "" {
+		t.Skip("skipping test, set environment variable VIRTUAL_NETWORK_IP_POOL")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "layer2_only", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_virtual_network_ip_pool.test", "vlan_id", "401"))

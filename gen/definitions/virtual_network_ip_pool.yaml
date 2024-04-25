@@ -8,6 +8,7 @@ skip_minimum_test: true
 res_description: Manages IP Pool in SDA Virtual Network
 # added time sleep for GET, POST, DELETE operations to fix API issues, and updated Create, Read and Delete functions manually
 doc_category: SDA
+test_tags: [VIRTUAL_NETWORK_IP_POOL]
 attributes:
   - model_name: virtualNetworkName
     requires_replace: true
