@@ -2,6 +2,7 @@
 name: Template Version
 rest_endpoint: /dna/intent/api/v1/template-programmer/template/version
 no_delete: true
+id_from_attribute: true
 doc_category: Templates
 attributes:
   - model_name: templateId
