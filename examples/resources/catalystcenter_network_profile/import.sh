@@ -1,1 +1,1 @@
-terraform import catalystcenter_network_profile.example "Profile1"
+terraform import catalystcenter_network_profile.example "<id>"

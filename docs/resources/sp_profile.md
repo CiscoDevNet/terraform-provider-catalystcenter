@@ -39,5 +39,5 @@ resource "catalystcenter_sp_profile" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_sp_profile.example "Profile1"
+terraform import catalystcenter_sp_profile.example "<name>"
 ```

@@ -1,1 +1,1 @@
-terraform import catalystcenter_ip_pool.example "MyPool1"
+terraform import catalystcenter_ip_pool.example "<name>,<id>"

@@ -14,7 +14,7 @@ This data source can read the Credentials SNMPv3.
 
 ```terraform
 data "catalystcenter_credentials_snmpv3" "example" {
-  id = "My SNMPv3 credentials"
+  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 

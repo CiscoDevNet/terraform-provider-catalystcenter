@@ -37,5 +37,5 @@ resource "catalystcenter_fabric_authentication_profile" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_fabric_authentication_profile.example "Global/Site1"
+terraform import catalystcenter_fabric_authentication_profile.example "<site_name_hierarchy>"
 ```

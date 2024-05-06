@@ -103,12 +103,12 @@ func (data *IPPool) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Gateway = types.StringNull()
 	}
-	if value := res.Get("response.dhcpServerIps"); value.Exists() {
+	if value := res.Get("response.dhcpServerIps"); value.Exists() && len(value.Array()) > 0 {
 		data.DhcpServerIps = helpers.GetStringSet(value.Array())
 	} else {
 		data.DhcpServerIps = types.SetNull(types.StringType)
 	}
-	if value := res.Get("response.dnsServerIps"); value.Exists() {
+	if value := res.Get("response.dnsServerIps"); value.Exists() && len(value.Array()) > 0 {
 		data.DnsServerIps = helpers.GetStringSet(value.Array())
 	} else {
 		data.DnsServerIps = types.SetNull(types.StringType)

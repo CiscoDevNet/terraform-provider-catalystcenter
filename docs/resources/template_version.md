@@ -39,5 +39,5 @@ resource "catalystcenter_template_version" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_template_version.example "12345678-1234-1234-1234-123456789012"
+terraform import catalystcenter_template_version.example "<template_id>,<id>"
 ```

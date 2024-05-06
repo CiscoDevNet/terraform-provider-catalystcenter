@@ -91,5 +91,5 @@ resource "catalystcenter_wireless_rf_profile" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_wireless_rf_profile.example "RF_Profile_1"
+terraform import catalystcenter_wireless_rf_profile.example "<name>"
 ```

@@ -105,5 +105,5 @@ Optional:
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_device.example "1.2.3.4"
+terraform import catalystcenter_device.example "<id>"
 ```

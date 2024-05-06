@@ -223,7 +223,7 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.IpAddress = types.StringNull()
 	}
-	if value := res.Get("merakiOrgId"); value.Exists() {
+	if value := res.Get("merakiOrgId"); value.Exists() && len(value.Array()) > 0 {
 		data.MerakiOrgIds = helpers.GetStringSet(value.Array())
 	} else {
 		data.MerakiOrgIds = types.SetNull(types.StringType)
@@ -524,6 +524,9 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.HttpUserName.IsNull() {
+		return false
+	}
+	if !data.IpAddress.IsNull() {
 		return false
 	}
 	if !data.MerakiOrgIds.IsNull() {

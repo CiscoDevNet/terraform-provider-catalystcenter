@@ -163,6 +163,9 @@ func (data *IPPoolReservation) updateFromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *IPPoolReservation) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Name.IsNull() {
+		return false
+	}
 	if !data.Type.IsNull() {
 		return false
 	}

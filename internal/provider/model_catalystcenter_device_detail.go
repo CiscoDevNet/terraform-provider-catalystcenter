@@ -221,7 +221,7 @@ func (data *DeviceDetail) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.SoftwareVersion = types.StringNull()
 	}
-	if value := res.Get("response.tagIdList"); value.Exists() {
+	if value := res.Get("response.tagIdList"); value.Exists() && len(value.Array()) > 0 {
 		data.TagIdList = helpers.GetStringSet(value.Array())
 	} else {
 		data.TagIdList = types.SetNull(types.StringType)

@@ -48,6 +48,7 @@ attribute:
   data_path: str(required=False) # Path to the attribute in the model structure
   response_data_path: str(required=False) # Path to the attribute in the response model structure
   id: bool(required=False) # Set to true if the attribute is part of the ID
+  match_id: bool(required=False) # Set to true if the attribute is used to identify the right element using "get_from_all" option
   reference: bool(required=False) # Set to true if the attribute is a reference being used in the path (URL) of the REST endpoint
   requires_replace: bool(required=False) # Set to true if the attribute update forces Terraform to destroy/recreate the entire resource
   query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for GET, POST and PUT requests

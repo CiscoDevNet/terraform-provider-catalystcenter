@@ -102,7 +102,7 @@ func (data *User) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Email = types.StringNull()
 	}
-	if value := res.Get("roleList"); value.Exists() {
+	if value := res.Get("roleList"); value.Exists() && len(value.Array()) > 0 {
 		data.RoleIds = helpers.GetStringSet(value.Array())
 	} else {
 		data.RoleIds = types.SetNull(types.StringType)

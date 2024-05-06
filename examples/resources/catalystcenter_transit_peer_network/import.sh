@@ -1,1 +1,1 @@
-terraform import catalystcenter_transit_peer_network.example "TRANSIT_1"
+terraform import catalystcenter_transit_peer_network.example "<transit_peer_network_name>"

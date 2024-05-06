@@ -14,7 +14,7 @@ This data source can read the Credentials CLI.
 
 ```terraform
 data "catalystcenter_credentials_cli" "example" {
-  id = "My CLI credentials"
+  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 

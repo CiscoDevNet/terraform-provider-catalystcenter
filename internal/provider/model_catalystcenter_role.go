@@ -104,7 +104,7 @@ func (data *Role) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Type = types.StringNull()
 			}
-			if cValue := v.Get("operations"); cValue.Exists() {
+			if cValue := v.Get("operations"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.Operations = helpers.GetStringSet(cValue.Array())
 			} else {
 				item.Operations = types.SetNull(types.StringType)

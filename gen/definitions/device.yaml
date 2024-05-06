@@ -48,7 +48,7 @@ attributes:
     response_model_name: managementIpAddress
     tf_name: ip_address
     type: String
-    id: true
+    match_id: true
     mandatory: true
     description: IP address of the device
     example: 1.2.3.4

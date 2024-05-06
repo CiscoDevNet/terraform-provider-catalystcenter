@@ -185,12 +185,12 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.DiscoveryType = types.StringNull()
 	}
-	if value := res.Get("enablePasswordList"); value.Exists() {
+	if value := res.Get("enablePasswordList"); value.Exists() && len(value.Array()) > 0 {
 		data.EnablePasswordList = helpers.GetStringSet(value.Array())
 	} else {
 		data.EnablePasswordList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("globalCredentialIdList"); value.Exists() {
+	if value := res.Get("globalCredentialIdList"); value.Exists() && len(value.Array()) > 0 {
 		data.GlobalCredentialIdList = helpers.GetStringSet(value.Array())
 	} else {
 		data.GlobalCredentialIdList = types.SetNull(types.StringType)
@@ -210,7 +210,7 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.IpAddressList = types.StringNull()
 	}
-	if value := res.Get("ipFilterList"); value.Exists() {
+	if value := res.Get("ipFilterList"); value.Exists() && len(value.Array()) > 0 {
 		data.IpFilterList = helpers.GetStringSet(value.Array())
 	} else {
 		data.IpFilterList = types.SetNull(types.StringType)
@@ -230,7 +230,7 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.NetconfPort = types.StringNull()
 	}
-	if value := res.Get("passwordList"); value.Exists() {
+	if value := res.Get("passwordList"); value.Exists() && len(value.Array()) > 0 {
 		data.PasswordList = helpers.GetStringSet(value.Array())
 	} else {
 		data.PasswordList = types.SetNull(types.StringType)
@@ -290,7 +290,7 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.SnmpUserName = types.StringNull()
 	}
-	if value := res.Get("userNameList"); value.Exists() {
+	if value := res.Get("userNameList"); value.Exists() && len(value.Array()) > 0 {
 		data.UserNameList = helpers.GetStringSet(value.Array())
 	} else {
 		data.UserNameList = types.SetNull(types.StringType)
@@ -452,6 +452,9 @@ func (data *Discovery) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.LldpLevel.IsNull() {
+		return false
+	}
+	if !data.Name.IsNull() {
 		return false
 	}
 	if !data.NetconfPort.IsNull() {

@@ -80,7 +80,7 @@ func (data *ImageActivation) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.DeviceUuid = types.StringNull()
 	}
-	if value := res.Get("0.imageUuidList"); value.Exists() {
+	if value := res.Get("0.imageUuidList"); value.Exists() && len(value.Array()) > 0 {
 		data.ImageUuidList = helpers.GetStringSet(value.Array())
 	} else {
 		data.ImageUuidList = types.SetNull(types.StringType)

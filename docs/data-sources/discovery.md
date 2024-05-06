@@ -14,7 +14,7 @@ This data source retrieves information about a discovery. It is however not inte
 
 ```terraform
 data "catalystcenter_discovery" "example" {
-  id = "disco42"
+  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 

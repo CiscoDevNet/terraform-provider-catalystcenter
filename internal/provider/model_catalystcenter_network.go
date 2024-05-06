@@ -150,7 +150,7 @@ func (data Network) toBody(ctx context.Context, state Network) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.#(key=\"dhcp.server\").value"); value.Exists() {
+	if value := res.Get("response.#(key=\"dhcp.server\").value"); value.Exists() && len(value.Array()) > 0 {
 		data.DhcpServers = helpers.GetStringSet(value.Array())
 	} else {
 		data.DhcpServers = types.SetNull(types.StringType)
@@ -170,7 +170,7 @@ func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.SecondaryDnsServer = types.StringNull()
 	}
-	if value := res.Get("response.#(key=\"syslog.server\").value.0.ipAddresses"); value.Exists() {
+	if value := res.Get("response.#(key=\"syslog.server\").value.0.ipAddresses"); value.Exists() && len(value.Array()) > 0 {
 		data.SyslogServers = helpers.GetStringSet(value.Array())
 	} else {
 		data.SyslogServers = types.SetNull(types.StringType)
@@ -180,7 +180,7 @@ func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.CatalystCenterAsSyslogServer = types.BoolNull()
 	}
-	if value := res.Get("response.#(key=\"snmp.trap.receiver\").value.0.ipAddresses"); value.Exists() {
+	if value := res.Get("response.#(key=\"snmp.trap.receiver\").value.0.ipAddresses"); value.Exists() && len(value.Array()) > 0 {
 		data.SnmpServers = helpers.GetStringSet(value.Array())
 	} else {
 		data.SnmpServers = types.SetNull(types.StringType)
@@ -200,7 +200,7 @@ func (data *Network) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.NetflowCollectorPort = types.Int64Null()
 	}
-	if value := res.Get("response.#(key=\"ntp.server\").value"); value.Exists() {
+	if value := res.Get("response.#(key=\"ntp.server\").value"); value.Exists() && len(value.Array()) > 0 {
 		data.NtpServers = helpers.GetStringSet(value.Array())
 	} else {
 		data.NtpServers = types.SetNull(types.StringType)

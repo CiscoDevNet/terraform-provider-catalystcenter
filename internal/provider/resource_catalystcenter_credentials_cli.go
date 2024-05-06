@@ -245,11 +245,10 @@ func (r *CredentialsCLIResource) ImportState(ctx context.Context, req resource.I
 	if len(idParts) != 1 || idParts[0] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <description>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("description"), idParts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
 }
 

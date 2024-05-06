@@ -69,5 +69,5 @@ resource "catalystcenter_ip_pool_reservation" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_ip_pool_reservation.example "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1,MyRes1"
+terraform import catalystcenter_ip_pool_reservation.example "<site_id>,<id>"
 ```

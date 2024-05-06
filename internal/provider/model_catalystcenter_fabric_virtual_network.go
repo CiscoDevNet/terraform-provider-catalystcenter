@@ -85,7 +85,7 @@ func (data *FabricVirtualNetwork) fromBody(ctx context.Context, res gjson.Result
 	} else {
 		data.IsGuest = types.BoolValue(false)
 	}
-	if value := res.Get("scalableGroupNames"); value.Exists() {
+	if value := res.Get("scalableGroupNames"); value.Exists() && len(value.Array()) > 0 {
 		data.SgNames = helpers.GetStringSet(value.Array())
 	} else {
 		data.SgNames = types.SetNull(types.StringType)

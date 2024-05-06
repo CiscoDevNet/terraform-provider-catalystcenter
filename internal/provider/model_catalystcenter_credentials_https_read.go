@@ -113,6 +113,9 @@ func (data *CredentialsHTTPSRead) updateFromBody(ctx context.Context, res gjson.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *CredentialsHTTPSRead) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Description.IsNull() {
+		return false
+	}
 	if !data.Username.IsNull() {
 		return false
 	}

@@ -1,1 +1,1 @@
-terraform import catalystcenter_fabric_authentication_profile.example "Global/Site1"
+terraform import catalystcenter_fabric_authentication_profile.example "<site_name_hierarchy>"

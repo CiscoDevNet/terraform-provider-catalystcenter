@@ -80,7 +80,7 @@ attributes:
   - model_name: name
     type: String
     mandatory: true
-    id: true
+    match_id: true
     description: A name of the discovery.
     test_value: '"testing terraform provider"'
     example: disco42

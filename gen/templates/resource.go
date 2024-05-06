@@ -101,7 +101,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if eq .Type "Map"}}
 				ElementType:         types.StringType,
 				{{- end}}
-				{{- if or .Id .Reference .Mandatory}}
+				{{- if or .Id .MatchId .Reference .Mandatory}}
 				Required:            true,
 				{{- else}}
 				Optional:            true,
@@ -138,7 +138,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and (len .DefaultValue) (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference .RequiresReplace}}
+				{{- if or .Id .MatchId .Reference .RequiresReplace}}
 				PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 					{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 				},
@@ -443,7 +443,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
 	{{- /* Check if we need an extra query to resolve the id */}}
 	{{- else if and .IdFromQueryPath (not .IdFromAttribute)}}
-		{{- $id := getId .Attributes}}
+		{{- $id := getMatchId .Attributes}}
 	params = ""
 		{{- if hasQueryParam .Attributes}}
 		{{- $queryParam := getQueryParam .Attributes}}
@@ -620,22 +620,19 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 {{- if not .NoImport}}
 func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	{{- if importAttributes .Attributes}}
+	{{- if importAttributes .}}
 	idParts := strings.Split(req.ID, ",")
 
-    if len(idParts) != {{len (importAttributes .Attributes)}}{{range $index, $attr := importAttributes .Attributes}} || idParts[{{$index}}] == ""{{end}} {
+    if len(idParts) != {{len (importAttributes .)}}{{range $index, $attr := importAttributes .}} || idParts[{{$index}}] == ""{{end}} {
         resp.Diagnostics.AddError(
             "Unexpected Import Identifier",
-            fmt.Sprintf("Expected import identifier with format: {{range $index, $attr := importAttributes .Attributes}}{{if $index}},{{end}}<{{$attr.TfName}}>{{end}}. Got: %q", req.ID),
+            fmt.Sprintf("Expected import identifier with format: {{range $index, $attr := importAttributes .}}{{if $index}},{{end}}<{{$attr.TfName}}>{{end}}. Got: %q", req.ID),
         )
         return
     }
 
-	{{- range $index, $attr := importAttributes .Attributes}}
+	{{- range $index, $attr := importAttributes .}}
     resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("{{$attr.TfName}}"), idParts[{{$index}}])...)
-	{{- if $attr.Id}}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[{{$index}}])...)
-	{{- end}}
 	{{- end}}
 	{{- else}}
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)

@@ -44,5 +44,5 @@ resource "catalystcenter_credentials_https_read" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_credentials_https_read.example "My HTTPS read credentials"
+terraform import catalystcenter_credentials_https_read.example "<id>"
 ```

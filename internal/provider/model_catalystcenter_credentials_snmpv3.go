@@ -145,6 +145,9 @@ func (data *CredentialsSNMPv3) updateFromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *CredentialsSNMPv3) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Description.IsNull() {
+		return false
+	}
 	if !data.Username.IsNull() {
 		return false
 	}

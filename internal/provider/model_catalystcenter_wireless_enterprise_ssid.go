@@ -262,7 +262,7 @@ func (data *WirelessEnterpriseSSID) fromBody(ctx context.Context, res gjson.Resu
 	} else {
 		data.MfpClientProtection = types.StringNull()
 	}
-	if value := res.Get("0.ssidDetails.0.nasOptions"); value.Exists() {
+	if value := res.Get("0.ssidDetails.0.nasOptions"); value.Exists() && len(value.Array()) > 0 {
 		data.NasOptions = helpers.GetStringSet(value.Array())
 	} else {
 		data.NasOptions = types.SetNull(types.StringType)

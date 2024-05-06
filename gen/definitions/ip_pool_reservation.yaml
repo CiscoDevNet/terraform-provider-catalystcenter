@@ -16,7 +16,7 @@ attributes:
     response_model_name: groupName
     response_data_path: groupName
     type: String
-    id: true
+    match_id: true
     description: The name of the IP pool reservation
     example: MyRes1
   - model_name: type

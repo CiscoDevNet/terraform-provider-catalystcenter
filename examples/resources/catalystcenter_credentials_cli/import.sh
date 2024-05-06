@@ -1,1 +1,1 @@
-terraform import catalystcenter_credentials_cli.example "My CLI credentials"
+terraform import catalystcenter_credentials_cli.example "<id>"

@@ -236,7 +236,6 @@ func (r *FabricAuthenticationProfileResource) ImportState(ctx context.Context, r
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_name_hierarchy"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
 }
 
 // End of section. //template:end import

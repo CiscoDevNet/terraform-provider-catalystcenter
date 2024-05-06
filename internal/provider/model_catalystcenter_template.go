@@ -335,7 +335,7 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Required = types.BoolNull()
 			}
-			if cValue := v.Get("selection.defaultSelectedValues"); cValue.Exists() {
+			if cValue := v.Get("selection.defaultSelectedValues"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.DefaultSelectedValues = helpers.GetStringSet(cValue.Array())
 			} else {
 				item.DefaultSelectedValues = types.SetNull(types.StringType)

@@ -14,7 +14,7 @@ This data source can read the Network Profile.
 
 ```terraform
 data "catalystcenter_network_profile" "example" {
-  id = "Profile1"
+  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 

@@ -129,7 +129,7 @@ func (data *LANAutomation) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.PeerDeviceManagementIpAddress = types.StringNull()
 	}
-	if value := res.Get("response.0.primaryDeviceInterfaceNames"); value.Exists() {
+	if value := res.Get("response.0.primaryDeviceInterfaceNames"); value.Exists() && len(value.Array()) > 0 {
 		data.PrimaryDeviceInterfaceNames = helpers.GetStringSet(value.Array())
 	} else {
 		data.PrimaryDeviceInterfaceNames = types.SetNull(types.StringType)

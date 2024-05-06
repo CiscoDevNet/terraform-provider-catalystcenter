@@ -70,5 +70,5 @@ Required:
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_network_profile.example "Profile1"
+terraform import catalystcenter_network_profile.example "<id>"
 ```

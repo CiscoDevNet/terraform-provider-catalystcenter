@@ -118,7 +118,7 @@ type YamlConfig struct {
 	IdFromQueryPath          string                `yaml:"id_from_query_path"`
 	IdFromQueryPathAttribute string                `yaml:"id_from_query_path_attribute"`
 	IdQueryParam             string                `yaml:"id_query_param"`
-	IdFromAttribute          string                `yaml:"id_from_attribute"`
+	IdFromAttribute          bool                  `yaml:"id_from_attribute"`
 	PutIdIncludePath         string                `yaml:"put_id_include_path"`
 	PutIdQueryParam          string                `yaml:"put_id_query_param"`
 	PutNoId                  bool                  `yaml:"put_no_id"`
@@ -145,6 +145,7 @@ type YamlConfigAttribute struct {
 	DataPath          string                `yaml:"data_path"`
 	ResponseDataPath  string                `yaml:"response_data_path"`
 	Id                bool                  `yaml:"id"`
+	MatchId           bool                  `yaml:"match_id"`
 	Reference         bool                  `yaml:"reference"`
 	RequiresReplace   bool                  `yaml:"requires_replace"`
 	QueryParam        bool                  `yaml:"query_param"`
@@ -268,6 +269,16 @@ func GetId(attributes []YamlConfigAttribute) YamlConfigAttribute {
 	return YamlConfigAttribute{}
 }
 
+// Templating helper function to return the "match_id" attribute
+func GetMatchId(attributes []YamlConfigAttribute) YamlConfigAttribute {
+	for _, attr := range attributes {
+		if attr.MatchId {
+			return attr
+		}
+	}
+	return YamlConfigAttribute{}
+}
+
 // Templating helper function to return the query parameter attribute
 func GetQueryParam(attributes []YamlConfigAttribute) YamlConfigAttribute {
 	for _, attr := range attributes {
@@ -385,35 +396,22 @@ func IsNestedSet(attribute YamlConfigAttribute) bool {
 }
 
 // Templating helper function to return a list of import attributes
-func ImportAttributes(attributes []YamlConfigAttribute) []YamlConfigAttribute {
+func ImportAttributes(config YamlConfig) []YamlConfigAttribute {
 	r := []YamlConfigAttribute{}
-	for _, attr := range attributes {
+	for _, attr := range config.Attributes {
 		if attr.Reference || attr.QueryParam || attr.Id {
 			r = append(r, attr)
 		}
 	}
+	if !config.IdFromAttribute {
+		attr := YamlConfigAttribute{}
+		attr.ModelName = "id"
+		attr.TfName = "id"
+		attr.Type = "String"
+		attr.Example = "4b0b7a80-44c0-4bf2-bab5-fc24b4e0a17e"
+		r = append(r, attr)
+	}
 	return r
-}
-
-// Templating helper function to return number of import parts
-func ImportParts(attributes []YamlConfigAttribute) int {
-	parts := 1
-	for _, attr := range attributes {
-		if attr.Reference || attr.QueryParam || attr.Id {
-			parts += 1
-		}
-	}
-	return parts
-}
-
-// Templating helper function to return true if resource requires multi-part import
-func HasImportParts(attributes []YamlConfigAttribute) bool {
-	for _, attr := range attributes {
-		if attr.Reference || attr.QueryParam || attr.Id {
-			return true
-		}
-	}
-	return false
 }
 
 // Templating helper function to subtract one number from another
@@ -434,6 +432,7 @@ var functions = template.FuncMap{
 	"hasReference":          HasReference,
 	"hasQueryParam":         HasQueryParam,
 	"getId":                 GetId,
+	"getMatchId":            GetMatchId,
 	"getQueryParam":         GetQueryParam,
 	"hasDataSourceQuery":    HasDataSourceQuery,
 	"firstPathElement":      FirstPathElement,
@@ -447,8 +446,6 @@ var functions = template.FuncMap{
 	"isNestedListSet":       IsNestedListSet,
 	"isNestedList":          IsNestedList,
 	"isNestedSet":           IsNestedSet,
-	"importParts":           ImportParts,
-	"hasImportParts":        HasImportParts,
 	"importAttributes":      ImportAttributes,
 	"subtract":              Subtract,
 }
