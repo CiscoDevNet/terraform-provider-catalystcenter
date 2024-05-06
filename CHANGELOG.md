@@ -1,3 +1,7 @@
+## 0.1.8 (unreleased)
+
+- Fix import functionality for resources with multipart keys, e.g. `catalystcenter_ip_pool_reservation`
+
 ## 0.1.7
 
 - BREAKING CHANGE: Add support for multiple CLI and Day0 templates to `catalystcenter_network_profile` resource and data source

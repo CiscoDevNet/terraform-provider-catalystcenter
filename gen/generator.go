@@ -384,6 +384,43 @@ func IsNestedSet(attribute YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return a list of import attributes
+func ImportAttributes(attributes []YamlConfigAttribute) []YamlConfigAttribute {
+	r := []YamlConfigAttribute{}
+	for _, attr := range attributes {
+		if attr.Reference || attr.QueryParam || attr.Id {
+			r = append(r, attr)
+		}
+	}
+	return r
+}
+
+// Templating helper function to return number of import parts
+func ImportParts(attributes []YamlConfigAttribute) int {
+	parts := 1
+	for _, attr := range attributes {
+		if attr.Reference || attr.QueryParam || attr.Id {
+			parts += 1
+		}
+	}
+	return parts
+}
+
+// Templating helper function to return true if resource requires multi-part import
+func HasImportParts(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.Reference || attr.QueryParam || attr.Id {
+			return true
+		}
+	}
+	return false
+}
+
+// Templating helper function to subtract one number from another
+func Subtract(a, b int) int {
+	return a - b
+}
+
 // Map of templating functions
 var functions = template.FuncMap{
 	"toGoName":              ToGoName,
@@ -410,6 +447,10 @@ var functions = template.FuncMap{
 	"isNestedListSet":       IsNestedListSet,
 	"isNestedList":          IsNestedList,
 	"isNestedSet":           IsNestedSet,
+	"importParts":           ImportParts,
+	"hasImportParts":        HasImportParts,
+	"importAttributes":      ImportAttributes,
+	"subtract":              Subtract,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {
