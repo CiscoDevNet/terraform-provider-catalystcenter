@@ -69,6 +69,11 @@ func (data Network) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Network) toBody(ctx context.Context, state Network) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.DhcpServers.IsNull() {
 		var values []string
 		data.DhcpServers.ElementsAs(ctx, &values, false)

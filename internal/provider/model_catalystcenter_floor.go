@@ -52,6 +52,11 @@ func (data Floor) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Floor) toBody(ctx context.Context, state Floor) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	body, _ = sjson.Set(body, "type", "floor")
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "site.floor.name", data.Name.ValueString())

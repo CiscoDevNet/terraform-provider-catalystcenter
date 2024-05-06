@@ -151,11 +151,14 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	{{- else}}
 	body := ""
 	{{- end}}
-	{{- if .PutIdIncludePath}}
+	put := false
 	if state.Id.ValueString() != "" {
+		put = true
+		{{- if .PutIdIncludePath}}
 		body, _ = sjson.Set(body, "{{ .PutIdIncludePath}}", state.Id.ValueString())
+		{{- end}}
 	}
-	{{- end}}
+	_ = put
 	{{- range .Attributes}}
 	{{- if .Value}}
 	{{- if .ValueCondition}}
@@ -167,7 +170,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	{{- end}}
 	{{- else if and (not .Reference) (not .QueryParam)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-	if !data.{{toGoName .TfName}}.IsNull() {{if .WriteChangesOnly}}&& data.{{toGoName .TfName}} != state.{{toGoName .TfName}}{{end}} {
+	if !data.{{toGoName .TfName}}.IsNull() {{if .ExcludeFromPut}}&& put == false{{end}} {
 		body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", data.{{toGoName .TfName}}.Value{{.Type}}())
 	}
 	{{- else if isListSet .}}

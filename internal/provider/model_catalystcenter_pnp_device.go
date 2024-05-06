@@ -49,6 +49,11 @@ func (data PnPDevice) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data PnPDevice) toBody(ctx context.Context, state PnPDevice) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.SerialNumber.IsNull() {
 		body, _ = sjson.Set(body, "deviceInfo.serialNumber", data.SerialNumber.ValueString())
 	}

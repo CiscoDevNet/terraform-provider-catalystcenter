@@ -53,9 +53,12 @@ func (data IPPool) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data IPPool) toBody(ctx context.Context, state IPPool) string {
 	body := ""
+	put := false
 	if state.Id.ValueString() != "" {
+		put = true
 		body, _ = sjson.Set(body, "settings.ippool.0.id", state.Id.ValueString())
 	}
+	_ = put
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "settings.ippool.0.ipPoolName", data.Name.ValueString())
 	}

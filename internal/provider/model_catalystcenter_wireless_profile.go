@@ -65,6 +65,11 @@ func (data WirelessProfile) getPathDelete() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data WirelessProfile) toBody(ctx context.Context, state WirelessProfile) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "profileDetails.name", data.Name.ValueString())
 	}

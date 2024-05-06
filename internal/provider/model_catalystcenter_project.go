@@ -47,9 +47,12 @@ func (data Project) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Project) toBody(ctx context.Context, state Project) string {
 	body := ""
+	put := false
 	if state.Id.ValueString() != "" {
+		put = true
 		body, _ = sjson.Set(body, "id", state.Id.ValueString())
 	}
+	_ = put
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}

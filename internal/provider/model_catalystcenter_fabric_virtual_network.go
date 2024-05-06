@@ -54,6 +54,11 @@ func (data FabricVirtualNetwork) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data FabricVirtualNetwork) toBody(ctx context.Context, state FabricVirtualNetwork) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.VirtualNetworkName.IsNull() {
 		body, _ = sjson.Set(body, "virtualNetworkName", data.VirtualNetworkName.ValueString())
 	}

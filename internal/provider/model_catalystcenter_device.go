@@ -78,6 +78,11 @@ func (data Device) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Device) toBody(ctx context.Context, state Device) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.CliTransport.IsNull() {
 		body, _ = sjson.Set(body, "cliTransport", data.CliTransport.ValueString())
 	}

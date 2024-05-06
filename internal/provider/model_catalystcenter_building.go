@@ -51,6 +51,11 @@ func (data Building) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Building) toBody(ctx context.Context, state Building) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	body, _ = sjson.Set(body, "type", "building")
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "site.building.name", data.Name.ValueString())

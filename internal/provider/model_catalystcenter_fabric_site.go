@@ -51,6 +51,11 @@ func (data FabricSite) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data FabricSite) toBody(ctx context.Context, state FabricSite) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.SiteNameHierarchy.IsNull() {
 		body, _ = sjson.Set(body, "siteNameHierarchy", data.SiteNameHierarchy.ValueString())
 	}

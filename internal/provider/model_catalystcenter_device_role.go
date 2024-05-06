@@ -48,6 +48,11 @@ func (data DeviceRole) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data DeviceRole) toBody(ctx context.Context, state DeviceRole) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.DeviceId.IsNull() {
 		body, _ = sjson.Set(body, "id", data.DeviceId.ValueString())
 	}

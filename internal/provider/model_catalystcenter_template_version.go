@@ -51,6 +51,11 @@ func (data TemplateVersion) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data TemplateVersion) toBody(ctx context.Context, state TemplateVersion) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.TemplateId.IsNull() {
 		body, _ = sjson.Set(body, "templateId", data.TemplateId.ValueString())
 	}

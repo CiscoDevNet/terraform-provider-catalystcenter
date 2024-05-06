@@ -64,6 +64,11 @@ func (data PnPDeviceClaimSite) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data PnPDeviceClaimSite) toBody(ctx context.Context, state PnPDeviceClaimSite) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.DeviceId.IsNull() {
 		body, _ = sjson.Set(body, "deviceId", data.DeviceId.ValueString())
 	}

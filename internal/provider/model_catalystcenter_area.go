@@ -47,6 +47,11 @@ func (data Area) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Area) toBody(ctx context.Context, state Area) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	body, _ = sjson.Set(body, "type", "area")
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "site.area.name", data.Name.ValueString())

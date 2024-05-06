@@ -59,6 +59,11 @@ func (data Image) getPathDelete() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Image) toBody(ctx context.Context, state Image) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.ThirdPartyApplicationType.IsNull() {
 		body, _ = sjson.Set(body, "thirdPartyApplicationType", data.ThirdPartyApplicationType.ValueString())
 	}

@@ -56,6 +56,11 @@ func (data SPProfile) getPathDelete() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data SPProfile) toBody(ctx context.Context, state SPProfile) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "settings.qos.0.profileName", data.Name.ValueString())
 	}

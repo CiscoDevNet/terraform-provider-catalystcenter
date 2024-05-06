@@ -47,6 +47,11 @@ func (data ImageDistribution) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data ImageDistribution) toBody(ctx context.Context, state ImageDistribution) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.DeviceUuid.IsNull() {
 		body, _ = sjson.Set(body, "0.deviceUuid", data.DeviceUuid.ValueString())
 	}

@@ -66,25 +66,30 @@ func (data IPPoolReservation) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data IPPoolReservation) toBody(ctx context.Context, state IPPoolReservation) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
-	if !data.Type.IsNull() && data.Type != state.Type {
+	if !data.Type.IsNull() && put == false {
 		body, _ = sjson.Set(body, "type", data.Type.ValueString())
 	}
 	if !data.Ipv6AddressSpace.IsNull() {
 		body, _ = sjson.Set(body, "ipv6AddressSpace", data.Ipv6AddressSpace.ValueBool())
 	}
-	if !data.Ipv4GlobalPool.IsNull() && data.Ipv4GlobalPool != state.Ipv4GlobalPool {
+	if !data.Ipv4GlobalPool.IsNull() && put == false {
 		body, _ = sjson.Set(body, "ipv4GlobalPool", data.Ipv4GlobalPool.ValueString())
 	}
-	if !data.Ipv4Prefix.IsNull() && data.Ipv4Prefix != state.Ipv4Prefix {
+	if !data.Ipv4Prefix.IsNull() && put == false {
 		body, _ = sjson.Set(body, "ipv4Prefix", data.Ipv4Prefix.ValueBool())
 	}
-	if !data.Ipv4PrefixLength.IsNull() && data.Ipv4PrefixLength != state.Ipv4PrefixLength {
+	if !data.Ipv4PrefixLength.IsNull() && put == false {
 		body, _ = sjson.Set(body, "ipv4PrefixLength", data.Ipv4PrefixLength.ValueInt64())
 	}
-	if !data.Ipv4Subnet.IsNull() && data.Ipv4Subnet != state.Ipv4Subnet {
+	if !data.Ipv4Subnet.IsNull() && put == false {
 		body, _ = sjson.Set(body, "ipv4Subnet", data.Ipv4Subnet.ValueString())
 	}
 	if !data.Ipv4Gateway.IsNull() {

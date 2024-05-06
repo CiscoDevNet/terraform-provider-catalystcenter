@@ -49,9 +49,12 @@ func (data CredentialsHTTPSWrite) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data CredentialsHTTPSWrite) toBody(ctx context.Context, state CredentialsHTTPSWrite) string {
 	body := ""
+	put := false
 	if state.Id.ValueString() != "" {
+		put = true
 		body, _ = sjson.Set(body, "httpsWrite.0.id", state.Id.ValueString())
 	}
+	_ = put
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "httpsWrite.0.description", data.Description.ValueString())
 	}

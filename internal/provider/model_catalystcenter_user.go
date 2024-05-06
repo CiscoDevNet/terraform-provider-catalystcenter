@@ -52,9 +52,12 @@ func (data User) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data User) toBody(ctx context.Context, state User) string {
 	body := ""
+	put := false
 	if state.Id.ValueString() != "" {
+		put = true
 		body, _ = sjson.Set(body, "userId", state.Id.ValueString())
 	}
+	_ = put
 	if !data.FirstName.IsNull() {
 		body, _ = sjson.Set(body, "firstName", data.FirstName.ValueString())
 	}

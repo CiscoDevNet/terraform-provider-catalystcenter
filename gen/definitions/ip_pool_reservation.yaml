@@ -23,7 +23,7 @@ attributes:
     type: String
     mandatory: true
     write_only: true
-    write_changes_only: true
+    exclude_from_put: true
     enum_values: [Generic, LAN, WAN, management, service]
     description: The type of the IP pool reservation
     example: Generic
@@ -37,27 +37,27 @@ attributes:
     type: String
     mandatory: true
     write_only: true
-    write_changes_only: true
+    exclude_from_put: true
     description: "IPv4 Global pool address with cidr, example: 175.175.0.0/16"
     example: 172.32.0.0/16
   - model_name: ipv4Prefix
     type: Bool
     mandatory: true
     write_only: true
-    write_changes_only: true
+    exclude_from_put: true
     description: If this value is `true`, the `ipv4_prefix_length` attribute must be provided, if it is `false`, the `ipv4_total_host` attribute must be provided
     example: true
   - model_name: ipv4PrefixLength
     type: Int64
     write_only: true
-    write_changes_only: true
+    exclude_from_put: true
     description: The IPv4 prefix length is required when `ipv4_prefix` value is `true`.
     example: 24
     minimum_test_value: 24
   - model_name: ipv4Subnet
     type: String
     write_only: true
-    write_changes_only: true
+    exclude_from_put: true
     description: The IPv4 subnet
     example: 172.32.1.0
     minimum_test_value: '"172.32.1.0"'

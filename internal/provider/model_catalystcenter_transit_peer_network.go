@@ -59,6 +59,11 @@ func (data TransitPeerNetwork) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data TransitPeerNetwork) toBody(ctx context.Context, state TransitPeerNetwork) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.TransitPeerNetworkName.IsNull() {
 		body, _ = sjson.Set(body, "transitPeerNetworkName", data.TransitPeerNetworkName.ValueString())
 	}

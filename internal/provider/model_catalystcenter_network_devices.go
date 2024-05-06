@@ -49,7 +49,6 @@ func (data NetworkDevices) getPath() string {
 
 // End of section. //template:end getPath
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data NetworkDevices) toBody(ctx context.Context, state NetworkDevices) string {
 	body := ""
 	if len(data.Devices) > 0 {
@@ -82,8 +81,6 @@ func (data NetworkDevices) toBody(ctx context.Context, state NetworkDevices) str
 	}
 	return body
 }
-
-// End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {

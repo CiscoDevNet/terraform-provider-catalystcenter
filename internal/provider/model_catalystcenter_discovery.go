@@ -74,6 +74,11 @@ func (data Discovery) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Discovery) toBody(ctx context.Context, state Discovery) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.CdpLevel.IsNull() {
 		body, _ = sjson.Set(body, "cdpLevel", data.CdpLevel.ValueInt64())
 	}

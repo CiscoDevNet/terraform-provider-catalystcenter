@@ -57,6 +57,11 @@ func (data NetworkProfile) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data NetworkProfile) toBody(ctx context.Context, state NetworkProfile) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}

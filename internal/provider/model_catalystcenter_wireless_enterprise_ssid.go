@@ -82,6 +82,11 @@ func (data WirelessEnterpriseSSID) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data WirelessEnterpriseSSID) toBody(ctx context.Context, state WirelessEnterpriseSSID) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}

@@ -47,9 +47,12 @@ func (data CredentialsSNMPv2Read) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data CredentialsSNMPv2Read) toBody(ctx context.Context, state CredentialsSNMPv2Read) string {
 	body := ""
+	put := false
 	if state.Id.ValueString() != "" {
+		put = true
 		body, _ = sjson.Set(body, "snmpV2cRead.0.id", state.Id.ValueString())
 	}
+	_ = put
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "snmpV2cRead.0.description", data.Description.ValueString())
 	}

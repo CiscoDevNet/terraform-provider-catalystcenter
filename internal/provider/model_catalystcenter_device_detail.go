@@ -70,6 +70,11 @@ func (data DeviceDetail) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data DeviceDetail) toBody(ctx context.Context, state DeviceDetail) string {
 	body := ""
+	put := false
+	if state.Id.ValueString() != "" {
+		put = true
+	}
+	_ = put
 	if !data.PolicyTagName.IsNull() {
 		body, _ = sjson.Set(body, "response.policyTagName", data.PolicyTagName.ValueString())
 	}
