@@ -275,6 +275,7 @@ func (r *TransitPeerNetworkResource) ImportState(ctx context.Context, req resour
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("transit_peer_network_name"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
 }
 
 // End of section. //template:end import

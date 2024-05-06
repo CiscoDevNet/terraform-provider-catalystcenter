@@ -248,6 +248,7 @@ func (r *FabricVirtualNetworkResource) ImportState(ctx context.Context, req reso
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("virtual_network_name"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
 }
 
 // End of section. //template:end import

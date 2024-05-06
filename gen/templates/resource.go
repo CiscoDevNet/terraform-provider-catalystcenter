@@ -631,8 +631,12 @@ func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resou
         return
     }
 
+	{{- $config := .}}
 	{{- range $index, $attr := importAttributes .}}
     resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("{{$attr.TfName}}"), idParts[{{$index}}])...)
+	{{- if and $config.IdFromAttribute $attr.Id}}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[{{$index}}])...)
+	{{- end}}
 	{{- end}}
 	{{- else}}
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
