@@ -325,13 +325,13 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 		data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 	}
 	{{- else if eq .Type "Map"}}
-	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() {
+	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && len(value.Map()) > 0 {
 		data.{{toGoName .TfName}} = helpers.GetStringMap(value.Map())
 	} else {
 		data.{{toGoName .TfName}} = types.MapNull(types.StringType)
 	}
 	{{- else if isNestedListSet .}}
-	if value := res{{if .ModelName}}.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"){{end}}; value.Exists() {
+	if value := res{{if .ModelName}}.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"){{end}}; value.Exists() && len(value.Array()) > 0 {
 		data.{{toGoName .TfName}} = make([]{{$name}}{{toGoName .TfName}}, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := {{$name}}{{toGoName .TfName}}{}
@@ -355,13 +355,13 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 				item.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 			}
 			{{- else if eq .Type "Map"}}
-			if cValue := v.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cValue.Exists() {
+			if cValue := v.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cValue.Exists() && len(cValue.Map()) > 0 {
 				item.{{toGoName .TfName}} = helpers.GetStringMap(cValue.Map())
 			} else {
 				item.{{toGoName .TfName}} = types.MapNull(types.StringType)
 			}
 			{{- else if isNestedListSet .}}
-			if cValue := v.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cValue.Exists() {
+			if cValue := v.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.{{toGoName .TfName}} = make([]{{$name}}{{$cname}}{{toGoName .TfName}}, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
 					cItem := {{$name}}{{$cname}}{{toGoName .TfName}}{}
@@ -384,13 +384,13 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 						cItem.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 					}
 					{{- else if eq .Type "Map"}}
-					if ccValue := cv.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); ccValue.Exists() {
+					if ccValue := cv.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); ccValue.Exists() && len(ccValue.Map()) > 0 {
 						cItem.{{toGoName .TfName}} = helpers.GetStringMap(ccValue.Map())
 					} else {
 						cItem.{{toGoName .TfName}} = types.MapNull(types.StringType)
 					}
 					{{- else if isNestedListSet .}}
-					if ccValue := cv.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); ccValue.Exists() {
+					if ccValue := cv.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); ccValue.Exists() && len(ccValue.Array()) > 0 {
 						cItem.{{toGoName .TfName}} = make([]{{$name}}{{$cname}}{{$ccname}}{{toGoName .TfName}}, 0)
 						ccValue.ForEach(func(cck, ccv gjson.Result) bool {
 							ccItem := {{$name}}{{$cname}}{{$ccname}}{{toGoName .TfName}}{}
@@ -413,7 +413,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 								ccItem.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 							}
 							{{- else if eq .Type "Map"}}
-							if cccValue := ccv.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cccValue.Exists() {
+							if cccValue := ccv.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cccValue.Exists() && len(cccValue.Map()) > 0 {
 								ccItem.{{toGoName .TfName}} = helpers.GetStringMap(cccValue.Map())
 							} else {
 								ccItem.{{toGoName .TfName}} = types.MapNull(types.StringType)

@@ -218,7 +218,7 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Description = types.StringNull()
 	}
-	if value := res.Get("deviceTypes"); value.Exists() {
+	if value := res.Get("deviceTypes"); value.Exists() && len(value.Array()) > 0 {
 		data.DeviceTypes = make([]TemplateDeviceTypes, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := TemplateDeviceTypes{}
@@ -266,7 +266,7 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.TemplateContent = types.StringNull()
 	}
-	if value := res.Get("templateParams"); value.Exists() {
+	if value := res.Get("templateParams"); value.Exists() && len(value.Array()) > 0 {
 		data.TemplateParams = make([]TemplateTemplateParams, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := TemplateTemplateParams{}
@@ -315,7 +315,7 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.ParameterName = types.StringNull()
 			}
-			if cValue := v.Get("range"); cValue.Exists() {
+			if cValue := v.Get("range"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.Ranges = make([]TemplateTemplateParamsRanges, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
 					cItem := TemplateTemplateParamsRanges{}
@@ -348,7 +348,7 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.SelectionType = types.StringNull()
 			}
-			if cValue := v.Get("selection.selectionValues"); cValue.Exists() {
+			if cValue := v.Get("selection.selectionValues"); cValue.Exists() && len(cValue.Map()) > 0 {
 				item.SelectionValues = helpers.GetStringMap(cValue.Map())
 			} else {
 				item.SelectionValues = types.MapNull(types.StringType)

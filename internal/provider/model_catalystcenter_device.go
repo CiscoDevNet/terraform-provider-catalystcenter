@@ -308,7 +308,7 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Type = types.StringNull()
 	}
-	if value := res.Get("updateMgmtIPaddressList"); value.Exists() {
+	if value := res.Get("updateMgmtIPaddressList"); value.Exists() && len(value.Array()) > 0 {
 		data.UpdateMgmtIpAddresses = make([]DeviceUpdateMgmtIpAddresses, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := DeviceUpdateMgmtIpAddresses{}

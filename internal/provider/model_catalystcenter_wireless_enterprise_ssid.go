@@ -297,7 +297,7 @@ func (data *WirelessEnterpriseSSID) fromBody(ctx context.Context, res gjson.Resu
 	} else {
 		data.ProtectedManagementFrame = types.StringNull()
 	}
-	if value := res.Get("0.ssidDetails.0.multiPSKSettings"); value.Exists() {
+	if value := res.Get("0.ssidDetails.0.multiPSKSettings"); value.Exists() && len(value.Array()) > 0 {
 		data.MultiPskSettings = make([]WirelessEnterpriseSSIDMultiPskSettings, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := WirelessEnterpriseSSIDMultiPskSettings{}

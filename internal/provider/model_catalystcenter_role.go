@@ -98,7 +98,7 @@ func (data *Role) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Description = types.StringNull()
 	}
-	if value := res.Get("resourceTypes"); value.Exists() {
+	if value := res.Get("resourceTypes"); value.Exists() && len(value.Array()) > 0 {
 		data.ResourceTypes = make([]RoleResourceTypes, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := RoleResourceTypes{}

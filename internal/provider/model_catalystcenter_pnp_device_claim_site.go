@@ -158,7 +158,7 @@ func (data *PnPDeviceClaimSite) fromBody(ctx context.Context, res gjson.Result) 
 	} else {
 		data.ConfigId = types.StringNull()
 	}
-	if value := res.Get("configInfo.configParameters"); value.Exists() {
+	if value := res.Get("configInfo.configParameters"); value.Exists() && len(value.Array()) > 0 {
 		data.ConfigParameters = make([]PnPDeviceClaimSiteConfigParameters, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := PnPDeviceClaimSiteConfigParameters{}

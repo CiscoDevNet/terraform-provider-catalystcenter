@@ -203,7 +203,7 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.MainTemplateId = types.StringNull()
 	}
-	if value := res.Get("memberTemplateDeploymentInfo"); value.Exists() {
+	if value := res.Get("memberTemplateDeploymentInfo"); value.Exists() && len(value.Array()) > 0 {
 		data.MemberTemplateDeploymentInfo = make([]DeployTemplateMemberTemplateDeploymentInfo, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := DeployTemplateMemberTemplateDeploymentInfo{}
@@ -227,7 +227,7 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.MainTemplateId = types.StringNull()
 			}
-			if cValue := v.Get("targetInfo"); cValue.Exists() {
+			if cValue := v.Get("targetInfo"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.TargetInfo = make([]DeployTemplateMemberTemplateDeploymentInfoTargetInfo, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
 					cItem := DeployTemplateMemberTemplateDeploymentInfoTargetInfo{}
@@ -241,12 +241,12 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 					} else {
 						cItem.Id = types.StringNull()
 					}
-					if ccValue := cv.Get("params"); ccValue.Exists() {
+					if ccValue := cv.Get("params"); ccValue.Exists() && len(ccValue.Map()) > 0 {
 						cItem.Params = helpers.GetStringMap(ccValue.Map())
 					} else {
 						cItem.Params = types.MapNull(types.StringType)
 					}
-					if ccValue := cv.Get("resourceParams"); ccValue.Exists() {
+					if ccValue := cv.Get("resourceParams"); ccValue.Exists() && len(ccValue.Map()) > 0 {
 						cItem.ResourceParams = helpers.GetStringMap(ccValue.Map())
 					} else {
 						cItem.ResourceParams = types.MapNull(types.StringType)
@@ -269,7 +269,7 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 			return true
 		})
 	}
-	if value := res.Get("targetInfo"); value.Exists() {
+	if value := res.Get("targetInfo"); value.Exists() && len(value.Array()) > 0 {
 		data.TargetInfo = make([]DeployTemplateTargetInfo, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := DeployTemplateTargetInfo{}
@@ -283,12 +283,12 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Id = types.StringNull()
 			}
-			if cValue := v.Get("params"); cValue.Exists() {
+			if cValue := v.Get("params"); cValue.Exists() && len(cValue.Map()) > 0 {
 				item.Params = helpers.GetStringMap(cValue.Map())
 			} else {
 				item.Params = types.MapNull(types.StringType)
 			}
-			if cValue := v.Get("resourceParams"); cValue.Exists() {
+			if cValue := v.Get("resourceParams"); cValue.Exists() && len(cValue.Map()) > 0 {
 				item.ResourceParams = helpers.GetStringMap(cValue.Map())
 			} else {
 				item.ResourceParams = types.MapNull(types.StringType)

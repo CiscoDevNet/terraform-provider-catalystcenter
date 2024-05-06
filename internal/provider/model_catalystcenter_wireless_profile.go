@@ -113,7 +113,7 @@ func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("0.profileDetails.ssidDetails"); value.Exists() {
+	if value := res.Get("0.profileDetails.ssidDetails"); value.Exists() && len(value.Array()) > 0 {
 		data.SsidDetails = make([]WirelessProfileSsidDetails, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := WirelessProfileSsidDetails{}

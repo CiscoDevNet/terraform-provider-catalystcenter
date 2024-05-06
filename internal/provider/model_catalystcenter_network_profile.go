@@ -106,7 +106,7 @@ func (data *NetworkProfile) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Type = types.StringNull()
 	}
-	if value := res.Get("response.profileAttributes"); value.Exists() {
+	if value := res.Get("response.profileAttributes"); value.Exists() && len(value.Array()) > 0 {
 		data.Templates = make([]NetworkProfileTemplates, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := NetworkProfileTemplates{}
@@ -115,7 +115,7 @@ func (data *NetworkProfile) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Type = types.StringNull()
 			}
-			if cValue := v.Get("attribs"); cValue.Exists() {
+			if cValue := v.Get("attribs"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.Attributes = make([]NetworkProfileTemplatesAttributes, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
 					cItem := NetworkProfileTemplatesAttributes{}

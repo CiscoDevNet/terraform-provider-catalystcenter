@@ -139,7 +139,7 @@ func (data *LANAutomation) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.PrimaryDeviceInterfaceNames = types.SetNull(types.StringType)
 	}
-	if value := res.Get("response.0.ipPools"); value.Exists() {
+	if value := res.Get("response.0.ipPools"); value.Exists() && len(value.Array()) > 0 {
 		data.IpPools = make([]LANAutomationIpPools, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := LANAutomationIpPools{}

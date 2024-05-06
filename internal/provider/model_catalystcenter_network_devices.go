@@ -84,7 +84,7 @@ func (data NetworkDevices) toBody(ctx context.Context, state NetworkDevices) str
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response"); value.Exists() {
+	if value := res.Get("response"); value.Exists() && len(value.Array()) > 0 {
 		data.Devices = make([]NetworkDevicesDevices, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := NetworkDevicesDevices{}
