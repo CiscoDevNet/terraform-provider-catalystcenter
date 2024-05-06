@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.1.8 (unreleased)
+## 0.1.8
 
 - Fix import functionality for resources with multipart keys, e.g. `catalystcenter_ip_pool_reservation`
 
