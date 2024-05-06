@@ -149,9 +149,6 @@ func (data *AssignCredentials) updateFromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AssignCredentials) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.SiteId.IsNull() {
-		return false
-	}
 	if !data.CliId.IsNull() {
 		return false
 	}

@@ -454,9 +454,6 @@ func (data *Discovery) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.LldpLevel.IsNull() {
 		return false
 	}
-	if !data.Name.IsNull() {
-		return false
-	}
 	if !data.NetconfPort.IsNull() {
 		return false
 	}

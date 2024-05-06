@@ -96,9 +96,6 @@ func (data *FabricAuthenticationProfile) updateFromBody(ctx context.Context, res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *FabricAuthenticationProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.SiteNameHierarchy.IsNull() {
-		return false
-	}
 	if !data.AuthenticationTemplateName.IsNull() {
 		return false
 	}

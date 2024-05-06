@@ -85,9 +85,6 @@ func (data *CredentialsSNMPv2Write) updateFromBody(ctx context.Context, res gjso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *CredentialsSNMPv2Write) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Description.IsNull() {
-		return false
-	}
 	if !data.WriteCommunity.IsNull() {
 		return false
 	}

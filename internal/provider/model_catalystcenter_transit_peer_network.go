@@ -143,9 +143,6 @@ func (data *TransitPeerNetwork) updateFromBody(ctx context.Context, res gjson.Re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *TransitPeerNetwork) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.TransitPeerNetworkName.IsNull() {
-		return false
-	}
 	if !data.TransitPeerNetworkType.IsNull() {
 		return false
 	}

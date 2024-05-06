@@ -282,9 +282,6 @@ func (data *Network) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Network) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.SiteId.IsNull() {
-		return false
-	}
 	if !data.DhcpServers.IsNull() {
 		return false
 	}

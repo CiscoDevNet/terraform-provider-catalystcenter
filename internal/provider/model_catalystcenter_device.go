@@ -526,9 +526,6 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.HttpUserName.IsNull() {
 		return false
 	}
-	if !data.IpAddress.IsNull() {
-		return false
-	}
 	if !data.MerakiOrgIds.IsNull() {
 		return false
 	}

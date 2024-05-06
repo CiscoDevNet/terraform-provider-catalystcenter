@@ -563,9 +563,6 @@ func (data *Template) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Template) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.ProjectId.IsNull() {
-		return false
-	}
 	if !data.Name.IsNull() {
 		return false
 	}

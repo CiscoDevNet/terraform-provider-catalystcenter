@@ -207,9 +207,6 @@ func (data *NetworkProfile) updateFromBody(ctx context.Context, res gjson.Result
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *NetworkProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Name.IsNull() {
-		return false
-	}
 	if !data.Type.IsNull() {
 		return false
 	}

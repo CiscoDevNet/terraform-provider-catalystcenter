@@ -127,9 +127,6 @@ func (data *FabricVirtualNetwork) updateFromBody(ctx context.Context, res gjson.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *FabricVirtualNetwork) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.VirtualNetworkName.IsNull() {
-		return false
-	}
 	if !data.IsGuest.IsNull() {
 		return false
 	}

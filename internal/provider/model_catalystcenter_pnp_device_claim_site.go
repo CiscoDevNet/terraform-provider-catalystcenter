@@ -317,9 +317,6 @@ func (data *PnPDeviceClaimSite) updateFromBody(ctx context.Context, res gjson.Re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *PnPDeviceClaimSite) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.DeviceId.IsNull() {
-		return false
-	}
 	if !data.SiteId.IsNull() {
 		return false
 	}

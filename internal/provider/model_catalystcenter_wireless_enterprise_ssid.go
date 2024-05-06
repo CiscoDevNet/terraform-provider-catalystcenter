@@ -486,9 +486,6 @@ func (data *WirelessEnterpriseSSID) updateFromBody(ctx context.Context, res gjso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *WirelessEnterpriseSSID) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Name.IsNull() {
-		return false
-	}
 	if !data.SecurityLevel.IsNull() {
 		return false
 	}

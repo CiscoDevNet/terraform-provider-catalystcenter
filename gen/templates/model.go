@@ -624,7 +624,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) bool {
 	{{- range .Attributes}}
-	{{- if not .Value}}
+	{{- if and (not .Value) (not .Id) (not .Reference) (not .QueryParam)}}
 	{{- if isNestedListSet .}}
 	if len(data.{{toGoName .TfName}}) > 0 {
 		return false

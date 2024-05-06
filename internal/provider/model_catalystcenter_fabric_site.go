@@ -86,9 +86,6 @@ func (data *FabricSite) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *FabricSite) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.SiteNameHierarchy.IsNull() {
-		return false
-	}
 	if !data.FabricType.IsNull() {
 		return false
 	}

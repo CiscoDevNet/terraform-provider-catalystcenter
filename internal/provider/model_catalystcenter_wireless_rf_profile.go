@@ -516,9 +516,6 @@ func (data *WirelessRFProfile) updateFromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *WirelessRFProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Name.IsNull() {
-		return false
-	}
 	if !data.DefaultRfProfile.IsNull() {
 		return false
 	}

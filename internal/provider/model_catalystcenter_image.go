@@ -132,9 +132,6 @@ func (data *Image) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.SourcePath.IsNull() {
 		return false
 	}
-	if !data.Name.IsNull() {
-		return false
-	}
 	if !data.ThirdPartyVendor.IsNull() {
 		return false
 	}

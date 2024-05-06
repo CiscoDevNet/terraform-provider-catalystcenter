@@ -86,9 +86,6 @@ func (data *TemplateVersion) updateFromBody(ctx context.Context, res gjson.Resul
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *TemplateVersion) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.TemplateId.IsNull() {
-		return false
-	}
 	if !data.Comments.IsNull() {
 		return false
 	}

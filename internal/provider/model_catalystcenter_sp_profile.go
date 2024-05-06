@@ -114,9 +114,6 @@ func (data *SPProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *SPProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Name.IsNull() {
-		return false
-	}
 	if !data.Model.IsNull() {
 		return false
 	}

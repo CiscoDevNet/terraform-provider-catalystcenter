@@ -71,12 +71,6 @@ func (data *AssociateSiteToNetworkProfile) updateFromBody(ctx context.Context, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AssociateSiteToNetworkProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.NetworkProfileId.IsNull() {
-		return false
-	}
-	if !data.SiteId.IsNull() {
-		return false
-	}
 	return true
 }
 

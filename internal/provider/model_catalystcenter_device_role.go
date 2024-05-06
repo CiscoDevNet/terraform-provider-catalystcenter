@@ -106,9 +106,6 @@ func (data *DeviceRole) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *DeviceRole) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.DeviceId.IsNull() {
-		return false
-	}
 	if !data.Role.IsNull() {
 		return false
 	}
