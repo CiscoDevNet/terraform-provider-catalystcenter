@@ -154,10 +154,10 @@ func (r *WirelessEnterpriseSSIDResource) Schema(ctx context.Context, req resourc
 				Optional:            true,
 			},
 			"mfp_client_protection": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Mfp Client Protection").AddStringEnumDescription("voicedata", "data").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Mfp Client Protection").AddStringEnumDescription("Optional", "Disabled", "Required").String,
 				Optional:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("voicedata", "data"),
+					stringvalidator.OneOf("Optional", "Disabled", "Required"),
 				},
 			},
 			"nas_options": schema.SetAttribute{

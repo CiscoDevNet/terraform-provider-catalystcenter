@@ -16,6 +16,6 @@ resource "catalystcenter_wireless_enterprise_ssid" "example" {
   basic_service_set_client_idle_timeout = 300
   enable_directed_multicast_service     = true
   enable_neighbor_list                  = true
-  mfp_client_protection                 = "data"
+  mfp_client_protection                 = "Optional"
   protected_management_frame            = "Required"
 }

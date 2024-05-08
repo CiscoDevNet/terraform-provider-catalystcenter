@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.9 (unreleased)
+
+- Fix `mfp_client_protection` attribute validation of `catalystcenter_wireless_enterprise_ssid` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/74)
+
 ## 0.1.8
 
 - Fix import functionality for resources with multipart keys, e.g. `catalystcenter_ip_pool_reservation`

@@ -44,7 +44,7 @@ func TestAccDataSourceCcWirelessEnterpriseSSID(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "basic_service_set_client_idle_timeout", "300"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "enable_directed_multicast_service", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "enable_neighbor_list", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "mfp_client_protection", "data"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "mfp_client_protection", "Optional"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_enterprise_ssid.test", "protected_management_frame", "Required"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -83,7 +83,7 @@ func testAccDataSourceCcWirelessEnterpriseSSIDConfig() string {
 	config += `	basic_service_set_client_idle_timeout = 300` + "\n"
 	config += `	enable_directed_multicast_service = true` + "\n"
 	config += `	enable_neighbor_list = true` + "\n"
-	config += `	mfp_client_protection = "data"` + "\n"
+	config += `	mfp_client_protection = "Optional"` + "\n"
 	config += `	protected_management_frame = "Required"` + "\n"
 	config += `}` + "\n"
 

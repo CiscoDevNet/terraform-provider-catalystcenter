@@ -121,9 +121,10 @@ attributes:
     description: Mfp Client Protection
     response_data_path: 0.ssidDetails.0.mfpClientProtection
     enum_values:
-      - voicedata
-      - data
-    example: data
+      - Optional
+      - Disabled
+      - Required
+    example: Optional
   - model_name: nasOptions
     type: Set
     element_type: String

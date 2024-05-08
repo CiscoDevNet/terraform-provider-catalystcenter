@@ -31,7 +31,7 @@ resource "catalystcenter_wireless_enterprise_ssid" "example" {
   basic_service_set_client_idle_timeout = 300
   enable_directed_multicast_service     = true
   enable_neighbor_list                  = true
-  mfp_client_protection                 = "data"
+  mfp_client_protection                 = "Optional"
   protected_management_frame            = "Required"
 }
 ```
@@ -63,7 +63,7 @@ resource "catalystcenter_wireless_enterprise_ssid" "example" {
 - `fast_transition` (String) Fast Transition
   - Choices: `Adaptive`, `Enable`, `Disable`
 - `mfp_client_protection` (String) Mfp Client Protection
-  - Choices: `voicedata`, `data`
+  - Choices: `Optional`, `Disabled`, `Required`
 - `multi_psk_settings` (Attributes List) Multi PSK Settings (Only applicable for SSID with PERSONAL auth type and PSK) (see [below for nested schema](#nestedatt--multi_psk_settings))
 - `nas_options` (Set of String) Nas Options
 - `passphrase` (String) Passphrase
