@@ -149,6 +149,7 @@ type YamlConfigAttribute struct {
 	Reference         bool                  `yaml:"reference"`
 	RequiresReplace   bool                  `yaml:"requires_replace"`
 	QueryParam        bool                  `yaml:"query_param"`
+	DeleteQueryParam  bool                  `yaml:"delete_query_param"`
 	DataSourceQuery   bool                  `yaml:"data_source_query"`
 	Mandatory         bool                  `yaml:"mandatory"`
 	WriteOnly         bool                  `yaml:"write_only"`
@@ -259,6 +260,16 @@ func HasQueryParam(attributes []YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return true if delete query parameters included in attributes
+func HasDeleteQueryParam(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.DeleteQueryParam {
+			return true
+		}
+	}
+	return false
+}
+
 // Templating helper function to return the ID attribute
 func GetId(attributes []YamlConfigAttribute) YamlConfigAttribute {
 	for _, attr := range attributes {
@@ -283,6 +294,16 @@ func GetMatchId(attributes []YamlConfigAttribute) YamlConfigAttribute {
 func GetQueryParam(attributes []YamlConfigAttribute) YamlConfigAttribute {
 	for _, attr := range attributes {
 		if attr.QueryParam {
+			return attr
+		}
+	}
+	return YamlConfigAttribute{}
+}
+
+// Templating helper function to return the delete query parameter attribute
+func GetDeleteQueryParam(attributes []YamlConfigAttribute) YamlConfigAttribute {
+	for _, attr := range attributes {
+		if attr.DeleteQueryParam {
 			return attr
 		}
 	}
@@ -431,9 +452,11 @@ var functions = template.FuncMap{
 	"hasId":                 HasId,
 	"hasReference":          HasReference,
 	"hasQueryParam":         HasQueryParam,
+	"hasDeleteQueryParam":   HasDeleteQueryParam,
 	"getId":                 GetId,
 	"getMatchId":            GetMatchId,
 	"getQueryParam":         GetQueryParam,
+	"getDeleteQueryParam":   GetDeleteQueryParam,
 	"hasDataSourceQuery":    HasDataSourceQuery,
 	"firstPathElement":      FirstPathElement,
 	"remainingPathElements": RemainingPathElements,

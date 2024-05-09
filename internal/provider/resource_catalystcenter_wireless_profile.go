@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -40,6 +41,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &WirelessProfileResource{}
+var _ resource.ResourceWithImportState = &WirelessProfileResource{}
 
 func NewWirelessProfileResource() resource.Resource {
 	return &WirelessProfileResource{}
@@ -56,7 +58,7 @@ func (r *WirelessProfileResource) Metadata(ctx context.Context, req resource.Met
 func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource creates a wireless network profile. To associate a wireless network profile with a site, use the `catalystcenter_associate_site_to_network_profile` resource.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource creates a wireless network profile. To associate a wireless network profile with a site, use the `catalystcenter_associate_site_to_network_profile` resource. This resource only works with 2.3.7.5+ DNAC version").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -123,6 +125,7 @@ func (r *WirelessProfileResource) Configure(_ context.Context, req resource.Conf
 
 // End of section. //template:end model
 
+// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan WirelessProfile
 
@@ -145,13 +148,12 @@ func (r *WirelessProfileResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 	params = ""
-	params += "?profileName=" + url.QueryEscape(plan.Name.ValueString())
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("0.profileDetails.instanceUuid").String())
+	plan.Id = types.StringValue(res.Get("response.#(wirelessProfileName==\"" + plan.Name.ValueString() + "\").instanceUuid").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -159,6 +161,9 @@ func (r *WirelessProfileResource) Create(ctx context.Context, req resource.Creat
 	resp.Diagnostics.Append(diags...)
 }
 
+// End of section. //template:end create
+
+// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state WirelessProfile
 
@@ -172,7 +177,6 @@ func (r *WirelessProfileResource) Read(ctx context.Context, req resource.ReadReq
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?profileName=" + url.QueryEscape(state.Name.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -181,6 +185,7 @@ func (r *WirelessProfileResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
+	res = res.Get("response.#(instanceUuid==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -194,6 +199,8 @@ func (r *WirelessProfileResource) Read(ctx context.Context, req resource.ReadReq
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -230,6 +237,7 @@ func (r *WirelessProfileResource) Update(ctx context.Context, req resource.Updat
 
 // End of section. //template:end update
 
+// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state WirelessProfile
 
@@ -241,7 +249,7 @@ func (r *WirelessProfileResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPathDelete() + "/" + url.QueryEscape(state.Name.ValueString()))
+	res, err := r.client.Delete(state.getPath() + "?name=" + url.QueryEscape(state.Name.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -252,5 +260,20 @@ func (r *WirelessProfileResource) Delete(ctx context.Context, req resource.Delet
 	resp.State.RemoveResource(ctx)
 }
 
+// End of section. //template:end delete
+
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *WirelessProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 1 || idParts[0] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
+}
+
 // End of section. //template:end import
