@@ -1,32 +1,29 @@
 ---
 name: Wireless Profile
-rest_endpoint: /dna/intent/api/v1/wireless/profile
-delete_rest_endpoint: /dna/intent/api/v1/wireless-profile
-id_query_param: profileName
-id_from_query_path: 0.profileDetails
-no_import: true
+rest_endpoint: /dna/intent/api/v2/wireless/profile
+id_from_query_path: response
+get_from_all: true
 no_data_source: true
 put_no_id: true
 id_from_query_path_attribute: instanceUuid
 res_description:
   'This resource creates a wireless network profile. To associate a wireless network profile with a site, use 
-  the `catalystcenter_associate_site_to_network_profile` resource.'
+  the `catalystcenter_associate_site_to_network_profile` resource. This resource only works with 2.3.7.5+ DNAC version'
 doc_category: Wireless
 attributes:
-  - model_name: name
-    response_data_path: 0.profileDetails.name
-    data_path: profileDetails
+  - model_name: wirelessProfileName
+    tf_name: name
+    delete_query_param: true
     type: String
-    id: true
+    match_id: true
     description: Profile Name
     example: Wireless_Profile_1
   - model_name: ssidDetails
-    response_data_path: 0.profileDetails.ssidDetails
-    data_path: profileDetails
     type: List
     description: SSID Details
     attributes:
-      - model_name: name
+      - model_name: ssidName
+        tf_name: name
         type: String
         id: true
         description: Ssid Name

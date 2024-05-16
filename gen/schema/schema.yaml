@@ -52,6 +52,7 @@ attribute:
   reference: bool(required=False) # Set to true if the attribute is a reference being used in the path (URL) of the REST endpoint
   requires_replace: bool(required=False) # Set to true if the attribute update forces Terraform to destroy/recreate the entire resource
   query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for GET, POST and PUT requests
+  delete_query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for DELETE request. Note: This cannot be used in conjunction with 'delete_id_query_param'
   data_source_query: bool(required=False) # Set to true if the attribute is an alternative query parameter for the data source
   mandatory: bool(required=False) # Set to true if the attribute is mandatory
   write_only: bool(required=False) # Set to true if the attribute is write-only, meaning we cannot read the value

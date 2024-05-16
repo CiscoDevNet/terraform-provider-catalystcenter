@@ -2,6 +2,8 @@
 
 - Fix `mfp_client_protection` attribute validation of `catalystcenter_wireless_enterprise_ssid` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/74)
 
+- BREAKING CHANGE: Modified `wireless_profile` resource to use /dna/intent/api/v2/wireless/profile API endpoint, this resource only works with DNAC version 2.3.7.5+
+
 ## 0.1.8
 
 - Fix import functionality for resources with multipart keys, e.g. `catalystcenter_ip_pool_reservation`

@@ -44,6 +44,10 @@ func TestAccCcWirelessProfile(t *testing.T) {
 		Config: testAccCcWirelessProfilePrerequisitesConfig + testAccCcWirelessProfileConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
+	steps = append(steps, resource.TestStep{
+		ResourceName: "catalystcenter_wireless_profile.test",
+		ImportState:  true,
+	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

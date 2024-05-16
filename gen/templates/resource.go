@@ -602,6 +602,9 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}})
 	{{- else if .DeleteIdQueryParam}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()))
+	{{- else if hasDeleteQueryParam .Attributes}}
+		{{- $deleteQueryParam := getDeleteQueryParam .Attributes}}
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{$deleteQueryParam.TfName}}=" + url.QueryEscape(state.{{toGoName $deleteQueryParam.TfName}}.Value{{$deleteQueryParam.Type}}()))
 	{{- else}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()))
 	{{- end}}
