@@ -30,7 +30,6 @@ attributes:
   - model_name: ipv6AddressSpace
     type: Bool
     write_only: true
-    default_value: false
     description: If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required
     example: false
   - model_name: ipv4GlobalPool
