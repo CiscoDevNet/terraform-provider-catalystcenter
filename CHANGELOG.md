@@ -1,4 +1,4 @@
-## 0.1.9 (unreleased)
+## 0.1.9
 
 - Fix `mfp_client_protection` attribute validation of `catalystcenter_wireless_enterprise_ssid` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/74)
 - BREAKING CHANGE: Modified `wireless_profile` resource to use `/dna/intent/api/v2/wireless/profile` API endpoint, this resource now only works with Catalyst Center version 2.3.7.5+
