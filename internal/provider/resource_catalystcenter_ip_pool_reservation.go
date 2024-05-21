@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -90,10 +89,8 @@ func (r *IPPoolReservationResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"ipv6_address_space": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"ipv4_global_pool": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("IPv4 Global pool address with cidr, example: 175.175.0.0/16").String,

@@ -48,7 +48,6 @@ resource "catalystcenter_ip_pool_reservation" "example" {
 - `ipv4_subnet` (String) The IPv4 subnet
 - `ipv4_total_host` (Number) The total number of IPv4 hosts
 - `ipv6_address_space` (Boolean) If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required
-  - Default value: `false`
 - `ipv6_dhcp_servers` (Set of String) List of DHCP Server IPs
 - `ipv6_dns_servers` (Set of String) List of DNS Server IPs
 - `ipv6_gateway` (String) The gateway for the IP pool reservation
