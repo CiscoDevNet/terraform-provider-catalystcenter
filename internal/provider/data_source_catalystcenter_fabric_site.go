@@ -23,14 +23,10 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
-	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -63,27 +59,21 @@ func (d *FabricSiteDataSource) Schema(ctx context.Context, req datasource.Schema
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Optional:            true,
+				Required:            true,
+			},
+			"site_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the network hierarchy",
 				Computed:            true,
 			},
-			"site_name_hierarchy": schema.StringAttribute{
-				MarkdownDescription: "Existing site name hierarchy available at global level",
-				Optional:            true,
+			"authentication_profile_name": schema.StringAttribute{
+				MarkdownDescription: "Authentication profile used for this fabric",
 				Computed:            true,
 			},
-			"fabric_type": schema.StringAttribute{
-				MarkdownDescription: "Type of SD-Access Fabric",
+			"pub_sub_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Specifies whether this fabric site will use pub/sub for control nodes",
 				Computed:            true,
 			},
 		},
-	}
-}
-func (d *FabricSiteDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
-	return []datasource.ConfigValidator{
-		datasourcevalidator.ExactlyOneOf(
-			path.MatchRoot("id"),
-			path.MatchRoot("site_name_hierarchy"),
-		),
 	}
 }
 
@@ -109,31 +99,9 @@ func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.SiteNameHierarchy.IsNull() {
-		res, err := d.client.Get(config.getPath())
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
-			return
-		}
-		if value := res; len(value.Array()) > 0 {
-			value.ForEach(func(k, v gjson.Result) bool {
-				if config.SiteNameHierarchy.ValueString() == v.Get("siteNameHierarchy").String() {
-					config.Id = types.StringValue(v.Get("id").String())
-					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with siteNameHierarchy '%v', id: %v", config.Id.String(), config.SiteNameHierarchy.ValueString(), config.Id.String()))
-					return false
-				}
-				return true
-			})
-		}
-
-		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with siteNameHierarchy: %s", config.SiteNameHierarchy.ValueString()))
-			return
-		}
-	}
 
 	params := ""
-	params += "?siteNameHierarchy=" + url.QueryEscape(config.Id.ValueString())
+	params += "/" + url.QueryEscape(config.Id.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

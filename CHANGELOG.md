@@ -1,3 +1,9 @@
+## 0.1.10 (unreleased)
+
+- Add `catalystcenter_anycast_gateway` resource and data source
+
+- BREAKING CHANGE: Modified `fabric_site` resource to use `/dna/intent/api/v1/sda/fabricSites` API endpoint, this resource now only works with Catalyst Center version 2.3.7.5+
+
 ## 0.1.9
 
 - Fix `mfp_client_protection` attribute validation of `catalystcenter_wireless_enterprise_ssid` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/74)

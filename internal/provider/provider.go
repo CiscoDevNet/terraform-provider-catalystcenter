@@ -238,6 +238,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 
 func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		NewAnycastGatewayResource,
 		NewAreaResource,
 		NewAssignCredentialsResource,
 		NewAssociateSiteToNetworkProfileResource,
@@ -285,6 +286,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewNetworkDevicesDataSource, // manually maintained
+		NewAnycastGatewayDataSource,
 		NewAreaDataSource,
 		NewAssignCredentialsDataSource,
 		NewBuildingDataSource,
