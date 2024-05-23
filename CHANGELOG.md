@@ -1,3 +1,7 @@
+## 0.1.10 (unreleased)
+
+- Add `catalystcenter_fabric_device` resource
+
 ## 0.1.9
 
 - Fix `mfp_client_protection` attribute validation of `catalystcenter_wireless_enterprise_ssid` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/74)

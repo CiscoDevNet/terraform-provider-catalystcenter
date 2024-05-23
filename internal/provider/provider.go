@@ -253,6 +253,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewDeviceRoleResource,
 		NewDiscoveryResource,
 		NewFabricAuthenticationProfileResource,
+		NewFabricDeviceResource,
 		NewFabricSiteResource,
 		NewFabricVirtualNetworkResource,
 		NewFloorResource,
