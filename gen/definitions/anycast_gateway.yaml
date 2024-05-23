@@ -58,7 +58,6 @@ attributes:
     description: ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
     example: 401
   - model_name: trafficType
-    requires_replace: true
     data_path: '0'
     response_data_path: response.0.trafficType
     type: String
@@ -89,7 +88,6 @@ attributes:
     description: Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
     example: false
   - model_name: isLayer2FloodingEnabled
-    requires_replace: true
     data_path: '0'
     response_data_path: response.0.isLayer2FloodingEnabled
     tf_name: l2_flooding_enabled
@@ -98,7 +96,6 @@ attributes:
     description: Enable/disable layer 2 flooding (not applicable to INFRA_VN)
     example: false
   - model_name: isWirelessPool
-    requires_replace: true
     data_path: '0'
     response_data_path: response.0.isWirelessPool
     tf_name: wireless_pool
@@ -107,7 +104,6 @@ attributes:
     description: Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
     example: false
   - model_name: isIpDirectedBroadcast
-    requires_replace: true
     data_path: '0'
     response_data_path: response.0.isIpDirectedBroadcast
     tf_name: ip_directed_broadcast
@@ -125,7 +121,6 @@ attributes:
     description: Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
     example: false
   - model_name: isMultipleIpToMacAddresses
-    requires_replace: true
     data_path: '0'
     response_data_path: response.0.isMultipleIpToMacAddresses
     tf_name: multiple_ip_to_mac_addresses
