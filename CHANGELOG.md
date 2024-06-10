@@ -1,3 +1,9 @@
+## 0.1.10 (unreleased)
+
+- BREAKING CHANGE: Rename `radio_type_a_power_treshold_v1` attribute of `catalystcenter_wireless_rf_profile` resource to `radio_type_a_power_threshold_v1`
+- BREAKING CHANGE: Rename `radio_type_b_power_treshold_v1` attribute of `catalystcenter_wireless_rf_profile` resource to `radio_type_b_power_threshold_v1`
+- BREAKING CHANGE: Rename `radio_type_c_power_treshold_v1` attribute of `catalystcenter_wireless_rf_profile` resource to `radio_type_c_power_threshold_v1`
+
 ## 0.1.9
 
 - Fix `mfp_client_protection` attribute validation of `catalystcenter_wireless_enterprise_ssid` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/74)
