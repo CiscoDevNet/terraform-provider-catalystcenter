@@ -16,9 +16,9 @@ This resource can manage an IP Pool.
 resource "catalystcenter_ip_pool" "example" {
   name             = "MyPool1"
   ip_address_space = "IPv4"
-  type             = "Generic"
+  type             = "generic"
   ip_subnet        = "21.1.1.0/24"
-  gateway          = "21.1.1.1"
+  gateway          = ["21.1.1.1"]
   dhcp_server_ips  = ["1.2.3.4"]
   dns_server_ips   = ["2.3.4.5"]
 }
@@ -36,13 +36,13 @@ resource "catalystcenter_ip_pool" "example" {
 
 - `dhcp_server_ips` (Set of String) List of DHCP Server IPs
 - `dns_server_ips` (Set of String) List of DNS Server IPs
-- `gateway` (String) The gateway for the IP pool
+- `gateway` (Set of String) The gateway for the IP pool
 - `ip_address_space` (String) IP address version
   - Choices: `IPv4`, `IPv6`
   - Default value: `IPv4`
 - `type` (String) Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.
-  - Choices: `Generic`, `Tunnel`
-  - Default value: `Generic`
+  - Choices: `generic`, `tunnel`
+  - Default value: `generic`
 
 ### Read-Only
 
