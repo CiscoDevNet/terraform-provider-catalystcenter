@@ -87,7 +87,6 @@ func (d *FabricSiteDataSource) Configure(_ context.Context, req datasource.Confi
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config FabricSite
 
@@ -101,7 +100,7 @@ func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "/" + url.QueryEscape(config.Id.ValueString())
+	params += "?id=" + url.QueryEscape(config.Id.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
@@ -115,5 +114,3 @@ func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
