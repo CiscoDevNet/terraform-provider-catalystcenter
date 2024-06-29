@@ -3,19 +3,20 @@
 page_title: "catalystcenter_fabric_site Resource - terraform-provider-catalystcenter"
 subcategory: "SDA"
 description: |-
-  This resource can manage a Fabric Site.
+  Manages Fabric Sites
 ---
 
 # catalystcenter_fabric_site (Resource)
 
-This resource can manage a Fabric Site.
+Manages Fabric Sites
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_fabric_site" "example" {
-  site_name_hierarchy = "Global/Site1"
-  fabric_type         = "FABRIC_SITE"
+  site_id                     = "8e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  authentication_profile_name = "No Authentication"
+  pub_sub_enabled             = false
 }
 ```
 
@@ -24,13 +25,10 @@ resource "catalystcenter_fabric_site" "example" {
 
 ### Required
 
-- `site_name_hierarchy` (String) Existing site name hierarchy available at global level
-
-### Optional
-
-- `fabric_type` (String) Type of SD-Access Fabric
-  - Choices: `FABRIC_SITE`, `FABRIC_ZONE`
-  - Default value: `FABRIC_SITE`
+- `authentication_profile_name` (String) Authentication profile used for this fabric
+  - Choices: `Closed Authentication`, `Low Impact`, `No Authentication`, `Open Authentication`
+- `pub_sub_enabled` (Boolean) Specifies whether this fabric site will use pub/sub for control nodes
+- `site_id` (String) ID of the network hierarchy
 
 ### Read-Only
 
@@ -41,5 +39,5 @@ resource "catalystcenter_fabric_site" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_fabric_site.example "<site_name_hierarchy>"
+terraform import catalystcenter_fabric_site.example "<id>"
 ```

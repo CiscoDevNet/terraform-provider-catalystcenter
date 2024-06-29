@@ -29,6 +29,8 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcFabricSite(t *testing.T) {
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_site.test", "authentication_profile_name", "No Authentication"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_site.test", "pub_sub_enabled", "false"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -56,8 +58,9 @@ resource "catalystcenter_area" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcFabricSiteConfig() string {
 	config := `resource "catalystcenter_fabric_site" "test" {` + "\n"
-	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
-	config += `	fabric_type = "FABRIC_SITE"` + "\n"
+	config += `	site_id = catalystcenter_area.test.id` + "\n"
+	config += `	authentication_profile_name = "No Authentication"` + "\n"
+	config += `	pub_sub_enabled = false` + "\n"
 	config += `}` + "\n"
 
 	config += `
