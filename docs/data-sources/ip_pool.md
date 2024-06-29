@@ -30,7 +30,7 @@ data "catalystcenter_ip_pool" "example" {
 
 - `dhcp_server_ips` (Set of String) List of DHCP Server IPs
 - `dns_server_ips` (Set of String) List of DNS Server IPs
-- `gateway` (String) The gateway for the IP pool
+- `gateway` (Set of String) The gateway for the IP pool
 - `ip_address_space` (String) IP address version
 - `ip_subnet` (String) The IP subnet of the IP pool
 - `type` (String) Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.

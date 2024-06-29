@@ -83,8 +83,9 @@ func (d *IPPoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "The IP subnet of the IP pool",
 				Computed:            true,
 			},
-			"gateway": schema.StringAttribute{
+			"gateway": schema.SetAttribute{
 				MarkdownDescription: "The gateway for the IP pool",
+				ElementType:         types.StringType,
 				Computed:            true,
 			},
 			"dhcp_server_ips": schema.SetAttribute{
@@ -119,6 +120,7 @@ func (d *IPPoolDataSource) Configure(_ context.Context, req datasource.Configure
 
 // End of section. //template:end model
 
+// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config IPPool
 
@@ -131,7 +133,7 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 	if config.Id.IsNull() && !config.Name.IsNull() {
-		res, err := d.client.Get("/api/v2/ippool?limit=500")
+		res, err := d.client.Get(config.getPath())
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
@@ -155,7 +157,7 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	params := ""
 	params += "/" + url.QueryEscape(config.Id.ValueString())
-	res, err := d.client.Get("/api/v2/ippool" + params)
+	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
@@ -168,3 +170,5 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end read

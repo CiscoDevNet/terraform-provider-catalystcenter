@@ -31,8 +31,9 @@ import (
 func TestAccCcIPPool(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "name", "MyPool1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "ip_address_space", "IPv4"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "type", "generic"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "ip_subnet", "21.1.1.0/24"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "gateway", "21.1.1.1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -77,9 +78,9 @@ func testAccCcIPPoolConfig_all() string {
 	config := `resource "catalystcenter_ip_pool" "test" {` + "\n"
 	config += `	name = "MyPool1"` + "\n"
 	config += `	ip_address_space = "IPv4"` + "\n"
-	config += `	type = "Generic"` + "\n"
+	config += `	type = "generic"` + "\n"
 	config += `	ip_subnet = "21.1.1.0/24"` + "\n"
-	config += `	gateway = "21.1.1.1"` + "\n"
+	config += `	gateway = ["21.1.1.1"]` + "\n"
 	config += `	dhcp_server_ips = ["1.2.3.4"]` + "\n"
 	config += `	dns_server_ips = ["2.3.4.5"]` + "\n"
 	config += `}` + "\n"
