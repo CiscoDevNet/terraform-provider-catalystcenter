@@ -119,7 +119,7 @@ func (r *WirelessRFProfileResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Mandatory Data Rates").String,
 				Optional:            true,
 			},
-			"radio_type_a_power_treshold_v1": schema.Int64Attribute{
+			"radio_type_a_power_threshold_v1": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeA Properties - Power Threshold V1").String,
 				Optional:            true,
 			},
@@ -151,7 +151,7 @@ func (r *WirelessRFProfileResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeB Properties - Mandatory Data Rates").String,
 				Optional:            true,
 			},
-			"radio_type_b_power_treshold_v1": schema.Int64Attribute{
+			"radio_type_b_power_threshold_v1": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeB Properties - Power Threshold V1").String,
 				Optional:            true,
 			},
@@ -183,7 +183,7 @@ func (r *WirelessRFProfileResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeC Properties - Mandatory Data Rates").String,
 				Optional:            true,
 			},
-			"radio_type_c_power_treshold_v1": schema.Int64Attribute{
+			"radio_type_c_power_threshold_v1": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Radio TypeC Properties - Power Threshold V1").String,
 				Optional:            true,
 			},

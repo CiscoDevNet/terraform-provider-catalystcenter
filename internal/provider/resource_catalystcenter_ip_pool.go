@@ -88,20 +88,21 @@ func (r *IPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Default: stringdefault.StaticString("IPv4"),
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.").AddStringEnumDescription("Generic", "Tunnel").AddDefaultValueDescription("Generic").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.").AddStringEnumDescription("generic", "tunnel").AddDefaultValueDescription("generic").String,
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("Generic", "Tunnel"),
+					stringvalidator.OneOf("generic", "tunnel"),
 				},
-				Default: stringdefault.StaticString("Generic"),
+				Default: stringdefault.StaticString("generic"),
 			},
 			"ip_subnet": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IP subnet of the IP pool").String,
 				Required:            true,
 			},
-			"gateway": schema.StringAttribute{
+			"gateway": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The gateway for the IP pool").String,
+				ElementType:         types.StringType,
 				Optional:            true,
 			},
 			"dhcp_server_ips": schema.SetAttribute{
@@ -128,6 +129,7 @@ func (r *IPPoolResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 // End of section. //template:end model
 
+// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan IPPool
 
@@ -149,8 +151,8 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-
-	res, err = r.client.Get("/api/v2/ippool?limit=500")
+	params = ""
+	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -162,6 +164,8 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -178,7 +182,7 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	params := ""
 	params += "/" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get("/api/v2/ippool" + params)
+	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return

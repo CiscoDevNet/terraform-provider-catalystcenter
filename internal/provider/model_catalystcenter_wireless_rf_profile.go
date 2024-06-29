@@ -43,7 +43,7 @@ type WirelessRFProfile struct {
 	RadioTypeARadioChannels      types.String `tfsdk:"radio_type_a_radio_channels"`
 	RadioTypeADataRates          types.String `tfsdk:"radio_type_a_data_rates"`
 	RadioTypeAMandatoryDataRates types.String `tfsdk:"radio_type_a_mandatory_data_rates"`
-	RadioTypeAPowerTresholdV1    types.Int64  `tfsdk:"radio_type_a_power_treshold_v1"`
+	RadioTypeAPowerThresholdV1   types.Int64  `tfsdk:"radio_type_a_power_threshold_v1"`
 	RadioTypeARxSopThreshold     types.String `tfsdk:"radio_type_a_rx_sop_threshold"`
 	RadioTypeAMinPowerLevel      types.Int64  `tfsdk:"radio_type_a_min_power_level"`
 	RadioTypeAMaxPowerLevel      types.Int64  `tfsdk:"radio_type_a_max_power_level"`
@@ -51,7 +51,7 @@ type WirelessRFProfile struct {
 	RadioTypeBRadioChannels      types.String `tfsdk:"radio_type_b_radio_channels"`
 	RadioTypeBDataRates          types.String `tfsdk:"radio_type_b_data_rates"`
 	RadioTypeBMandatoryDataRates types.String `tfsdk:"radio_type_b_mandatory_data_rates"`
-	RadioTypeBPowerTresholdV1    types.Int64  `tfsdk:"radio_type_b_power_treshold_v1"`
+	RadioTypeBPowerThresholdV1   types.Int64  `tfsdk:"radio_type_b_power_threshold_v1"`
 	RadioTypeBRxSopThreshold     types.String `tfsdk:"radio_type_b_rx_sop_threshold"`
 	RadioTypeBMinPowerLevel      types.Int64  `tfsdk:"radio_type_b_min_power_level"`
 	RadioTypeBMaxPowerLevel      types.Int64  `tfsdk:"radio_type_b_max_power_level"`
@@ -59,7 +59,7 @@ type WirelessRFProfile struct {
 	RadioTypeCRadioChannels      types.String `tfsdk:"radio_type_c_radio_channels"`
 	RadioTypeCDataRates          types.String `tfsdk:"radio_type_c_data_rates"`
 	RadioTypeCMandatoryDataRates types.String `tfsdk:"radio_type_c_mandatory_data_rates"`
-	RadioTypeCPowerTresholdV1    types.Int64  `tfsdk:"radio_type_c_power_treshold_v1"`
+	RadioTypeCPowerThresholdV1   types.Int64  `tfsdk:"radio_type_c_power_threshold_v1"`
 	RadioTypeCRxSopThreshold     types.String `tfsdk:"radio_type_c_rx_sop_threshold"`
 	RadioTypeCMinPowerLevel      types.Int64  `tfsdk:"radio_type_c_min_power_level"`
 	RadioTypeCMaxPowerLevel      types.Int64  `tfsdk:"radio_type_c_max_power_level"`
@@ -122,8 +122,8 @@ func (data WirelessRFProfile) toBody(ctx context.Context, state WirelessRFProfil
 	if !data.RadioTypeAMandatoryDataRates.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeAProperties.mandatoryDataRates", data.RadioTypeAMandatoryDataRates.ValueString())
 	}
-	if !data.RadioTypeAPowerTresholdV1.IsNull() {
-		body, _ = sjson.Set(body, "radioTypeAProperties.powerThresholdV1", data.RadioTypeAPowerTresholdV1.ValueInt64())
+	if !data.RadioTypeAPowerThresholdV1.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.powerThresholdV1", data.RadioTypeAPowerThresholdV1.ValueInt64())
 	}
 	if !data.RadioTypeARxSopThreshold.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeAProperties.rxSopThreshold", data.RadioTypeARxSopThreshold.ValueString())
@@ -146,8 +146,8 @@ func (data WirelessRFProfile) toBody(ctx context.Context, state WirelessRFProfil
 	if !data.RadioTypeBMandatoryDataRates.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeBProperties.mandatoryDataRates", data.RadioTypeBMandatoryDataRates.ValueString())
 	}
-	if !data.RadioTypeBPowerTresholdV1.IsNull() {
-		body, _ = sjson.Set(body, "radioTypeBProperties.powerThresholdV1", data.RadioTypeBPowerTresholdV1.ValueInt64())
+	if !data.RadioTypeBPowerThresholdV1.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeBProperties.powerThresholdV1", data.RadioTypeBPowerThresholdV1.ValueInt64())
 	}
 	if !data.RadioTypeBRxSopThreshold.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeBProperties.rxSopThreshold", data.RadioTypeBRxSopThreshold.ValueString())
@@ -170,8 +170,8 @@ func (data WirelessRFProfile) toBody(ctx context.Context, state WirelessRFProfil
 	if !data.RadioTypeCMandatoryDataRates.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeCProperties.mandatoryDataRates", data.RadioTypeCMandatoryDataRates.ValueString())
 	}
-	if !data.RadioTypeCPowerTresholdV1.IsNull() {
-		body, _ = sjson.Set(body, "radioTypeCProperties.powerThresholdV1", data.RadioTypeCPowerTresholdV1.ValueInt64())
+	if !data.RadioTypeCPowerThresholdV1.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeCProperties.powerThresholdV1", data.RadioTypeCPowerThresholdV1.ValueInt64())
 	}
 	if !data.RadioTypeCRxSopThreshold.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeCProperties.rxSopThreshold", data.RadioTypeCRxSopThreshold.ValueString())
@@ -250,9 +250,9 @@ func (data *WirelessRFProfile) fromBody(ctx context.Context, res gjson.Result) {
 		data.RadioTypeAMandatoryDataRates = types.StringNull()
 	}
 	if value := res.Get("response.0.radioTypeAProperties.powerThresholdV1"); value.Exists() {
-		data.RadioTypeAPowerTresholdV1 = types.Int64Value(value.Int())
+		data.RadioTypeAPowerThresholdV1 = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeAPowerTresholdV1 = types.Int64Null()
+		data.RadioTypeAPowerThresholdV1 = types.Int64Null()
 	}
 	if value := res.Get("response.0.radioTypeAProperties.rxSopThreshold"); value.Exists() {
 		data.RadioTypeARxSopThreshold = types.StringValue(value.String())
@@ -290,9 +290,9 @@ func (data *WirelessRFProfile) fromBody(ctx context.Context, res gjson.Result) {
 		data.RadioTypeBMandatoryDataRates = types.StringNull()
 	}
 	if value := res.Get("response.0.radioTypeBProperties.powerThresholdV1"); value.Exists() {
-		data.RadioTypeBPowerTresholdV1 = types.Int64Value(value.Int())
+		data.RadioTypeBPowerThresholdV1 = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeBPowerTresholdV1 = types.Int64Null()
+		data.RadioTypeBPowerThresholdV1 = types.Int64Null()
 	}
 	if value := res.Get("response.0.radioTypeBProperties.rxSopThreshold"); value.Exists() {
 		data.RadioTypeBRxSopThreshold = types.StringValue(value.String())
@@ -330,9 +330,9 @@ func (data *WirelessRFProfile) fromBody(ctx context.Context, res gjson.Result) {
 		data.RadioTypeCMandatoryDataRates = types.StringNull()
 	}
 	if value := res.Get("response.0.radioTypeCProperties.powerThresholdV1"); value.Exists() {
-		data.RadioTypeCPowerTresholdV1 = types.Int64Value(value.Int())
+		data.RadioTypeCPowerThresholdV1 = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeCPowerTresholdV1 = types.Int64Null()
+		data.RadioTypeCPowerThresholdV1 = types.Int64Null()
 	}
 	if value := res.Get("response.0.radioTypeCProperties.rxSopThreshold"); value.Exists() {
 		data.RadioTypeCRxSopThreshold = types.StringValue(value.String())
@@ -415,10 +415,10 @@ func (data *WirelessRFProfile) updateFromBody(ctx context.Context, res gjson.Res
 	} else {
 		data.RadioTypeAMandatoryDataRates = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeAProperties.powerThresholdV1"); value.Exists() && !data.RadioTypeAPowerTresholdV1.IsNull() {
-		data.RadioTypeAPowerTresholdV1 = types.Int64Value(value.Int())
+	if value := res.Get("response.0.radioTypeAProperties.powerThresholdV1"); value.Exists() && !data.RadioTypeAPowerThresholdV1.IsNull() {
+		data.RadioTypeAPowerThresholdV1 = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeAPowerTresholdV1 = types.Int64Null()
+		data.RadioTypeAPowerThresholdV1 = types.Int64Null()
 	}
 	if value := res.Get("response.0.radioTypeAProperties.rxSopThreshold"); value.Exists() && !data.RadioTypeARxSopThreshold.IsNull() {
 		data.RadioTypeARxSopThreshold = types.StringValue(value.String())
@@ -455,10 +455,10 @@ func (data *WirelessRFProfile) updateFromBody(ctx context.Context, res gjson.Res
 	} else {
 		data.RadioTypeBMandatoryDataRates = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeBProperties.powerThresholdV1"); value.Exists() && !data.RadioTypeBPowerTresholdV1.IsNull() {
-		data.RadioTypeBPowerTresholdV1 = types.Int64Value(value.Int())
+	if value := res.Get("response.0.radioTypeBProperties.powerThresholdV1"); value.Exists() && !data.RadioTypeBPowerThresholdV1.IsNull() {
+		data.RadioTypeBPowerThresholdV1 = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeBPowerTresholdV1 = types.Int64Null()
+		data.RadioTypeBPowerThresholdV1 = types.Int64Null()
 	}
 	if value := res.Get("response.0.radioTypeBProperties.rxSopThreshold"); value.Exists() && !data.RadioTypeBRxSopThreshold.IsNull() {
 		data.RadioTypeBRxSopThreshold = types.StringValue(value.String())
@@ -495,10 +495,10 @@ func (data *WirelessRFProfile) updateFromBody(ctx context.Context, res gjson.Res
 	} else {
 		data.RadioTypeCMandatoryDataRates = types.StringNull()
 	}
-	if value := res.Get("response.0.radioTypeCProperties.powerThresholdV1"); value.Exists() && !data.RadioTypeCPowerTresholdV1.IsNull() {
-		data.RadioTypeCPowerTresholdV1 = types.Int64Value(value.Int())
+	if value := res.Get("response.0.radioTypeCProperties.powerThresholdV1"); value.Exists() && !data.RadioTypeCPowerThresholdV1.IsNull() {
+		data.RadioTypeCPowerThresholdV1 = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeCPowerTresholdV1 = types.Int64Null()
+		data.RadioTypeCPowerThresholdV1 = types.Int64Null()
 	}
 	if value := res.Get("response.0.radioTypeCProperties.rxSopThreshold"); value.Exists() && !data.RadioTypeCRxSopThreshold.IsNull() {
 		data.RadioTypeCRxSopThreshold = types.StringValue(value.String())
@@ -554,7 +554,7 @@ func (data *WirelessRFProfile) isNull(ctx context.Context, res gjson.Result) boo
 	if !data.RadioTypeAMandatoryDataRates.IsNull() {
 		return false
 	}
-	if !data.RadioTypeAPowerTresholdV1.IsNull() {
+	if !data.RadioTypeAPowerThresholdV1.IsNull() {
 		return false
 	}
 	if !data.RadioTypeARxSopThreshold.IsNull() {
@@ -578,7 +578,7 @@ func (data *WirelessRFProfile) isNull(ctx context.Context, res gjson.Result) boo
 	if !data.RadioTypeBMandatoryDataRates.IsNull() {
 		return false
 	}
-	if !data.RadioTypeBPowerTresholdV1.IsNull() {
+	if !data.RadioTypeBPowerThresholdV1.IsNull() {
 		return false
 	}
 	if !data.RadioTypeBRxSopThreshold.IsNull() {
@@ -602,7 +602,7 @@ func (data *WirelessRFProfile) isNull(ctx context.Context, res gjson.Result) boo
 	if !data.RadioTypeCMandatoryDataRates.IsNull() {
 		return false
 	}
-	if !data.RadioTypeCPowerTresholdV1.IsNull() {
+	if !data.RadioTypeCPowerThresholdV1.IsNull() {
 		return false
 	}
 	if !data.RadioTypeCRxSopThreshold.IsNull() {

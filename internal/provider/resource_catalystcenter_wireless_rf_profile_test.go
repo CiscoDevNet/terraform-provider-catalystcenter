@@ -41,7 +41,7 @@ func TestAccCcWirelessRFProfile(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_a_radio_channels", "36,40,44,48,52,56,60,64,144,149,153,157,161,165,169,173"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_a_data_rates", "6,9,12,18,24,36,48,54"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_a_mandatory_data_rates", "12,24"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_a_power_treshold_v1", "-60"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_a_power_threshold_v1", "-60"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_a_rx_sop_threshold", "LOW"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_a_min_power_level", "8"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_a_max_power_level", "20"))
@@ -49,7 +49,7 @@ func TestAccCcWirelessRFProfile(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_b_radio_channels", "1,6,11"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_b_data_rates", "9,11,12,18,24,36,48,54"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_b_mandatory_data_rates", "12"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_b_power_treshold_v1", "-60"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_b_power_threshold_v1", "-60"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_b_rx_sop_threshold", "LOW"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_b_min_power_level", "8"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_rf_profile.test", "radio_type_b_max_power_level", "20"))
@@ -107,7 +107,7 @@ func testAccCcWirelessRFProfileConfig_all() string {
 	config += `	radio_type_a_radio_channels = "36,40,44,48,52,56,60,64,144,149,153,157,161,165,169,173"` + "\n"
 	config += `	radio_type_a_data_rates = "6,9,12,18,24,36,48,54"` + "\n"
 	config += `	radio_type_a_mandatory_data_rates = "12,24"` + "\n"
-	config += `	radio_type_a_power_treshold_v1 = -60` + "\n"
+	config += `	radio_type_a_power_threshold_v1 = -60` + "\n"
 	config += `	radio_type_a_rx_sop_threshold = "LOW"` + "\n"
 	config += `	radio_type_a_min_power_level = 8` + "\n"
 	config += `	radio_type_a_max_power_level = 20` + "\n"
@@ -115,7 +115,7 @@ func testAccCcWirelessRFProfileConfig_all() string {
 	config += `	radio_type_b_radio_channels = "1,6,11"` + "\n"
 	config += `	radio_type_b_data_rates = "9,11,12,18,24,36,48,54"` + "\n"
 	config += `	radio_type_b_mandatory_data_rates = "12"` + "\n"
-	config += `	radio_type_b_power_treshold_v1 = -60` + "\n"
+	config += `	radio_type_b_power_threshold_v1 = -60` + "\n"
 	config += `	radio_type_b_rx_sop_threshold = "LOW"` + "\n"
 	config += `	radio_type_b_min_power_level = 8` + "\n"
 	config += `	radio_type_b_max_power_level = 20` + "\n"
