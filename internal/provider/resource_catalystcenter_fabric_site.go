@@ -102,6 +102,7 @@ func (r *FabricSiteResource) Configure(_ context.Context, req resource.Configure
 
 // End of section. //template:end model
 
+// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FabricSite
 
@@ -117,19 +118,19 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 	// Create object
 	body := plan.toBody(ctx, FabricSite{})
 
-	res, err := r.client.Post(plan.getPath(), body)
+	params := ""
+	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	params := ""
-	params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString())
-	res, err = r.client.Get(plan.getPath() + params)
+	params = ""
+	res, err = r.client.Get("/dna/intent/api/v1/sda/fabricSites?limit=500" + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.0.id").String())
+	plan.Id = types.StringValue(res.Get("response.#(siteId==\"" + plan.SiteId.ValueString() + "\").id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -137,6 +138,9 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 	resp.Diagnostics.Append(diags...)
 }
 
+// End of section. //template:end create
+
+// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state FabricSite
 
@@ -150,8 +154,7 @@ func (r *FabricSiteResource) Read(ctx context.Context, req resource.ReadRequest,
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?id=" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.client.Get("/dna/intent/api/v1/sda/fabricSites?limit=500" + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -159,6 +162,7 @@ func (r *FabricSiteResource) Read(ctx context.Context, req resource.ReadRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
+	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -172,6 +176,8 @@ func (r *FabricSiteResource) Read(ctx context.Context, req resource.ReadRequest,
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

@@ -74,17 +74,17 @@ func (data FabricSite) toBody(ctx context.Context, state FabricSite) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *FabricSite) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.siteId"); value.Exists() {
+	if value := res.Get("siteId"); value.Exists() {
 		data.SiteId = types.StringValue(value.String())
 	} else {
 		data.SiteId = types.StringNull()
 	}
-	if value := res.Get("response.0.authenticationProfileName"); value.Exists() {
+	if value := res.Get("authenticationProfileName"); value.Exists() {
 		data.AuthenticationProfileName = types.StringValue(value.String())
 	} else {
 		data.AuthenticationProfileName = types.StringNull()
 	}
-	if value := res.Get("response.0.isPubSubEnabled"); value.Exists() {
+	if value := res.Get("isPubSubEnabled"); value.Exists() {
 		data.PubSubEnabled = types.BoolValue(value.Bool())
 	} else {
 		data.PubSubEnabled = types.BoolNull()
@@ -95,17 +95,17 @@ func (data *FabricSite) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *FabricSite) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.siteId"); value.Exists() && !data.SiteId.IsNull() {
+	if value := res.Get("siteId"); value.Exists() && !data.SiteId.IsNull() {
 		data.SiteId = types.StringValue(value.String())
 	} else {
 		data.SiteId = types.StringNull()
 	}
-	if value := res.Get("response.0.authenticationProfileName"); value.Exists() && !data.AuthenticationProfileName.IsNull() {
+	if value := res.Get("authenticationProfileName"); value.Exists() && !data.AuthenticationProfileName.IsNull() {
 		data.AuthenticationProfileName = types.StringValue(value.String())
 	} else {
 		data.AuthenticationProfileName = types.StringNull()
 	}
-	if value := res.Get("response.0.isPubSubEnabled"); value.Exists() && !data.PubSubEnabled.IsNull() {
+	if value := res.Get("isPubSubEnabled"); value.Exists() && !data.PubSubEnabled.IsNull() {
 		data.PubSubEnabled = types.BoolValue(value.Bool())
 	} else {
 		data.PubSubEnabled = types.BoolNull()

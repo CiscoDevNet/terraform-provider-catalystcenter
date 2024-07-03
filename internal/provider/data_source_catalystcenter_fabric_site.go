@@ -21,12 +21,15 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/url"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -59,10 +62,12 @@ func (d *FabricSiteDataSource) Schema(ctx context.Context, req datasource.Schema
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
+				Optional:            true,
+				Computed:            true,
 			},
 			"site_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the network hierarchy",
+				Optional:            true,
 				Computed:            true,
 			},
 			"authentication_profile_name": schema.StringAttribute{
@@ -76,6 +81,14 @@ func (d *FabricSiteDataSource) Schema(ctx context.Context, req datasource.Schema
 		},
 	}
 }
+func (d *FabricSiteDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.ExactlyOneOf(
+			path.MatchRoot("id"),
+			path.MatchRoot("site_id"),
+		),
+	}
+}
 
 func (d *FabricSiteDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
@@ -87,6 +100,7 @@ func (d *FabricSiteDataSource) Configure(_ context.Context, req datasource.Confi
 
 // End of section. //template:end model
 
+// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config FabricSite
 
@@ -98,14 +112,36 @@ func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
+	if config.Id.IsNull() && !config.SiteId.IsNull() {
+		res, err := d.client.Get("/dna/intent/api/v1/sda/fabricSites?limit=500")
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
+			return
+		}
+		if value := res.Get("response"); len(value.Array()) > 0 {
+			value.ForEach(func(k, v gjson.Result) bool {
+				if config.SiteId.ValueString() == v.Get("siteId").String() {
+					config.Id = types.StringValue(v.Get("id").String())
+					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with siteId '%v', id: %v", config.Id.String(), config.SiteId.ValueString(), config.Id.String()))
+					return false
+				}
+				return true
+			})
+		}
+
+		if config.Id.IsNull() {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with siteId: %s", config.SiteId.ValueString()))
+			return
+		}
+	}
 
 	params := ""
-	params += "?id=" + url.QueryEscape(config.Id.ValueString())
-	res, err := d.client.Get(config.getPath() + params)
+	res, err := d.client.Get("/dna/intent/api/v1/sda/fabricSites?limit=500" + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
+	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 
@@ -114,3 +150,5 @@ func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end read

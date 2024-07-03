@@ -1,8 +1,10 @@
 ---
 name: Fabric Site
 rest_endpoint: /dna/intent/api/v1/sda/fabricSites
+get_rest_endpoint: /dna/intent/api/v1/sda/fabricSites?limit=500
 res_description: Manages Fabric Sites
 id_from_query_path: response
+get_from_all: true
 put_id_include_path: "0.id"
 put_no_id: true
 doc_category: SDA
@@ -10,7 +12,9 @@ attributes:
   - model_name: siteId
     requires_replace: true
     data_path: '0'
-    response_data_path: response.0.siteId
+    match_id: true
+    data_source_query: true
+    response_data_path: siteId
     mandatory: true
     type: String
     description: ID of the network hierarchy
@@ -18,7 +22,7 @@ attributes:
     test_value: catalystcenter_area.test.id
   - model_name: authenticationProfileName
     data_path: '0'
-    response_data_path: response.0.authenticationProfileName
+    response_data_path: authenticationProfileName
     mandatory: true
     type: String
     description: Authentication profile used for this fabric
@@ -26,7 +30,7 @@ attributes:
     example: No Authentication
   - model_name: isPubSubEnabled
     data_path: '0'
-    response_data_path: response.0.isPubSubEnabled
+    response_data_path: isPubSubEnabled
     tf_name: pub_sub_enabled
     type: Bool
     mandatory: true
