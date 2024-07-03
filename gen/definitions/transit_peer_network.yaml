@@ -24,7 +24,6 @@ attributes:
   - model_name: routingProtocolName
     data_path: ipTransitSettings
     type: String
-    mandatory: true
     requires_replace: true
     description: Routing Protocol Name
     enum_values: [BGP]
@@ -32,7 +31,6 @@ attributes:
   - model_name: autonomousSystemNumber
     data_path: ipTransitSettings
     type: String
-    mandatory: true
     requires_replace: true
     description: Autonomous System Number
     example: "65010"
@@ -45,12 +43,10 @@ attributes:
       - model_name: siteNameHierarchy
         requires_replace: true
         type: String
-        mandatory: true
         description: Site Name Hierarchy where device is provisioned
         example: "Global/Area1"
       - model_name: deviceManagementIpAddress
         requires_replace: true
         type: String
-        mandatory: true
         description: Device Management Ip Address of provisioned device
         example: "10.0.0.1"

@@ -32,15 +32,15 @@ resource "catalystcenter_transit_peer_network" "example" {
 
 ### Required
 
-- `autonomous_system_number` (String) Autonomous System Number
-- `routing_protocol_name` (String) Routing Protocol Name
-  - Choices: `BGP`
 - `transit_peer_network_name` (String) Transit Peer Network Name
 - `transit_peer_network_type` (String) Transit Peer Network Type
   - Choices: `ip_transit`, `sda_transit_with_lisp_bgp`, `sda_transit_with_pub_sub`
 
 ### Optional
 
+- `autonomous_system_number` (String) Autonomous System Number
+- `routing_protocol_name` (String) Routing Protocol Name
+  - Choices: `BGP`
 - `transit_control_plane_settings` (Attributes List) Transit Control Plane Settings info (see [below for nested schema](#nestedatt--transit_control_plane_settings))
 
 ### Read-Only
@@ -50,7 +50,7 @@ resource "catalystcenter_transit_peer_network" "example" {
 <a id="nestedatt--transit_control_plane_settings"></a>
 ### Nested Schema for `transit_control_plane_settings`
 
-Required:
+Optional:
 
 - `device_management_ip_address` (String) Device Management Ip Address of provisioned device
 - `site_name_hierarchy` (String) Site Name Hierarchy where device is provisioned
