@@ -61,8 +61,6 @@ func testAccCcTransitPeerNetworkConfig_minimum() string {
 	config := `resource "catalystcenter_transit_peer_network" "test" {` + "\n"
 	config += `	transit_peer_network_name = "TRANSIT_1"` + "\n"
 	config += `	transit_peer_network_type = "ip_transit"` + "\n"
-	config += `	routing_protocol_name = "BGP"` + "\n"
-	config += `	autonomous_system_number = "65010"` + "\n"
 	config += `}` + "\n"
 	return config
 }

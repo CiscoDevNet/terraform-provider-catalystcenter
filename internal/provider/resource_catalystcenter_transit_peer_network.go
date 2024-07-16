@@ -89,7 +89,7 @@ func (r *TransitPeerNetworkResource) Schema(ctx context.Context, req resource.Sc
 			},
 			"routing_protocol_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Routing Protocol Name").AddStringEnumDescription("BGP").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("BGP"),
 				},
@@ -99,7 +99,7 @@ func (r *TransitPeerNetworkResource) Schema(ctx context.Context, req resource.Sc
 			},
 			"autonomous_system_number": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Autonomous System Number").String,
-				Required:            true,
+				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -111,14 +111,14 @@ func (r *TransitPeerNetworkResource) Schema(ctx context.Context, req resource.Sc
 					Attributes: map[string]schema.Attribute{
 						"site_name_hierarchy": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Site Name Hierarchy where device is provisioned").String,
-							Required:            true,
+							Optional:            true,
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.RequiresReplace(),
 							},
 						},
 						"device_management_ip_address": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Device Management Ip Address of provisioned device").String,
-							Required:            true,
+							Optional:            true,
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.RequiresReplace(),
 							},
