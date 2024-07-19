@@ -14,7 +14,7 @@ This data source can read the Fabric Site.
 
 ```terraform
 data "catalystcenter_fabric_site" "example" {
-  id = "Global/Site1"
+  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 
@@ -24,8 +24,9 @@ data "catalystcenter_fabric_site" "example" {
 ### Optional
 
 - `id` (String) The id of the object
-- `site_name_hierarchy` (String) Existing site name hierarchy available at global level
+- `site_id` (String) ID of the network hierarchy
 
 ### Read-Only
 
-- `fabric_type` (String) Type of SD-Access Fabric
+- `authentication_profile_name` (String) Authentication profile used for this fabric
+- `pub_sub_enabled` (Boolean) Specifies whether this fabric site will use pub/sub for control nodes

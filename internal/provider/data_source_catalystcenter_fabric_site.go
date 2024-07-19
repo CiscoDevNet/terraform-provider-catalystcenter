@@ -21,7 +21,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -66,13 +65,17 @@ func (d *FabricSiteDataSource) Schema(ctx context.Context, req datasource.Schema
 				Optional:            true,
 				Computed:            true,
 			},
-			"site_name_hierarchy": schema.StringAttribute{
-				MarkdownDescription: "Existing site name hierarchy available at global level",
+			"site_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the network hierarchy",
 				Optional:            true,
 				Computed:            true,
 			},
-			"fabric_type": schema.StringAttribute{
-				MarkdownDescription: "Type of SD-Access Fabric",
+			"authentication_profile_name": schema.StringAttribute{
+				MarkdownDescription: "Authentication profile used for this fabric",
+				Computed:            true,
+			},
+			"pub_sub_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Specifies whether this fabric site will use pub/sub for control nodes",
 				Computed:            true,
 			},
 		},
@@ -82,7 +85,7 @@ func (d *FabricSiteDataSource) ConfigValidators(ctx context.Context) []datasourc
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
-			path.MatchRoot("site_name_hierarchy"),
+			path.MatchRoot("site_id"),
 		),
 	}
 }
@@ -109,17 +112,17 @@ func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.SiteNameHierarchy.IsNull() {
-		res, err := d.client.Get(config.getPath())
+	if config.Id.IsNull() && !config.SiteId.IsNull() {
+		res, err := d.client.Get("/dna/intent/api/v1/sda/fabricSites?limit=500")
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
 		}
-		if value := res; len(value.Array()) > 0 {
+		if value := res.Get("response"); len(value.Array()) > 0 {
 			value.ForEach(func(k, v gjson.Result) bool {
-				if config.SiteNameHierarchy.ValueString() == v.Get("siteNameHierarchy").String() {
+				if config.SiteId.ValueString() == v.Get("siteId").String() {
 					config.Id = types.StringValue(v.Get("id").String())
-					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with siteNameHierarchy '%v', id: %v", config.Id.String(), config.SiteNameHierarchy.ValueString(), config.Id.String()))
+					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with siteId '%v', id: %v", config.Id.String(), config.SiteId.ValueString(), config.Id.String()))
 					return false
 				}
 				return true
@@ -127,18 +130,18 @@ func (d *FabricSiteDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		}
 
 		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with siteNameHierarchy: %s", config.SiteNameHierarchy.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with siteId: %s", config.SiteId.ValueString()))
 			return
 		}
 	}
 
 	params := ""
-	params += "?siteNameHierarchy=" + url.QueryEscape(config.Id.ValueString())
-	res, err := d.client.Get(config.getPath() + params)
+	res, err := d.client.Get("/dna/intent/api/v1/sda/fabricSites?limit=500" + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
+	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 

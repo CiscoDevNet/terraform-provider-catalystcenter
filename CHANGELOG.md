@@ -1,5 +1,6 @@
 ## 0.1.10 (unreleased)
 
+- BREAKING CHANGE: Modified `fabric_site` resource to use `/dna/intent/api/v1/sda/fabricSites` API endpoint, this resource now only works with Catalyst Center version 2.3.7.5+
 - Fix issue with mandatory attributes in `transit_peer_network` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/92)
 - BREAKING CHANGE: Fix `ip_pool` update if more than 25 pools are registered
 - BREAKING CHANGE: Rename `radio_type_a_power_treshold_v1` attribute of `catalystcenter_wireless_rf_profile` resource to `radio_type_a_power_threshold_v1`

@@ -1,28 +1,41 @@
 ---
 name: Fabric Site
-rest_endpoint: /dna/intent/api/v1/business/sda/fabric-site
-id_from_attribute: true
-id_query_param: siteNameHierarchy
-delete_id_query_param: siteNameHierarchy
-no_update: true
-skip_minimum_test: true
+rest_endpoint: /dna/intent/api/v1/sda/fabricSites
+get_rest_endpoint: /dna/intent/api/v1/sda/fabricSites?limit=500
+res_description: Manages Fabric Sites
+id_from_query_path: response
+get_from_all: true
+put_id_include_path: "0.id"
+put_no_id: true
 doc_category: SDA
 attributes:
-  - model_name: siteNameHierarchy
-    type: String
-    id: true
+  - model_name: siteId
+    requires_replace: true
+    data_path: '0'
+    match_id: true
     data_source_query: true
-    description: Existing site name hierarchy available at global level
-    example: Global/Site1
-    test_value: '"${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"'
-  - model_name: fabricType
+    response_data_path: siteId
+    mandatory: true
     type: String
-    description: Type of SD-Access Fabric
-    enum_values: [FABRIC_SITE, FABRIC_ZONE]
-    write_only: true  # when configuring FABRIC_SITE, GET return FABRIC_LAN (v2.3.7.4)
-    requires_replace: true  # PUT not implemented
-    example: FABRIC_SITE
-    default_value: FABRIC_SITE
+    description: ID of the network hierarchy
+    example: 8e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_area.test.id
+  - model_name: authenticationProfileName
+    data_path: '0'
+    response_data_path: authenticationProfileName
+    mandatory: true
+    type: String
+    description: Authentication profile used for this fabric
+    enum_values: [Closed Authentication, Low Impact, No Authentication, Open Authentication]
+    example: No Authentication
+  - model_name: isPubSubEnabled
+    data_path: '0'
+    response_data_path: isPubSubEnabled
+    tf_name: pub_sub_enabled
+    type: Bool
+    mandatory: true
+    description: Specifies whether this fabric site will use pub/sub for control nodes
+    example: false
 test_prerequisites: |
   resource "catalystcenter_area" "test" {
     name        = "Area 1"

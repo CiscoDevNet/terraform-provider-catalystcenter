@@ -30,7 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -61,7 +60,7 @@ func (r *FabricSiteResource) Metadata(ctx context.Context, req resource.Metadata
 func (r *FabricSiteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Fabric Site.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages Fabric Sites").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -71,24 +70,23 @@ func (r *FabricSiteResource) Schema(ctx context.Context, req resource.SchemaRequ
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"site_name_hierarchy": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Existing site name hierarchy available at global level").String,
+			"site_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the network hierarchy").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"fabric_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of SD-Access Fabric").AddStringEnumDescription("FABRIC_SITE", "FABRIC_ZONE").AddDefaultValueDescription("FABRIC_SITE").String,
-				Optional:            true,
-				Computed:            true,
+			"authentication_profile_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Authentication profile used for this fabric").AddStringEnumDescription("Closed Authentication", "Low Impact", "No Authentication", "Open Authentication").String,
+				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("FABRIC_SITE", "FABRIC_ZONE"),
+					stringvalidator.OneOf("Closed Authentication", "Low Impact", "No Authentication", "Open Authentication"),
 				},
-				Default: stringdefault.StaticString("FABRIC_SITE"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+			},
+			"pub_sub_enabled": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Specifies whether this fabric site will use pub/sub for control nodes").String,
+				Required:            true,
 			},
 		},
 	}
@@ -126,7 +124,13 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.SiteNameHierarchy.ValueString()))
+	params = ""
+	res, err = r.client.Get("/dna/intent/api/v1/sda/fabricSites?limit=500" + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.Id = types.StringValue(res.Get("response.#(siteId==\"" + plan.SiteId.ValueString() + "\").id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -150,8 +154,7 @@ func (r *FabricSiteResource) Read(ctx context.Context, req resource.ReadRequest,
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?siteNameHierarchy=" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.client.Get("/dna/intent/api/v1/sda/fabricSites?limit=500" + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -159,6 +162,7 @@ func (r *FabricSiteResource) Read(ctx context.Context, req resource.ReadRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
+	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -194,6 +198,14 @@ func (r *FabricSiteResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
+	body := plan.toBody(ctx, state)
+	params := ""
+	res, err := r.client.Put(plan.getPath()+params, body)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		return
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
@@ -214,7 +226,7 @@ func (r *FabricSiteResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "?siteNameHierarchy=" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -234,11 +246,10 @@ func (r *FabricSiteResource) ImportState(ctx context.Context, req resource.Impor
 	if len(idParts) != 1 || idParts[0] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <site_name_hierarchy>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_name_hierarchy"), idParts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
 }
 

@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -29,8 +30,15 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcFabricSite(t *testing.T) {
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_site.test", "authentication_profile_name", "No Authentication"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_site.test", "pub_sub_enabled", "false"))
 
 	var steps []resource.TestStep
+	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
+		steps = append(steps, resource.TestStep{
+			Config: testAccCcFabricSitePrerequisitesConfig + testAccCcFabricSiteConfig_minimum(),
+		})
+	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcFabricSitePrerequisitesConfig + testAccCcFabricSiteConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
@@ -62,7 +70,9 @@ resource "catalystcenter_area" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcFabricSiteConfig_minimum() string {
 	config := `resource "catalystcenter_fabric_site" "test" {` + "\n"
-	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
+	config += `	site_id = catalystcenter_area.test.id` + "\n"
+	config += `	authentication_profile_name = "No Authentication"` + "\n"
+	config += `	pub_sub_enabled = false` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -72,8 +82,9 @@ func testAccCcFabricSiteConfig_minimum() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcFabricSiteConfig_all() string {
 	config := `resource "catalystcenter_fabric_site" "test" {` + "\n"
-	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
-	config += `	fabric_type = "FABRIC_SITE"` + "\n"
+	config += `	site_id = catalystcenter_area.test.id` + "\n"
+	config += `	authentication_profile_name = "No Authentication"` + "\n"
+	config += `	pub_sub_enabled = false` + "\n"
 	config += `}` + "\n"
 	return config
 }
