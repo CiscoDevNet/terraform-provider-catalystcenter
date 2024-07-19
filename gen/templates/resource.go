@@ -425,9 +425,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	body := plan.toBody(ctx, {{camelCase .Name}}{})
 
 	params := ""
-	{{- if hasQueryParam .Attributes}}
-		{{- $queryParam := getQueryParam .Attributes}}
-	params += "/" + url.QueryEscape(plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
+	{{- if hasCreateQueryPath .Attributes}}
+		{{- $createQueryPath := getCreateQueryPath .Attributes}}
+	params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
 	{{- end}}
 	{{- if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})

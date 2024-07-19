@@ -51,8 +51,17 @@ attribute:
   match_id: bool(required=False) # Set to true if the attribute is used to identify the right element using "get_from_all" option
   reference: bool(required=False) # Set to true if the attribute is a reference being used in the path (URL) of the REST endpoint
   requires_replace: bool(required=False) # Set to true if the attribute update forces Terraform to destroy/recreate the entire resource
+  create_query_path: bool(required=False) # Set to true if the attribute is a query path and being used for POST or PUT request
   query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for GET, POST and PUT requests
+  query_param_name: str(required=False) # Name of query param used in request, by default derived from model_name
   delete_query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for DELETE request. Note: This cannot be used in conjunction with 'delete_id_query_param'
+  delete_query_param_name: str(required=False) # Name of query param used in DELETE request, by default derived from model_name
+  post_query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for POST request
+  post_query_param_name: str(required=False) # Name of query param used in POST request, by default derived from model_name
+  put_query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for PUT request
+  put_query_param_name: str(required=False) # Name of query param used in PUT request, by default derived from model_name
+  get_query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for GET request
+  get_query_param_name: str(required=False) # Name of query param used in GET request, by default derived from model_name
   data_source_query: bool(required=False) # Set to true if the attribute is an alternative query parameter for the data source
   mandatory: bool(required=False) # Set to true if the attribute is mandatory
   write_only: bool(required=False) # Set to true if the attribute is write-only, meaning we cannot read the value

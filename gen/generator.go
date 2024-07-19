@@ -158,6 +158,7 @@ type YamlConfigAttribute struct {
 	GetQueryParamName    string                `yaml:"get_query_param_name"`
 	PutQueryParamName    string                `yaml:"put_query_param_name"`
 	PostQueryParamName   string                `yaml:"post_query_param_name"`
+	CreateQueryPath      bool                  `yaml:"create_query_path"`
 	DataSourceQuery      bool                  `yaml:"data_source_query"`
 	Mandatory            bool                  `yaml:"mandatory"`
 	WriteOnly            bool                  `yaml:"write_only"`
@@ -424,6 +425,26 @@ func IsNestedSet(attribute YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return true if create query path included in attributes
+func HasCreateQueryPath(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.CreateQueryPath {
+			return true
+		}
+	}
+	return false
+}
+
+// Templating helper function to return the create query path attribute
+func GetCreateQueryPath(attributes []YamlConfigAttribute) YamlConfigAttribute {
+	for _, attr := range attributes {
+		if attr.CreateQueryPath {
+			return attr
+		}
+	}
+	return YamlConfigAttribute{}
+}
+
 // Templating helper function to return a query parameter string based on the HTTP method input source (plan, state) and provided attributes.
 // By default, it uses attr.QueryParam if specified, and for method-specific parameters like DeleteQueryParamName, GetQueryParamName, etc.,
 // it uses those if available for the respective HTTP method. If no specific query parameter is provided for a method, it defaults to attr.ModelName.
@@ -530,6 +551,8 @@ var functions = template.FuncMap{
 	"generateQueryParamString": GenerateQueryParamString,
 	"getId":                    GetId,
 	"getMatchId":               GetMatchId,
+	"hasCreateQueryPath":       HasCreateQueryPath,
+	"getCreateQueryPath":       GetCreateQueryPath,
 	"getQueryParam":            GetQueryParam,
 	"getDeleteQueryParam":      GetDeleteQueryParam,
 	"hasDataSourceQuery":       HasDataSourceQuery,
