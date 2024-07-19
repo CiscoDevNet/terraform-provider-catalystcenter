@@ -44,3 +44,5 @@ log*.txt
 .terraform.lock.hcl
 # Transient Terraform backend lock
 .terraform.tfstate.lock.info
+
+.envrc
