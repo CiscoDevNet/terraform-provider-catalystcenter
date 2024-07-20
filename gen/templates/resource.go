@@ -457,7 +457,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		return
 	}
 	{{- if and .IdFromQueryPathAttribute .IdFromQueryPath (not .GetExtraQueryParams) (not .GetFromAll) }}
-	plan.Id = types.StringValue(res.Get("{{if .IdFromQueryPath}}{{.IdFromQueryPath}}.{{end}}{{.IdFromQueryPathAttribute}}").String())
+	plan.Id = types.StringValue(res.Get("{{if eq .IdFromQueryPath "." }}{{else}}{{.IdFromQueryPath}}.{{end}}{{.IdFromQueryPathAttribute}}").String())
 	{{- else}}
 	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ plan.{{toGoName $id.TfName}}.Value{{$id.Type}}() +"\").{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}").String())
 	{{- end}}
@@ -611,9 +611,12 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}})
 	{{- else if .DeleteIdQueryParam}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()))
-	{{- else if hasDeleteQueryParam .Attributes}}
-		{{- $deleteQueryParam := getDeleteQueryParam .Attributes}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{$deleteQueryParam.TfName}}=" + url.QueryEscape(state.{{toGoName $deleteQueryParam.TfName}}.Value{{$deleteQueryParam.Type}}()))
+	{{- else if hasDeleteQueryParam .Attributes }}
+	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
+	{{- if $queryParams }}
+	params := {{$queryParams}}
+	{{- end}}
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params)
 	{{- else}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()))
 	{{- end}}

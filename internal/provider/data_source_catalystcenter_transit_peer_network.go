@@ -23,14 +23,10 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
-	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -63,13 +59,11 @@ func (d *TransitPeerNetworkDataSource) Schema(ctx context.Context, req datasourc
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Optional:            true,
 				Computed:            true,
 			},
 			"transit_peer_network_name": schema.StringAttribute{
 				MarkdownDescription: "Transit Peer Network Name",
-				Optional:            true,
-				Computed:            true,
+				Required:            true,
 			},
 			"transit_peer_network_type": schema.StringAttribute{
 				MarkdownDescription: "Transit Peer Network Type",
@@ -102,14 +96,6 @@ func (d *TransitPeerNetworkDataSource) Schema(ctx context.Context, req datasourc
 		},
 	}
 }
-func (d *TransitPeerNetworkDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
-	return []datasource.ConfigValidator{
-		datasourcevalidator.ExactlyOneOf(
-			path.MatchRoot("id"),
-			path.MatchRoot("transit_peer_network_name"),
-		),
-	}
-}
 
 func (d *TransitPeerNetworkDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
@@ -133,31 +119,9 @@ func (d *TransitPeerNetworkDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.TransitPeerNetworkName.IsNull() {
-		res, err := d.client.Get(config.getPath())
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
-			return
-		}
-		if value := res; len(value.Array()) > 0 {
-			value.ForEach(func(k, v gjson.Result) bool {
-				if config.TransitPeerNetworkName.ValueString() == v.Get("transitPeerNetworkName").String() {
-					config.Id = types.StringValue(v.Get("id").String())
-					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with transitPeerNetworkName '%v', id: %v", config.Id.String(), config.TransitPeerNetworkName.ValueString(), config.Id.String()))
-					return false
-				}
-				return true
-			})
-		}
-
-		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with transitPeerNetworkName: %s", config.TransitPeerNetworkName.ValueString()))
-			return
-		}
-	}
 
 	params := ""
-	params += "?transitPeerNetworkName=" + url.QueryEscape(config.Id.ValueString())
+	params += "?transitPeerNetworkName=" + url.QueryEscape(config.TransitPeerNetworkName.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

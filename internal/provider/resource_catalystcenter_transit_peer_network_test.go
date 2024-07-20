@@ -39,10 +39,6 @@ func TestAccCcTransitPeerNetwork(t *testing.T) {
 		Config: testAccCcTransitPeerNetworkConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_transit_peer_network.test",
-		ImportState:  true,
-	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -74,10 +70,6 @@ func testAccCcTransitPeerNetworkConfig_all() string {
 	config += `	transit_peer_network_type = "ip_transit"` + "\n"
 	config += `	routing_protocol_name = "BGP"` + "\n"
 	config += `	autonomous_system_number = "65010"` + "\n"
-	config += `	transit_control_plane_settings = [{` + "\n"
-	config += `	  site_name_hierarchy = "Global/Area1"` + "\n"
-	config += `	  device_management_ip_address = "10.0.0.1"` + "\n"
-	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }

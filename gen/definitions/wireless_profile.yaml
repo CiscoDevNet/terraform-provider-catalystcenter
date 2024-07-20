@@ -13,6 +13,7 @@ doc_category: Wireless
 attributes:
   - model_name: wirelessProfileName
     tf_name: name
+    delete_query_param_name: name
     delete_query_param: true
     type: String
     match_id: true

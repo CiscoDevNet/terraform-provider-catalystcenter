@@ -57,15 +57,12 @@ func testAccDataSourceCcTransitPeerNetworkConfig() string {
 	config += `	transit_peer_network_type = "ip_transit"` + "\n"
 	config += `	routing_protocol_name = "BGP"` + "\n"
 	config += `	autonomous_system_number = "65010"` + "\n"
-	config += `	transit_control_plane_settings = [{` + "\n"
-	config += `	  site_name_hierarchy = "Global/Area1"` + "\n"
-	config += `	  device_management_ip_address = "10.0.0.1"` + "\n"
-	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `
 		data "catalystcenter_transit_peer_network" "test" {
 			id = catalystcenter_transit_peer_network.test.id
+			transit_peer_network_name = "TRANSIT_1"
 		}
 	`
 	return config

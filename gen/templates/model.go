@@ -307,7 +307,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result) {
 	{{- if .DataSourceNoId}}
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get("{{if .IdFromQueryPath}}{{.IdFromQueryPath}}.{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}{{end}}"); value.Exists() {
+	if value := res.Get("{{if .IdFromQueryPath}}{{if eq .IdFromQueryPath "." }}{{else}}{{.IdFromQueryPath}}.{{end}}{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}{{end}}"); value.Exists() {
 		data.Id = types.StringValue(value.String())
 	} else {
 		data.Id = types.StringNull()

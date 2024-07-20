@@ -96,6 +96,12 @@ func (data TransitPeerNetwork) toBody(ctx context.Context, state TransitPeerNetw
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *TransitPeerNetwork) fromBody(ctx context.Context, res gjson.Result) {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	if value := res.Get("transitPeerNetworkId"); value.Exists() {
+		data.Id = types.StringValue(value.String())
+	} else {
+		data.Id = types.StringNull()
+	}
 	if value := res.Get("transitPeerNetworkName"); value.Exists() {
 		data.TransitPeerNetworkName = types.StringValue(value.String())
 	} else {

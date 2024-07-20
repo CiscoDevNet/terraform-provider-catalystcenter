@@ -1,3 +1,3 @@
 data "catalystcenter_transit_peer_network" "example" {
-  id = "TRANSIT_1"
+  transit_peer_network_name = "TRANSIT_1"
 }

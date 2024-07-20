@@ -162,7 +162,14 @@ func (r *TransitPeerNetworkResource) Create(ctx context.Context, req resource.Cr
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.TransitPeerNetworkName.ValueString()))
+	params = ""
+	params += "?transitPeerNetworkName=" + url.QueryEscape(plan.TransitPeerNetworkName.ValueString())
+	res, err = r.client.Get(plan.getPath() + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.Id = types.StringValue(res.Get("transitPeerNetworkId").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -186,7 +193,7 @@ func (r *TransitPeerNetworkResource) Read(ctx context.Context, req resource.Read
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?transitPeerNetworkName=" + url.QueryEscape(state.Id.ValueString())
+	params += "?transitPeerNetworkName=" + url.QueryEscape(state.TransitPeerNetworkName.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -250,7 +257,8 @@ func (r *TransitPeerNetworkResource) Delete(ctx context.Context, req resource.De
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "?transitPeerNetworkName=" + url.QueryEscape(state.Id.ValueString()))
+	params := "?transitPeerNetworkName=" + url.QueryEscape(state.TransitPeerNetworkName.ValueString())
+	res, err := r.client.Delete(state.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -275,7 +283,6 @@ func (r *TransitPeerNetworkResource) ImportState(ctx context.Context, req resour
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("transit_peer_network_name"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
 }
 
 // End of section. //template:end import
