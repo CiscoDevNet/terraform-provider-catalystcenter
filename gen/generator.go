@@ -106,6 +106,7 @@ type YamlConfig struct {
 	GetRequiresId            bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams      string                `yaml:"get_extra_query_params"`
 	NoDelete                 bool                  `yaml:"no_delete"`
+	DataSourceNoId           bool                  `yaml:"data_source_no_id"`
 	DeleteNoId               bool                  `yaml:"delete_no_id"`
 	NoUpdate                 bool                  `yaml:"no_update"`
 	NoRead                   bool                  `yaml:"no_read"`
@@ -160,6 +161,7 @@ type YamlConfigAttribute struct {
 	PostQueryParamName   string                `yaml:"post_query_param_name"`
 	CreateQueryPath      bool                  `yaml:"create_query_path"`
 	DataSourceQuery      bool                  `yaml:"data_source_query"`
+	QueryParamNoBody     bool                  `yaml:"query_param_no_body"`
 	Mandatory            bool                  `yaml:"mandatory"`
 	WriteOnly            bool                  `yaml:"write_only"`
 	ExcludeFromPut       bool                  `yaml:"exclude_from_put"`

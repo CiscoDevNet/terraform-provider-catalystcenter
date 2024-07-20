@@ -7,6 +7,7 @@ get_rest_endpoint: str(required=False) # Override GET REST endpoint path
 put_rest_endpoint: str(required=False) # Override PUT REST endpoint path
 delete_rest_endpoint: str(required=False) # Override DELETE REST endpoint path
 get_no_id: bool(required=False) # Set to true if the GET request does not require an ID
+data_source_no_id: bool(required=False) # Set to true if id in data source should be optional
 get_from_all: bool(required=False) # Set to true if GET does not support querying individual objects
 get_requires_id: bool(required=False) # Set to true if the GET request requires an ID in the URL path
 get_extra_query_params: str(required=False) # Additional query parameters for GET request
@@ -62,6 +63,7 @@ attribute:
   put_query_param_name: str(required=False) # Name of query param used in PUT request, by default derived from model_name
   get_query_param: bool(required=False) # Set to true if the attribute is a query parameter and being used for GET request
   get_query_param_name: str(required=False) # Name of query param used in GET request, by default derived from model_name
+  query_param_no_body: bool(required=False) # Set to true if the attribute is a query parameter and not part of the body
   data_source_query: bool(required=False) # Set to true if the attribute is an alternative query parameter for the data source
   mandatory: bool(required=False) # Set to true if the attribute is mandatory
   write_only: bool(required=False) # Set to true if the attribute is write-only, meaning we cannot read the value

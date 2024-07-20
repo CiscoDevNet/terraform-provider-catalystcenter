@@ -44,6 +44,7 @@ attributes:
     mandatory: true
     id: true
     query_param: true
+    query_param_no_body: true
     response_data_path: response.0.name
     data_path: '0'
     requires_replace: true
