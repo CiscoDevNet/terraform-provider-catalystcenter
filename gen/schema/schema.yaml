@@ -16,6 +16,7 @@ delete_no_id: bool(required=False) # Set to true if the DELETE request does not 
 no_update: bool(required=False) # Set to true if the PUT request is not supported
 no_read: bool(required=False) # Set to true if the GET request is not supported
 no_import: bool(required=False) # Set to true if the resource does not support importing
+import_no_id: bool(required=False) # Set to true if import does not require an ID
 post_update: bool(required=False) # Set to true if the POST request is used for update
 put_create: bool(required=False) # Set to true if the PUT request is used for create
 root_list: bool(required=False) # Set to true if the root element of the data structure is a list

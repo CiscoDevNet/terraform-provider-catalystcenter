@@ -111,6 +111,7 @@ type YamlConfig struct {
 	NoUpdate                 bool                  `yaml:"no_update"`
 	NoRead                   bool                  `yaml:"no_read"`
 	NoImport                 bool                  `yaml:"no_import"`
+	ImportNoId               bool                  `yaml:"import_no_id"`
 	PostUpdate               bool                  `yaml:"post_update"`
 	PutCreate                bool                  `yaml:"put_create"`
 	RootList                 bool                  `yaml:"root_list"`
@@ -521,7 +522,7 @@ func ImportAttributes(config YamlConfig) []YamlConfigAttribute {
 			r = append(r, attr)
 		}
 	}
-	if !config.IdFromAttribute {
+	if !config.IdFromAttribute && !config.ImportNoId {
 		attr := YamlConfigAttribute{}
 		attr.ModelName = "id"
 		attr.TfName = "id"
