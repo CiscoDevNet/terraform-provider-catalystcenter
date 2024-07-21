@@ -1,0 +1,125 @@
+---
+name: Fabric L3 Handoff IP Transit
+rest_endpoint: /dna/intent/api/v1/sda/fabricDevices/layer3Handoffs/ipTransits
+res_description: Manages Layer 3 Handoffs with IP Transit in Fabric Devices
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+put_id_include_path: 0.id
+import_no_id: true
+data_source_no_id: true
+put_no_id: true
+doc_category: SDA
+test_tags: [SDA]
+attributes:
+  - model_name: networkDeviceId
+    query_param: true
+    requires_replace: true
+    data_path: '0'
+    response_data_path: response.0.networkDeviceId
+    mandatory: true
+    description: Network device ID of the fabric device
+    type: String
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+  - model_name: fabricId
+    requires_replace: true
+    query_param: true
+    data_path: '0'
+    response_data_path: response.0.fabricId
+    type: String
+    mandatory: true
+    description: ID of the fabric this device belongs to
+    example: c4b85bb2-ce3f-4db9-a32b-e439a388ac2f
+    test_value: catalystcenter_fabric_site.test.id
+  - model_name: transitNetworkId
+    requires_replace: true
+    data_path: '0'
+    response_data_path: response.0.transitNetworkId
+    type: String
+    mandatory: true
+    description: ID of the transit network of the layer 3 handoff ip transit
+    example: d71c847b-e9c2-4f13-928c-223372b72b06
+    test_value: catalystcenter_transit_peer_network.test.id
+  - model_name: interfaceName
+    data_path: '0'
+    requires_replace: true
+    response_data_path: response.0.interfaceName
+    type: String
+    description:  Interface name of the layer 3 handoff ip transit
+    example: TenGigabitEthernet1/0/2
+  - model_name: externalConnectivityIpPoolName
+    data_path: '0'
+    requires_replace: true
+    response_data_path: response.0.externalConnectivityIpPoolName
+    type: String
+    description:  External connectivity ip pool will be used by Catalyst Center to allocate IP address for the connection between the border node and peer
+    example: "MyPool1"
+    exclude_test: true
+  - model_name: virtualNetworkName
+    data_path: '0'
+    requires_replace: true
+    response_data_path: response.0.virtualNetworkName
+    mandatory: true
+    type: String
+    description: SName of the virtual network associated with this fabric site
+    example: SDA_VN1
+  - model_name: vlanId
+    data_path: '0'
+    requires_replace: true
+    response_data_path: response.0.vlanId
+    type: Int64
+    mandatory: true
+    description: VLAN number for the Switch Virtual Interface (SVI) used to establish BGP peering with the external domain for the virtual network. Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094)
+    example: 205
+  - model_name: tcpMssAdjustment
+    data_path: '0'
+    response_data_path: response.0.tcpMssAdjustment
+    type: Int64
+    min_int: 500
+    max_int: 1440
+    description: TCP maximum segment size (mss) value for the layer 3 handoff. Allowed range is [500-1440]. TCP MSS Adjustment value is applicable for the TCP sessions over both IPv4 and IPv6
+    example: 1400
+  - model_name: localIpAddress
+    data_path: '0'
+    requires_replace: true
+    response_data_path: response.0.localIpAddress
+    type: String
+    description: Local ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
+    example: "10.0.0.1/24"
+  - model_name: remoteIpAddress
+    data_path: '0'
+    requires_replace: true
+    response_data_path: response.0.remoteIpAddress
+    type: String
+    description: Remote ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
+    example: "10.0.0.2/24"
+  - model_name: localIpv6Address
+    data_path: '0'
+    requires_replace: true
+    response_data_path: response.0.localIpv6Address
+    type: String
+    description: Local ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
+    exclude_test: true
+  - model_name: remoteIpv6Address
+    data_path: '0'
+    requires_replace: true
+    response_data_path: response.0.remoteIpv6Address
+    type: String
+    description: Remote ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
+    exclude_test: true
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+    depends_on = [catalystcenter_area.test]
+  }
+  resource "catalystcenter_transit_peer_network" "test" {
+    transit_peer_network_name = "TRANSIT_1"
+    transit_peer_network_type = "ip_transit"
+    routing_protocol_name     = "BGP"
+    autonomous_system_number  = "65010"
+  }
