@@ -28,24 +28,24 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccCcPnPDeviceImport(t *testing.T) {
+func TestAccCcPnPImportDevices(t *testing.T) {
 	if os.Getenv("PNP") == "" {
 		t.Skip("skipping test, set environment variable PNP")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_import.test", "devices.0.serial_number", "FOC12345678"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_import.test", "devices.0.stack", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_import.test", "devices.0.pid", "C9300-24P"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_device_import.test", "devices.0.hostname", "switch1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_import_devices.test", "devices.0.serial_number", "FOC12345678"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_import_devices.test", "devices.0.stack", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_import_devices.test", "devices.0.pid", "C9300-24P"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_import_devices.test", "devices.0.hostname", "switch1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccCcPnPDeviceImportConfig_minimum(),
+			Config: testAccCcPnPImportDevicesConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcPnPDeviceImportConfig_all(),
+		Config: testAccCcPnPImportDevicesConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -62,8 +62,8 @@ func TestAccCcPnPDeviceImport(t *testing.T) {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccCcPnPDeviceImportConfig_minimum() string {
-	config := `resource "catalystcenter_pnp_device_import" "test" {` + "\n"
+func testAccCcPnPImportDevicesConfig_minimum() string {
+	config := `resource "catalystcenter_pnp_import_devices" "test" {` + "\n"
 	config += `	devices = [{` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
@@ -73,8 +73,8 @@ func testAccCcPnPDeviceImportConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccCcPnPDeviceImportConfig_all() string {
-	config := `resource "catalystcenter_pnp_device_import" "test" {` + "\n"
+func testAccCcPnPImportDevicesConfig_all() string {
+	config := `resource "catalystcenter_pnp_import_devices" "test" {` + "\n"
 	config += `	devices = [{` + "\n"
 	config += `	  serial_number = "FOC12345678"` + "\n"
 	config += `	  stack = false` + "\n"

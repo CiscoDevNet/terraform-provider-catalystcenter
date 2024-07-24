@@ -1,4 +1,4 @@
-resource "catalystcenter_pnp_device_import" "example" {
+resource "catalystcenter_pnp_import_devices" "example" {
   devices = [
     {
       serial_number = "FOC12345678"

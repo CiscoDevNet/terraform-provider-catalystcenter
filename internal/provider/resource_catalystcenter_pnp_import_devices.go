@@ -37,24 +37,24 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &PnPDeviceImportResource{}
+var _ resource.Resource = &PnPImportDevicesResource{}
 
-func NewPnPDeviceImportResource() resource.Resource {
-	return &PnPDeviceImportResource{}
+func NewPnPImportDevicesResource() resource.Resource {
+	return &PnPImportDevicesResource{}
 }
 
-type PnPDeviceImportResource struct {
+type PnPImportDevicesResource struct {
 	client *cc.Client
 }
 
-func (r *PnPDeviceImportResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_pnp_device_import"
+func (r *PnPImportDevicesResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_pnp_import_devices"
 }
 
-func (r *PnPDeviceImportResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *PnPImportDevicesResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Add devices to PnP in bulk").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource adds devices to PNP in bulk  file on the chosen network device (upgrade the software on the device). Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -92,7 +92,7 @@ func (r *PnPDeviceImportResource) Schema(ctx context.Context, req resource.Schem
 	}
 }
 
-func (r *PnPDeviceImportResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *PnPImportDevicesResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -103,8 +103,8 @@ func (r *PnPDeviceImportResource) Configure(_ context.Context, req resource.Conf
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *PnPDeviceImportResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan PnPDeviceImport
+func (r *PnPImportDevicesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan PnPImportDevices
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -116,7 +116,7 @@ func (r *PnPDeviceImportResource) Create(ctx context.Context, req resource.Creat
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, PnPDeviceImport{})
+	body := plan.toBody(ctx, PnPImportDevices{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -135,8 +135,8 @@ func (r *PnPDeviceImportResource) Create(ctx context.Context, req resource.Creat
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *PnPDeviceImportResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state PnPDeviceImport
+func (r *PnPImportDevicesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state PnPImportDevices
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -156,8 +156,8 @@ func (r *PnPDeviceImportResource) Read(ctx context.Context, req resource.ReadReq
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *PnPDeviceImportResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state PnPDeviceImport
+func (r *PnPImportDevicesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state PnPImportDevices
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -183,8 +183,8 @@ func (r *PnPDeviceImportResource) Update(ctx context.Context, req resource.Updat
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *PnPDeviceImportResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state PnPDeviceImport
+func (r *PnPImportDevicesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state PnPImportDevices
 
 	// Read state
 	diags := req.State.Get(ctx, &state)

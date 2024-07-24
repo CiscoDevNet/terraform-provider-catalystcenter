@@ -30,12 +30,12 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-type PnPDeviceImport struct {
-	Id      types.String             `tfsdk:"id"`
-	Devices []PnPDeviceImportDevices `tfsdk:"devices"`
+type PnPImportDevices struct {
+	Id      types.String              `tfsdk:"id"`
+	Devices []PnPImportDevicesDevices `tfsdk:"devices"`
 }
 
-type PnPDeviceImportDevices struct {
+type PnPImportDevicesDevices struct {
 	SerialNumber types.String `tfsdk:"serial_number"`
 	Stack        types.Bool   `tfsdk:"stack"`
 	Pid          types.String `tfsdk:"pid"`
@@ -45,7 +45,7 @@ type PnPDeviceImportDevices struct {
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
-func (data PnPDeviceImport) getPath() string {
+func (data PnPImportDevices) getPath() string {
 	return "/dna/intent/api/v1/onboarding/pnp-device/import"
 }
 
@@ -56,7 +56,7 @@ func (data PnPDeviceImport) getPath() string {
 // End of section. //template:end getPathDelete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data PnPDeviceImport) toBody(ctx context.Context, state PnPDeviceImport) string {
+func (data PnPImportDevices) toBody(ctx context.Context, state PnPImportDevices) string {
 	body := "[]"
 	put := false
 	if state.Id.ValueString() != "" {
@@ -88,11 +88,11 @@ func (data PnPDeviceImport) toBody(ctx context.Context, state PnPDeviceImport) s
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-func (data *PnPDeviceImport) fromBody(ctx context.Context, res gjson.Result) {
+func (data *PnPImportDevices) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res; value.Exists() && len(value.Array()) > 0 {
-		data.Devices = make([]PnPDeviceImportDevices, 0)
+		data.Devices = make([]PnPImportDevicesDevices, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := PnPDeviceImportDevices{}
+			item := PnPImportDevicesDevices{}
 			if cValue := v.Get("deviceInfo.serialNumber"); cValue.Exists() {
 				item.SerialNumber = types.StringValue(cValue.String())
 			} else {
@@ -122,7 +122,7 @@ func (data *PnPDeviceImport) fromBody(ctx context.Context, res gjson.Result) {
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *PnPDeviceImport) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *PnPImportDevices) updateFromBody(ctx context.Context, res gjson.Result) {
 	for i := range data.Devices {
 		keys := [...]string{"deviceInfo.serialNumber", "deviceInfo.stack", "deviceInfo.pid", "deviceInfo.hostname"}
 		keyValues := [...]string{data.Devices[i].SerialNumber.ValueString(), strconv.FormatBool(data.Devices[i].Stack.ValueBool()), data.Devices[i].Pid.ValueString(), data.Devices[i].Hostname.ValueString()}
@@ -172,7 +172,7 @@ func (data *PnPDeviceImport) updateFromBody(ctx context.Context, res gjson.Resul
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
-func (data *PnPDeviceImport) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *PnPImportDevices) isNull(ctx context.Context, res gjson.Result) bool {
 	if len(data.Devices) > 0 {
 		return false
 	}
