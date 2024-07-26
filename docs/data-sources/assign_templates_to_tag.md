@@ -28,4 +28,4 @@ data "catalystcenter_assign_templates_to_tag" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
-- `template_ids` (List of String) Template Ids List
+- `template_ids` (Set of String) Template Ids List

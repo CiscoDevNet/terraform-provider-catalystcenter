@@ -35,7 +35,7 @@ import (
 type AssignTemplatesToTag struct {
 	Id          types.String `tfsdk:"id"`
 	TagId       types.String `tfsdk:"tag_id"`
-	TemplateIds types.List   `tfsdk:"template_ids"`
+	TemplateIds types.Set    `tfsdk:"template_ids"`
 }
 
 // End of section. //template:end types
@@ -91,9 +91,9 @@ func (data *AssignTemplatesToTag) fromBody(ctx context.Context, res gjson.Result
 
 	// Check if instanceUuidAttrValues is not empty, assign it to TemplateIds, else assign a null list
 	if len(instanceUuidAttrValues) > 0 {
-		data.TemplateIds = types.ListValueMust(types.StringType, instanceUuidAttrValues)
+		data.TemplateIds = types.SetValueMust(types.StringType, instanceUuidAttrValues)
 	} else {
-		data.TemplateIds = types.ListNull(types.StringType)
+		data.TemplateIds = types.SetNull(types.StringType)
 	}
 }
 
@@ -103,9 +103,9 @@ func (data *AssignTemplatesToTag) updateFromBody(ctx context.Context, res gjson.
 
 	// Check if instanceUuidAttrValues is not empty, assign it to TemplateIds, else assign a null list
 	if len(instanceUuidAttrValues) > 0 {
-		data.TemplateIds = types.ListValueMust(types.StringType, instanceUuidAttrValues)
+		data.TemplateIds = types.SetValueMust(types.StringType, instanceUuidAttrValues)
 	} else {
-		data.TemplateIds = types.ListNull(types.StringType)
+		data.TemplateIds = types.SetNull(types.StringType)
 	}
 }
 

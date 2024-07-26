@@ -65,7 +65,7 @@ func (d *AssignTemplatesToTagDataSource) Schema(ctx context.Context, req datasou
 				MarkdownDescription: "Tag Id to be associated with the template",
 				Required:            true,
 			},
-			"template_ids": schema.ListAttribute{
+			"template_ids": schema.SetAttribute{
 				MarkdownDescription: "Template Ids List",
 				ElementType:         types.StringType,
 				Computed:            true,

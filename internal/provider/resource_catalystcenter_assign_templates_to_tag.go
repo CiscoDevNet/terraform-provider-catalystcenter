@@ -73,7 +73,7 @@ func (r *AssignTemplatesToTagResource) Schema(ctx context.Context, req resource.
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"template_ids": schema.ListAttribute{
+			"template_ids": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Template Ids List").String,
 				ElementType:         types.StringType,
 				Optional:            true,

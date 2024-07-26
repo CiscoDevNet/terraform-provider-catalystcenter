@@ -81,7 +81,7 @@ resource "catalystcenter_template" "test" {
 func testAccDataSourceCcAssignTemplatesToTagConfig() string {
 	config := `resource "catalystcenter_assign_templates_to_tag" "test" {` + "\n"
 	config += `	tag_id = catalystcenter_tag.test.id` + "\n"
-	config += `	template_ids = catalystcenter_template.test.id` + "\n"
+	config += `	template_ids = [catalystcenter_template.test.id]` + "\n"
 	config += `}` + "\n"
 
 	config += `

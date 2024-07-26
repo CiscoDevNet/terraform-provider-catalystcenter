@@ -21,11 +21,11 @@ attributes:
     test_value: catalystcenter_tag.test.id
   - model_name: template
     tf_name: template_ids
-    type: List
+    type: Set
     element_type: String
     description: Template Ids List
     example: 75b0f85a-8157-4db3-ae2d-9807c893319a
-    test_value: catalystcenter_template.test.id
+    test_value: '[catalystcenter_template.test.id]'
 test_prerequisites: |
   resource "catalystcenter_tag" "test" {
     name        = "Tag1"

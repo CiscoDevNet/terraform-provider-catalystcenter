@@ -28,7 +28,7 @@ resource "catalystcenter_assign_templates_to_tag" "example" {
 
 ### Optional
 
-- `template_ids` (List of String) Template Ids List
+- `template_ids` (Set of String) Template Ids List
 
 ### Read-Only
 
