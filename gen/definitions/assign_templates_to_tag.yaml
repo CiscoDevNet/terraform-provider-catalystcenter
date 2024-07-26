@@ -1,0 +1,56 @@
+---
+name: Assign Templates to Tag
+rest_endpoint: /dna/intent/api/v1/tag/%v/member
+get_extra_query_params: '?memberType=template'
+get_no_id: true
+# Manual updates in Delete function to handle removal of templates from tag
+res_description: 'This resource is responsible for assigning templates to a specified tag during creation
+  and removing the template from the tag during destruction'
+post_update: true
+no_import: true
+data_source_no_id: true
+skip_minimum_test: true
+doc_category: Tags
+attributes:
+  - model_name: tagId
+    type: String
+    reference: true
+    id: true
+    description: Tag Id to be associated with the template
+    example: ea505070-6bb8-493f-bff0-8058e8e03ee5
+    test_value: catalystcenter_tag.test.id
+  - model_name: template
+    tf_name: template_ids
+    type: List
+    element_type: String
+    description: Template Ids List
+    example: 75b0f85a-8157-4db3-ae2d-9807c893319a
+    test_value: catalystcenter_template.test.id
+test_prerequisites: |
+  resource "catalystcenter_tag" "test" {
+    name        = "Tag1"
+    description = "Tag1 Description"
+    system_tag  = false
+  }
+
+  resource "catalystcenter_project" "test" {
+    name        = "Project1"
+  }
+
+  resource "catalystcenter_template" "test" {
+    project_id  = catalystcenter_project.test.id
+    name        = "Template1"
+    description = "My description"
+    device_types = [
+      {
+        product_family = "Switches and Hubs"
+        product_series = "Cisco Catalyst 9300 Series Switches"
+        product_type   = "Cisco Catalyst 9300 Switch"
+      }
+    ]
+    language         = "JINJA"
+    software_type    = "IOS-XE"
+    software_variant = "XE"
+    software_version = "16.12.1a"
+    template_content = "hostname SW1"
+  }
