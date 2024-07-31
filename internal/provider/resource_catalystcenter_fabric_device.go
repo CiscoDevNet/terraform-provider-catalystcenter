@@ -158,7 +158,7 @@ func (r *FabricDeviceResource) Create(ctx context.Context, req resource.CreateRe
 	body := plan.toBody(ctx, FabricDevice{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 120 })
+	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 300 })
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -240,7 +240,7 @@ func (r *FabricDeviceResource) Update(ctx context.Context, req resource.UpdateRe
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 120 })
+	res, err := r.client.Put(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 300 })
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
