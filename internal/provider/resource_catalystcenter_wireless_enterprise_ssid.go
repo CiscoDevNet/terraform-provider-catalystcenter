@@ -215,6 +215,34 @@ func (r *WirelessEnterpriseSSIDResource) Schema(ctx context.Context, req resourc
 				MarkdownDescription: helpers.NewAttributeDescription("Client Rate Limit (in bits per second)").String,
 				Optional:            true,
 			},
+			"auth_key_mgmt": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Takes string inputs for the AKMs that should be set true. Possible AKM values : dot1x,dot1x_ft, dot1x_sha, psk, psk_ft, psk_sha, owe, sae, sae_ft").String,
+				ElementType:         types.StringType,
+				Optional:            true,
+			},
+			"rsn_cipher_suite_gcmp256": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rsn Cipher Suite Gcmp256").String,
+				Optional:            true,
+			},
+			"rsn_cipher_suite_ccmp256": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rsn Cipher Suite Ccmp256").String,
+				Optional:            true,
+			},
+			"rsn_cipher_suite_gcmp128": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rsn Cipher Suite Gcmp 128").String,
+				Optional:            true,
+			},
+			"ghz6_policy_client_steering": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Ghz6 Policy Client Steering").String,
+				Optional:            true,
+			},
+			"ghz24_policy": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Ghz24 Policy").AddStringEnumDescription("dot11-g-only", "dot11-bg-only").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("dot11-g-only", "dot11-bg-only"),
+				},
+			},
 		},
 	}
 }

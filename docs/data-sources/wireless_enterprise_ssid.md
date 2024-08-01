@@ -28,6 +28,7 @@ data "catalystcenter_wireless_enterprise_ssid" "example" {
 ### Read-Only
 
 - `aaa_override` (Boolean) AAA Override
+- `auth_key_mgmt` (Set of String) Takes string inputs for the AKMs that should be set true. Possible AKM values : dot1x,dot1x_ft, dot1x_sha, psk, psk_ft, psk_sha, owe, sae, sae_ft
 - `basic_service_set_client_idle_timeout` (Number) Basic Service Set Client Idle Timeout
 - `client_exclusion_timeout` (Number) Client Exclusion Timeout
 - `client_rate_limit` (Number) Client Rate Limit (in bits per second)
@@ -41,6 +42,8 @@ data "catalystcenter_wireless_enterprise_ssid" "example" {
 - `enable_neighbor_list` (Boolean) Enable Neighbor List
 - `enable_session_time_out` (Boolean) Enable Session Timeout
 - `fast_transition` (String) Fast Transition
+- `ghz24_policy` (String) Ghz24 Policy
+- `ghz6_policy_client_steering` (Boolean) Ghz6 Policy Client Steering
 - `mfp_client_protection` (String) Mfp Client Protection
 - `multi_psk_settings` (Attributes List) Multi PSK Settings (Only applicable for SSID with PERSONAL auth type and PSK) (see [below for nested schema](#nestedatt--multi_psk_settings))
 - `name` (String) SSID Name
@@ -50,6 +53,9 @@ data "catalystcenter_wireless_enterprise_ssid" "example" {
 - `profile_name` (String) Profile Name
 - `protected_management_frame` (String) Protected Management Frame
 - `radio_policy` (String) Radio Policy
+- `rsn_cipher_suite_ccmp256` (Boolean) Rsn Cipher Suite Ccmp256
+- `rsn_cipher_suite_gcmp128` (Boolean) Rsn Cipher Suite Gcmp 128
+- `rsn_cipher_suite_gcmp256` (Boolean) Rsn Cipher Suite Gcmp256
 - `security_level` (String) Security Level
 - `session_time_out` (Number) Session Time Out
 - `traffic_type` (String) Traffic Type

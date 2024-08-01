@@ -1,0 +1,67 @@
+---
+name: Wireless Device Provision
+rest_endpoint: /dna/intent/api/v1/wireless/provision
+res_description: 'This resource provision wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device.
+  When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices'
+no_data_source: true
+no_read: true
+no_delete: true
+no_import: true
+put_no_id: true
+id_from_attribute: true
+doc_category: Wireless
+max_async_wait_time: 300
+test_tags: [WIRELESS]
+attributes:
+  - model_name: deviceName
+    requires_replace: true
+    data_path: '0'
+    id: true
+    mandatory: true
+    description: Controller Name
+    type: String
+    example: WLC_01
+  - model_name: site
+    requires_replace: true
+    data_path: '0'
+    mandatory: true
+    description: Full Site Hierarchy where device has to be assigned
+    type: String
+    example: Global/Area1
+  - model_name: managedAPLocations
+    tf_name: managed_ap_locations
+    requires_replace: true
+    data_path: '0'
+    mandatory: true
+    description: List of managed AP locations
+    type: Set
+    element_type: String
+    example: Global/Area1
+  - model_name: dynamicInterfaces
+    type: List
+    description: Dynamic Interface Details. The required attributes depend on the device type
+    requires_replace: true
+    data_path: '0'
+    exclude_test: true
+    attributes:
+      - model_name: interfaceIPAddress
+        tf_name: interface_ip_address
+        type: String
+        description: Interface IP Address. Required for AireOS
+      - model_name: interfaceNetmaskInCIDR
+        tf_name: interface_netmask
+        type: Int64
+        description: Interface Netmask In CIDR. Required for AireOS
+      - model_name: interfaceGateway
+        type: String
+        description: Interface Gateway. Required for AireOS
+      - model_name: lagOrPortNumber
+        type: String
+        description: LAG or Port Number. Required for AireOS
+      - model_name: vlanId
+        type: Int64
+        description: VLAN ID. Required for both AireOS and EWLC
+      - model_name: interfaceName
+        type: String
+        description: Interface Name. Required for both AireOS and EWLC.
+       

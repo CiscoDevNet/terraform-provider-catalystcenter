@@ -185,3 +185,37 @@ attributes:
     response_data_path: 0.ssidDetails.0.clientRateLimit
     description: Client Rate Limit (in bits per second)
     exclude_test: true
+  - model_name: authKeyMgmt
+    type: Set
+    element_type: String
+    response_data_path: 0.ssidDetails.0.authKeyMgmt
+    description: 'Takes string inputs for the AKMs that should be set true. Possible AKM values : dot1x,dot1x_ft, dot1x_sha, psk, psk_ft, psk_sha, owe, sae, sae_ft'
+    exclude_test: true
+  - model_name: rsnCipherSuiteGcmp256
+    type: Bool
+    response_data_path: 0.ssidDetails.0.rsnCipherSuiteGcmp256
+    description: Rsn Cipher Suite Gcmp256
+    exclude_test: true
+  - model_name: rsnCipherSuiteCcmp256
+    type: Bool
+    response_data_path: 0.ssidDetails.0.rsnCipherSuiteCcmp256
+    description: Rsn Cipher Suite Ccmp256
+    exclude_test: true
+  - model_name: rsnCipherSuiteGcmp128
+    type: Bool
+    response_data_path: 0.ssidDetails.0.rsnCipherSuiteGcmp128
+    description: Rsn Cipher Suite Gcmp 128
+    exclude_test: true
+  - model_name: ghz6PolicyClientSteering
+    type: Bool
+    response_data_path: 0.ssidDetails.0.ghz6PolicyClientSteering
+    description: Ghz6 Policy Client Steering
+    exclude_test: true
+  - model_name: ghz24Policy
+    type: String
+    enum_values:
+      - dot11-g-only
+      - dot11-bg-only
+    response_data_path: 0.ssidDetails.0.ghz24Policy
+    description: Ghz24 Policy
+    exclude_test: true

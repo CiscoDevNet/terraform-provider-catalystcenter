@@ -147,7 +147,7 @@ func (data *FabricDevice) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.0.borderDeviceSettings.layer3Settings.borderPriority"); value.Exists() {
 		data.BorderPriority = types.Int64Value(value.Int())
 	} else {
-		data.BorderPriority = types.Int64Value(10)
+		data.BorderPriority = types.Int64Null()
 	}
 	if value := res.Get("response.0.borderDeviceSettings.layer3Settings.prependAutonomousSystemCount"); value.Exists() {
 		data.PrependAutonomousSystemCount = types.Int64Value(value.Int())
@@ -197,7 +197,7 @@ func (data *FabricDevice) updateFromBody(ctx context.Context, res gjson.Result) 
 	}
 	if value := res.Get("response.0.borderDeviceSettings.layer3Settings.borderPriority"); value.Exists() && !data.BorderPriority.IsNull() {
 		data.BorderPriority = types.Int64Value(value.Int())
-	} else if data.BorderPriority.ValueInt64() != 10 {
+	} else {
 		data.BorderPriority = types.Int64Null()
 	}
 	if value := res.Get("response.0.borderDeviceSettings.layer3Settings.prependAutonomousSystemCount"); value.Exists() && !data.PrependAutonomousSystemCount.IsNull() {
