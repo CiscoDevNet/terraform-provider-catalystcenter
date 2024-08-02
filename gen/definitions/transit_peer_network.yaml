@@ -1,17 +1,20 @@
 ---
 name: Transit Peer Network
 rest_endpoint: /dna/intent/api/v1/business/sda/transit-peer-network
-id_from_attribute: true
-id_query_param: transitPeerNetworkName
-delete_id_query_param: transitPeerNetworkName
+id_from_query_path: .
+id_from_query_path_attribute: transitPeerNetworkId
+import_no_id: true
+data_source_no_id: true
 no_update: true
 skip_minimum_test: true
 doc_category: SDA
 attributes:
   - model_name: transitPeerNetworkName
     type: String
-    id: true
-    data_source_query: true
+    query_param: true
+    delete_query_param: true
+    mandatory: true
+    requires_replace: true
     description: Transit Peer Network Name
     example: TRANSIT_1
   - model_name: transitPeerNetworkType
@@ -37,6 +40,7 @@ attributes:
   - model_name: transitControlPlaneSettings
     data_path: sdaTransitSettings
     write_only: true
+    exclude_test: true
     type: List
     description: Transit Control Plane Settings info
     attributes:

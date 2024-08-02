@@ -249,7 +249,8 @@ func (r *WirelessProfileResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "?name=" + url.QueryEscape(state.Name.ValueString()))
+	params := "?name=" + url.QueryEscape(state.Name.ValueString())
+	res, err := r.client.Delete(state.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
