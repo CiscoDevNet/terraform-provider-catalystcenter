@@ -143,6 +143,7 @@ func (d *FabricL3HandoffIPTransitDataSource) Read(ctx context.Context, req datas
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
+	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 
