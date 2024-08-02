@@ -106,10 +106,12 @@ type YamlConfig struct {
 	GetRequiresId            bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams      string                `yaml:"get_extra_query_params"`
 	NoDelete                 bool                  `yaml:"no_delete"`
+	DataSourceNoId           bool                  `yaml:"data_source_no_id"`
 	DeleteNoId               bool                  `yaml:"delete_no_id"`
 	NoUpdate                 bool                  `yaml:"no_update"`
 	NoRead                   bool                  `yaml:"no_read"`
 	NoImport                 bool                  `yaml:"no_import"`
+	ImportNoId               bool                  `yaml:"import_no_id"`
 	PostUpdate               bool                  `yaml:"post_update"`
 	PutCreate                bool                  `yaml:"put_create"`
 	RootList                 bool                  `yaml:"root_list"`
@@ -137,44 +139,54 @@ type YamlConfig struct {
 }
 
 type YamlConfigAttribute struct {
-	ModelName         string                `yaml:"model_name"`
-	ResponseModelName string                `yaml:"response_model_name"`
-	TfName            string                `yaml:"tf_name"`
-	Type              string                `yaml:"type"`
-	ElementType       string                `yaml:"element_type"`
-	DataPath          string                `yaml:"data_path"`
-	ResponseDataPath  string                `yaml:"response_data_path"`
-	Id                bool                  `yaml:"id"`
-	MatchId           bool                  `yaml:"match_id"`
-	Reference         bool                  `yaml:"reference"`
-	RequiresReplace   bool                  `yaml:"requires_replace"`
-	QueryParam        bool                  `yaml:"query_param"`
-	DeleteQueryParam  bool                  `yaml:"delete_query_param"`
-	DataSourceQuery   bool                  `yaml:"data_source_query"`
-	Mandatory         bool                  `yaml:"mandatory"`
-	WriteOnly         bool                  `yaml:"write_only"`
-	ExcludeFromPut    bool                  `yaml:"exclude_from_put"`
-	ExcludeTest       bool                  `yaml:"exclude_test"`
-	ExcludeExample    bool                  `yaml:"exclude_example"`
-	Description       string                `yaml:"description"`
-	Example           string                `yaml:"example"`
-	EnumValues        []string              `yaml:"enum_values"`
-	MinList           int64                 `yaml:"min_list"`
-	MaxList           int64                 `yaml:"max_list"`
-	MinInt            int64                 `yaml:"min_int"`
-	MaxInt            int64                 `yaml:"max_int"`
-	MinFloat          float64               `yaml:"min_float"`
-	MaxFloat          float64               `yaml:"max_float"`
-	StringPatterns    []string              `yaml:"string_patterns"`
-	StringMinLength   int64                 `yaml:"string_min_length"`
-	StringMaxLength   int64                 `yaml:"string_max_length"`
-	DefaultValue      string                `yaml:"default_value"`
-	Value             string                `yaml:"value"`
-	ValueCondition    string                `yaml:"value_condition"`
-	TestValue         string                `yaml:"test_value"`
-	MinimumTestValue  string                `yaml:"minimum_test_value"`
-	TestTags          []string              `yaml:"test_tags"`
-	Attributes        []YamlConfigAttribute `yaml:"attributes"`
+	ModelName            string                `yaml:"model_name"`
+	ResponseModelName    string                `yaml:"response_model_name"`
+	TfName               string                `yaml:"tf_name"`
+	Type                 string                `yaml:"type"`
+	ElementType          string                `yaml:"element_type"`
+	DataPath             string                `yaml:"data_path"`
+	ResponseDataPath     string                `yaml:"response_data_path"`
+	Id                   bool                  `yaml:"id"`
+	MatchId              bool                  `yaml:"match_id"`
+	Reference            bool                  `yaml:"reference"`
+	RequiresReplace      bool                  `yaml:"requires_replace"`
+	QueryParam           bool                  `yaml:"query_param"`
+	DeleteQueryParam     bool                  `yaml:"delete_query_param"`
+	GetQueryParam        bool                  `yaml:"get_query_param"`
+	PutQueryParam        bool                  `yaml:"put_query_param"`
+	PostQueryParam       bool                  `yaml:"post_query_param"`
+	QueryParamName       string                `yaml:"query_param_name"`
+	DeleteQueryParamName string                `yaml:"delete_query_param_name"`
+	GetQueryParamName    string                `yaml:"get_query_param_name"`
+	PutQueryParamName    string                `yaml:"put_query_param_name"`
+	PostQueryParamName   string                `yaml:"post_query_param_name"`
+	CreateQueryPath      bool                  `yaml:"create_query_path"`
+	DataSourceQuery      bool                  `yaml:"data_source_query"`
+	QueryParamNoBody     bool                  `yaml:"query_param_no_body"`
+	Mandatory            bool                  `yaml:"mandatory"`
+	WriteOnly            bool                  `yaml:"write_only"`
+	ExcludeFromPut       bool                  `yaml:"exclude_from_put"`
+	ExcludeTest          bool                  `yaml:"exclude_test"`
+	ExcludeExample       bool                  `yaml:"exclude_example"`
+	Description          string                `yaml:"description"`
+	Example              string                `yaml:"example"`
+	EnumValues           []string              `yaml:"enum_values"`
+	MinList              int64                 `yaml:"min_list"`
+	MaxList              int64                 `yaml:"max_list"`
+	MinInt               int64                 `yaml:"min_int"`
+	MaxInt               int64                 `yaml:"max_int"`
+	MinFloat             float64               `yaml:"min_float"`
+	MaxFloat             float64               `yaml:"max_float"`
+	StringPatterns       []string              `yaml:"string_patterns"`
+	StringMinLength      int64                 `yaml:"string_min_length"`
+	StringMaxLength      int64                 `yaml:"string_max_length"`
+	DefaultValue         string                `yaml:"default_value"`
+	Value                string                `yaml:"value"`
+	ValueCondition       string                `yaml:"value_condition"`
+	TestValue            string                `yaml:"test_value"`
+	MinimumTestValue     string                `yaml:"minimum_test_value"`
+	TestTags             []string              `yaml:"test_tags"`
+	Attributes           []YamlConfigAttribute `yaml:"attributes"`
 }
 
 // Templating helper function to convert TF name to GO name
@@ -416,6 +428,92 @@ func IsNestedSet(attribute YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return true if create query path included in attributes
+func HasCreateQueryPath(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.CreateQueryPath {
+			return true
+		}
+	}
+	return false
+}
+
+// Templating helper function to return the create query path attribute
+func GetCreateQueryPath(attributes []YamlConfigAttribute) YamlConfigAttribute {
+	for _, attr := range attributes {
+		if attr.CreateQueryPath {
+			return attr
+		}
+	}
+	return YamlConfigAttribute{}
+}
+
+// Templating helper function to return a query parameter string based on the HTTP method input source (plan, state) and provided attributes.
+// By default, it uses attr.QueryParam if specified, and for method-specific parameters like DeleteQueryParamName, GetQueryParamName, etc.,
+// it uses those if available for the respective HTTP method. If no specific query parameter is provided for a method, it defaults to attr.ModelName.
+// Returns the constructed query parameter string.
+func GenerateQueryParamString(method string, inputSource string, attributes []YamlConfigAttribute) string {
+	var params []string
+	first := true
+
+	for _, attr := range attributes {
+		var queryParamName string
+		includeParam := false
+
+		// Determine the appropriate query parameter name based on the method
+		switch method {
+		case "DELETE":
+			if attr.DeleteQueryParam {
+				queryParamName = attr.DeleteQueryParamName
+				includeParam = true
+			}
+		case "GET":
+			if attr.GetQueryParam {
+				queryParamName = attr.GetQueryParamName
+				includeParam = true
+			}
+		case "POST":
+			if attr.PostQueryParam {
+				queryParamName = attr.PostQueryParamName
+				includeParam = true
+			}
+		case "PUT":
+			if attr.PutQueryParam {
+				queryParamName = attr.PutQueryParamName
+				includeParam = true
+			}
+		}
+
+		// If no method-specific query parameter is set, fall back to default query parameter
+		if !includeParam && attr.QueryParam {
+			queryParamName = attr.QueryParamName
+			includeParam = true
+		}
+
+		// Use model name if queryParamName is still empty
+		if queryParamName == "" {
+			queryParamName = attr.ModelName
+		}
+
+		// Construct the query parameter string if includeParam is true
+		if includeParam {
+			if first {
+				params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				first = false
+			} else {
+				params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+			}
+		}
+	}
+
+	// Return the appropriate string based on whether params is empty or not
+	if len(params) == 0 {
+		return ""
+	} else {
+		return strings.Join(params, "+")
+	}
+}
+
 // Templating helper function to return a list of import attributes
 func ImportAttributes(config YamlConfig) []YamlConfigAttribute {
 	r := []YamlConfigAttribute{}
@@ -424,7 +522,7 @@ func ImportAttributes(config YamlConfig) []YamlConfigAttribute {
 			r = append(r, attr)
 		}
 	}
-	if !config.IdFromAttribute {
+	if !config.IdFromAttribute && !config.ImportNoId {
 		attr := YamlConfigAttribute{}
 		attr.ModelName = "id"
 		attr.TfName = "id"
@@ -442,35 +540,38 @@ func Subtract(a, b int) int {
 
 // Map of templating functions
 var functions = template.FuncMap{
-	"toGoName":              ToGoName,
-	"camelCase":             CamelCase,
-	"strContains":           strings.Contains,
-	"snakeCase":             SnakeCase,
-	"sprintf":               fmt.Sprintf,
-	"toLower":               strings.ToLower,
-	"path":                  BuildPath,
-	"hasId":                 HasId,
-	"hasReference":          HasReference,
-	"hasQueryParam":         HasQueryParam,
-	"hasDeleteQueryParam":   HasDeleteQueryParam,
-	"getId":                 GetId,
-	"getMatchId":            GetMatchId,
-	"getQueryParam":         GetQueryParam,
-	"getDeleteQueryParam":   GetDeleteQueryParam,
-	"hasDataSourceQuery":    HasDataSourceQuery,
-	"firstPathElement":      FirstPathElement,
-	"remainingPathElements": RemainingPathElements,
-	"getFromAllPath":        GetFromAllPath,
-	"isListSet":             IsListSet,
-	"isList":                IsList,
-	"isSet":                 IsSet,
-	"isStringListSet":       IsStringListSet,
-	"isInt64ListSet":        IsInt64ListSet,
-	"isNestedListSet":       IsNestedListSet,
-	"isNestedList":          IsNestedList,
-	"isNestedSet":           IsNestedSet,
-	"importAttributes":      ImportAttributes,
-	"subtract":              Subtract,
+	"toGoName":                 ToGoName,
+	"camelCase":                CamelCase,
+	"strContains":              strings.Contains,
+	"snakeCase":                SnakeCase,
+	"sprintf":                  fmt.Sprintf,
+	"toLower":                  strings.ToLower,
+	"path":                     BuildPath,
+	"hasId":                    HasId,
+	"hasReference":             HasReference,
+	"hasQueryParam":            HasQueryParam,
+	"hasDeleteQueryParam":      HasDeleteQueryParam,
+	"generateQueryParamString": GenerateQueryParamString,
+	"getId":                    GetId,
+	"getMatchId":               GetMatchId,
+	"hasCreateQueryPath":       HasCreateQueryPath,
+	"getCreateQueryPath":       GetCreateQueryPath,
+	"getQueryParam":            GetQueryParam,
+	"getDeleteQueryParam":      GetDeleteQueryParam,
+	"hasDataSourceQuery":       HasDataSourceQuery,
+	"firstPathElement":         FirstPathElement,
+	"remainingPathElements":    RemainingPathElements,
+	"getFromAllPath":           GetFromAllPath,
+	"isListSet":                IsListSet,
+	"isList":                   IsList,
+	"isSet":                    IsSet,
+	"isStringListSet":          IsStringListSet,
+	"isInt64ListSet":           IsInt64ListSet,
+	"isNestedListSet":          IsNestedListSet,
+	"isNestedList":             IsNestedList,
+	"isNestedSet":              IsNestedSet,
+	"importAttributes":         ImportAttributes,
+	"subtract":                 Subtract,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {

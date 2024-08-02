@@ -425,9 +425,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	body := plan.toBody(ctx, {{camelCase .Name}}{})
 
 	params := ""
-	{{- if hasQueryParam .Attributes}}
-		{{- $queryParam := getQueryParam .Attributes}}
-	params += "/" + url.QueryEscape(plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
+	{{- if hasCreateQueryPath .Attributes}}
+		{{- $createQueryPath := getCreateQueryPath .Attributes}}
+	params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
 	{{- end}}
 	{{- if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
@@ -446,15 +446,21 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		{{- $id := getMatchId .Attributes}}
 	params = ""
 		{{- if hasQueryParam .Attributes}}
-		{{- $queryParam := getQueryParam .Attributes}}
-	params += "?{{$queryParam.ModelName}}=" + url.QueryEscape(plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
+		{{- $queryParams := generateQueryParamString "GET" "plan" .Attributes }}
+		{{- if $queryParams }}
+	params += {{$queryParams}}
+		{{- end}}
 		{{- end}}
 	res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
+	{{- if and .IdFromQueryPathAttribute .IdFromQueryPath (not .GetExtraQueryParams) (not .GetFromAll) }}
+	plan.Id = types.StringValue(res.Get("{{if .IdFromQueryPath}}{{.IdFromQueryPath}}.{{end}}{{.IdFromQueryPathAttribute}}").String())
+	{{- else}}
 	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ plan.{{toGoName $id.TfName}}.Value{{$id.Type}}() +"\").{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}").String())
+	{{- end}}
 	{{- /* If we have an id attribute we will use that as id */}}
 	{{- else if hasId .Attributes}}
 		{{- $id := getId .Attributes}}
@@ -483,11 +489,14 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	{{- if not .NoRead}}
 
 	params := ""
+	{{- $queryParams := generateQueryParamString "GET" "state" .Attributes }}
+
 	{{- if .IdQueryParam}}
 	params += "?{{.IdQueryParam}}=" + url.QueryEscape(state.Id.ValueString())
 	{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
-		{{- $queryParam := getQueryParam .Attributes}}
-	params += "?{{$queryParam.ModelName}}=" + url.QueryEscape(state.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
+	{{- if $queryParams }}
+	params += {{$queryParams}}
+	{{- end}}
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}
 	params += "/" + url.QueryEscape(state.Id.ValueString())
 	{{- end}}
@@ -549,9 +558,9 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	{{- if hasQueryParam .Attributes}}
-		{{- $queryParam := getQueryParam .Attributes}}
-	params += "/" + url.QueryEscape(plan.{{toGoName $queryParam.TfName}}.Value{{$queryParam.Type}}())
+	{{- if hasCreateQueryPath .Attributes}}
+		{{- $createQueryPath := getCreateQueryPath .Attributes}}
+	params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
 	{{- end}}
 	{{- if .PutIdQueryParam}}
 	params += "?{{.PutIdQueryParam}}=" + url.QueryEscape(plan.Id.ValueString())
