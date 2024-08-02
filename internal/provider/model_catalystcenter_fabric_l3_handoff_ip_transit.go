@@ -110,68 +110,62 @@ func (data FabricL3HandoffIPTransit) toBody(ctx context.Context, state FabricL3H
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *FabricL3HandoffIPTransit) fromBody(ctx context.Context, res gjson.Result) {
-	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get("response.0.id"); value.Exists() {
-		data.Id = types.StringValue(value.String())
-	} else {
-		data.Id = types.StringNull()
-	}
-	if value := res.Get("response.0.networkDeviceId"); value.Exists() {
+	if value := res.Get("networkDeviceId"); value.Exists() {
 		data.NetworkDeviceId = types.StringValue(value.String())
 	} else {
 		data.NetworkDeviceId = types.StringNull()
 	}
-	if value := res.Get("response.0.fabricId"); value.Exists() {
+	if value := res.Get("fabricId"); value.Exists() {
 		data.FabricId = types.StringValue(value.String())
 	} else {
 		data.FabricId = types.StringNull()
 	}
-	if value := res.Get("response.0.transitNetworkId"); value.Exists() {
+	if value := res.Get("transitNetworkId"); value.Exists() {
 		data.TransitNetworkId = types.StringValue(value.String())
 	} else {
 		data.TransitNetworkId = types.StringNull()
 	}
-	if value := res.Get("response.0.interfaceName"); value.Exists() {
+	if value := res.Get("interfaceName"); value.Exists() {
 		data.InterfaceName = types.StringValue(value.String())
 	} else {
 		data.InterfaceName = types.StringNull()
 	}
-	if value := res.Get("response.0.externalConnectivityIpPoolName"); value.Exists() {
+	if value := res.Get("externalConnectivityIpPoolName"); value.Exists() {
 		data.ExternalConnectivityIpPoolName = types.StringValue(value.String())
 	} else {
 		data.ExternalConnectivityIpPoolName = types.StringNull()
 	}
-	if value := res.Get("response.0.virtualNetworkName"); value.Exists() {
+	if value := res.Get("virtualNetworkName"); value.Exists() {
 		data.VirtualNetworkName = types.StringValue(value.String())
 	} else {
 		data.VirtualNetworkName = types.StringNull()
 	}
-	if value := res.Get("response.0.vlanId"); value.Exists() {
+	if value := res.Get("vlanId"); value.Exists() {
 		data.VlanId = types.Int64Value(value.Int())
 	} else {
 		data.VlanId = types.Int64Null()
 	}
-	if value := res.Get("response.0.tcpMssAdjustment"); value.Exists() {
+	if value := res.Get("tcpMssAdjustment"); value.Exists() {
 		data.TcpMssAdjustment = types.Int64Value(value.Int())
 	} else {
 		data.TcpMssAdjustment = types.Int64Null()
 	}
-	if value := res.Get("response.0.localIpAddress"); value.Exists() {
+	if value := res.Get("localIpAddress"); value.Exists() {
 		data.LocalIpAddress = types.StringValue(value.String())
 	} else {
 		data.LocalIpAddress = types.StringNull()
 	}
-	if value := res.Get("response.0.remoteIpAddress"); value.Exists() {
+	if value := res.Get("remoteIpAddress"); value.Exists() {
 		data.RemoteIpAddress = types.StringValue(value.String())
 	} else {
 		data.RemoteIpAddress = types.StringNull()
 	}
-	if value := res.Get("response.0.localIpv6Address"); value.Exists() {
+	if value := res.Get("localIpv6Address"); value.Exists() {
 		data.LocalIpv6Address = types.StringValue(value.String())
 	} else {
 		data.LocalIpv6Address = types.StringNull()
 	}
-	if value := res.Get("response.0.remoteIpv6Address"); value.Exists() {
+	if value := res.Get("remoteIpv6Address"); value.Exists() {
 		data.RemoteIpv6Address = types.StringValue(value.String())
 	} else {
 		data.RemoteIpv6Address = types.StringNull()
@@ -182,62 +176,62 @@ func (data *FabricL3HandoffIPTransit) fromBody(ctx context.Context, res gjson.Re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *FabricL3HandoffIPTransit) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.networkDeviceId"); value.Exists() && !data.NetworkDeviceId.IsNull() {
+	if value := res.Get("networkDeviceId"); value.Exists() && !data.NetworkDeviceId.IsNull() {
 		data.NetworkDeviceId = types.StringValue(value.String())
 	} else {
 		data.NetworkDeviceId = types.StringNull()
 	}
-	if value := res.Get("response.0.fabricId"); value.Exists() && !data.FabricId.IsNull() {
+	if value := res.Get("fabricId"); value.Exists() && !data.FabricId.IsNull() {
 		data.FabricId = types.StringValue(value.String())
 	} else {
 		data.FabricId = types.StringNull()
 	}
-	if value := res.Get("response.0.transitNetworkId"); value.Exists() && !data.TransitNetworkId.IsNull() {
+	if value := res.Get("transitNetworkId"); value.Exists() && !data.TransitNetworkId.IsNull() {
 		data.TransitNetworkId = types.StringValue(value.String())
 	} else {
 		data.TransitNetworkId = types.StringNull()
 	}
-	if value := res.Get("response.0.interfaceName"); value.Exists() && !data.InterfaceName.IsNull() {
+	if value := res.Get("interfaceName"); value.Exists() && !data.InterfaceName.IsNull() {
 		data.InterfaceName = types.StringValue(value.String())
 	} else {
 		data.InterfaceName = types.StringNull()
 	}
-	if value := res.Get("response.0.externalConnectivityIpPoolName"); value.Exists() && !data.ExternalConnectivityIpPoolName.IsNull() {
+	if value := res.Get("externalConnectivityIpPoolName"); value.Exists() && !data.ExternalConnectivityIpPoolName.IsNull() {
 		data.ExternalConnectivityIpPoolName = types.StringValue(value.String())
 	} else {
 		data.ExternalConnectivityIpPoolName = types.StringNull()
 	}
-	if value := res.Get("response.0.virtualNetworkName"); value.Exists() && !data.VirtualNetworkName.IsNull() {
+	if value := res.Get("virtualNetworkName"); value.Exists() && !data.VirtualNetworkName.IsNull() {
 		data.VirtualNetworkName = types.StringValue(value.String())
 	} else {
 		data.VirtualNetworkName = types.StringNull()
 	}
-	if value := res.Get("response.0.vlanId"); value.Exists() && !data.VlanId.IsNull() {
+	if value := res.Get("vlanId"); value.Exists() && !data.VlanId.IsNull() {
 		data.VlanId = types.Int64Value(value.Int())
 	} else {
 		data.VlanId = types.Int64Null()
 	}
-	if value := res.Get("response.0.tcpMssAdjustment"); value.Exists() && !data.TcpMssAdjustment.IsNull() {
+	if value := res.Get("tcpMssAdjustment"); value.Exists() && !data.TcpMssAdjustment.IsNull() {
 		data.TcpMssAdjustment = types.Int64Value(value.Int())
 	} else {
 		data.TcpMssAdjustment = types.Int64Null()
 	}
-	if value := res.Get("response.0.localIpAddress"); value.Exists() && !data.LocalIpAddress.IsNull() {
+	if value := res.Get("localIpAddress"); value.Exists() && !data.LocalIpAddress.IsNull() {
 		data.LocalIpAddress = types.StringValue(value.String())
 	} else {
 		data.LocalIpAddress = types.StringNull()
 	}
-	if value := res.Get("response.0.remoteIpAddress"); value.Exists() && !data.RemoteIpAddress.IsNull() {
+	if value := res.Get("remoteIpAddress"); value.Exists() && !data.RemoteIpAddress.IsNull() {
 		data.RemoteIpAddress = types.StringValue(value.String())
 	} else {
 		data.RemoteIpAddress = types.StringNull()
 	}
-	if value := res.Get("response.0.localIpv6Address"); value.Exists() && !data.LocalIpv6Address.IsNull() {
+	if value := res.Get("localIpv6Address"); value.Exists() && !data.LocalIpv6Address.IsNull() {
 		data.LocalIpv6Address = types.StringValue(value.String())
 	} else {
 		data.LocalIpv6Address = types.StringNull()
 	}
-	if value := res.Get("response.0.remoteIpv6Address"); value.Exists() && !data.RemoteIpv6Address.IsNull() {
+	if value := res.Get("remoteIpv6Address"); value.Exists() && !data.RemoteIpv6Address.IsNull() {
 		data.RemoteIpv6Address = types.StringValue(value.String())
 	} else {
 		data.RemoteIpv6Address = types.StringNull()
