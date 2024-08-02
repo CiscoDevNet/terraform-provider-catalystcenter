@@ -6,7 +6,6 @@ id_from_query_path: response
 id_from_query_path_attribute: id
 put_id_include_path: 0.id
 get_from_all: true
-data_source_no_id: true
 put_no_id: true
 doc_category: SDA
 test_tags: [SDA]

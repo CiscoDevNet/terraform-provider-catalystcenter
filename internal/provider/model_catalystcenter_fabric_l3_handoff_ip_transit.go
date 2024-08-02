@@ -110,12 +110,6 @@ func (data FabricL3HandoffIPTransit) toBody(ctx context.Context, state FabricL3H
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *FabricL3HandoffIPTransit) fromBody(ctx context.Context, res gjson.Result) {
-	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get("response.id"); value.Exists() {
-		data.Id = types.StringValue(value.String())
-	} else {
-		data.Id = types.StringNull()
-	}
 	if value := res.Get("networkDeviceId"); value.Exists() {
 		data.NetworkDeviceId = types.StringValue(value.String())
 	} else {
