@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcFabricAuthenticationProfile(t *testing.T) {
+	if os.Getenv("FABRIC") == "" {
+		t.Skip("skipping test, set environment variable FABRIC")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_authentication_profile.test", "authentication_template_name", "No Authentication"))
 	resource.Test(t, resource.TestCase{
@@ -50,10 +54,13 @@ resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
 }
+
 resource "catalystcenter_fabric_site" "test" {
-  site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"
-  fabric_type = "FABRIC_SITE"
+  site_id                     = catalystcenter_area.test.id
+  authentication_profile_name = "No Authentication"
+  pub_sub_enabled             = false
 }
+
 `
 
 // End of section. //template:end testPrerequisites
@@ -61,7 +68,7 @@ resource "catalystcenter_fabric_site" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcFabricAuthenticationProfileConfig() string {
 	config := `resource "catalystcenter_fabric_authentication_profile" "test" {` + "\n"
-	config += `	site_name_hierarchy = catalystcenter_fabric_site.test.site_name_hierarchy` + "\n"
+	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
 	config += `	authentication_template_name = "No Authentication"` + "\n"
 	config += `}` + "\n"
 
