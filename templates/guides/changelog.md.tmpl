@@ -9,6 +9,7 @@ description: |-
 
 ## 0.1.10 (unreleased)
 
+- Add `fabric_l3_handoff_ip_transit` resource and data source
 - Add `transitPeerNetworkId` as `id` to `transit_peer_network` resource
 - Add `anycast_gateway` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+ `/sda/anycastGateways`
 - BREAKING CHANGE: Modified `fabric_site` resource to use `/dna/intent/api/v1/sda/fabricSites` API endpoint, this resource now only works with Catalyst Center version 2.3.7.5+
