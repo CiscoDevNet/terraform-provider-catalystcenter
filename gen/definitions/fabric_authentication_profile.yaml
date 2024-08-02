@@ -6,6 +6,7 @@ id_query_param: siteNameHierarchy
 delete_id_query_param: siteNameHierarchy
 no_update: true
 skip_minimum_test: true
+test_tags: [FABRIC]
 doc_category: SDA
 attributes:
   - model_name: siteNameHierarchy
@@ -15,7 +16,7 @@ attributes:
     id: true
     description: Path of SDA Fabric Site
     example: Global/Site1
-    test_value: 'catalystcenter_fabric_site.test.site_name_hierarchy'
+    test_value: '"${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"'
   - model_name: authenticateTemplateName
     tf_name: authentication_template_name    
     data_path: "0"
@@ -35,7 +36,9 @@ test_prerequisites: |
     name        = "Area1"
     parent_name = "Global"
   }
+
   resource "catalystcenter_fabric_site" "test" {
-    site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"
-    fabric_type = "FABRIC_SITE"
+    site_id                     = catalystcenter_area.test.id
+    authentication_profile_name = "No Authentication"
+    pub_sub_enabled             = false
   }
