@@ -39,5 +39,5 @@ data "catalystcenter_fabric_l3_handoff_ip_transit" "example" {
 - `remote_ipv6_address` (String) Remote ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
 - `tcp_mss_adjustment` (Number) TCP maximum segment size (mss) value for the layer 3 handoff. Allowed range is [500-1440]. TCP MSS Adjustment value is applicable for the TCP sessions over both IPv4 and IPv6
 - `transit_network_id` (String) ID of the transit network of the layer 3 handoff ip transit
-- `virtual_network_name` (String) SName of the virtual network associated with this fabric site
+- `virtual_network_name` (String) Name of the virtual network associated with this fabric site
 - `vlan_id` (Number) VLAN number for the Switch Virtual Interface (SVI) used to establish BGP peering with the external domain for the virtual network. Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094)
