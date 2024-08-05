@@ -54,7 +54,7 @@ func (r *PnPImportDevicesResource) Metadata(ctx context.Context, req resource.Me
 func (r *PnPImportDevicesResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource adds devices to PNP in bulk  file on the chosen network device (upgrade the software on the device). Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource adds devices to PNP in bulk. Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

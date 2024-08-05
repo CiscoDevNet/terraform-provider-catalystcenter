@@ -5,7 +5,7 @@ get_extra_query_params: '?memberType=template'
 get_no_id: true
 # Manual updates in Delete function to handle removal of templates from tag in resource file, and fromBody, updateFromBody functions in model file
 res_description: 'This resource is responsible for assigning templates to a specified tag during creation
-  and removing the template from the tag during destruction'
+  and removing the template from the tag during destroy operation.'
 post_update: true
 no_import: true
 data_source_no_id: true

@@ -198,7 +198,7 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.0.id").String())
+	plan.Id = types.StringValue(res.Get("response.#(virtualNetworkName==\"" + plan.VirtualNetworkName.ValueString() + "\").id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -231,6 +231,7 @@ func (r *FabricL3HandoffIPTransitResource) Read(ctx context.Context, req resourc
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
+	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -311,15 +312,16 @@ func (r *FabricL3HandoffIPTransitResource) Delete(ctx context.Context, req resou
 func (r *FabricL3HandoffIPTransitResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
-	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+	if len(idParts) != 3 || idParts[0] == "" || idParts[1] == "" || idParts[2] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <network_device_id>,<fabric_id>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <network_device_id>,<fabric_id>,<id>. Got: %q", req.ID),
 		)
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_device_id"), idParts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_id"), idParts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[2])...)
 }
 
 // End of section. //template:end import

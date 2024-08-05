@@ -14,6 +14,7 @@ This data source can read the Fabric L3 Handoff IP Transit.
 
 ```terraform
 data "catalystcenter_fabric_l3_handoff_ip_transit" "example" {
+  id                = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   network_device_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
   fabric_id         = "c4b85bb2-ce3f-4db9-a32b-e439a388ac2f"
 }
@@ -25,12 +26,12 @@ data "catalystcenter_fabric_l3_handoff_ip_transit" "example" {
 ### Required
 
 - `fabric_id` (String) ID of the fabric this device belongs to
+- `id` (String) The id of the object
 - `network_device_id` (String) Network device ID of the fabric device
 
 ### Read-Only
 
 - `external_connectivity_ip_pool_name` (String) External connectivity ip pool will be used by Catalyst Center to allocate IP address for the connection between the border node and peer
-- `id` (String) The id of the object
 - `interface_name` (String) Interface name of the layer 3 handoff ip transit
 - `local_ip_address` (String) Local ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
 - `local_ipv6_address` (String) Local ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name

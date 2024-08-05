@@ -3,12 +3,12 @@
 page_title: "catalystcenter_assign_templates_to_tag Resource - terraform-provider-catalystcenter"
 subcategory: "Tags"
 description: |-
-  This resource is responsible for assigning templates to a specified tag during creation and removing the template from the tag during destruction
+  This resource is responsible for assigning templates to a specified tag during creation and removing the template from the tag during destroy operation.
 ---
 
 # catalystcenter_assign_templates_to_tag (Resource)
 
-This resource is responsible for assigning templates to a specified tag during creation and removing the template from the tag during destruction
+This resource is responsible for assigning templates to a specified tag during creation and removing the template from the tag during destroy operation.
 
 ## Example Usage
 
