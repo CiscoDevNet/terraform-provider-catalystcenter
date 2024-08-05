@@ -80,21 +80,21 @@ func (d *TagDataSource) Schema(ctx context.Context, req datasource.SchemaRequest
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"member_type": schema.StringAttribute{
-							MarkdownDescription: "memberType of the tag (e.g. networkdevice, interface)",
+							MarkdownDescription: "memberType of the tag",
 							Computed:            true,
 						},
-						"rule_values": schema.ListAttribute{
+						"values": schema.ListAttribute{
 							MarkdownDescription: "values of the parameter,Only one of the value or values can be used for the given parameter. (for managementIpAddress e.g. [\"10.197.124.90\",\"10.197.124.91\"])",
 							ElementType:         types.StringType,
 							Computed:            true,
 						},
-						"rule_items": schema.ListNestedAttribute{
+						"items": schema.ListNestedAttribute{
 							MarkdownDescription: "items details, multiple rules can be defined by items",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"operation": schema.StringAttribute{
-										MarkdownDescription: "Operation of the rule (e.g. OR,IN,EQ,LIKE,ILIKE,AND)",
+										MarkdownDescription: "Operation of the rule",
 										Computed:            true,
 									},
 									"name": schema.StringAttribute{
@@ -108,15 +108,15 @@ func (d *TagDataSource) Schema(ctx context.Context, req datasource.SchemaRequest
 								},
 							},
 						},
-						"rule_operation": schema.StringAttribute{
-							MarkdownDescription: "Operation of the rule (e.g. OR,IN,EQ,LIKE,ILIKE,AND)",
+						"operation": schema.StringAttribute{
+							MarkdownDescription: "Operation of the rule",
 							Computed:            true,
 						},
-						"rule_name": schema.StringAttribute{
+						"name": schema.StringAttribute{
 							MarkdownDescription: "Name of the parameter (e.g. for interface:portName,adminStatus,speed,status,description. for networkdevice:family,series,hostname,managementIpAddress,groupNameHierarchy,softwareVersion)",
 							Computed:            true,
 						},
-						"rule_value": schema.StringAttribute{
+						"value": schema.StringAttribute{
 							MarkdownDescription: "Value of the parameter (e.g. for portName:1/0/1,for adminStatus,status:up/down, for speed: any integer value, for description: any valid string, for family:switches, for series:C3650, for managementIpAddress:10.197.124.90, groupNameHierarchy:Global, softwareVersion: 16.9.1)",
 							Computed:            true,
 						},

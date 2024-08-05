@@ -24,6 +24,7 @@ attributes:
     type: Bool
     description: true for system created tags, false for user defined tag
     example: false
+    minimum_test_value: false
   - model_name: dynamicRules
     response_data_path: response.0.dynamicRules
     type: List
@@ -32,22 +33,22 @@ attributes:
     attributes:
       - model_name: memberType
         type: String
-        description: memberType of the tag (e.g. networkdevice, interface)
+        enum_values: [networkdevice, interface]
+        description: memberType of the tag
       - model_name: values
-        tf_name: rule_values
         data_path: rules
         type: List
         element_type: String
         description: 'values of the parameter,Only one of the value or values can be used for the given parameter. (for managementIpAddress e.g. [\"10.197.124.90\",\"10.197.124.91\"])'
       - model_name: items
-        tf_name: rule_items
         data_path: rules
         type: List
         description: 'items details, multiple rules can be defined by items'
         attributes:
           - model_name: operation
             type: String
-            description: Operation of the rule (e.g. OR,IN,EQ,LIKE,ILIKE,AND)
+            description: Operation of the rule
+            enum_values: [OR, IN, EQ, LIKE, ILIKE, AND]
           - model_name: name
             type: String
             description: Name of the parameter (e.g. managementIpAddress,hostname)
@@ -55,17 +56,15 @@ attributes:
             type: String
             description: Value of the parameter (e.g. %10%,%NA%)
       - model_name: operation
-        tf_name: rule_operation
         data_path: rules
         type: String
-        description: Operation of the rule (e.g. OR,IN,EQ,LIKE,ILIKE,AND)
+        enum_values: [OR, IN, EQ, LIKE, ILIKE, AND]
+        description: Operation of the rule
       - model_name: name
-        tf_name: rule_name
         data_path: rules
         type: String
         description: 'Name of the parameter (e.g. for interface:portName,adminStatus,speed,status,description. for networkdevice:family,series,hostname,managementIpAddress,groupNameHierarchy,softwareVersion)'
       - model_name: value
-        tf_name: rule_value
         data_path: rules
         type: String
         description: 'Value of the parameter (e.g. for portName:1/0/1,for adminStatus,status:up/down, for speed: any integer value, for description: any valid string, for family:switches, for series:C3650, for managementIpAddress:10.197.124.90, groupNameHierarchy:Global, softwareVersion: 16.9.1)'
