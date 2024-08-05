@@ -214,7 +214,9 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 
 	config += `
 		data "catalystcenter_{{snakeCase .Name}}" "test" {
+			{{- if not .DataSourceNoId}}
 			id = catalystcenter_{{snakeCase $name}}.test.id
+			{{- end}}
 			{{- range  .Attributes}}
 			{{- if or .Reference .QueryParam}}
 			{{.TfName}} = {{if .TestValue}}{{.TestValue}}{{else}}{{if eq .Type "String"}}"{{.Example}}"{{else if isStringListSet .}}["{{.Example}}"]{{else if isInt64ListSet .}}[{{.Example}}]{{else}}{{.Example}}{{end}}{{end}}

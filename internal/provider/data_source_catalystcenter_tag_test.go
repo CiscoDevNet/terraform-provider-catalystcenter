@@ -59,7 +59,6 @@ func testAccDataSourceCcTagConfig() string {
 
 	config += `
 		data "catalystcenter_tag" "test" {
-			id = catalystcenter_tag.test.id
 			name = "Tag1"
 		}
 	`
