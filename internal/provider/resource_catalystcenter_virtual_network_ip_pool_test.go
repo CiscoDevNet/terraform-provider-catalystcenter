@@ -80,9 +80,9 @@ resource "catalystcenter_ip_pool_reservation" "test" {
   depends_on = [catalystcenter_ip_pool.test]
 }
 resource "catalystcenter_fabric_site" "test" {
-  site_name_hierarchy = "Global/Area1"
-  fabric_type         = "FABRIC_SITE"
-  depends_on = [catalystcenter_area.test]
+  site_id                     = catalystcenter_area.test.id
+  authentication_profile_name = "No Authentication"
+  pub_sub_enabled             = false
 }
 resource "catalystcenter_fabric_virtual_network" "test" {
   virtual_network_name = "SDA_VN1"

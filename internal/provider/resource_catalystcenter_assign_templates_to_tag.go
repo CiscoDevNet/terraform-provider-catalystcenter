@@ -56,7 +56,7 @@ func (r *AssignTemplatesToTagResource) Metadata(ctx context.Context, req resourc
 func (r *AssignTemplatesToTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource is responsible for assigning templates to a specified tag during creation and removing the template from the tag during destruction").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource is responsible for assigning templates to a specified tag during creation and removing the template from the tag during destroy operation.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
