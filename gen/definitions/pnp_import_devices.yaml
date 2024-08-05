@@ -1,9 +1,9 @@
 ---
 name: PnP Import Devices
 rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device/import
-res_description: 'This resource adds devices to PNP in bulk  file on the chosen network device (upgrade the software on the device).
+res_description: 'This resource adds devices to PNP in bulk.
   Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP.
-  When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices'
+  When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.'
 no_data_source: true
 no_read: true
 no_delete: true

@@ -59,7 +59,7 @@ func (d *FabricL3HandoffIPTransitDataSource) Schema(ctx context.Context, req dat
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Computed:            true,
+				Required:            true,
 			},
 			"network_device_id": schema.StringAttribute{
 				MarkdownDescription: "Network device ID of the fabric device",
@@ -143,6 +143,7 @@ func (d *FabricL3HandoffIPTransitDataSource) Read(ctx context.Context, req datas
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
+	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 
