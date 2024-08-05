@@ -52,8 +52,9 @@ resource "catalystcenter_area" "test" {
   parent_name = "Global"
 }
 resource "catalystcenter_fabric_site" "test" {
-  site_name_hierarchy = "Global/Area1"
-  fabric_type         = "FABRIC_SITE"
+  site_id                     = catalystcenter_area.test.id
+  authentication_profile_name = "No Authentication"
+  pub_sub_enabled             = false
 
   depends_on = [catalystcenter_area.test]
 }
@@ -61,6 +62,8 @@ resource "catalystcenter_fabric_virtual_network" "test" {
   virtual_network_name = "SDA_VN1"
   is_guest             = false
   sg_names             = ["Employees"]
+
+  depends_on = [catalystcenter_fabric_site.test]
 }
 
 `
@@ -70,8 +73,8 @@ resource "catalystcenter_fabric_virtual_network" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcVirtualNetworkToFabricSiteConfig_minimum() string {
 	config := `resource "catalystcenter_virtual_network_to_fabric_site" "test" {` + "\n"
-	config += `	virtual_network_name = catalystcenter_fabric_virtual_network.test.virtual_network_name` + "\n"
-	config += `	site_name_hierarchy = catalystcenter_fabric_site.test.site_name_hierarchy` + "\n"
+	config += `	virtual_network_name = catalystcenter_fabric_virtual_network.test.id` + "\n"
+	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -81,8 +84,8 @@ func testAccCcVirtualNetworkToFabricSiteConfig_minimum() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcVirtualNetworkToFabricSiteConfig_all() string {
 	config := `resource "catalystcenter_virtual_network_to_fabric_site" "test" {` + "\n"
-	config += `	virtual_network_name = catalystcenter_fabric_virtual_network.test.virtual_network_name` + "\n"
-	config += `	site_name_hierarchy = catalystcenter_fabric_site.test.site_name_hierarchy` + "\n"
+	config += `	virtual_network_name = catalystcenter_fabric_virtual_network.test.id` + "\n"
+	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
 	config += `}` + "\n"
 	return config
 }

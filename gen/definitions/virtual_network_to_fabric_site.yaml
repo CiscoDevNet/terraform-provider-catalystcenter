@@ -14,22 +14,23 @@ attributes:
     data_source_query: true
     description: Virtual Network Name, that is created at Global level
     example: SDA_VN1
-    test_value: catalystcenter_fabric_virtual_network.test.virtual_network_name
+    test_value: catalystcenter_fabric_virtual_network.test.id
   - model_name: siteNameHierarchy
     mandatory: true
     data_source_query: true
     type: String
     description: Path of SDA Fabric Site, e.g. `Global/Area1
     example: "Global/Area1"
-    test_value: catalystcenter_fabric_site.test.site_name_hierarchy
+    test_value: '"${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"'
 test_prerequisites: |
   resource "catalystcenter_area" "test" {
     name        = "Area1"
     parent_name = "Global"
   }
   resource "catalystcenter_fabric_site" "test" {
-    site_name_hierarchy = "Global/Area1"
-    fabric_type         = "FABRIC_SITE"
+    site_id                     = catalystcenter_area.test.id
+    authentication_profile_name = "No Authentication"
+    pub_sub_enabled             = false
 
     depends_on = [catalystcenter_area.test]
   }
@@ -37,5 +38,7 @@ test_prerequisites: |
     virtual_network_name = "SDA_VN1"
     is_guest             = false
     sg_names             = ["Employees"]
+
+    depends_on = [catalystcenter_fabric_site.test]
   }
 
