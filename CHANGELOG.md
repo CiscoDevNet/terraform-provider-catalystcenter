@@ -1,5 +1,6 @@
 ## 0.1.10 (unreleased)
 
+- Add `fabric_provision_device` resource and data source
 - Add `assign_templates_to_tag` resource and data source
 - Add `tag` resource and data source
 - Add `pnp_import_devices` resource
