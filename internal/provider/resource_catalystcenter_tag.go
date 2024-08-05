@@ -25,11 +25,13 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -86,22 +88,28 @@ func (r *TagResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"member_type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("memberType of the tag (e.g. networkdevice, interface)").String,
+							MarkdownDescription: helpers.NewAttributeDescription("memberType of the tag").AddStringEnumDescription("networkdevice", "interface").String,
 							Optional:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("networkdevice", "interface"),
+							},
 						},
-						"rule_values": schema.ListAttribute{
+						"values": schema.ListAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("values of the parameter,Only one of the value or values can be used for the given parameter. (for managementIpAddress e.g. [\"10.197.124.90\",\"10.197.124.91\"])").String,
 							ElementType:         types.StringType,
 							Optional:            true,
 						},
-						"rule_items": schema.ListNestedAttribute{
+						"items": schema.ListNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("items details, multiple rules can be defined by items").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"operation": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Operation of the rule (e.g. OR,IN,EQ,LIKE,ILIKE,AND)").String,
+										MarkdownDescription: helpers.NewAttributeDescription("Operation of the rule").AddStringEnumDescription("OR", "IN", "EQ", "LIKE", "ILIKE", "AND").String,
 										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("OR", "IN", "EQ", "LIKE", "ILIKE", "AND"),
+										},
 									},
 									"name": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Name of the parameter (e.g. managementIpAddress,hostname)").String,
@@ -114,15 +122,18 @@ func (r *TagResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 								},
 							},
 						},
-						"rule_operation": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Operation of the rule (e.g. OR,IN,EQ,LIKE,ILIKE,AND)").String,
+						"operation": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Operation of the rule").AddStringEnumDescription("OR", "IN", "EQ", "LIKE", "ILIKE", "AND").String,
 							Optional:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("OR", "IN", "EQ", "LIKE", "ILIKE", "AND"),
+							},
 						},
-						"rule_name": schema.StringAttribute{
+						"name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Name of the parameter (e.g. for interface:portName,adminStatus,speed,status,description. for networkdevice:family,series,hostname,managementIpAddress,groupNameHierarchy,softwareVersion)").String,
 							Optional:            true,
 						},
-						"rule_value": schema.StringAttribute{
+						"value": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Value of the parameter (e.g. for portName:1/0/1,for adminStatus,status:up/down, for speed: any integer value, for description: any valid string, for family:switches, for series:C3650, for managementIpAddress:10.197.124.90, groupNameHierarchy:Global, softwareVersion: 16.9.1)").String,
 							Optional:            true,
 						},

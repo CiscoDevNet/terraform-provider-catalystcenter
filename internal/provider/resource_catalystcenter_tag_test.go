@@ -61,6 +61,7 @@ func TestAccCcTag(t *testing.T) {
 func testAccCcTagConfig_minimum() string {
 	config := `resource "catalystcenter_tag" "test" {` + "\n"
 	config += `	name = "Tag1"` + "\n"
+	config += `	system_tag = false` + "\n"
 	config += `}` + "\n"
 	return config
 }

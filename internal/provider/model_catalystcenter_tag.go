@@ -39,15 +39,15 @@ type Tag struct {
 }
 
 type TagDynamicRules struct {
-	MemberType    types.String               `tfsdk:"member_type"`
-	RuleValues    types.List                 `tfsdk:"rule_values"`
-	RuleItems     []TagDynamicRulesRuleItems `tfsdk:"rule_items"`
-	RuleOperation types.String               `tfsdk:"rule_operation"`
-	RuleName      types.String               `tfsdk:"rule_name"`
-	RuleValue     types.String               `tfsdk:"rule_value"`
+	MemberType types.String           `tfsdk:"member_type"`
+	Values     types.List             `tfsdk:"values"`
+	Items      []TagDynamicRulesItems `tfsdk:"items"`
+	Operation  types.String           `tfsdk:"operation"`
+	Name       types.String           `tfsdk:"name"`
+	Value      types.String           `tfsdk:"value"`
 }
 
-type TagDynamicRulesRuleItems struct {
+type TagDynamicRulesItems struct {
 	Operation types.String `tfsdk:"operation"`
 	Name      types.String `tfsdk:"name"`
 	Value     types.String `tfsdk:"value"`
@@ -91,14 +91,14 @@ func (data Tag) toBody(ctx context.Context, state Tag) string {
 			if !item.MemberType.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "memberType", item.MemberType.ValueString())
 			}
-			if !item.RuleValues.IsNull() {
+			if !item.Values.IsNull() {
 				var values []string
-				item.RuleValues.ElementsAs(ctx, &values, false)
+				item.Values.ElementsAs(ctx, &values, false)
 				itemBody, _ = sjson.Set(itemBody, "rules.values", values)
 			}
-			if len(item.RuleItems) > 0 {
+			if len(item.Items) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "rules.items", []interface{}{})
-				for _, childItem := range item.RuleItems {
+				for _, childItem := range item.Items {
 					itemChildBody := ""
 					if !childItem.Operation.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "operation", childItem.Operation.ValueString())
@@ -112,14 +112,14 @@ func (data Tag) toBody(ctx context.Context, state Tag) string {
 					itemBody, _ = sjson.SetRaw(itemBody, "rules.items.-1", itemChildBody)
 				}
 			}
-			if !item.RuleOperation.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "rules.operation", item.RuleOperation.ValueString())
+			if !item.Operation.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "rules.operation", item.Operation.ValueString())
 			}
-			if !item.RuleName.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "rules.name", item.RuleName.ValueString())
+			if !item.Name.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "rules.name", item.Name.ValueString())
 			}
-			if !item.RuleValue.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "rules.value", item.RuleValue.ValueString())
+			if !item.Value.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "rules.value", item.Value.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "dynamicRules.-1", itemBody)
 		}
@@ -162,14 +162,14 @@ func (data *Tag) fromBody(ctx context.Context, res gjson.Result) {
 				item.MemberType = types.StringNull()
 			}
 			if cValue := v.Get("rules.values"); cValue.Exists() && len(cValue.Array()) > 0 {
-				item.RuleValues = helpers.GetStringList(cValue.Array())
+				item.Values = helpers.GetStringList(cValue.Array())
 			} else {
-				item.RuleValues = types.ListNull(types.StringType)
+				item.Values = types.ListNull(types.StringType)
 			}
 			if cValue := v.Get("rules.items"); cValue.Exists() && len(cValue.Array()) > 0 {
-				item.RuleItems = make([]TagDynamicRulesRuleItems, 0)
+				item.Items = make([]TagDynamicRulesItems, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
-					cItem := TagDynamicRulesRuleItems{}
+					cItem := TagDynamicRulesItems{}
 					if ccValue := cv.Get("operation"); ccValue.Exists() {
 						cItem.Operation = types.StringValue(ccValue.String())
 					} else {
@@ -185,24 +185,24 @@ func (data *Tag) fromBody(ctx context.Context, res gjson.Result) {
 					} else {
 						cItem.Value = types.StringNull()
 					}
-					item.RuleItems = append(item.RuleItems, cItem)
+					item.Items = append(item.Items, cItem)
 					return true
 				})
 			}
 			if cValue := v.Get("rules.operation"); cValue.Exists() {
-				item.RuleOperation = types.StringValue(cValue.String())
+				item.Operation = types.StringValue(cValue.String())
 			} else {
-				item.RuleOperation = types.StringNull()
+				item.Operation = types.StringNull()
 			}
 			if cValue := v.Get("rules.name"); cValue.Exists() {
-				item.RuleName = types.StringValue(cValue.String())
+				item.Name = types.StringValue(cValue.String())
 			} else {
-				item.RuleName = types.StringNull()
+				item.Name = types.StringNull()
 			}
 			if cValue := v.Get("rules.value"); cValue.Exists() {
-				item.RuleValue = types.StringValue(cValue.String())
+				item.Value = types.StringValue(cValue.String())
 			} else {
-				item.RuleValue = types.StringNull()
+				item.Value = types.StringNull()
 			}
 			data.DynamicRules = append(data.DynamicRules, item)
 			return true
@@ -231,7 +231,7 @@ func (data *Tag) updateFromBody(ctx context.Context, res gjson.Result) {
 	}
 	for i := range data.DynamicRules {
 		keys := [...]string{"memberType", "rules.operation", "rules.name", "rules.value"}
-		keyValues := [...]string{data.DynamicRules[i].MemberType.ValueString(), data.DynamicRules[i].RuleOperation.ValueString(), data.DynamicRules[i].RuleName.ValueString(), data.DynamicRules[i].RuleValue.ValueString()}
+		keyValues := [...]string{data.DynamicRules[i].MemberType.ValueString(), data.DynamicRules[i].Operation.ValueString(), data.DynamicRules[i].Name.ValueString(), data.DynamicRules[i].Value.ValueString()}
 
 		var r gjson.Result
 		res.Get("response.0.dynamicRules").ForEach(
@@ -257,14 +257,14 @@ func (data *Tag) updateFromBody(ctx context.Context, res gjson.Result) {
 		} else {
 			data.DynamicRules[i].MemberType = types.StringNull()
 		}
-		if value := r.Get("rules.values"); value.Exists() && !data.DynamicRules[i].RuleValues.IsNull() {
-			data.DynamicRules[i].RuleValues = helpers.GetStringList(value.Array())
+		if value := r.Get("rules.values"); value.Exists() && !data.DynamicRules[i].Values.IsNull() {
+			data.DynamicRules[i].Values = helpers.GetStringList(value.Array())
 		} else {
-			data.DynamicRules[i].RuleValues = types.ListNull(types.StringType)
+			data.DynamicRules[i].Values = types.ListNull(types.StringType)
 		}
-		for ci := range data.DynamicRules[i].RuleItems {
+		for ci := range data.DynamicRules[i].Items {
 			keys := [...]string{"operation", "name", "value"}
-			keyValues := [...]string{data.DynamicRules[i].RuleItems[ci].Operation.ValueString(), data.DynamicRules[i].RuleItems[ci].Name.ValueString(), data.DynamicRules[i].RuleItems[ci].Value.ValueString()}
+			keyValues := [...]string{data.DynamicRules[i].Items[ci].Operation.ValueString(), data.DynamicRules[i].Items[ci].Name.ValueString(), data.DynamicRules[i].Items[ci].Value.ValueString()}
 
 			var cr gjson.Result
 			r.Get("rules.items").ForEach(
@@ -285,36 +285,36 @@ func (data *Tag) updateFromBody(ctx context.Context, res gjson.Result) {
 					return true
 				},
 			)
-			if value := cr.Get("operation"); value.Exists() && !data.DynamicRules[i].RuleItems[ci].Operation.IsNull() {
-				data.DynamicRules[i].RuleItems[ci].Operation = types.StringValue(value.String())
+			if value := cr.Get("operation"); value.Exists() && !data.DynamicRules[i].Items[ci].Operation.IsNull() {
+				data.DynamicRules[i].Items[ci].Operation = types.StringValue(value.String())
 			} else {
-				data.DynamicRules[i].RuleItems[ci].Operation = types.StringNull()
+				data.DynamicRules[i].Items[ci].Operation = types.StringNull()
 			}
-			if value := cr.Get("name"); value.Exists() && !data.DynamicRules[i].RuleItems[ci].Name.IsNull() {
-				data.DynamicRules[i].RuleItems[ci].Name = types.StringValue(value.String())
+			if value := cr.Get("name"); value.Exists() && !data.DynamicRules[i].Items[ci].Name.IsNull() {
+				data.DynamicRules[i].Items[ci].Name = types.StringValue(value.String())
 			} else {
-				data.DynamicRules[i].RuleItems[ci].Name = types.StringNull()
+				data.DynamicRules[i].Items[ci].Name = types.StringNull()
 			}
-			if value := cr.Get("value"); value.Exists() && !data.DynamicRules[i].RuleItems[ci].Value.IsNull() {
-				data.DynamicRules[i].RuleItems[ci].Value = types.StringValue(value.String())
+			if value := cr.Get("value"); value.Exists() && !data.DynamicRules[i].Items[ci].Value.IsNull() {
+				data.DynamicRules[i].Items[ci].Value = types.StringValue(value.String())
 			} else {
-				data.DynamicRules[i].RuleItems[ci].Value = types.StringNull()
+				data.DynamicRules[i].Items[ci].Value = types.StringNull()
 			}
 		}
-		if value := r.Get("rules.operation"); value.Exists() && !data.DynamicRules[i].RuleOperation.IsNull() {
-			data.DynamicRules[i].RuleOperation = types.StringValue(value.String())
+		if value := r.Get("rules.operation"); value.Exists() && !data.DynamicRules[i].Operation.IsNull() {
+			data.DynamicRules[i].Operation = types.StringValue(value.String())
 		} else {
-			data.DynamicRules[i].RuleOperation = types.StringNull()
+			data.DynamicRules[i].Operation = types.StringNull()
 		}
-		if value := r.Get("rules.name"); value.Exists() && !data.DynamicRules[i].RuleName.IsNull() {
-			data.DynamicRules[i].RuleName = types.StringValue(value.String())
+		if value := r.Get("rules.name"); value.Exists() && !data.DynamicRules[i].Name.IsNull() {
+			data.DynamicRules[i].Name = types.StringValue(value.String())
 		} else {
-			data.DynamicRules[i].RuleName = types.StringNull()
+			data.DynamicRules[i].Name = types.StringNull()
 		}
-		if value := r.Get("rules.value"); value.Exists() && !data.DynamicRules[i].RuleValue.IsNull() {
-			data.DynamicRules[i].RuleValue = types.StringValue(value.String())
+		if value := r.Get("rules.value"); value.Exists() && !data.DynamicRules[i].Value.IsNull() {
+			data.DynamicRules[i].Value = types.StringValue(value.String())
 		} else {
-			data.DynamicRules[i].RuleValue = types.StringNull()
+			data.DynamicRules[i].Value = types.StringNull()
 		}
 	}
 }

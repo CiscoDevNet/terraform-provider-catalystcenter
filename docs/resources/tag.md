@@ -42,20 +42,23 @@ resource "catalystcenter_tag" "example" {
 
 Optional:
 
-- `member_type` (String) memberType of the tag (e.g. networkdevice, interface)
-- `rule_items` (Attributes List) items details, multiple rules can be defined by items (see [below for nested schema](#nestedatt--dynamic_rules--rule_items))
-- `rule_name` (String) Name of the parameter (e.g. for interface:portName,adminStatus,speed,status,description. for networkdevice:family,series,hostname,managementIpAddress,groupNameHierarchy,softwareVersion)
-- `rule_operation` (String) Operation of the rule (e.g. OR,IN,EQ,LIKE,ILIKE,AND)
-- `rule_value` (String) Value of the parameter (e.g. for portName:1/0/1,for adminStatus,status:up/down, for speed: any integer value, for description: any valid string, for family:switches, for series:C3650, for managementIpAddress:10.197.124.90, groupNameHierarchy:Global, softwareVersion: 16.9.1)
-- `rule_values` (List of String) values of the parameter,Only one of the value or values can be used for the given parameter. (for managementIpAddress e.g. ["10.197.124.90","10.197.124.91"])
+- `items` (Attributes List) items details, multiple rules can be defined by items (see [below for nested schema](#nestedatt--dynamic_rules--items))
+- `member_type` (String) memberType of the tag
+  - Choices: `networkdevice`, `interface`
+- `name` (String) Name of the parameter (e.g. for interface:portName,adminStatus,speed,status,description. for networkdevice:family,series,hostname,managementIpAddress,groupNameHierarchy,softwareVersion)
+- `operation` (String) Operation of the rule
+  - Choices: `OR`, `IN`, `EQ`, `LIKE`, `ILIKE`, `AND`
+- `value` (String) Value of the parameter (e.g. for portName:1/0/1,for adminStatus,status:up/down, for speed: any integer value, for description: any valid string, for family:switches, for series:C3650, for managementIpAddress:10.197.124.90, groupNameHierarchy:Global, softwareVersion: 16.9.1)
+- `values` (List of String) values of the parameter,Only one of the value or values can be used for the given parameter. (for managementIpAddress e.g. ["10.197.124.90","10.197.124.91"])
 
-<a id="nestedatt--dynamic_rules--rule_items"></a>
-### Nested Schema for `dynamic_rules.rule_items`
+<a id="nestedatt--dynamic_rules--items"></a>
+### Nested Schema for `dynamic_rules.items`
 
 Optional:
 
 - `name` (String) Name of the parameter (e.g. managementIpAddress,hostname)
-- `operation` (String) Operation of the rule (e.g. OR,IN,EQ,LIKE,ILIKE,AND)
+- `operation` (String) Operation of the rule
+  - Choices: `OR`, `IN`, `EQ`, `LIKE`, `ILIKE`, `AND`
 - `value` (String) Value of the parameter (e.g. %10%,%NA%)
 
 ## Import
