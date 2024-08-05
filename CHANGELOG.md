@@ -1,5 +1,7 @@
 ## 0.1.10 (unreleased)
 
+- Add `assign_templates_to_tag` resource and data source
+- Add `tag` resource and data source
 - Add `pnp_import_devices` resource
 - Add `fabric_device` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+ `/sda/fabricDevices`
 - Add `fabric_l3_handoff_ip_transit` resource and data source
