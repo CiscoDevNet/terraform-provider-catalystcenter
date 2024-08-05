@@ -270,6 +270,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewPNPConfigPreviewResource,
 		NewPnPDeviceResource,
 		NewPnPDeviceClaimSiteResource,
+		NewPnPImportDevicesResource,
 		NewProjectResource,
 		NewRoleResource,
 		NewSPProfileResource,

@@ -1,0 +1,41 @@
+---
+name: PnP Import Devices
+rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device/import
+res_description: 'This resource adds devices to PNP in bulk.
+  Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP.
+  When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.'
+no_data_source: true
+no_read: true
+no_delete: true
+no_import: true
+no_update: true
+id_path: id
+root_list: true
+doc_category: Plug and Play
+test_tags: [PNP]
+attributes:
+  - tf_name: devices
+    type: List
+    mandatory: true
+    description: List of devices to add
+    attributes:
+      - model_name: serialNumber
+        data_path: deviceInfo
+        type: String
+        description: Device serial number
+        example: FOC12345678
+      - model_name: stack
+        data_path: deviceInfo
+        type: Bool
+        description: Device is a stacked switch
+        example: false
+      - model_name: pid
+        data_path: deviceInfo
+        type: String
+        description: Device product ID
+        example: C9300-24P
+      - model_name: hostname
+        data_path: deviceInfo
+        type: String
+        description: Device hostname
+        example: switch1
