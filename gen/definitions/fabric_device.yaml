@@ -1,0 +1,96 @@
+---
+name: Fabric Device
+rest_endpoint: /dna/intent/api/v1/sda/fabricDevices
+res_description: Manages Fabric Devices
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+put_id_include_path: 0.id
+import_no_id: true
+data_source_no_id: true
+put_no_id: true
+max_async_wait_time: 120
+doc_category: SDA
+test_tags: [SDA]
+attributes:
+  - model_name: networkDeviceId
+    query_param: true
+    requires_replace: true
+    data_path: '0'
+    response_data_path: response.0.networkDeviceId
+    mandatory: true
+    description: Network device ID of the fabric device
+    type: String
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+  - model_name: fabricId
+    requires_replace: true
+    query_param: true
+    data_path: '0'
+    response_data_path: response.0.fabricId
+    type: String
+    mandatory: true
+    description: ID of the fabric site/zone of this fabric device
+    example: c4b85bb2-ce3f-4db9-a32b-e439a388ac2f
+    test_value: catalystcenter_fabric_site.test.id
+  - model_name: deviceRoles
+    requires_replace: true
+    data_path: '0'
+    response_data_path: response.0.deviceRoles
+    type: List
+    element_type: String
+    mandatory: true
+    description: List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE]
+    example: CONTROL_PLANE_NODE
+  - model_name: borderTypes
+    data_path: '0.borderDeviceSettings'
+    response_data_path: response.0.borderDeviceSettings.borderTypes
+    type: List
+    element_type: String
+    description: List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]
+    example: LAYER_3
+  - model_name: localAutonomousSystemNumber
+    data_path: '0.borderDeviceSettings.layer3Settings'
+    response_data_path: response.0.borderDeviceSettings.layer3Settings.localAutonomousSystemNumber
+    type: String
+    description: BGP Local autonomous system number of the fabric border device
+    example: "65000"
+  - model_name: isDefaultExit
+    tf_name: default_exit
+    data_path: '0.borderDeviceSettings.layer3Settings'
+    response_data_path: response.0.borderDeviceSettings.layer3Settings.isDefaultExit
+    type: Bool
+    description: Set this to make the fabric border device the gateway of last resort for this site. Any unknown traffic will be sent to this fabric border device from edge nodes
+    example: true
+  - model_name: importExternalRoutes
+    data_path: '0.borderDeviceSettings.layer3Settings'
+    response_data_path: response.0.borderDeviceSettings.layer3Settings.importExternalRoutes
+    type: Bool
+    description: Set this to import external routes from other routing protocols (such as BGP) to the fabric control plane
+    example: false
+  - model_name: borderPriority
+    data_path: '0.borderDeviceSettings.layer3Settings'
+    response_data_path: response.0.borderDeviceSettings.layer3Settings.borderPriority
+    type: Int64
+    min_int: 1
+    max_int: 9
+    description: Border priority of the fabric border device. A lower value indicates higher priority
+    example: 5
+    default_value: 10
+  - model_name: prependAutonomousSystemCount
+    data_path: '0.borderDeviceSettings.layer3Settings'
+    response_data_path: response.0.borderDeviceSettings.layer3Settings.prependAutonomousSystemCount
+    type: Int64
+    description: Prepend autonomous system count of the fabric border device
+    example: 1
+    min_int: 1
+    max_int: 10
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+    depends_on = [catalystcenter_area.test]
+  }
