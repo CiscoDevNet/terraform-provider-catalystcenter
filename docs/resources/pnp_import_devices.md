@@ -3,12 +3,12 @@
 page_title: "catalystcenter_pnp_import_devices Resource - terraform-provider-catalystcenter"
 subcategory: "Plug and Play"
 description: |-
-  This resource adds devices to PNP in bulk. Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices
+  This resource adds devices to PNP in bulk. Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.
 ---
 
 # catalystcenter_pnp_import_devices (Resource)
 
-This resource adds devices to PNP in bulk. Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices
+This resource adds devices to PNP in bulk. Every time this resource is created or re-created, the Catalyst Center considers adding new devices to PNP. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices.
 
 ## Example Usage
 
