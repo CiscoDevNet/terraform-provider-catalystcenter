@@ -82,7 +82,7 @@ func (d *FabricL3HandoffIPTransitDataSource) Schema(ctx context.Context, req dat
 				Computed:            true,
 			},
 			"virtual_network_name": schema.StringAttribute{
-				MarkdownDescription: "SName of the virtual network associated with this fabric site",
+				MarkdownDescription: "Name of the virtual network associated with this fabric site",
 				Computed:            true,
 			},
 			"vlan_id": schema.Int64Attribute{

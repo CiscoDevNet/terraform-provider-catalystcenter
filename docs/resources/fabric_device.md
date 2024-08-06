@@ -39,7 +39,6 @@ resource "catalystcenter_fabric_device" "example" {
 
 - `border_priority` (Number) Border priority of the fabric border device. A lower value indicates higher priority
   - Range: `1`-`9`
-  - Default value: `10`
 - `border_types` (List of String) List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]
 - `default_exit` (Boolean) Set this to make the fabric border device the gateway of last resort for this site. Any unknown traffic will be sent to this fabric border device from edge nodes
 - `import_external_routes` (Boolean) Set this to import external routes from other routing protocols (such as BGP) to the fabric control plane

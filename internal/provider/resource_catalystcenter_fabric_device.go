@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -112,13 +111,11 @@ func (r *FabricDeviceResource) Schema(ctx context.Context, req resource.SchemaRe
 				Optional:            true,
 			},
 			"border_priority": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Border priority of the fabric border device. A lower value indicates higher priority").AddIntegerRangeDescription(1, 9).AddDefaultValueDescription("10").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Border priority of the fabric border device. A lower value indicates higher priority").AddIntegerRangeDescription(1, 9).String,
 				Optional:            true,
-				Computed:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 9),
 				},
-				Default: int64default.StaticInt64(10),
 			},
 			"prepend_autonomous_system_count": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Prepend autonomous system count of the fabric border device").AddIntegerRangeDescription(1, 10).String,
@@ -158,7 +155,7 @@ func (r *FabricDeviceResource) Create(ctx context.Context, req resource.CreateRe
 	body := plan.toBody(ctx, FabricDevice{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 120 })
+	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 300 })
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
@@ -240,7 +237,7 @@ func (r *FabricDeviceResource) Update(ctx context.Context, req resource.UpdateRe
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 120 })
+	res, err := r.client.Put(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 300 })
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return

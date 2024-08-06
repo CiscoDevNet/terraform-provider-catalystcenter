@@ -21,14 +21,13 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -40,25 +39,24 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &FabricProvisionDeviceResource{}
-var _ resource.ResourceWithImportState = &FabricProvisionDeviceResource{}
+var _ resource.Resource = &WirelessDeviceProvisionResource{}
 
-func NewFabricProvisionDeviceResource() resource.Resource {
-	return &FabricProvisionDeviceResource{}
+func NewWirelessDeviceProvisionResource() resource.Resource {
+	return &WirelessDeviceProvisionResource{}
 }
 
-type FabricProvisionDeviceResource struct {
+type WirelessDeviceProvisionResource struct {
 	client *cc.Client
 }
 
-func (r *FabricProvisionDeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_provision_device"
+func (r *WirelessDeviceProvisionResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_wireless_device_provision"
 }
 
-func (r *FabricProvisionDeviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Fabric Provision Device.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource provision wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,25 +66,68 @@ func (r *FabricProvisionDeviceResource) Schema(ctx context.Context, req resource
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"site_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of the site this network device needs to be provisioned").String,
+			"device_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Controller Name").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"network_device_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of network device to be provisioned").String,
+			"site": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Full Site Hierarchy where device has to be assigned").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"managed_ap_locations": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("List of managed AP locations").String,
+				ElementType:         types.StringType,
+				Required:            true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.RequiresReplace(),
+				},
+			},
+			"dynamic_interfaces": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Dynamic Interface Details. The required attributes depend on the device type").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"interface_ip_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Interface IP Address. Required for AireOS").String,
+							Optional:            true,
+						},
+						"interface_netmask": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Interface Netmask In CIDR. Required for AireOS").String,
+							Optional:            true,
+						},
+						"interface_gateway": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Interface Gateway. Required for AireOS").String,
+							Optional:            true,
+						},
+						"lag_or_port_number": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("LAG or Port Number. Required for AireOS").String,
+							Optional:            true,
+						},
+						"vlan_id": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("VLAN ID. Required for both AireOS and EWLC").String,
+							Optional:            true,
+						},
+						"interface_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Interface Name. Required for both AireOS and EWLC.").String,
+							Optional:            true,
+						},
+					},
 				},
 			},
 		},
 	}
 }
 
-func (r *FabricProvisionDeviceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *WirelessDeviceProvisionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -97,8 +138,8 @@ func (r *FabricProvisionDeviceResource) Configure(_ context.Context, req resourc
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan FabricProvisionDevice
+func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan WirelessDeviceProvision
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -110,7 +151,7 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, FabricProvisionDevice{})
+	body := plan.toBody(ctx, WirelessDeviceProvision{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 300 })
@@ -118,14 +159,7 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	params = ""
-	params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
-	res, err = r.client.Get(plan.getPath() + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-	plan.Id = types.StringValue(res.Get("response.0.id").String())
+	plan.Id = types.StringValue(fmt.Sprint(plan.DeviceName.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -136,8 +170,8 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *FabricProvisionDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state FabricProvisionDevice
+func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state WirelessDeviceProvision
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -148,24 +182,6 @@ func (r *FabricProvisionDeviceResource) Read(ctx context.Context, req resource.R
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	params := ""
-	params += "?siteId=" + url.QueryEscape(state.SiteId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
-	res, err := r.client.Get(state.getPath() + params)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-
-	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
-	if state.isNull(ctx, res) {
-		state.fromBody(ctx, res)
-	} else {
-		state.updateFromBody(ctx, res)
-	}
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
@@ -175,8 +191,8 @@ func (r *FabricProvisionDeviceResource) Read(ctx context.Context, req resource.R
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state FabricProvisionDevice
+func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state WirelessDeviceProvision
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -210,8 +226,8 @@ func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state FabricProvisionDevice
+func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state WirelessDeviceProvision
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -221,11 +237,6 @@ func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
-		return
-	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
@@ -235,18 +246,4 @@ func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *FabricProvisionDeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
-
-	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <site_id>,<network_device_id>. Got: %q", req.ID),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_device_id"), idParts[1])...)
-}
-
 // End of section. //template:end import

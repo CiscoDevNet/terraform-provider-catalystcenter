@@ -34,7 +34,7 @@ resource "catalystcenter_fabric_l3_handoff_ip_transit" "example" {
 - `fabric_id` (String) ID of the fabric this device belongs to
 - `network_device_id` (String) Network device ID of the fabric device
 - `transit_network_id` (String) ID of the transit network of the layer 3 handoff ip transit
-- `virtual_network_name` (String) SName of the virtual network associated with this fabric site
+- `virtual_network_name` (String) Name of the virtual network associated with this fabric site
 - `vlan_id` (Number) VLAN number for the Switch Virtual Interface (SVI) used to establish BGP peering with the external domain for the virtual network. Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094)
 
 ### Optional

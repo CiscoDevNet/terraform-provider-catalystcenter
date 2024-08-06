@@ -183,6 +183,31 @@ func (d *WirelessEnterpriseSSIDDataSource) Schema(ctx context.Context, req datas
 				MarkdownDescription: "Client Rate Limit (in bits per second)",
 				Computed:            true,
 			},
+			"auth_key_mgmt": schema.SetAttribute{
+				MarkdownDescription: "Takes string inputs for the AKMs that should be set true. Possible AKM values : dot1x,dot1x_ft, dot1x_sha, psk, psk_ft, psk_sha, owe, sae, sae_ft",
+				ElementType:         types.StringType,
+				Computed:            true,
+			},
+			"rsn_cipher_suite_gcmp256": schema.BoolAttribute{
+				MarkdownDescription: "Rsn Cipher Suite Gcmp256",
+				Computed:            true,
+			},
+			"rsn_cipher_suite_ccmp256": schema.BoolAttribute{
+				MarkdownDescription: "Rsn Cipher Suite Ccmp256",
+				Computed:            true,
+			},
+			"rsn_cipher_suite_gcmp128": schema.BoolAttribute{
+				MarkdownDescription: "Rsn Cipher Suite Gcmp 128",
+				Computed:            true,
+			},
+			"ghz6_policy_client_steering": schema.BoolAttribute{
+				MarkdownDescription: "Ghz6 Policy Client Steering",
+				Computed:            true,
+			},
+			"ghz24_policy": schema.StringAttribute{
+				MarkdownDescription: "Ghz24 Policy",
+				Computed:            true,
+			},
 		},
 	}
 }

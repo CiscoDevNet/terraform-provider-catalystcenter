@@ -114,7 +114,6 @@ func testAccDataSourceCcAnycastGatewayConfig() string {
 
 	config += `
 		data "catalystcenter_anycast_gateway" "test" {
-			id = catalystcenter_anycast_gateway.test.id
 			fabric_id = catalystcenter_fabric_site.test.id
 			virtual_network_name = catalystcenter_virtual_network_to_fabric_site.test.virtual_network_name
 			ip_pool_name = catalystcenter_ip_pool_reservation.test.name

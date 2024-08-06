@@ -58,6 +58,12 @@ type WirelessEnterpriseSSID struct {
 	ProtectedManagementFrame         types.String                             `tfsdk:"protected_management_frame"`
 	MultiPskSettings                 []WirelessEnterpriseSSIDMultiPskSettings `tfsdk:"multi_psk_settings"`
 	ClientRateLimit                  types.Int64                              `tfsdk:"client_rate_limit"`
+	AuthKeyMgmt                      types.Set                                `tfsdk:"auth_key_mgmt"`
+	RsnCipherSuiteGcmp256            types.Bool                               `tfsdk:"rsn_cipher_suite_gcmp256"`
+	RsnCipherSuiteCcmp256            types.Bool                               `tfsdk:"rsn_cipher_suite_ccmp256"`
+	RsnCipherSuiteGcmp128            types.Bool                               `tfsdk:"rsn_cipher_suite_gcmp128"`
+	Ghz6PolicyClientSteering         types.Bool                               `tfsdk:"ghz6_policy_client_steering"`
+	Ghz24Policy                      types.String                             `tfsdk:"ghz24_policy"`
 }
 
 type WirelessEnterpriseSSIDMultiPskSettings struct {
@@ -179,6 +185,26 @@ func (data WirelessEnterpriseSSID) toBody(ctx context.Context, state WirelessEnt
 	}
 	if !data.ClientRateLimit.IsNull() {
 		body, _ = sjson.Set(body, "clientRateLimit", data.ClientRateLimit.ValueInt64())
+	}
+	if !data.AuthKeyMgmt.IsNull() {
+		var values []string
+		data.AuthKeyMgmt.ElementsAs(ctx, &values, false)
+		body, _ = sjson.Set(body, "authKeyMgmt", values)
+	}
+	if !data.RsnCipherSuiteGcmp256.IsNull() {
+		body, _ = sjson.Set(body, "rsnCipherSuiteGcmp256", data.RsnCipherSuiteGcmp256.ValueBool())
+	}
+	if !data.RsnCipherSuiteCcmp256.IsNull() {
+		body, _ = sjson.Set(body, "rsnCipherSuiteCcmp256", data.RsnCipherSuiteCcmp256.ValueBool())
+	}
+	if !data.RsnCipherSuiteGcmp128.IsNull() {
+		body, _ = sjson.Set(body, "rsnCipherSuiteGcmp128", data.RsnCipherSuiteGcmp128.ValueBool())
+	}
+	if !data.Ghz6PolicyClientSteering.IsNull() {
+		body, _ = sjson.Set(body, "ghz6PolicyClientSteering", data.Ghz6PolicyClientSteering.ValueBool())
+	}
+	if !data.Ghz24Policy.IsNull() {
+		body, _ = sjson.Set(body, "ghz24Policy", data.Ghz24Policy.ValueString())
 	}
 	return body
 }
@@ -324,6 +350,36 @@ func (data *WirelessEnterpriseSSID) fromBody(ctx context.Context, res gjson.Resu
 		data.ClientRateLimit = types.Int64Value(value.Int())
 	} else {
 		data.ClientRateLimit = types.Int64Null()
+	}
+	if value := res.Get("0.ssidDetails.0.authKeyMgmt"); value.Exists() && len(value.Array()) > 0 {
+		data.AuthKeyMgmt = helpers.GetStringSet(value.Array())
+	} else {
+		data.AuthKeyMgmt = types.SetNull(types.StringType)
+	}
+	if value := res.Get("0.ssidDetails.0.rsnCipherSuiteGcmp256"); value.Exists() {
+		data.RsnCipherSuiteGcmp256 = types.BoolValue(value.Bool())
+	} else {
+		data.RsnCipherSuiteGcmp256 = types.BoolNull()
+	}
+	if value := res.Get("0.ssidDetails.0.rsnCipherSuiteCcmp256"); value.Exists() {
+		data.RsnCipherSuiteCcmp256 = types.BoolValue(value.Bool())
+	} else {
+		data.RsnCipherSuiteCcmp256 = types.BoolNull()
+	}
+	if value := res.Get("0.ssidDetails.0.rsnCipherSuiteGcmp128"); value.Exists() {
+		data.RsnCipherSuiteGcmp128 = types.BoolValue(value.Bool())
+	} else {
+		data.RsnCipherSuiteGcmp128 = types.BoolNull()
+	}
+	if value := res.Get("0.ssidDetails.0.ghz6PolicyClientSteering"); value.Exists() {
+		data.Ghz6PolicyClientSteering = types.BoolValue(value.Bool())
+	} else {
+		data.Ghz6PolicyClientSteering = types.BoolNull()
+	}
+	if value := res.Get("0.ssidDetails.0.ghz24Policy"); value.Exists() {
+		data.Ghz24Policy = types.StringValue(value.String())
+	} else {
+		data.Ghz24Policy = types.StringNull()
 	}
 }
 
@@ -485,6 +541,36 @@ func (data *WirelessEnterpriseSSID) updateFromBody(ctx context.Context, res gjso
 	} else {
 		data.ClientRateLimit = types.Int64Null()
 	}
+	if value := res.Get("0.ssidDetails.0.authKeyMgmt"); value.Exists() && !data.AuthKeyMgmt.IsNull() {
+		data.AuthKeyMgmt = helpers.GetStringSet(value.Array())
+	} else {
+		data.AuthKeyMgmt = types.SetNull(types.StringType)
+	}
+	if value := res.Get("0.ssidDetails.0.rsnCipherSuiteGcmp256"); value.Exists() && !data.RsnCipherSuiteGcmp256.IsNull() {
+		data.RsnCipherSuiteGcmp256 = types.BoolValue(value.Bool())
+	} else {
+		data.RsnCipherSuiteGcmp256 = types.BoolNull()
+	}
+	if value := res.Get("0.ssidDetails.0.rsnCipherSuiteCcmp256"); value.Exists() && !data.RsnCipherSuiteCcmp256.IsNull() {
+		data.RsnCipherSuiteCcmp256 = types.BoolValue(value.Bool())
+	} else {
+		data.RsnCipherSuiteCcmp256 = types.BoolNull()
+	}
+	if value := res.Get("0.ssidDetails.0.rsnCipherSuiteGcmp128"); value.Exists() && !data.RsnCipherSuiteGcmp128.IsNull() {
+		data.RsnCipherSuiteGcmp128 = types.BoolValue(value.Bool())
+	} else {
+		data.RsnCipherSuiteGcmp128 = types.BoolNull()
+	}
+	if value := res.Get("0.ssidDetails.0.ghz6PolicyClientSteering"); value.Exists() && !data.Ghz6PolicyClientSteering.IsNull() {
+		data.Ghz6PolicyClientSteering = types.BoolValue(value.Bool())
+	} else {
+		data.Ghz6PolicyClientSteering = types.BoolNull()
+	}
+	if value := res.Get("0.ssidDetails.0.ghz24Policy"); value.Exists() && !data.Ghz24Policy.IsNull() {
+		data.Ghz24Policy = types.StringValue(value.String())
+	} else {
+		data.Ghz24Policy = types.StringNull()
+	}
 }
 
 // End of section. //template:end updateFromBody
@@ -564,6 +650,24 @@ func (data *WirelessEnterpriseSSID) isNull(ctx context.Context, res gjson.Result
 		return false
 	}
 	if !data.ClientRateLimit.IsNull() {
+		return false
+	}
+	if !data.AuthKeyMgmt.IsNull() {
+		return false
+	}
+	if !data.RsnCipherSuiteGcmp256.IsNull() {
+		return false
+	}
+	if !data.RsnCipherSuiteCcmp256.IsNull() {
+		return false
+	}
+	if !data.RsnCipherSuiteGcmp128.IsNull() {
+		return false
+	}
+	if !data.Ghz6PolicyClientSteering.IsNull() {
+		return false
+	}
+	if !data.Ghz24Policy.IsNull() {
 		return false
 	}
 	return true

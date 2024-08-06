@@ -8,7 +8,7 @@ put_id_include_path: 0.id
 import_no_id: true
 data_source_no_id: true
 put_no_id: true
-max_async_wait_time: 120
+max_async_wait_time: 300
 doc_category: SDA
 test_tags: [SDA]
 attributes:
@@ -74,7 +74,6 @@ attributes:
     max_int: 9
     description: Border priority of the fabric border device. A lower value indicates higher priority
     example: 5
-    default_value: 10
   - model_name: prependAutonomousSystemCount
     data_path: '0.borderDeviceSettings.layer3Settings'
     response_data_path: response.0.borderDeviceSettings.layer3Settings.prependAutonomousSystemCount

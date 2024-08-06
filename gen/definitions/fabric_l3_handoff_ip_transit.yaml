@@ -60,7 +60,7 @@ attributes:
     response_data_path: virtualNetworkName
     mandatory: true
     type: String
-    description: SName of the virtual network associated with this fabric site
+    description: Name of the virtual network associated with this fabric site
     example: SDA_VN1
   - model_name: vlanId
     data_path: '0'

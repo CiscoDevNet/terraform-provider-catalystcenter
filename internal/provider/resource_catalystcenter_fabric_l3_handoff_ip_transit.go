@@ -107,7 +107,7 @@ func (r *FabricL3HandoffIPTransitResource) Schema(ctx context.Context, req resou
 				},
 			},
 			"virtual_network_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("SName of the virtual network associated with this fabric site").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the virtual network associated with this fabric site").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
