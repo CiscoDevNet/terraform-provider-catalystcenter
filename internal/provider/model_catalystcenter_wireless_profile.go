@@ -30,26 +30,26 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type WirelessProfile struct {
-	Id          types.String                 `tfsdk:"id"`
-	Name        types.String                 `tfsdk:"name"`
-	SsidDetails []WirelessProfileSsidDetails `tfsdk:"ssid_details"`
+	Id                  types.String                 `tfsdk:"id"`
+	WirelessProfileName types.String                 `tfsdk:"wireless_profile_name"`
+	SsidDetails         []WirelessProfileSsidDetails `tfsdk:"ssid_details"`
 }
 
 type WirelessProfileSsidDetails struct {
-	Name              types.String `tfsdk:"name"`
+	SsidName          types.String `tfsdk:"ssid_name"`
 	EnableFabric      types.Bool   `tfsdk:"enable_fabric"`
 	EnableFlexConnect types.Bool   `tfsdk:"enable_flex_connect"`
 	LocalToVlan       types.Int64  `tfsdk:"local_to_vlan"`
 	InterfaceName     types.String `tfsdk:"interface_name"`
 	WlanProfileName   types.String `tfsdk:"wlan_profile_name"`
-	PolicyProfileName types.String `tfsdk:"policy_profile_name"`
+	Dot11beProfileId  types.String `tfsdk:"dot11be_profile_id"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data WirelessProfile) getPath() string {
-	return "/dna/intent/api/v2/wireless/profile"
+	return "/intent/api/v1/wirelessProfiles"
 }
 
 // End of section. //template:end getPath
@@ -66,15 +66,15 @@ func (data WirelessProfile) toBody(ctx context.Context, state WirelessProfile) s
 		put = true
 	}
 	_ = put
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "wirelessProfileName", data.Name.ValueString())
+	if !data.WirelessProfileName.IsNull() {
+		body, _ = sjson.Set(body, "wirelessProfileName", data.WirelessProfileName.ValueString())
 	}
 	if len(data.SsidDetails) > 0 {
 		body, _ = sjson.Set(body, "ssidDetails", []interface{}{})
 		for _, item := range data.SsidDetails {
 			itemBody := ""
-			if !item.Name.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "ssidName", item.Name.ValueString())
+			if !item.SsidName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "ssidName", item.SsidName.ValueString())
 			}
 			if !item.EnableFabric.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "enableFabric", item.EnableFabric.ValueBool())
@@ -91,8 +91,8 @@ func (data WirelessProfile) toBody(ctx context.Context, state WirelessProfile) s
 			if !item.WlanProfileName.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "wlanProfileName", item.WlanProfileName.ValueString())
 			}
-			if !item.PolicyProfileName.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "policyProfileName", item.PolicyProfileName.ValueString())
+			if !item.Dot11beProfileId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "dot11beProfileId", item.Dot11beProfileId.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "ssidDetails.-1", itemBody)
 		}
@@ -105,18 +105,18 @@ func (data WirelessProfile) toBody(ctx context.Context, state WirelessProfile) s
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("wirelessProfileName"); value.Exists() {
-		data.Name = types.StringValue(value.String())
+		data.WirelessProfileName = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.WirelessProfileName = types.StringNull()
 	}
 	if value := res.Get("ssidDetails"); value.Exists() && len(value.Array()) > 0 {
 		data.SsidDetails = make([]WirelessProfileSsidDetails, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := WirelessProfileSsidDetails{}
 			if cValue := v.Get("ssidName"); cValue.Exists() {
-				item.Name = types.StringValue(cValue.String())
+				item.SsidName = types.StringValue(cValue.String())
 			} else {
-				item.Name = types.StringNull()
+				item.SsidName = types.StringNull()
 			}
 			if cValue := v.Get("enableFabric"); cValue.Exists() {
 				item.EnableFabric = types.BoolValue(cValue.Bool())
@@ -136,7 +136,17 @@ func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
 			if cValue := v.Get("interfaceName"); cValue.Exists() {
 				item.InterfaceName = types.StringValue(cValue.String())
 			} else {
-				item.InterfaceName = types.StringNull()
+				item.InterfaceName = types.StringValue("management")
+			}
+			if cValue := v.Get("wlanProfileName"); cValue.Exists() {
+				item.WlanProfileName = types.StringValue(cValue.String())
+			} else {
+				item.WlanProfileName = types.StringNull()
+			}
+			if cValue := v.Get("dot11beProfileId"); cValue.Exists() {
+				item.Dot11beProfileId = types.StringValue(cValue.String())
+			} else {
+				item.Dot11beProfileId = types.StringNull()
 			}
 			data.SsidDetails = append(data.SsidDetails, item)
 			return true
@@ -148,14 +158,14 @@ func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("wirelessProfileName"); value.Exists() && !data.Name.IsNull() {
-		data.Name = types.StringValue(value.String())
+	if value := res.Get("wirelessProfileName"); value.Exists() && !data.WirelessProfileName.IsNull() {
+		data.WirelessProfileName = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.WirelessProfileName = types.StringNull()
 	}
 	for i := range data.SsidDetails {
 		keys := [...]string{"ssidName"}
-		keyValues := [...]string{data.SsidDetails[i].Name.ValueString()}
+		keyValues := [...]string{data.SsidDetails[i].SsidName.ValueString()}
 
 		var r gjson.Result
 		res.Get("ssidDetails").ForEach(
@@ -176,10 +186,10 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 				return true
 			},
 		)
-		if value := r.Get("ssidName"); value.Exists() && !data.SsidDetails[i].Name.IsNull() {
-			data.SsidDetails[i].Name = types.StringValue(value.String())
+		if value := r.Get("ssidName"); value.Exists() && !data.SsidDetails[i].SsidName.IsNull() {
+			data.SsidDetails[i].SsidName = types.StringValue(value.String())
 		} else {
-			data.SsidDetails[i].Name = types.StringNull()
+			data.SsidDetails[i].SsidName = types.StringNull()
 		}
 		if value := r.Get("enableFabric"); value.Exists() && !data.SsidDetails[i].EnableFabric.IsNull() {
 			data.SsidDetails[i].EnableFabric = types.BoolValue(value.Bool())
@@ -198,8 +208,18 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 		}
 		if value := r.Get("interfaceName"); value.Exists() && !data.SsidDetails[i].InterfaceName.IsNull() {
 			data.SsidDetails[i].InterfaceName = types.StringValue(value.String())
-		} else {
+		} else if data.SsidDetails[i].InterfaceName.ValueString() != "management" {
 			data.SsidDetails[i].InterfaceName = types.StringNull()
+		}
+		if value := r.Get("wlanProfileName"); value.Exists() && !data.SsidDetails[i].WlanProfileName.IsNull() {
+			data.SsidDetails[i].WlanProfileName = types.StringValue(value.String())
+		} else {
+			data.SsidDetails[i].WlanProfileName = types.StringNull()
+		}
+		if value := r.Get("dot11beProfileId"); value.Exists() && !data.SsidDetails[i].Dot11beProfileId.IsNull() {
+			data.SsidDetails[i].Dot11beProfileId = types.StringValue(value.String())
+		} else {
+			data.SsidDetails[i].Dot11beProfileId = types.StringNull()
 		}
 	}
 }
@@ -208,7 +228,7 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *WirelessProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Name.IsNull() {
+	if !data.WirelessProfileName.IsNull() {
 		return false
 	}
 	if len(data.SsidDetails) > 0 {

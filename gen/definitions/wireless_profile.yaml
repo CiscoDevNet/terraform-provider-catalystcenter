@@ -1,43 +1,38 @@
 ---
 name: Wireless Profile
-rest_endpoint: /dna/intent/api/v2/wireless/profile
+rest_endpoint: /intent/api/v1/wirelessProfiles
 id_from_query_path: response
+id_from_query_path_attribute: id
+import_no_id: true
 get_from_all: true
-no_data_source: true
-put_no_id: true
-id_from_query_path_attribute: instanceUuid
 res_description:
   'This resource creates a wireless network profile. To associate a wireless network profile with a site, use 
   the `catalystcenter_associate_site_to_network_profile` resource.'
 doc_category: Wireless
 attributes:
   - model_name: wirelessProfileName
-    tf_name: name
-    delete_query_param_name: name
-    delete_query_param: true
     type: String
     match_id: true
-    description: Profile Name
+    description: Wireless Network Profile Name
     example: Wireless_Profile_1
   - model_name: ssidDetails
     type: List
     description: SSID Details
     attributes:
       - model_name: ssidName
-        tf_name: name
         type: String
         id: true
-        description: Ssid Name
+        description: SSID Name
         example: mySSID1
         test_value: catalystcenter_wireless_enterprise_ssid.test.name
       - model_name: enableFabric
         type: Bool
-        description: "`true` if ssid is fabric else `false`"
+        description: "True if fabric is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time"
         example: true
       - model_name: enableFlexConnect
         data_path: flexConnect
         type: Bool
-        description: "`true` if flex connect is enabled else `false`"
+        description: "True if flex connect is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time"
         example: false
       - model_name: localToVlan
         data_path: flexConnect
@@ -49,19 +44,17 @@ attributes:
         type: String
         description: Interface Name
         exclude_test: true
+        default_value: management
         example: management
       - model_name: wlanProfileName
-        write_only: true
         type: String
         description: WLAN Profile Name
         exclude_test: true
         example: mySSID1_profile
-      - model_name: policyProfileName
-        write_only: true
+      - model_name: dot11beProfileId
         type: String
-        description: Policy Profile Name
+        description: 802.11be Profile Id. Applicable to IOS controllers with version 17.15 and higher. 802.11be Profiles if passed, should be same across all SSIDs in network profile being configured
         exclude_test: true
-        example: mySSID1_profile
 test_prerequisites: |
   resource "catalystcenter_wireless_enterprise_ssid" "test" {
     name                                  = "mySSID1"

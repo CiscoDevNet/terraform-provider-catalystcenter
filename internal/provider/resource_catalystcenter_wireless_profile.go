@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -68,8 +69,8 @@ func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.Schem
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Profile Name").String,
+			"wireless_profile_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Wireless Network Profile Name").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -80,16 +81,16 @@ func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.Schem
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Ssid Name").String,
+						"ssid_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("SSID Name").String,
 							Required:            true,
 						},
 						"enable_fabric": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("`true` if ssid is fabric else `false`").String,
+							MarkdownDescription: helpers.NewAttributeDescription("True if fabric is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time").String,
 							Optional:            true,
 						},
 						"enable_flex_connect": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("`true` if flex connect is enabled else `false`").String,
+							MarkdownDescription: helpers.NewAttributeDescription("True if flex connect is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time").String,
 							Optional:            true,
 						},
 						"local_to_vlan": schema.Int64Attribute{
@@ -97,15 +98,17 @@ func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.Schem
 							Optional:            true,
 						},
 						"interface_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface Name").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Interface Name").AddDefaultValueDescription("management").String,
 							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString("management"),
 						},
 						"wlan_profile_name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("WLAN Profile Name").String,
 							Optional:            true,
 						},
-						"policy_profile_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Policy Profile Name").String,
+						"dot11be_profile_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("802.11be Profile Id. Applicable to IOS controllers with version 17.15 and higher. 802.11be Profiles if passed, should be same across all SSIDs in network profile being configured").String,
 							Optional:            true,
 						},
 					},
@@ -153,7 +156,7 @@ func (r *WirelessProfileResource) Create(ctx context.Context, req resource.Creat
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(wirelessProfileName==\"" + plan.Name.ValueString() + "\").instanceUuid").String())
+	plan.Id = types.StringValue(res.Get("response.#(wirelessProfileName==\"" + plan.WirelessProfileName.ValueString() + "\").id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -185,7 +188,7 @@ func (r *WirelessProfileResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	res = res.Get("response.#(instanceUuid==\"" + state.Id.ValueString() + "\")")
+	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -223,7 +226,7 @@ func (r *WirelessProfileResource) Update(ctx context.Context, req resource.Updat
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -249,8 +252,7 @@ func (r *WirelessProfileResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	params := "?name=" + url.QueryEscape(state.Name.ValueString())
-	res, err := r.client.Delete(state.getPath() + params)
+	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -265,16 +267,7 @@ func (r *WirelessProfileResource) Delete(ctx context.Context, req resource.Delet
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *WirelessProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
-
-	if len(idParts) != 1 || idParts[0] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // End of section. //template:end import

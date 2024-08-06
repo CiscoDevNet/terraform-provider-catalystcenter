@@ -14,10 +14,10 @@ This resource creates a wireless network profile. To associate a wireless networ
 
 ```terraform
 resource "catalystcenter_wireless_profile" "example" {
-  name = "Wireless_Profile_1"
+  wireless_profile_name = "Wireless_Profile_1"
   ssid_details = [
     {
-      name                = "mySSID1"
+      ssid_name           = "mySSID1"
       enable_fabric       = true
       enable_flex_connect = false
     }
@@ -30,7 +30,7 @@ resource "catalystcenter_wireless_profile" "example" {
 
 ### Required
 
-- `name` (String) Profile Name
+- `wireless_profile_name` (String) Wireless Network Profile Name
 
 ### Optional
 
@@ -45,15 +45,16 @@ resource "catalystcenter_wireless_profile" "example" {
 
 Required:
 
-- `name` (String) Ssid Name
+- `ssid_name` (String) SSID Name
 
 Optional:
 
-- `enable_fabric` (Boolean) `true` if ssid is fabric else `false`
-- `enable_flex_connect` (Boolean) `true` if flex connect is enabled else `false`
+- `dot11be_profile_id` (String) 802.11be Profile Id. Applicable to IOS controllers with version 17.15 and higher. 802.11be Profiles if passed, should be same across all SSIDs in network profile being configured
+- `enable_fabric` (Boolean) True if fabric is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time
+- `enable_flex_connect` (Boolean) True if flex connect is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time
 - `interface_name` (String) Interface Name
+  - Default value: `management`
 - `local_to_vlan` (Number) Local To Vlan Id
-- `policy_profile_name` (String) Policy Profile Name
 - `wlan_profile_name` (String) WLAN Profile Name
 
 ## Import
@@ -61,5 +62,5 @@ Optional:
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_wireless_profile.example "<id>"
+terraform import catalystcenter_wireless_profile.example "4b0b7a80-44c0-4bf2-bab5-fc24b4e0a17e"
 ```
