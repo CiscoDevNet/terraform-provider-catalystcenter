@@ -9,7 +9,6 @@ res_description:
   'This resource creates a wireless network profile. To associate a wireless network profile with a site, use 
   the `catalystcenter_associate_site_to_network_profile` resource.'
 doc_category: Wireless
-test_tags: [CC2376]
 attributes:
   - model_name: wirelessProfileName
     type: String

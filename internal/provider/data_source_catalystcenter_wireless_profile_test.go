@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -29,9 +28,6 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcWirelessProfile(t *testing.T) {
-	if os.Getenv("CC2376") == "" {
-		t.Skip("skipping test, set environment variable CC2376")
-	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_profile.test", "wireless_profile_name", "Wireless_Profile_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_profile.test", "ssid_details.0.enable_fabric", "true"))
