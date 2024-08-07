@@ -60,5 +60,4 @@ test_prerequisites: |
     name                                  = "mySSID1"
     security_level                        = "wpa3_enterprise"
     passphrase                            = "Cisco123"
-    ghz24_policy                          =  "dot11-g-only"
   }

@@ -52,7 +52,6 @@ resource "catalystcenter_wireless_enterprise_ssid" "test" {
   name                                  = "mySSID1"
   security_level                        = "wpa3_enterprise"
   passphrase                            = "Cisco123"
-  ghz24_policy                          =  "dot11-g-only"
 }
 
 `
