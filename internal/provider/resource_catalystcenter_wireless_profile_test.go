@@ -29,9 +29,6 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcWirelessProfile(t *testing.T) {
-	if os.Getenv("CC2376") == "" {
-		t.Skip("skipping test, set environment variable CC2376")
-	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "wireless_profile_name", "Wireless_Profile_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.enable_fabric", "true"))
@@ -67,6 +64,7 @@ resource "catalystcenter_wireless_enterprise_ssid" "test" {
   name                                  = "mySSID1"
   security_level                        = "wpa3_enterprise"
   passphrase                            = "Cisco123"
+  ghz24_policy                          =  "dot11-g-only"
 }
 
 `
