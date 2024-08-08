@@ -459,7 +459,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if and .IdFromQueryPathAttribute .IdFromQueryPath (not .GetExtraQueryParams) (not .GetFromAll) }}
 	plan.Id = types.StringValue(res.Get("{{if eq .IdFromQueryPath "." }}{{else}}{{.IdFromQueryPath}}.{{end}}{{.IdFromQueryPathAttribute}}").String())
 	{{- else}}
-	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ plan.{{toGoName $id.TfName}}.Value{{$id.Type}}() +"\").{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}").String())
+	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ {{if eq $id.Type "Int64"}}strconv.FormatInt(plan.{{toGoName $id.TfName}}.ValueInt64(), 10){{else}}plan.{{toGoName $id.TfName}}.Value{{$id.Type}}(){{end}} +"\").{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}").String())
 	{{- end}}
 	{{- /* If we have an id attribute we will use that as id */}}
 	{{- else if hasId .Attributes}}

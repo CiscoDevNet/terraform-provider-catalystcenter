@@ -1,0 +1,67 @@
+---
+name: Fabric L2 Handoff
+rest_endpoint: /dna/intent/api/v1/sda/fabricDevices/layer2Handoffs
+res_description: Manages Layer 2 Handoffs in Fabric Devices
+id_from_query_path: response
+id_from_query_path_attribute: id
+put_id_include_path: 0.id
+get_from_all: true
+put_no_id: true
+doc_category: SDA
+test_tags: [SDA]
+attributes:
+  - model_name: networkDeviceId
+    query_param: true
+    requires_replace: true
+    data_path: '0'
+    response_data_path: networkDeviceId
+    mandatory: true
+    description: Network device ID of the fabric device
+    type: String
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+  - model_name: fabricId
+    requires_replace: true
+    query_param: true
+    data_path: '0'
+    response_data_path: fabricId
+    type: String
+    mandatory: true
+    description: ID of the fabric this device belongs to
+    example: c4b85bb2-ce3f-4db9-a32b-e439a388ac2f
+    test_value: catalystcenter_fabric_site.test.id
+  - model_name: interfaceName
+    requires_replace: true
+    data_path: '0'
+    response_data_path: interfaceName
+    type: String
+    mandatory: true
+    description: Interface name of the layer 2 handoff. E.g., GigabitEthernet1/0/4
+    example: GigabitEthernet1/0/4
+  - model_name: internalVlanId
+    data_path: '0'
+    requires_replace: true
+    response_data_path: internalVlanId
+    type: Int64
+    match_id: true
+    mandatory: true
+    description: VLAN number associated with this fabric. Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094)
+    example: 300
+  - model_name: externalVlanId
+    data_path: '0'
+    requires_replace: true
+    response_data_path: externalVlanId
+    mandatory: true
+    type: Int64
+    description: External VLAN number into which the fabric must be extended. Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094)
+    example: 400
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+    depends_on = [catalystcenter_area.test]
+  }
