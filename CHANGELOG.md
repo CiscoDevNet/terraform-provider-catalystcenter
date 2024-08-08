@@ -1,4 +1,4 @@
-## 0.1.10 (unreleased)
+## 0.1.10
 
 - Add `catalystcenter_fabric_l2_handoff` resource and data source
 - BREAKING CHANGE: Modified `catalystcenter_wireless_profile` resource to use `/intent/api/v1/wirelessProfiles` API endpoint, this resource now only works with Catalyst Center version 2.3.7.6+
