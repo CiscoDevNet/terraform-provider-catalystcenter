@@ -305,6 +305,13 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result) {
+	{{- if .RootList}}
+	{{- range .Attributes}}
+	{{if .ResponseDataPath}}
+	res = res.Get("{{.ResponseDataPath}}")
+	{{- end}}
+	{{- end}}
+	{{- end}}
 	{{- if .DataSourceNoId}}
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
 	if value := res.Get("{{if .IdFromQueryPath}}{{if eq .IdFromQueryPath "." }}{{else}}{{.IdFromQueryPath}}.{{end}}{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}{{end}}"); value.Exists() {
@@ -455,6 +462,13 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.Result) {
+	{{- if .RootList}}
+	{{- range .Attributes}}
+	{{if .ResponseDataPath}}
+	res = res.Get("{{.ResponseDataPath}}")
+	{{- end}}
+	{{- end}}
+	{{- end}}
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
