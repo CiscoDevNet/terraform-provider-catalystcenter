@@ -7,9 +7,12 @@ description: |-
 
 # Changelog
 
-## 0.1.10 (unreleased)
+## 0.1.11 (unreleased)
 
 - Add `fabric_vlan_to_ssid` resource and data source
+
+## 0.1.10
+
 - Add `fabric_l2_handoff` resource and data source
 - BREAKING CHANGE: Modified `wireless_profile` resource to use `/intent/api/v1/wirelessProfiles` API endpoint, this resource now only works with Catalyst Center version 2.3.7.6+
 - Add `wireless_device_provision` resource

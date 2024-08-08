@@ -1,7 +1,7 @@
 ---
 name: Wireless Device Provision
 rest_endpoint: /dna/intent/api/v1/wireless/provision
-res_description: 'This resource provision wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device.
+res_description: 'This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device.
   When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices'
 no_data_source: true
 no_read: true
