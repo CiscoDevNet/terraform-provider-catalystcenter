@@ -87,6 +87,7 @@ func testAccDataSourceCcAssignTemplatesToTagConfig() string {
 	config += `
 		data "catalystcenter_assign_templates_to_tag" "test" {
 			tag_id = catalystcenter_tag.test.id
+			depends_on = [catalystcenter_assign_templates_to_tag.test]
 		}
 	`
 	return config

@@ -222,6 +222,9 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 			{{.TfName}} = {{if .TestValue}}{{.TestValue}}{{else}}{{if eq .Type "String"}}"{{.Example}}"{{else if isStringListSet .}}["{{.Example}}"]{{else if isInt64ListSet .}}[{{.Example}}]{{else}}{{.Example}}{{end}}{{end}}
 			{{- end}}
 			{{- end}}
+			{{- if .DataSourceNoId}}
+			depends_on = [catalystcenter_{{snakeCase $name}}.test]
+			{{- end}}
 		}
 	`
 	return config

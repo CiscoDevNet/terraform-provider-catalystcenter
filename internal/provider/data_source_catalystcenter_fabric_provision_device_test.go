@@ -75,6 +75,7 @@ func testAccDataSourceCcFabricProvisionDeviceConfig() string {
 		data "catalystcenter_fabric_provision_device" "test" {
 			site_id = catalystcenter_area.test.id
 			network_device_id = "4cb565d3-1944-42be-be9f-a87cff79e831"
+			depends_on = [catalystcenter_fabric_provision_device.test]
 		}
 	`
 	return config
