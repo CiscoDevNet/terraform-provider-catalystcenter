@@ -60,6 +60,7 @@ func testAccDataSourceCcTagConfig() string {
 	config += `
 		data "catalystcenter_tag" "test" {
 			name = "Tag1"
+			depends_on = [catalystcenter_tag.test]
 		}
 	`
 	return config

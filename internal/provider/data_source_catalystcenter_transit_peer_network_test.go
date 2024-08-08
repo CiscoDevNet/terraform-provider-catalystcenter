@@ -62,6 +62,7 @@ func testAccDataSourceCcTransitPeerNetworkConfig() string {
 	config += `
 		data "catalystcenter_transit_peer_network" "test" {
 			transit_peer_network_name = "TRANSIT_1"
+			depends_on = [catalystcenter_transit_peer_network.test]
 		}
 	`
 	return config
