@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -27,39 +26,28 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccCcWirelessProfile(t *testing.T) {
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
+func TestAccDataSourceCcWirelessProfile(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "wireless_profile_name", "Wireless_Profile_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.enable_fabric", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.enable_flex_connect", "false"))
-
-	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcWirelessProfilePrerequisitesConfig + testAccCcWirelessProfileConfig_minimum(),
-		})
-	}
-	steps = append(steps, resource.TestStep{
-		Config: testAccCcWirelessProfilePrerequisitesConfig + testAccCcWirelessProfileConfig_all(),
-		Check:  resource.ComposeTestCheckFunc(checks...),
-	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_wireless_profile.test",
-		ImportState:  true,
-	})
-
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_profile.test", "wireless_profile_name", "Wireless_Profile_1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_profile.test", "ssid_details.0.enable_fabric", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_profile.test", "ssid_details.0.enable_flex_connect", "false"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps:                    steps,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceCcWirelessProfilePrerequisitesConfig + testAccDataSourceCcWirelessProfileConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
+		},
 	})
 }
 
-// End of section. //template:end testAcc
+// End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-const testAccCcWirelessProfilePrerequisitesConfig = `
+const testAccDataSourceCcWirelessProfilePrerequisitesConfig = `
 resource "catalystcenter_wireless_enterprise_ssid" "test" {
   name                                  = "mySSID1"
   security_level                        = "wpa3_enterprise"
@@ -70,18 +58,8 @@ resource "catalystcenter_wireless_enterprise_ssid" "test" {
 
 // End of section. //template:end testPrerequisites
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccCcWirelessProfileConfig_minimum() string {
-	config := `resource "catalystcenter_wireless_profile" "test" {` + "\n"
-	config += `	wireless_profile_name = "Wireless_Profile_1"` + "\n"
-	config += `}` + "\n"
-	return config
-}
-
-// End of section. //template:end testAccConfigMinimal
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccCcWirelessProfileConfig_all() string {
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
+func testAccDataSourceCcWirelessProfileConfig() string {
 	config := `resource "catalystcenter_wireless_profile" "test" {` + "\n"
 	config += `	wireless_profile_name = "Wireless_Profile_1"` + "\n"
 	config += `	ssid_details = [{` + "\n"
@@ -90,7 +68,13 @@ func testAccCcWirelessProfileConfig_all() string {
 	config += `	  enable_flex_connect = false` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
+
+	config += `
+		data "catalystcenter_wireless_profile" "test" {
+			id = catalystcenter_wireless_profile.test.id
+		}
+	`
 	return config
 }
 
-// End of section. //template:end testAccConfigAll
+// End of section. //template:end testAccDataSourceConfig

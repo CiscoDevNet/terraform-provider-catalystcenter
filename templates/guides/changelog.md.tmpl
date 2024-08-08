@@ -9,6 +9,7 @@ description: |-
 
 ## 0.1.10 (unreleased)
 
+- BREAKING CHANGE: Modified `wireless_profile` resource to use `/intent/api/v1/wirelessProfiles` API endpoint, this resource now only works with Catalyst Center version 2.3.7.6+
 - Add `wireless_device_provision` resource
 - Add `fabric_provision_device` resource and data source
 - Add `assign_templates_to_tag` resource and data source

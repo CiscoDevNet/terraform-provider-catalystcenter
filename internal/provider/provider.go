@@ -328,6 +328,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewTransitPeerNetworkDataSource,
 		NewUserDataSource,
 		NewWirelessEnterpriseSSIDDataSource,
+		NewWirelessProfileDataSource,
 		NewWirelessRFProfileDataSource,
 	}
 }
