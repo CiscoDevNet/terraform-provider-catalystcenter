@@ -3,12 +3,12 @@
 page_title: "catalystcenter_wireless_device_provision Resource - terraform-provider-catalystcenter"
 subcategory: "Wireless"
 description: |-
-  This resource provision wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices
+  This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices
 ---
 
 # catalystcenter_wireless_device_provision (Resource)
 
-This resource provision wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices
+This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices
 
 ## Example Usage
 

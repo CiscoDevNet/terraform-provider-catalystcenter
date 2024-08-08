@@ -1,17 +1,17 @@
 ## 0.1.10 (unreleased)
 
-- Add `fabric_l2_handoff` resource and data source
-- BREAKING CHANGE: Modified `wireless_profile` resource to use `/intent/api/v1/wirelessProfiles` API endpoint, this resource now only works with Catalyst Center version 2.3.7.6+
-- Add `wireless_device_provision` resource
-- Add `fabric_provision_device` resource and data source
-- Add `assign_templates_to_tag` resource and data source
-- Add `tag` resource and data source
-- Add `pnp_import_devices` resource
-- Add `fabric_device` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+ `/sda/fabricDevices`
-- Add `fabric_l3_handoff_ip_transit` resource and data source
-- Add `transitPeerNetworkId` as `id` to `transit_peer_network` resource
-- Add `anycast_gateway` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+ `/sda/anycastGateways`
-- BREAKING CHANGE: Modified `fabric_site` resource to use `/dna/intent/api/v1/sda/fabricSites` API endpoint, this resource now only works with Catalyst Center version 2.3.7.5+
+- Add `catalystcenter_fabric_l2_handoff` resource and data source
+- BREAKING CHANGE: Modified `catalystcenter_wireless_profile` resource to use `/intent/api/v1/wirelessProfiles` API endpoint, this resource now only works with Catalyst Center version 2.3.7.6+
+- Add `catalystcenter_wireless_device_provision` resource
+- Add `catalystcenter_fabric_provision_device` resource and data source
+- Add `catalystcenter_assign_templates_to_tag` resource and data source
+- Add `catalystcenter_tag` resource and data source
+- Add `catalystcenter_pnp_import_devices` resource
+- Add `catalystcenter_fabric_device` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+
+- Add `catalystcenter_fabric_l3_handoff_ip_transit` resource and data source
+- Add `transitPeerNetworkId` as `id` to `catalystcenter_transit_peer_network` resource
+- Add `catalystcenter_anycast_gateway` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+
+- BREAKING CHANGE: Modified `catalystcenter_fabric_site` resource to use `/dna/intent/api/v1/sda/fabricSites` API endpoint, this resource now only works with Catalyst Center version 2.3.7.5+
 - Fix issue with mandatory attributes in `transit_peer_network` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/92)
 - BREAKING CHANGE: Fix `ip_pool` update if more than 25 pools are registered
 - BREAKING CHANGE: Rename `radio_type_a_power_treshold_v1` attribute of `catalystcenter_wireless_rf_profile` resource to `radio_type_a_power_threshold_v1`

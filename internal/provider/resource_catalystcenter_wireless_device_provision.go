@@ -56,7 +56,7 @@ func (r *WirelessDeviceProvisionResource) Metadata(ctx context.Context, req reso
 func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource provision wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
