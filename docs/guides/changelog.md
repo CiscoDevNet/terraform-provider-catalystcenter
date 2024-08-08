@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.11 (unreleased)
+
+- Add `catalystcenter_fabric_vlan_to_ssid` resource and data source
+
 ## 0.1.10
 
 - Add `catalystcenter_fabric_l2_handoff` resource and data source
@@ -21,8 +25,8 @@ description: |-
 - Add `transitPeerNetworkId` as `id` to `catalystcenter_transit_peer_network` resource
 - Add `catalystcenter_anycast_gateway` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+
 - BREAKING CHANGE: Modified `catalystcenter_fabric_site` resource to use `/dna/intent/api/v1/sda/fabricSites` API endpoint, this resource now only works with Catalyst Center version 2.3.7.5+
-- Fix issue with mandatory attributes in `transit_peer_network` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/92)
-- BREAKING CHANGE: Fix `ip_pool` update if more than 25 pools are registered
+- Fix issue with mandatory attributes in `catalystcenter_transit_peer_network` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/92)
+- BREAKING CHANGE: Fix `catalystcenter_ip_pool` update if more than 25 pools are registered
 - BREAKING CHANGE: Rename `radio_type_a_power_treshold_v1` attribute of `catalystcenter_wireless_rf_profile` resource to `radio_type_a_power_threshold_v1`
 - BREAKING CHANGE: Rename `radio_type_b_power_treshold_v1` attribute of `catalystcenter_wireless_rf_profile` resource to `radio_type_b_power_threshold_v1`
 - BREAKING CHANGE: Rename `radio_type_c_power_treshold_v1` attribute of `catalystcenter_wireless_rf_profile` resource to `radio_type_c_power_threshold_v1`
