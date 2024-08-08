@@ -11,10 +11,10 @@
 - Add `catalystcenter_assign_templates_to_tag` resource and data source
 - Add `catalystcenter_tag` resource and data source
 - Add `catalystcenter_pnp_import_devices` resource
-- Add `catalystcenter_fabric_device` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+ `/sda/fabricDevices`
+- Add `catalystcenter_fabric_device` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+
 - Add `catalystcenter_fabric_l3_handoff_ip_transit` resource and data source
 - Add `transitPeerNetworkId` as `id` to `catalystcenter_transit_peer_network` resource
-- Add `catalystcenter_anycast_gateway` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+ `/sda/anycastGateways`
+- Add `catalystcenter_anycast_gateway` resource and data source, this resource now only works with Catalyst Center version 2.3.7.5+
 - BREAKING CHANGE: Modified `catalystcenter_fabric_site` resource to use `/dna/intent/api/v1/sda/fabricSites` API endpoint, this resource now only works with Catalyst Center version 2.3.7.5+
 - Fix issue with mandatory attributes in `catalystcenter_transit_peer_network` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/92)
 - BREAKING CHANGE: Fix `catalystcenter_ip_pool` update if more than 25 pools are registered
