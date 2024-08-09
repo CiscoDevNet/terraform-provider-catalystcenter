@@ -261,6 +261,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewFabricProvisionDeviceResource,
 		NewFabricSiteResource,
 		NewFabricVirtualNetworkResource,
+		NewFabricVLANToSSIDResource,
 		NewFloorResource,
 		NewImageResource,
 		NewImageActivationResource,
@@ -288,6 +289,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewWirelessEnterpriseSSIDResource,
 		NewWirelessProfileResource,
 		NewWirelessRFProfileResource,
+		NewWirelessSSIDResource,
 	}
 }
 
@@ -314,6 +316,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewFabricProvisionDeviceDataSource,
 		NewFabricSiteDataSource,
 		NewFabricVirtualNetworkDataSource,
+		NewFabricVLANToSSIDDataSource,
 		NewFloorDataSource,
 		NewIPPoolDataSource,
 		NewIPPoolReservationDataSource,
@@ -323,6 +326,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewPnPDeviceDataSource,
 		NewProjectDataSource,
 		NewRoleDataSource,
+		NewSiteDataSource,
 		NewSPProfileDataSource,
 		NewTagDataSource,
 		NewTemplateDataSource,
@@ -332,6 +336,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewWirelessEnterpriseSSIDDataSource,
 		NewWirelessProfileDataSource,
 		NewWirelessRFProfileDataSource,
+		NewWirelessSSIDDataSource,
 	}
 }
 

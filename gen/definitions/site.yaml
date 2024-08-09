@@ -1,0 +1,31 @@
+---
+name: Site
+rest_endpoint: /dna/intent/api/v1/sites
+ds_description: This data source fetches sites
+data_source_no_id: true
+id_from_query_path: response.0
+no_resource: true
+doc_category: Sites
+attributes:
+  - model_name: name
+    type: String
+    description: Site Name
+    response_data_path: response.0.name
+    example: Global
+  - model_name: parentId
+    type: String
+    description: Id of Parent Site
+    response_data_path: response.0.parentId
+    exclude_test: true
+  - model_name: nameHierarchy
+    query_param: true
+    type: String
+    description: Site Name Hierarchy
+    response_data_path: response.0.nameHierarchy
+    example: Global
+    exclude_test: true
+  - model_name: type
+    type: String
+    description: Type
+    response_data_path: response.0.type
+    example: global
