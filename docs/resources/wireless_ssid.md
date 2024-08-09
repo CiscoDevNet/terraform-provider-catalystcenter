@@ -49,9 +49,11 @@ resource "catalystcenter_wireless_ssid" "example" {
 ### Required
 
 - `auth_type` (String) L2 Authentication Type. If authType is not open, then at least one RSN Cipher Suite and corresponding valid AKM must be enabled.
+  - Choices: `WPA2_ENTERPRISE`, `WPA2_PERSONAL`, `OPEN`, `WPA3_ENTERPRISE`, `WPA3_PERSONAL`, `WPA2_WPA3_PERSONAL`, `WPA2_WPA3_ENTERPRISE`, `OPEN_SECURED`
 - `site_id` (String) Site ID - only site level Global is supported
 - `ssid` (String) Name of the SSID
 - `wlan_type` (String) Wlan Type
+  - Choices: `Enterprise`, `Guest`
 
 ### Optional
 
@@ -72,6 +74,7 @@ resource "catalystcenter_wireless_ssid" "example" {
 - `auth_key_suite_b1921x` (Boolean) When set to true, the SuiteB192-1x authentication key feature is enabled
 - `auth_key_suite_b1x` (Boolean) When activated by setting it to true, the SuiteB-1x authentication key feature is engaged
 - `auth_server` (String) Authentication Server, Mandatory for Guest SSIDs with wlanType=Guest and l3AuthType=web_auth
+  - Choices: `auth_ise`, `auth_external`, `auth_internal`
 - `auth_servers` (Set of String) List of Authentication/Authorization server IpAddresses
 - `basic_service_set_client_idle_timeout` (Number) This refers to the duration of inactivity, measured in seconds, before a client connected to the Basic Service Set is considered idle and timed out
   - Range: `15`-`100000`
@@ -88,6 +91,7 @@ resource "catalystcenter_wireless_ssid" "example" {
 - `coverage_hole_detection` (Boolean) Coverage Hole Detection Enable
 - `directed_multicast_service` (Boolean) The Directed Multicast Service feature becomes operational when it is set to true
 - `egress_qos` (String) Egress QOS
+  - Choices: `PLATINUM`, `SILVER`, `GOLD`, `BRONZE`
 - `enabled` (Boolean) Set SSID's admin status as 'Enabled' when set to true
 - `external_auth_ip_address` (String) External WebAuth URL (Mandatory for Guest SSIDs with wlanType = Guest, l3AuthType = web_auth and authServer = auth_external)
 - `fast_lane` (Boolean) True if FastLane is enabled, else False
@@ -99,7 +103,9 @@ resource "catalystcenter_wireless_ssid" "example" {
 - `ghz6_policy_client_steering` (Boolean) True if 6 GHz Policy Client Steering is enabled, else False
 - `hex` (Boolean) True if passphrase is in Hex format, else False
 - `ingress_qos` (String) Ingress QOS
+  - Choices: `PLATINUM-UP`, `SILVER-UP`, `GOLD-UP`, `BRONZE-UP`
 - `l3_auth_type` (String) L3 Authentication Type
+  - Choices: `open`, `web_auth`
 - `mac_filtering` (Boolean) When set to true, MAC Filtering will be activated, allowing control over network access based on the MAC address of the device
 - `mft_client_protection` (String) Management Frame Protection Client
   - Choices: `OPTIONAL`, `DISABLED`, `REQUIRED`

@@ -89,8 +89,11 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"auth_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("L2 Authentication Type. If authType is not open, then at least one RSN Cipher Suite and corresponding valid AKM must be enabled.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("L2 Authentication Type. If authType is not open, then at least one RSN Cipher Suite and corresponding valid AKM must be enabled.").AddStringEnumDescription("WPA2_ENTERPRISE", "WPA2_PERSONAL", "OPEN", "WPA3_ENTERPRISE", "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "WPA2_WPA3_ENTERPRISE", "OPEN_SECURED").String,
 				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("WPA2_ENTERPRISE", "WPA2_PERSONAL", "OPEN", "WPA3_ENTERPRISE", "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "WPA2_WPA3_ENTERPRISE", "OPEN_SECURED"),
+				},
 			},
 			"passphrase": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters").String,
@@ -299,24 +302,39 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 				Optional:            true,
 			},
 			"egress_qos": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Egress QOS").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Egress QOS").AddStringEnumDescription("PLATINUM", "SILVER", "GOLD", "BRONZE").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("PLATINUM", "SILVER", "GOLD", "BRONZE"),
+				},
 			},
 			"ingress_qos": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Ingress QOS").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Ingress QOS").AddStringEnumDescription("PLATINUM-UP", "SILVER-UP", "GOLD-UP", "BRONZE-UP").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("PLATINUM-UP", "SILVER-UP", "GOLD-UP", "BRONZE-UP"),
+				},
 			},
 			"wlan_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Wlan Type").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Wlan Type").AddStringEnumDescription("Enterprise", "Guest").String,
 				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("Enterprise", "Guest"),
+				},
 			},
 			"l3_auth_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("L3 Authentication Type").String,
+				MarkdownDescription: helpers.NewAttributeDescription("L3 Authentication Type").AddStringEnumDescription("open", "web_auth").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("open", "web_auth"),
+				},
 			},
 			"auth_server": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Authentication Server, Mandatory for Guest SSIDs with wlanType=Guest and l3AuthType=web_auth").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Authentication Server, Mandatory for Guest SSIDs with wlanType=Guest and l3AuthType=web_auth").AddStringEnumDescription("auth_ise", "auth_external", "auth_internal").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("auth_ise", "auth_external", "auth_internal"),
+				},
 			},
 			"external_auth_ip_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("External WebAuth URL (Mandatory for Guest SSIDs with wlanType = Guest, l3AuthType = web_auth and authServer = auth_external)").String,

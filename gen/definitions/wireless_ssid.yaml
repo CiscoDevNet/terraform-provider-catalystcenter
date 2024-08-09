@@ -23,7 +23,7 @@ attributes:
   - model_name: authType
     type: String
     mandatory: true
-    enun_values: 
+    enum_values: 
       - WPA2_ENTERPRISE
       - WPA2_PERSONAL
       - OPEN
@@ -265,7 +265,7 @@ attributes:
   - model_name: egressQos
     type: String
     description: Egress QOS
-    enun_values: 
+    enum_values: 
       - PLATINUM
       - SILVER
       - GOLD
@@ -274,7 +274,7 @@ attributes:
   - model_name: ingressQos
     type: String
     description: Ingress QOS
-    enun_values: 
+    enum_values: 
       - PLATINUM-UP
       - SILVER-UP
       - GOLD-UP
@@ -284,21 +284,21 @@ attributes:
     type: String
     mandatory: true
     description: Wlan Type
-    enun_values: 
+    enum_values: 
       - Enterprise
       - Guest
     example: Enterprise
   - model_name: l3AuthType
     type: String
     description: L3 Authentication Type
-    enun_values: 
+    enum_values: 
       - open
       - web_auth
     exclude_test: true
   - model_name: authServer
     type: String
     description: Authentication Server, Mandatory for Guest SSIDs with wlanType=Guest and l3AuthType=web_auth
-    enun_values: 
+    enum_values: 
       - auth_ise
       - auth_external
       - auth_internal
