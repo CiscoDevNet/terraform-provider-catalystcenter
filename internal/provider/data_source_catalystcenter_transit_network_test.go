@@ -62,6 +62,7 @@ func testAccDataSourceCcTransitNetworkConfig() string {
 	config += `
 		data "catalystcenter_transit_network" "test" {
 			name = "TRANSIT_1"
+			depends_on = [catalystcenter_transit_network.test]
 		}
 	`
 	return config

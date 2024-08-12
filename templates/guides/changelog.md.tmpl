@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.11 (unreleased)
+
+- BREAKING CHANGE: Renamed `catalystcenter_peer_transit_network` to `catalystcenter_transit_network` resource to use `/dna/intent/api/v1/sda/transitNetworks` API endpoint, this resource now only works with Catalyst Center version 2.3.7.6+
+
 ## 0.1.10
 
 - Add `catalystcenter_fabric_l2_handoff` resource and data source
