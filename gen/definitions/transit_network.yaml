@@ -1,0 +1,58 @@
+---
+name: Transit Network
+rest_endpoint: /dna/intent/api/v1/sda/transitNetworks
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+import_no_id: true
+data_source_no_id: true
+put_no_id: true
+put_id_include_path: 0.id
+skip_minimum_test: true
+doc_category: SDA
+attributes:
+  - model_name: name
+    type: String
+    data_path: "0"
+    response_data_path: response.0.name
+    query_param: true
+    mandatory: true
+    requires_replace: true
+    description: Transit Network Name
+    example: TRANSIT_1
+  - model_name: type
+    data_path: "0"
+    response_data_path: response.0.type
+    type: String
+    mandatory: true
+    description: Transit Network Type
+    enum_values: [IP_BASED_TRANSIT, SDA_LISP_PUB_SUB_TRANSIT, SDA_LISP_BGP_TRANSIT]
+    requires_replace: true
+    example: IP_BASED_TRANSIT
+  - model_name: routingProtocolName
+    data_path: "0.ipTransitSettings"
+    response_data_path: response.0.ipTransitSettings.routingProtocolName
+    type: String
+    requires_replace: true
+    description: Routing Protocol Name
+    enum_values: [BGP]
+    example: BGP
+  - model_name: autonomousSystemNumber
+    data_path: "0.ipTransitSettings"
+    response_data_path: response.0.ipTransitSettings.autonomousSystemNumber
+    type: String
+    requires_replace: true
+    description: Autonomous System Number
+    example: "65010"
+  - model_name: controlPlaneNetworkDeviceIds
+    data_path: "0.sdaTransitSettings"
+    response_data_path: response.0.sdaTransitSettings.controlPlaneNetworkDeviceIds
+    exclude_test: true
+    type: Set
+    element_type: String
+    description: List of network device IDs that will be used as control plane nodes
+  - model_name: isMulticastOverTransitEnabled
+    data_path: "0.sdaTransitSettings"
+    response_data_path: response.0.sdaTransitSettings.isMulticastOverTransitEnabled
+    exclude_test: true
+    type: Bool
+    description: Set this to true to enable multicast over SD-Access transit
