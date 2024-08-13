@@ -1,5 +1,6 @@
 ## 0.1.11 (unreleased)
 
+- Add `catalystcenter_authentication_policy_server` resource and data source
 - Add `catalystcenter_fabric_port_assignment` resource and data source
 - Add `catalystcenter_wireless_ssid` resource and data source
 - Add `catalystcenter_site` data source
