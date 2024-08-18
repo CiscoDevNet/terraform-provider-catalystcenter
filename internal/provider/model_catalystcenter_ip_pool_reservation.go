@@ -21,6 +21,7 @@ package provider
 import (
 	"context"
 
+	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -146,10 +147,31 @@ func (data IPPoolReservation) toBody(ctx context.Context, state IPPoolReservatio
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *IPPoolReservation) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("groupName"); value.Exists() {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	if value := res.Get("response.0.id"); value.Exists() {
+		data.Id = types.StringValue(value.String())
+	} else {
+		data.Id = types.StringNull()
+	}
+	if value := res.Get("response.0.groupName"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("response.0.ipPools.0.gateways.0"); value.Exists() {
+		data.Ipv4Gateway = types.StringValue(value.String())
+	} else {
+		data.Ipv4Gateway = types.StringNull()
+	}
+	if value := res.Get("response.0.ipPools.0.dhcpServerIps"); value.Exists() && len(value.Array()) > 0 {
+		data.Ipv4DhcpServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.Ipv4DhcpServers = types.SetNull(types.StringType)
+	}
+	if value := res.Get("response.0.ipPools.0.dnsServerIps"); value.Exists() && len(value.Array()) > 0 {
+		data.Ipv4DnsServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.Ipv4DnsServers = types.SetNull(types.StringType)
 	}
 }
 
@@ -157,10 +179,25 @@ func (data *IPPoolReservation) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *IPPoolReservation) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("groupName"); value.Exists() && !data.Name.IsNull() {
+	if value := res.Get("response.0.groupName"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("response.0.ipPools.0.gateways.0"); value.Exists() && !data.Ipv4Gateway.IsNull() {
+		data.Ipv4Gateway = types.StringValue(value.String())
+	} else {
+		data.Ipv4Gateway = types.StringNull()
+	}
+	if value := res.Get("response.0.ipPools.0.dhcpServerIps"); value.Exists() && !data.Ipv4DhcpServers.IsNull() {
+		data.Ipv4DhcpServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.Ipv4DhcpServers = types.SetNull(types.StringType)
+	}
+	if value := res.Get("response.0.ipPools.0.dnsServerIps"); value.Exists() && !data.Ipv4DnsServers.IsNull() {
+		data.Ipv4DnsServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.Ipv4DnsServers = types.SetNull(types.StringType)
 	}
 }
 
@@ -168,9 +205,6 @@ func (data *IPPoolReservation) updateFromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *IPPoolReservation) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Name.IsNull() {
-		return false
-	}
 	if !data.Type.IsNull() {
 		return false
 	}

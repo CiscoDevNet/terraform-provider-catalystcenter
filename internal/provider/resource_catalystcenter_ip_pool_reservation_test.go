@@ -31,6 +31,7 @@ import (
 func TestAccCcIPPoolReservation(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "name", "MyRes1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv4_gateway", "172.32.1.1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {

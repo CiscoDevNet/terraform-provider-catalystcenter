@@ -60,7 +60,7 @@ func (d *IPPoolReservationDataSource) Schema(ctx context.Context, req datasource
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
+				Computed:            true,
 			},
 			"site_id": schema.StringAttribute{
 				MarkdownDescription: "The site ID",
@@ -68,7 +68,7 @@ func (d *IPPoolReservationDataSource) Schema(ctx context.Context, req datasource
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "The name of the IP pool reservation",
-				Computed:            true,
+				Required:            true,
 			},
 			"type": schema.StringAttribute{
 				MarkdownDescription: "The type of the IP pool reservation",
@@ -178,13 +178,12 @@ func (d *IPPoolReservationDataSource) Read(ctx context.Context, req datasource.R
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "?siteId=" + url.QueryEscape(config.SiteId.ValueString())
+	params += "?siteId=" + url.QueryEscape(config.SiteId.ValueString()) + "&groupName=" + url.QueryEscape(config.Name.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
-	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 

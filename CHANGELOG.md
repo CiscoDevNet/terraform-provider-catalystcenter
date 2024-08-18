@@ -1,3 +1,7 @@
+## 0.1.11 (unreleased)
+
+- Fix issue with import of `catalystcenter_ip_pool_reservation` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/122)
+
 ## 0.1.10
 
 - Add `catalystcenter_fabric_l2_handoff` resource and data source
