@@ -1,8 +1,8 @@
 ## 0.1.11 (unreleased)
 
+- Add `catalystcenter_fabric_vlan_to_ssid` resource and data source
 - Add `catalystcenter_wireless_ssid` resource and data source
 - Add `catalystcenter_site` data source
-- Add `catalystcenter_fabric_vlan_to_ssid` resource and data source
 
 ## 0.1.10
 
