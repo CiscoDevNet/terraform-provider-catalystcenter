@@ -1,0 +1,145 @@
+---
+name: Authentication Policy Server
+rest_endpoint: /dna/intent/api/v1/authentication-policy-servers
+get_from_all: true
+id_from_query_path: response
+id_from_query_path_attribute: instanceUuid
+skip_minimum_test: true
+doc_category: System Settings
+attributes:
+  - model_name: authenticationPort
+    type: Int64
+    mandatory: true
+    min_int: 1
+    max_int: 65535
+    description: Authentication port of RADIUS server
+    example: 1812
+  - model_name: accountingPort
+    type: Int64
+    mandatory: true
+    min_int: 1
+    max_int: 65535
+    description: Accounting port of RADIUS server
+    example: 1813
+  - model_name: ciscoIseDtos
+    type: List
+    description: Cisco ISE Server DTOs
+    exclude_test: true
+    attributes:
+      - model_name: description
+        type: String
+        description: Description about the Cisco ISE server
+      - model_name: fqdn
+        type: String
+        description: Fully-qualified domain name of the Cisco ISE server
+        mandatory: true
+      - model_name: password
+        type: String
+        description: Password of the Cisco ISE server
+        mandatory: true
+      - model_name: sshkey
+        type: String
+        description: SSH key of the Cisco ISE server
+      - model_name: ipAddress
+        type: String
+        description: IP Address of the Cisco ISE Server
+        mandatory: true
+      - model_name: subscriberName
+        type: String
+        description: Subscriber name of the Cisco ISE server
+        mandatory: true
+      - model_name: userName
+        type: String
+        description: User name of the Cisco ISE server
+        mandatory: true
+  - model_name: ipAddress
+    match_id: true
+    type: String
+    description: IP address of authentication and policy server
+    mandatory: true
+    example: 10.0.0.1
+  - model_name: pxgridEnabled
+    type: Bool
+    description: Value true for enable, false for disable. Default value is true
+    example: true
+  - model_name: useDnacCertForPxgrid
+    type: Bool
+    description: Value true to use DNAC certificate for Pxgrid. Default value is false
+    example: false
+  - model_name: isIseEnabled
+    type: Bool
+    description: Value true for Cisco ISE Server. Default value is false
+    example: false
+  - model_name: port
+    type: Int64
+    mandatory: true
+    min_int: 1
+    max_int: 65535
+    description: Port of TACACS server
+    example: 49
+  - model_name: protocol
+    type: String
+    enum_values:
+      - TACACS
+      - RADIUS
+      - RADIUS_TACACS
+    mandatory: true
+    description: Type of protocol for authentication and policy server. If already saved with RADIUS, can update to RADIUS_TACACS. If already saved with TACACS, can update to RADIUS_TACACS
+    example: RADIUS
+  - model_name: retries
+    type: Int64
+    min_int: 1
+    max_int: 3
+    mandatory: true
+    description: Number of communication retries between devices and authentication and policy server. The range is from 1 to 3
+    example: 2
+  - model_name: role
+    mandatory: true
+    type: String
+    enum_values:
+      - primary
+      - secondary
+    description: Role of authentication and policy server
+    example: secondary
+  - model_name: sharedSecret
+    type: String
+    write_only: true
+    mandatory: true
+    description: Shared secret between devices and authentication and policy server
+    example: Cisco123
+  - model_name: timeoutSeconds
+    type: Int64
+    min_int: 2
+    max_int: 20
+    mandatory: true
+    description: Number of seconds before timing out between devices and authentication and policy server. The range is from 2 to 20
+    example: 2
+  - model_name: encryptionScheme
+    type: String
+    enum_values:
+      - KEYWRAP
+      - RADSEC
+    description: Type of encryption scheme for additional security
+    exclude_test: true
+  - model_name: messageKey
+    type: String
+    write_only: true
+    description: Message key used to encrypt shared secret
+    exclude_test: true
+  - model_name: encryptionKey
+    type: String
+    write_only: true
+    description: Encryption key used to encrypt shared secret
+    exclude_test: true
+  - model_name: externalCiscoIseIpAddrDtos
+    type: List
+    description: For future use
+    exclude_test: true
+    attributes:
+      - model_name: externalCiscoIseIpAddresses
+        type: List
+        attributes:
+          - model_name: externalIpAddress
+            type: String
+      - model_name: type
+        type: String
