@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.1.11 (unreleased)
+## 0.1.11
 
 - Add `catalystcenter_fabric_vlan_to_ssid` resource and data source
 - Add `catalystcenter_wireless_ssid` resource and data source
