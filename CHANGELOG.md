@@ -1,10 +1,11 @@
 ## 0.1.11 (unreleased)
 
-- Add `catalystcenter_authentication_policy_server` resource and data source
-- Add `catalystcenter_fabric_port_assignment` resource and data source
+- Add `catalystcenter_fabric_vlan_to_ssid` resource and data source
 - Add `catalystcenter_wireless_ssid` resource and data source
 - Add `catalystcenter_site` data source
-- Add `catalystcenter_fabric_vlan_to_ssid` resource and data source
+- Add `catalystcenter_fabric_port_assignment` resource and data source
+- BREAKING CHANGE: Replace `catalystcenter_peer_transit_network` with `catalystcenter_transit_network` resource and data source to use `/dna/intent/api/v1/sda/transitNetworks` API endpoint, this resource now only works with Catalyst Center version 2.3.7.6+
+- Add `catalystcenter_authentication_policy_server` resource and data source
 
 ## 0.1.10
 

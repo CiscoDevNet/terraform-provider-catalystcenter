@@ -42,25 +42,25 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &TransitPeerNetworkResource{}
-var _ resource.ResourceWithImportState = &TransitPeerNetworkResource{}
+var _ resource.Resource = &TransitNetworkResource{}
+var _ resource.ResourceWithImportState = &TransitNetworkResource{}
 
-func NewTransitPeerNetworkResource() resource.Resource {
-	return &TransitPeerNetworkResource{}
+func NewTransitNetworkResource() resource.Resource {
+	return &TransitNetworkResource{}
 }
 
-type TransitPeerNetworkResource struct {
+type TransitNetworkResource struct {
 	client *cc.Client
 }
 
-func (r *TransitPeerNetworkResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_transit_peer_network"
+func (r *TransitNetworkResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_transit_network"
 }
 
-func (r *TransitPeerNetworkResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *TransitNetworkResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Transit Peer Network.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Transit Network.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -70,18 +70,18 @@ func (r *TransitPeerNetworkResource) Schema(ctx context.Context, req resource.Sc
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"transit_peer_network_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Transit Peer Network Name").String,
+			"name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Transit Network Name").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"transit_peer_network_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Transit Peer Network Type").AddStringEnumDescription("ip_transit", "sda_transit_with_lisp_bgp", "sda_transit_with_pub_sub").String,
+			"type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Transit Network Type").AddStringEnumDescription("IP_BASED_TRANSIT", "SDA_LISP_PUB_SUB_TRANSIT", "SDA_LISP_BGP_TRANSIT").String,
 				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("ip_transit", "sda_transit_with_lisp_bgp", "sda_transit_with_pub_sub"),
+					stringvalidator.OneOf("IP_BASED_TRANSIT", "SDA_LISP_PUB_SUB_TRANSIT", "SDA_LISP_BGP_TRANSIT"),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -104,33 +104,20 @@ func (r *TransitPeerNetworkResource) Schema(ctx context.Context, req resource.Sc
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"transit_control_plane_settings": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Transit Control Plane Settings info").String,
+			"control_plane_network_device_ids": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("List of network device IDs that will be used as control plane nodes").String,
+				ElementType:         types.StringType,
 				Optional:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"site_name_hierarchy": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Site Name Hierarchy where device is provisioned").String,
-							Optional:            true,
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.RequiresReplace(),
-							},
-						},
-						"device_management_ip_address": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Device Management Ip Address of provisioned device").String,
-							Optional:            true,
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.RequiresReplace(),
-							},
-						},
-					},
-				},
+			},
+			"is_multicast_over_transit_enabled": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Set this to true to enable multicast over SD-Access transit").String,
+				Optional:            true,
 			},
 		},
 	}
 }
 
-func (r *TransitPeerNetworkResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *TransitNetworkResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -141,8 +128,8 @@ func (r *TransitPeerNetworkResource) Configure(_ context.Context, req resource.C
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *TransitPeerNetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan TransitPeerNetwork
+func (r *TransitNetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan TransitNetwork
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -154,7 +141,7 @@ func (r *TransitPeerNetworkResource) Create(ctx context.Context, req resource.Cr
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, TransitPeerNetwork{})
+	body := plan.toBody(ctx, TransitNetwork{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -163,13 +150,13 @@ func (r *TransitPeerNetworkResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 	params = ""
-	params += "?transitPeerNetworkName=" + url.QueryEscape(plan.TransitPeerNetworkName.ValueString())
+	params += "?name=" + url.QueryEscape(plan.Name.ValueString())
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("transitPeerNetworkId").String())
+	plan.Id = types.StringValue(res.Get("response.0.id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -180,8 +167,8 @@ func (r *TransitPeerNetworkResource) Create(ctx context.Context, req resource.Cr
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *TransitPeerNetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state TransitPeerNetwork
+func (r *TransitNetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state TransitNetwork
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -193,7 +180,7 @@ func (r *TransitPeerNetworkResource) Read(ctx context.Context, req resource.Read
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?transitPeerNetworkName=" + url.QueryEscape(state.TransitPeerNetworkName.ValueString())
+	params += "?name=" + url.QueryEscape(state.Name.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -219,8 +206,8 @@ func (r *TransitPeerNetworkResource) Read(ctx context.Context, req resource.Read
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *TransitPeerNetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state TransitPeerNetwork
+func (r *TransitNetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state TransitNetwork
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -237,6 +224,14 @@ func (r *TransitPeerNetworkResource) Update(ctx context.Context, req resource.Up
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
+	body := plan.toBody(ctx, state)
+	params := ""
+	res, err := r.client.Put(plan.getPath()+params, body)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		return
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
@@ -246,8 +241,8 @@ func (r *TransitPeerNetworkResource) Update(ctx context.Context, req resource.Up
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *TransitPeerNetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state TransitPeerNetwork
+func (r *TransitNetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state TransitNetwork
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -257,8 +252,7 @@ func (r *TransitPeerNetworkResource) Delete(ctx context.Context, req resource.De
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	params := "?transitPeerNetworkName=" + url.QueryEscape(state.TransitPeerNetworkName.ValueString())
-	res, err := r.client.Delete(state.getPath() + params)
+	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -272,17 +266,17 @@ func (r *TransitPeerNetworkResource) Delete(ctx context.Context, req resource.De
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *TransitPeerNetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *TransitNetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 1 || idParts[0] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <transit_peer_network_name>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <name>. Got: %q", req.ID),
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("transit_peer_network_name"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), idParts[0])...)
 }
 
 // End of section. //template:end import

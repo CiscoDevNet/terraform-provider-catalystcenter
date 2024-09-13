@@ -27,18 +27,18 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-func TestAccDataSourceCcTransitPeerNetwork(t *testing.T) {
+func TestAccDataSourceCcTransitNetwork(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_transit_peer_network.test", "transit_peer_network_name", "TRANSIT_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_transit_peer_network.test", "transit_peer_network_type", "ip_transit"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_transit_peer_network.test", "routing_protocol_name", "BGP"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_transit_peer_network.test", "autonomous_system_number", "65010"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_transit_network.test", "name", "TRANSIT_1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_transit_network.test", "type", "IP_BASED_TRANSIT"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_transit_network.test", "routing_protocol_name", "BGP"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_transit_network.test", "autonomous_system_number", "65010"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcTransitPeerNetworkConfig(),
+				Config: testAccDataSourceCcTransitNetworkConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -51,18 +51,18 @@ func TestAccDataSourceCcTransitPeerNetwork(t *testing.T) {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-func testAccDataSourceCcTransitPeerNetworkConfig() string {
-	config := `resource "catalystcenter_transit_peer_network" "test" {` + "\n"
-	config += `	transit_peer_network_name = "TRANSIT_1"` + "\n"
-	config += `	transit_peer_network_type = "ip_transit"` + "\n"
+func testAccDataSourceCcTransitNetworkConfig() string {
+	config := `resource "catalystcenter_transit_network" "test" {` + "\n"
+	config += `	name = "TRANSIT_1"` + "\n"
+	config += `	type = "IP_BASED_TRANSIT"` + "\n"
 	config += `	routing_protocol_name = "BGP"` + "\n"
 	config += `	autonomous_system_number = "65010"` + "\n"
 	config += `}` + "\n"
 
 	config += `
-		data "catalystcenter_transit_peer_network" "test" {
-			transit_peer_network_name = "TRANSIT_1"
-			depends_on = [catalystcenter_transit_peer_network.test]
+		data "catalystcenter_transit_network" "test" {
+			name = "TRANSIT_1"
+			depends_on = [catalystcenter_transit_network.test]
 		}
 	`
 	return config

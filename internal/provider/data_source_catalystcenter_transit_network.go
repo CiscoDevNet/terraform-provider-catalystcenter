@@ -25,6 +25,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 )
@@ -35,38 +36,38 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &TransitPeerNetworkDataSource{}
-	_ datasource.DataSourceWithConfigure = &TransitPeerNetworkDataSource{}
+	_ datasource.DataSource              = &TransitNetworkDataSource{}
+	_ datasource.DataSourceWithConfigure = &TransitNetworkDataSource{}
 )
 
-func NewTransitPeerNetworkDataSource() datasource.DataSource {
-	return &TransitPeerNetworkDataSource{}
+func NewTransitNetworkDataSource() datasource.DataSource {
+	return &TransitNetworkDataSource{}
 }
 
-type TransitPeerNetworkDataSource struct {
+type TransitNetworkDataSource struct {
 	client *cc.Client
 }
 
-func (d *TransitPeerNetworkDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_transit_peer_network"
+func (d *TransitNetworkDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_transit_network"
 }
 
-func (d *TransitPeerNetworkDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *TransitNetworkDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Transit Peer Network.",
+		MarkdownDescription: "This data source can read the Transit Network.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
 				Computed:            true,
 			},
-			"transit_peer_network_name": schema.StringAttribute{
-				MarkdownDescription: "Transit Peer Network Name",
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Transit Network Name",
 				Required:            true,
 			},
-			"transit_peer_network_type": schema.StringAttribute{
-				MarkdownDescription: "Transit Peer Network Type",
+			"type": schema.StringAttribute{
+				MarkdownDescription: "Transit Network Type",
 				Computed:            true,
 			},
 			"routing_protocol_name": schema.StringAttribute{
@@ -77,27 +78,20 @@ func (d *TransitPeerNetworkDataSource) Schema(ctx context.Context, req datasourc
 				MarkdownDescription: "Autonomous System Number",
 				Computed:            true,
 			},
-			"transit_control_plane_settings": schema.ListNestedAttribute{
-				MarkdownDescription: "Transit Control Plane Settings info",
+			"control_plane_network_device_ids": schema.SetAttribute{
+				MarkdownDescription: "List of network device IDs that will be used as control plane nodes",
+				ElementType:         types.StringType,
 				Computed:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"site_name_hierarchy": schema.StringAttribute{
-							MarkdownDescription: "Site Name Hierarchy where device is provisioned",
-							Computed:            true,
-						},
-						"device_management_ip_address": schema.StringAttribute{
-							MarkdownDescription: "Device Management Ip Address of provisioned device",
-							Computed:            true,
-						},
-					},
-				},
+			},
+			"is_multicast_over_transit_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Set this to true to enable multicast over SD-Access transit",
+				Computed:            true,
 			},
 		},
 	}
 }
 
-func (d *TransitPeerNetworkDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *TransitNetworkDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -108,8 +102,8 @@ func (d *TransitPeerNetworkDataSource) Configure(_ context.Context, req datasour
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *TransitPeerNetworkDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config TransitPeerNetwork
+func (d *TransitNetworkDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config TransitNetwork
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
@@ -121,7 +115,7 @@ func (d *TransitPeerNetworkDataSource) Read(ctx context.Context, req datasource.
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "?transitPeerNetworkName=" + url.QueryEscape(config.TransitPeerNetworkName.ValueString())
+	params += "?name=" + url.QueryEscape(config.Name.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
