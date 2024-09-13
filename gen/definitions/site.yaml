@@ -9,18 +9,18 @@ doc_category: Sites
 attributes:
   - model_name: name
     type: String
-    description: Site Name
+    description: Site name
     response_data_path: response.0.name
     example: Global
   - model_name: parentId
     type: String
-    description: Id of Parent Site
+    description: ID of parent site
     response_data_path: response.0.parentId
     exclude_test: true
   - model_name: nameHierarchy
     query_param: true
     type: String
-    description: Site Name Hierarchy
+    description: Site name hierarchy, e.g. `Global/Area5`.
     response_data_path: response.0.nameHierarchy
     example: Global
     exclude_test: true

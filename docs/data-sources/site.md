@@ -23,11 +23,11 @@ data "catalystcenter_site" "example" {
 
 ### Required
 
-- `name_hierarchy` (String) Site Name Hierarchy
+- `name_hierarchy` (String) Site name hierarchy, e.g. `Global/Area5`.
 
 ### Read-Only
 
 - `id` (String) The id of the object
-- `name` (String) Site Name
-- `parent_id` (String) Id of Parent Site
+- `name` (String) Site name
+- `parent_id` (String) ID of parent site
 - `type` (String) Type

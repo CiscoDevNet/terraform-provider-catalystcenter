@@ -3,12 +3,12 @@
 page_title: "catalystcenter_fabric_port_assignment Resource - terraform-provider-catalystcenter"
 subcategory: "SDA"
 description: |-
-  Manages Port Assignments in SD-Access Fabric
+  Manages port assignments in SD-Access fabric.
 ---
 
 # catalystcenter_fabric_port_assignment (Resource)
 
-Manages Port Assignments in SD-Access Fabric
+Manages port assignments in SD-Access fabric.
 
 ## Example Usage
 

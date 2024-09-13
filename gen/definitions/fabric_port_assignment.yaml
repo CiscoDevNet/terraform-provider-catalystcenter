@@ -1,7 +1,7 @@
 ---
 name: Fabric Port Assignment
 rest_endpoint: /dna/intent/api/v1/sda/portAssignments
-res_description: Manages Port Assignments in SD-Access Fabric
+res_description: Manages port assignments in SD-Access fabric.
 no_update: true
 no_import: true
 data_source_no_id: true

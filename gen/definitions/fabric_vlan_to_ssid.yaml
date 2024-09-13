@@ -2,14 +2,14 @@
 name: Fabric VLAN to SSID
 rest_endpoint: /dna/intent/api/v1/sda/fabrics/%v/vlanToSsids
 res_description:
-  "Add, update, or remove SSID mappings to a VLAN. If the payload doesn't contain a 'vlanName'
-  which has SSIDs mapping done earlier then all the mapped SSIDs of the 'vlanName' is cleared.
+  "Add, update, or remove SSID mappings to a VLAN. If the configuration does not contain a 'vlanName'
+  which has SSIDs mapping done earlier then all the mapped SSIDs of the 'vlanName' are cleared.
   The request must include all SSIDs currently mapped to a VLAN, as determined by the response
   from the GET operation for the same fabricId used in the request.
-  If an already-mapped SSID is not included in the payload, its mapping will be removed by this API.
-  Conversely, if a new SSID is provided, it will be added to the Mapping. Ensure that any new SSID added is a Fabric SSID.
+  If an already-mapped SSID is not included in the confiugration, its mapping will be removed by this resource.
+  Conversely, if a new SSID is provided, it will be added to the mapping. Ensure that any new SSID added is a Fabric SSID.
   This API can also be used to add a VLAN and associate the relevant SSIDs with it.
-  The 'vlanName' must be 'Fabric Wireless Enabled' and should be part of the Fabric Site representing 'Fabric ID' specified in the API request"
+  The 'vlanName' must be 'Fabric Wireless Enabled' and should be part of the Fabric Site representing 'Fabric ID' specified in the configuration."
 # Manual updates in Delete function to send PUT request with empty body []
 get_no_id: true
 delete_no_id: true

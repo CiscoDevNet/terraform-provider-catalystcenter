@@ -58,7 +58,7 @@ func (r *FabricPortAssignmentResource) Metadata(ctx context.Context, req resourc
 func (r *FabricPortAssignmentResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages Port Assignments in SD-Access Fabric").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages port assignments in SD-Access fabric.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

@@ -62,15 +62,15 @@ func (d *SiteDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				Computed:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Site Name",
+				MarkdownDescription: "Site name",
 				Computed:            true,
 			},
 			"parent_id": schema.StringAttribute{
-				MarkdownDescription: "Id of Parent Site",
+				MarkdownDescription: "ID of parent site",
 				Computed:            true,
 			},
 			"name_hierarchy": schema.StringAttribute{
-				MarkdownDescription: "Site Name Hierarchy",
+				MarkdownDescription: "Site name hierarchy, e.g. `Global/Area5`.",
 				Required:            true,
 			},
 			"type": schema.StringAttribute{

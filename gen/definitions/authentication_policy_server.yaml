@@ -5,7 +5,7 @@ get_from_all: true
 id_from_query_path: response
 id_from_query_path_attribute: instanceUuid
 skip_minimum_test: true
-doc_category: System Settings
+doc_category: System
 attributes:
   - model_name: authenticationPort
     type: Int64
