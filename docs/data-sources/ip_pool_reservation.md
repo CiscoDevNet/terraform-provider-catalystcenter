@@ -14,8 +14,8 @@ This data source can read the IP Pool Reservation.
 
 ```terraform
 data "catalystcenter_ip_pool_reservation" "example" {
-  id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   site_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  name    = "MyRes1"
 }
 ```
 
@@ -24,11 +24,12 @@ data "catalystcenter_ip_pool_reservation" "example" {
 
 ### Required
 
-- `id` (String) The id of the object
+- `name` (String) The name of the IP pool reservation
 - `site_id` (String) The site ID
 
 ### Read-Only
 
+- `id` (String) The id of the object
 - `ipv4_dhcp_servers` (Set of String) List of DHCP Server IPs
 - `ipv4_dns_servers` (Set of String) List of DNS Server IPs
 - `ipv4_gateway` (String) The gateway for the IP pool reservation
@@ -46,6 +47,5 @@ data "catalystcenter_ip_pool_reservation" "example" {
 - `ipv6_prefix_length` (Number) The IPv6 prefix length is required when `ipv6_prefix` value is `true`.
 - `ipv6_subnet` (String) The IPv6 subnet, for example `2001:db8:85a3:0:100::`
 - `ipv6_total_host` (Number) The total number of IPv6 hosts
-- `name` (String) The name of the IP pool reservation
 - `slaac_support` (Boolean) Enable SLAAC support
 - `type` (String) The type of the IP pool reservation

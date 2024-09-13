@@ -6,6 +6,7 @@
 - Add `catalystcenter_fabric_port_assignment` resource and data source
 - BREAKING CHANGE: Replace `catalystcenter_peer_transit_network` with `catalystcenter_transit_network` resource and data source to use `/dna/intent/api/v1/sda/transitNetworks` API endpoint, this resource now only works with Catalyst Center version 2.3.7.6+
 - Add `catalystcenter_authentication_policy_server` resource and data source
+- Fix issue with import of `catalystcenter_ip_pool_reservation` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/122)
 
 ## 0.1.10
 

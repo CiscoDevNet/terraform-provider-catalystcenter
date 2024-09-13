@@ -30,6 +30,7 @@ import (
 func TestAccDataSourceCcIPPoolReservation(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool_reservation.test", "name", "MyRes1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool_reservation.test", "ipv4_gateway", "172.32.1.1"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -79,8 +80,9 @@ func testAccDataSourceCcIPPoolReservationConfig() string {
 
 	config += `
 		data "catalystcenter_ip_pool_reservation" "test" {
-			id = catalystcenter_ip_pool_reservation.test.id
 			site_id = catalystcenter_area.test.id
+			name = "MyRes1"
+			depends_on = [catalystcenter_ip_pool_reservation.test]
 		}
 	`
 	return config

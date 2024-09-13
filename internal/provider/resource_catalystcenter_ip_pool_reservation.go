@@ -202,13 +202,13 @@ func (r *IPPoolReservationResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 	params = ""
-	params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString())
+	params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString()) + "&groupName=" + url.QueryEscape(plan.Name.ValueString())
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(groupName==\"" + plan.Name.ValueString() + "\").id").String())
+	plan.Id = types.StringValue(res.Get("response.0.id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -232,7 +232,7 @@ func (r *IPPoolReservationResource) Read(ctx context.Context, req resource.ReadR
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?siteId=" + url.QueryEscape(state.SiteId.ValueString())
+	params += "?siteId=" + url.QueryEscape(state.SiteId.ValueString()) + "&groupName=" + url.QueryEscape(state.Name.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -241,7 +241,6 @@ func (r *IPPoolReservationResource) Read(ctx context.Context, req resource.ReadR
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -327,12 +326,12 @@ func (r *IPPoolReservationResource) ImportState(ctx context.Context, req resourc
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <site_id>,<id>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <site_id>,<name>. Got: %q", req.ID),
 		)
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), idParts[1])...)
 }
 
 // End of section. //template:end import
