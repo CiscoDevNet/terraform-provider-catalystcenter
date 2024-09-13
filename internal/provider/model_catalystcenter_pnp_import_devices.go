@@ -89,6 +89,7 @@ func (data PnPImportDevices) toBody(ctx context.Context, state PnPImportDevices)
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *PnPImportDevices) fromBody(ctx context.Context, res gjson.Result) {
+
 	if value := res; value.Exists() && len(value.Array()) > 0 {
 		data.Devices = make([]PnPImportDevicesDevices, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
@@ -123,6 +124,7 @@ func (data *PnPImportDevices) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *PnPImportDevices) updateFromBody(ctx context.Context, res gjson.Result) {
+
 	for i := range data.Devices {
 		keys := [...]string{"deviceInfo.serialNumber", "deviceInfo.stack", "deviceInfo.pid", "deviceInfo.hostname"}
 		keyValues := [...]string{data.Devices[i].SerialNumber.ValueString(), strconv.FormatBool(data.Devices[i].Stack.ValueBool()), data.Devices[i].Pid.ValueString(), data.Devices[i].Hostname.ValueString()}

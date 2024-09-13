@@ -75,34 +75,8 @@ func TestAccDataSourceCcDeviceDetail(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcDeviceDetailConfig() string {
-	config := `resource "catalystcenter_device_detail" "test" {` + "\n"
-	config += `	policy_tag_name = ""` + "\n"
-	config += `	nw_device_role = "CORE"` + "\n"
-	config += `	serial_number = "FXS2000Q2T0"` + "\n"
-	config += `	nw_device_name = "device1.example.com"` + "\n"
-	config += `	device_group_hierarchy_id = "/360b1804-969f-4eab-a4ba-9832ea3f1731/26d4bbe6-f908-4b83-86f1-49bfbb1d05f6/"` + "\n"
-	config += `	cpu = "1.25"` + "\n"
-	config += `	nw_device_id = "e0ba1a00-b69b-45aa-8c13-4cdfb59afe65"` + "\n"
-	config += `	site_hierarchy_graph_id = "/2b0a78ee-482e-4b4d-ae85-df289873cbbb/76b11b6a-d94a-431b-8bab-fd16b09f5d40/adad4a8a-17ec-4be3-a4b5-b6549b840afe/e8ce8788-9b13-46ec-86c8-740f7ea443c1/"` + "\n"
-	config += `	nw_device_family = "Switches and Hubs"` + "\n"
-	config += `	mac_address = "5C:71:0D:40:50:60"` + "\n"
-	config += `	device_series = "Cisco Catalyst 9400 Series Switches"` + "\n"
-	config += `	collection_status = "SUCCESS"` + "\n"
-	config += `	maintenance_mode = false` + "\n"
-	config += `	software_version = "17.12.20230427:145516"` + "\n"
-	config += `	tag_id_list = [""]` + "\n"
-	config += `	overall_health = 10` + "\n"
-	config += `	management_ip_address = "10.10.10.1"` + "\n"
-	config += `	memory = "39.186811767835785"` + "\n"
-	config += `	communication_state = "REACHABLE"` + "\n"
-	config += `	nw_device_type = "Cisco Catalyst 9407R Switch"` + "\n"
-	config += `	platform_id = "C9KV-UADP-8P"` + "\n"
-	config += `	location = "Global/USA/New York/DC01"` + "\n"
-	config += `	ha_status = "Non-redundant"` + "\n"
-	config += `	os_type = "IOS-XE"` + "\n"
-	config += `}` + "\n"
 
-	config += `
+	config := `
 		data "catalystcenter_device_detail" "test" {
 			id = catalystcenter_device_detail.test.id
 		}

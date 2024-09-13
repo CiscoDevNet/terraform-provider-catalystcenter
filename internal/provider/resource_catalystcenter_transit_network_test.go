@@ -27,16 +27,16 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccCcTransitPeerNetwork(t *testing.T) {
+func TestAccCcTransitNetwork(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_transit_peer_network.test", "transit_peer_network_name", "TRANSIT_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_transit_peer_network.test", "transit_peer_network_type", "ip_transit"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_transit_peer_network.test", "routing_protocol_name", "BGP"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_transit_peer_network.test", "autonomous_system_number", "65010"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_transit_network.test", "name", "TRANSIT_1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_transit_network.test", "type", "IP_BASED_TRANSIT"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_transit_network.test", "routing_protocol_name", "BGP"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_transit_network.test", "autonomous_system_number", "65010"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcTransitPeerNetworkConfig_all(),
+		Config: testAccCcTransitNetworkConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -53,10 +53,10 @@ func TestAccCcTransitPeerNetwork(t *testing.T) {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccCcTransitPeerNetworkConfig_minimum() string {
-	config := `resource "catalystcenter_transit_peer_network" "test" {` + "\n"
-	config += `	transit_peer_network_name = "TRANSIT_1"` + "\n"
-	config += `	transit_peer_network_type = "ip_transit"` + "\n"
+func testAccCcTransitNetworkConfig_minimum() string {
+	config := `resource "catalystcenter_transit_network" "test" {` + "\n"
+	config += `	name = "TRANSIT_1"` + "\n"
+	config += `	type = "IP_BASED_TRANSIT"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -64,10 +64,10 @@ func testAccCcTransitPeerNetworkConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccCcTransitPeerNetworkConfig_all() string {
-	config := `resource "catalystcenter_transit_peer_network" "test" {` + "\n"
-	config += `	transit_peer_network_name = "TRANSIT_1"` + "\n"
-	config += `	transit_peer_network_type = "ip_transit"` + "\n"
+func testAccCcTransitNetworkConfig_all() string {
+	config := `resource "catalystcenter_transit_network" "test" {` + "\n"
+	config += `	name = "TRANSIT_1"` + "\n"
+	config += `	type = "IP_BASED_TRANSIT"` + "\n"
 	config += `	routing_protocol_name = "BGP"` + "\n"
 	config += `	autonomous_system_number = "65010"` + "\n"
 	config += `}` + "\n"
