@@ -37,7 +37,7 @@ attributes:
     mandatory: true
     description: ID of the transit network of the layer 3 handoff ip transit
     example: d71c847b-e9c2-4f13-928c-223372b72b06
-    test_value: catalystcenter_transit_peer_network.test.id
+    test_value: catalystcenter_transit_network.test.id
   - model_name: interfaceName
     data_path: '0'
     requires_replace: true
@@ -117,9 +117,9 @@ test_prerequisites: |
     authentication_profile_name = "No Authentication"
     depends_on = [catalystcenter_area.test]
   }
-  resource "catalystcenter_transit_peer_network" "test" {
-    transit_peer_network_name = "TRANSIT_1"
-    transit_peer_network_type = "ip_transit"
+  resource "catalystcenter_transit_network" "test" {
+    name = "TRANSIT_1"
+    type = "IP_BASED_TRANSIT"
     routing_protocol_name     = "BGP"
     autonomous_system_number  = "65010"
   }
