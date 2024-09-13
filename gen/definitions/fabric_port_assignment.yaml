@@ -1,0 +1,85 @@
+---
+name: Fabric Port Assignment
+rest_endpoint: /dna/intent/api/v1/sda/portAssignments
+res_description: Manages Port Assignments in SD-Access Fabric
+no_update: true
+no_import: true
+data_source_no_id: true
+id_from_attribute: true
+root_list: true
+skip_minimum_test: true
+doc_category: SDA
+test_tags: [SDA]
+attributes:
+  - tf_name: fabric_id
+    write_only: true
+    query_param: true
+    delete_query_param: true
+    query_param_name: fabricId
+    delete_query_param_name: fabricId
+    type: String
+    description: ID of the fabric the device is assigned to
+    example: e02d9911-b0a7-435b-bb46-079d877d7b3e
+  - tf_name: network_device_id
+    write_only: true
+    id: true
+    query_param: true
+    delete_query_param: true
+    query_param_name: networkDeviceId
+    delete_query_param_name: networkDeviceId
+    type: String
+    description: Network device ID of the port assignment
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b
+  - tf_name: port_assignments
+    type: List
+    response_data_path: response
+    mandatory: true
+    description: List of port assignments in SD-Access fabric
+    attributes:
+      - model_name: fabricId
+        query_param: true
+        type: String
+        mandatory: true
+        description: ID of the fabric the device is assigned to
+        example: c4b85bb2-ce3f-4db9-a32b-e439a388ac2f
+        test_value: catalystcenter_fabric_site.test.id
+      - model_name: networkDeviceId
+        match_id: true
+        query_param: true
+        mandatory: true
+        description: Network device ID of the port assignment
+        type: String
+        example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+      - model_name: interfaceName
+        query_param: true
+        mandatory: true
+        type: String
+        description: Interface name of the port assignment
+        example: GigabitEthernet1/0/2
+      - model_name: connectedDeviceType
+        mandatory: true
+        type: String
+        description: Connected device type of the port assignment
+        enum_values: [USER_DEVICE, ACCESS_POINT, TRUNKING_DEVICE, AUTHENTICATOR_SWITCH, SUPPLICANT_BASED_EXTENDED_NODE]
+        example: USER_DEVICE
+      - model_name: dataVlanName
+        type: String
+        description: Data VLAN name of the port assignment
+        example: DATA_VLAN
+      - model_name: voiceVlanName
+        type: String
+        description: Voice VLAN name of the port assignment
+        example: VOICE_VLAN
+      - model_name: authenticateTemplateName
+        type: String
+        description: Authenticate template name of the port assignment
+        enum_values: [No Authentication, Open Authentication, Closed Authentication, Low Impact]
+        example: No Authentication
+      - model_name: securityGroupName
+        type: String
+        description: Security group name of the port assignment
+        exclude_test: true
+      - model_name: interfaceDescription
+        type: String
+        description: Interface description of the port assignment
+        exclude_test: true

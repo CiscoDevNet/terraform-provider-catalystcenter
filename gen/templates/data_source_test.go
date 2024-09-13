@@ -132,6 +132,7 @@ const testAccDataSourceCc{{camelCase .Name}}PrerequisitesConfig = `
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCc{{camelCase .Name}}Config() string {
+	{{- if not .NoResource}}
 	config := `resource "catalystcenter_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
 	{{- if and (not .ExcludeTest) (not .Value)}}
@@ -211,8 +212,9 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 	{{- end}}
 	{{- end}}
 	config += `}` + "\n"
+	{{- end}}
 
-	config += `
+	config {{- if not .NoResource}} += {{- else}} := {{- end}} `
 		data "catalystcenter_{{snakeCase .Name}}" "test" {
 			{{- if not .DataSourceNoId}}
 			id = catalystcenter_{{snakeCase $name}}.test.id
@@ -222,7 +224,7 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 			{{.TfName}} = {{if .TestValue}}{{.TestValue}}{{else}}{{if eq .Type "String"}}"{{.Example}}"{{else if isStringListSet .}}["{{.Example}}"]{{else if isInt64ListSet .}}[{{.Example}}]{{else}}{{.Example}}{{end}}{{end}}
 			{{- end}}
 			{{- end}}
-			{{- if .DataSourceNoId}}
+			{{- if and .DataSourceNoId (not .NoResource)}}
 			depends_on = [catalystcenter_{{snakeCase $name}}.test]
 			{{- end}}
 		}
