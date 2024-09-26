@@ -43,11 +43,12 @@ type CcProvider struct {
 
 // CcProviderModel describes the provider data model.
 type CcProviderModel struct {
-	Username types.String `tfsdk:"username"`
-	Password types.String `tfsdk:"password"`
-	URL      types.String `tfsdk:"url"`
-	Insecure types.Bool   `tfsdk:"insecure"`
-	Retries  types.Int64  `tfsdk:"retries"`
+	Username   types.String `tfsdk:"username"`
+	Password   types.String `tfsdk:"password"`
+	URL        types.String `tfsdk:"url"`
+	Insecure   types.Bool   `tfsdk:"insecure"`
+	Retries    types.Int64  `tfsdk:"retries"`
+	MaxTimeout types.Int64  `tfsdk:"max_timeout"`
 }
 
 // CcProviderData describes the data maintained by the provider.
@@ -86,6 +87,13 @@ func (p *CcProvider) Schema(ctx context.Context, req provider.SchemaRequest, res
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 9),
+				},
+			},
+			"max_timeout": schema.Int64Attribute{
+				MarkdownDescription: "Timeout in seconds for asynchronous tasks. This can also be set as the CC_MAX_TIMEOUT environment variable. Defaults to `60`.",
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 3600),
 				},
 			},
 		},
@@ -221,8 +229,29 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		retries = config.Retries.ValueInt64()
 	}
 
+	var maxTimeout int64
+	if config.MaxTimeout.IsUnknown() {
+		// Cannot connect to client with an unknown value
+		resp.Diagnostics.AddWarning(
+			"Unable to create client",
+			"Cannot use unknown value as max_timeout",
+		)
+		return
+	}
+
+	if config.MaxTimeout.IsNull() {
+		maxTimeoutStr := os.Getenv("CC_MAX_TIMEOUT")
+		if maxTimeoutStr == "" {
+			maxTimeout = 60
+		} else {
+			maxTimeout, _ = strconv.ParseInt(maxTimeoutStr, 0, 64)
+		}
+	} else {
+		maxTimeout = config.MaxTimeout.ValueInt64()
+	}
+
 	// Create a new catalyst center client and set it to the provider client
-	c, err := cc.NewClient(url, username, password, cc.Insecure(insecure), cc.MaxRetries(int(retries)))
+	c, err := cc.NewClient(url, username, password, cc.Insecure(insecure), cc.MaxRetries(int(retries)), cc.DefaultMaxAsyncWaitTime(int(maxTimeout)))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to create client",

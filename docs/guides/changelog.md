@@ -7,9 +7,13 @@ description: |-
 
 # Changelog
 
+## 0.1.12 (unreleased)
+
+- Change default timeout for asynchronous operations to 60 seconds and introduce provider attribute `max_timeout` to set a custom timeout
+
 ## 0.1.11
 
-- Add `catalystcenter_fabric_vlan_to_ssid` resource and data source
+- Add `catalystcenter_ fabric_vlan_to_ssid` resource and data source
 - Add `catalystcenter_wireless_ssid` resource and data source
 - Add `catalystcenter_site` data source
 - Add `catalystcenter_fabric_port_assignment` resource and data source
