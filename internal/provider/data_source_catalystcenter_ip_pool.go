@@ -133,7 +133,7 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 	if config.Id.IsNull() && !config.Name.IsNull() {
-		res, err := d.client.Get(config.getPath())
+		res, err := d.client.Get(config.getPath() + "?limit=1000")
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
 			return
@@ -157,6 +157,7 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	params := ""
 	params += "/" + url.QueryEscape(config.Id.ValueString())
+	params += "?limit=1000"
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

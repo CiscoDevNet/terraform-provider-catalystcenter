@@ -148,6 +148,7 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 	params = ""
+	params += "?populated=true"
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))

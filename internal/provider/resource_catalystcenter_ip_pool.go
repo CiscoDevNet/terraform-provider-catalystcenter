@@ -152,6 +152,7 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 	params = ""
+	params += "?limit=1000"
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
@@ -182,6 +183,7 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	params := ""
 	params += "/" + url.QueryEscape(state.Id.ValueString())
+	params += "?limit=1000"
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
