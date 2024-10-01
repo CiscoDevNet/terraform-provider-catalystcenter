@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.13 (unreleased)
+
+- Fix issue with catalystcenter_ip_pool forces replacement on `catalystcenter_ip_pool` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/125)
+
 ## 0.1.12
 
 - Change default timeout for asynchronous operations to 60 seconds and introduce provider attribute `max_timeout` to set a custom timeout
