@@ -33,14 +33,28 @@ data "catalystcenter_template" "example" {
 
 ### Read-Only
 
+- `composite` (Boolean) Is it composite template
+- `containing_templates` (Attributes List) Containing templates for composite template (see [below for nested schema](#nestedatt--containing_templates))
 - `description` (String) Description
 - `device_types` (Attributes List) List of device types (see [below for nested schema](#nestedatt--device_types))
 - `language` (String) Language of the template
+- `project_name` (String) ProjectName
 - `software_type` (String) Software type
 - `software_variant` (String) Software variant
 - `software_version` (String) Software version
 - `template_content` (String) Template content
 - `template_params` (Attributes List) List of template parameters (see [below for nested schema](#nestedatt--template_params))
+
+<a id="nestedatt--containing_templates"></a>
+### Nested Schema for `containing_templates`
+
+Read-Only:
+
+- `id` (String) ID of the template
+- `language` (String) Language of the template
+- `name` (String) Name of the template
+- `project_name` (String) Project name
+
 
 <a id="nestedatt--device_types"></a>
 ### Nested Schema for `device_types`

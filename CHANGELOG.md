@@ -1,5 +1,6 @@
 ## 0.1.13 (unreleased)
 
+- Add composite templates support to `catalystcenter_template` resource
 - Fix issue with catalystcenter_ip_pool forces replacement on `catalystcenter_ip_pool` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/125)
 
 ## 0.1.12

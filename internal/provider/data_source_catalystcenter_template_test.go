@@ -30,6 +30,7 @@ import (
 func TestAccDataSourceCcTemplate(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "name", "Template1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "project_name", "ProjectName"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "description", "My description"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "device_types.0.product_family", "Switches and Hubs"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "device_types.0.product_series", "Cisco Catalyst 9300 Series Switches"))
@@ -49,6 +50,7 @@ func TestAccDataSourceCcTemplate(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "template_params.0.parameter_name", "hostname"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "template_params.0.required", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "template_params.0.selection_type", "SINGLE_SELECT"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "composite", "false"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -78,6 +80,7 @@ func testAccDataSourceCcTemplateConfig() string {
 	config := `resource "catalystcenter_template" "test" {` + "\n"
 	config += `	project_id = catalystcenter_project.test.id` + "\n"
 	config += `	name = "Template1"` + "\n"
+	config += `	project_name = "ProjectName"` + "\n"
 	config += `	description = "My description"` + "\n"
 	config += `	device_types = [{` + "\n"
 	config += `	  product_family = "Switches and Hubs"` + "\n"
@@ -102,6 +105,7 @@ func testAccDataSourceCcTemplateConfig() string {
 	config += `	  selection_type = "SINGLE_SELECT"` + "\n"
 	config += `	  selection_values = {host1 = "host1"}` + "\n"
 	config += `	}]` + "\n"
+	config += `	composite = false` + "\n"
 	config += `}` + "\n"
 
 	config += `
