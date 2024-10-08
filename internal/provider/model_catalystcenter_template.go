@@ -37,7 +37,6 @@ type Template struct {
 	Id                  types.String                  `tfsdk:"id"`
 	ProjectId           types.String                  `tfsdk:"project_id"`
 	Name                types.String                  `tfsdk:"name"`
-	ProjectName         types.String                  `tfsdk:"project_name"`
 	Description         types.String                  `tfsdk:"description"`
 	DeviceTypes         []TemplateDeviceTypes         `tfsdk:"device_types"`
 	Language            types.String                  `tfsdk:"language"`
@@ -78,6 +77,7 @@ type TemplateContainingTemplates struct {
 	Id          types.String `tfsdk:"id"`
 	ProjectName types.String `tfsdk:"project_name"`
 	Language    types.String `tfsdk:"language"`
+	Composite   types.Bool   `tfsdk:"composite"`
 }
 
 type TemplateTemplateParamsRanges struct {
@@ -113,9 +113,6 @@ func (data Template) toBody(ctx context.Context, state Template) string {
 	_ = put
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
-	}
-	if !data.ProjectName.IsNull() {
-		body, _ = sjson.Set(body, "projectName", data.ProjectName.ValueString())
 	}
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "description", data.Description.ValueString())
@@ -233,6 +230,9 @@ func (data Template) toBody(ctx context.Context, state Template) string {
 			if !item.Language.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "language", item.Language.ValueString())
 			}
+			if !item.Composite.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "composite", item.Composite.ValueBool())
+			}
 			body, _ = sjson.SetRaw(body, "containingTemplates.-1", itemBody)
 		}
 	}
@@ -247,11 +247,6 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
-	}
-	if value := res.Get("projectName"); value.Exists() {
-		data.ProjectName = types.StringValue(value.String())
-	} else {
-		data.ProjectName = types.StringNull()
 	}
 	if value := res.Get("description"); value.Exists() {
 		data.Description = types.StringValue(value.String())
@@ -426,6 +421,11 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Language = types.StringNull()
 			}
+			if cValue := v.Get("composite"); cValue.Exists() {
+				item.Composite = types.BoolValue(cValue.Bool())
+			} else {
+				item.Composite = types.BoolNull()
+			}
 			data.ContainingTemplates = append(data.ContainingTemplates, item)
 			return true
 		})
@@ -440,11 +440,6 @@ func (data *Template) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
-	}
-	if value := res.Get("projectName"); value.Exists() && !data.ProjectName.IsNull() {
-		data.ProjectName = types.StringValue(value.String())
-	} else {
-		data.ProjectName = types.StringNull()
 	}
 	if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {
 		data.Description = types.StringValue(value.String())
@@ -644,8 +639,8 @@ func (data *Template) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Composite = types.BoolNull()
 	}
 	for i := range data.ContainingTemplates {
-		keys := [...]string{"name"}
-		keyValues := [...]string{data.ContainingTemplates[i].Name.ValueString()}
+		keys := [...]string{"id"}
+		keyValues := [...]string{data.ContainingTemplates[i].Id.ValueString()}
 
 		var r gjson.Result
 		res.Get("containingTemplates").ForEach(
@@ -686,6 +681,11 @@ func (data *Template) updateFromBody(ctx context.Context, res gjson.Result) {
 		} else {
 			data.ContainingTemplates[i].Language = types.StringNull()
 		}
+		if value := r.Get("composite"); value.Exists() && !data.ContainingTemplates[i].Composite.IsNull() {
+			data.ContainingTemplates[i].Composite = types.BoolValue(value.Bool())
+		} else {
+			data.ContainingTemplates[i].Composite = types.BoolNull()
+		}
 	}
 }
 
@@ -694,9 +694,6 @@ func (data *Template) updateFromBody(ctx context.Context, res gjson.Result) {
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Template) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Name.IsNull() {
-		return false
-	}
-	if !data.ProjectName.IsNull() {
 		return false
 	}
 	if !data.Description.IsNull() {

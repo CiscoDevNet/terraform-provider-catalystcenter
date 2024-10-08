@@ -30,7 +30,6 @@ import (
 func TestAccDataSourceCcTemplate(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "name", "Template1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "project_name", "ProjectName"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "description", "My description"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "device_types.0.product_family", "Switches and Hubs"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "device_types.0.product_series", "Cisco Catalyst 9300 Series Switches"))
@@ -80,7 +79,6 @@ func testAccDataSourceCcTemplateConfig() string {
 	config := `resource "catalystcenter_template" "test" {` + "\n"
 	config += `	project_id = catalystcenter_project.test.id` + "\n"
 	config += `	name = "Template1"` + "\n"
-	config += `	project_name = "ProjectName"` + "\n"
 	config += `	description = "My description"` + "\n"
 	config += `	device_types = [{` + "\n"
 	config += `	  product_family = "Switches and Hubs"` + "\n"

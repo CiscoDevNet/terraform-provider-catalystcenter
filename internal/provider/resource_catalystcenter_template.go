@@ -82,10 +82,6 @@ func (r *TemplateResource) Schema(ctx context.Context, req resource.SchemaReques
 				MarkdownDescription: helpers.NewAttributeDescription("Name of the template").String,
 				Required:            true,
 			},
-			"project_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ProjectName").String,
-				Optional:            true,
-			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Description").String,
 				Optional:            true,
@@ -232,7 +228,7 @@ func (r *TemplateResource) Schema(ctx context.Context, req resource.SchemaReques
 						},
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("ID of the template").String,
-							Optional:            true,
+							Required:            true,
 						},
 						"project_name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Project name").String,
@@ -244,6 +240,10 @@ func (r *TemplateResource) Schema(ctx context.Context, req resource.SchemaReques
 							Validators: []validator.String{
 								stringvalidator.OneOf("JINJA", "VELOCITY"),
 							},
+						},
+						"composite": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Is it composite template").String,
+							Optional:            true,
 						},
 					},
 				},

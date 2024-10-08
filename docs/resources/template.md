@@ -14,10 +14,9 @@ This resource can manage a Template.
 
 ```terraform
 resource "catalystcenter_template" "example" {
-  project_id   = "12345678-1234-1234-1234-123456789012"
-  name         = "Template1"
-  project_name = "ProjectName"
-  description  = "My description"
+  project_id  = "12345678-1234-1234-1234-123456789012"
+  name        = "Template1"
+  description = "My description"
   device_types = [
     {
       product_family = "Switches and Hubs"
@@ -66,7 +65,6 @@ resource "catalystcenter_template" "example" {
 - `composite` (Boolean) Is it composite template
 - `containing_templates` (Attributes List) Containing templates for composite template (see [below for nested schema](#nestedatt--containing_templates))
 - `description` (String) Description
-- `project_name` (String) ProjectName
 - `software_variant` (String) Software variant
 - `software_version` (String) Software version
 - `template_content` (String) Template content
@@ -94,6 +92,7 @@ Optional:
 
 Required:
 
+- `id` (String) ID of the template
 - `language` (String) Language of the template
   - Choices: `JINJA`, `VELOCITY`
 - `name` (String) Name of the template
@@ -101,7 +100,7 @@ Required:
 
 Optional:
 
-- `id` (String) ID of the template
+- `composite` (Boolean) Is it composite template
 
 
 <a id="nestedatt--template_params"></a>

@@ -38,7 +38,6 @@ data "catalystcenter_template" "example" {
 - `description` (String) Description
 - `device_types` (Attributes List) List of device types (see [below for nested schema](#nestedatt--device_types))
 - `language` (String) Language of the template
-- `project_name` (String) ProjectName
 - `software_type` (String) Software type
 - `software_variant` (String) Software variant
 - `software_version` (String) Software version
@@ -50,6 +49,7 @@ data "catalystcenter_template" "example" {
 
 Read-Only:
 
+- `composite` (Boolean) Is it composite template
 - `id` (String) ID of the template
 - `language` (String) Language of the template
 - `name` (String) Name of the template

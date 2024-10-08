@@ -1,8 +1,7 @@
 resource "catalystcenter_template" "example" {
-  project_id   = "12345678-1234-1234-1234-123456789012"
-  name         = "Template1"
-  project_name = "ProjectName"
-  description  = "My description"
+  project_id  = "12345678-1234-1234-1234-123456789012"
+  name        = "Template1"
+  description = "My description"
   device_types = [
     {
       product_family = "Switches and Hubs"

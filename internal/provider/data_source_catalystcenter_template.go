@@ -75,10 +75,6 @@ func (d *TemplateDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Optional:            true,
 				Computed:            true,
 			},
-			"project_name": schema.StringAttribute{
-				MarkdownDescription: "ProjectName",
-				Computed:            true,
-			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Description",
 				Computed:            true,
@@ -224,6 +220,10 @@ func (d *TemplateDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 						},
 						"language": schema.StringAttribute{
 							MarkdownDescription: "Language of the template",
+							Computed:            true,
+						},
+						"composite": schema.BoolAttribute{
+							MarkdownDescription: "Is it composite template",
 							Computed:            true,
 						},
 					},
