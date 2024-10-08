@@ -44,6 +44,7 @@ resource "catalystcenter_template" "example" {
       selection_values = { host1 = "host1" }
     }
   ]
+  composite = false
 }
 ```
 
@@ -61,6 +62,8 @@ resource "catalystcenter_template" "example" {
 
 ### Optional
 
+- `composite` (Boolean) Is it composite template
+- `containing_templates` (Attributes List) Containing templates for composite template (see [below for nested schema](#nestedatt--containing_templates))
 - `description` (String) Description
 - `software_variant` (String) Software variant
 - `software_version` (String) Software version
@@ -82,6 +85,22 @@ Optional:
 
 - `product_series` (String) Product series
 - `product_type` (String) Product type
+
+
+<a id="nestedatt--containing_templates"></a>
+### Nested Schema for `containing_templates`
+
+Required:
+
+- `id` (String) ID of the template
+- `language` (String) Language of the template
+  - Choices: `JINJA`, `VELOCITY`
+- `name` (String) Name of the template
+- `project_name` (String) Project name
+
+Optional:
+
+- `composite` (Boolean) Is it composite template
 
 
 <a id="nestedatt--template_params"></a>

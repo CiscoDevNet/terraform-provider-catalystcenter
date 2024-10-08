@@ -34,17 +34,19 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type Template struct {
-	Id              types.String             `tfsdk:"id"`
-	ProjectId       types.String             `tfsdk:"project_id"`
-	Name            types.String             `tfsdk:"name"`
-	Description     types.String             `tfsdk:"description"`
-	DeviceTypes     []TemplateDeviceTypes    `tfsdk:"device_types"`
-	Language        types.String             `tfsdk:"language"`
-	SoftwareType    types.String             `tfsdk:"software_type"`
-	SoftwareVariant types.String             `tfsdk:"software_variant"`
-	SoftwareVersion types.String             `tfsdk:"software_version"`
-	TemplateContent types.String             `tfsdk:"template_content"`
-	TemplateParams  []TemplateTemplateParams `tfsdk:"template_params"`
+	Id                  types.String                  `tfsdk:"id"`
+	ProjectId           types.String                  `tfsdk:"project_id"`
+	Name                types.String                  `tfsdk:"name"`
+	Description         types.String                  `tfsdk:"description"`
+	DeviceTypes         []TemplateDeviceTypes         `tfsdk:"device_types"`
+	Language            types.String                  `tfsdk:"language"`
+	SoftwareType        types.String                  `tfsdk:"software_type"`
+	SoftwareVariant     types.String                  `tfsdk:"software_variant"`
+	SoftwareVersion     types.String                  `tfsdk:"software_version"`
+	TemplateContent     types.String                  `tfsdk:"template_content"`
+	TemplateParams      []TemplateTemplateParams      `tfsdk:"template_params"`
+	Composite           types.Bool                    `tfsdk:"composite"`
+	ContainingTemplates []TemplateContainingTemplates `tfsdk:"containing_templates"`
 }
 
 type TemplateDeviceTypes struct {
@@ -68,6 +70,14 @@ type TemplateTemplateParams struct {
 	DefaultSelectedValues types.Set                      `tfsdk:"default_selected_values"`
 	SelectionType         types.String                   `tfsdk:"selection_type"`
 	SelectionValues       types.Map                      `tfsdk:"selection_values"`
+}
+
+type TemplateContainingTemplates struct {
+	Name        types.String `tfsdk:"name"`
+	Id          types.String `tfsdk:"id"`
+	ProjectName types.String `tfsdk:"project_name"`
+	Language    types.String `tfsdk:"language"`
+	Composite   types.Bool   `tfsdk:"composite"`
 }
 
 type TemplateTemplateParamsRanges struct {
@@ -199,6 +209,31 @@ func (data Template) toBody(ctx context.Context, state Template) string {
 				itemBody, _ = sjson.Set(itemBody, "selection.selectionValues", values)
 			}
 			body, _ = sjson.SetRaw(body, "templateParams.-1", itemBody)
+		}
+	}
+	if !data.Composite.IsNull() {
+		body, _ = sjson.Set(body, "composite", data.Composite.ValueBool())
+	}
+	if len(data.ContainingTemplates) > 0 {
+		body, _ = sjson.Set(body, "containingTemplates", []interface{}{})
+		for _, item := range data.ContainingTemplates {
+			itemBody := ""
+			if !item.Name.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
+			}
+			if !item.Id.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
+			if !item.ProjectName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "projectName", item.ProjectName.ValueString())
+			}
+			if !item.Language.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "language", item.Language.ValueString())
+			}
+			if !item.Composite.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "composite", item.Composite.ValueBool())
+			}
+			body, _ = sjson.SetRaw(body, "containingTemplates.-1", itemBody)
 		}
 	}
 	return body
@@ -354,6 +389,44 @@ func (data *Template) fromBody(ctx context.Context, res gjson.Result) {
 				item.SelectionValues = types.MapNull(types.StringType)
 			}
 			data.TemplateParams = append(data.TemplateParams, item)
+			return true
+		})
+	}
+	if value := res.Get("composite"); value.Exists() {
+		data.Composite = types.BoolValue(value.Bool())
+	} else {
+		data.Composite = types.BoolNull()
+	}
+	if value := res.Get("containingTemplates"); value.Exists() && len(value.Array()) > 0 {
+		data.ContainingTemplates = make([]TemplateContainingTemplates, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := TemplateContainingTemplates{}
+			if cValue := v.Get("name"); cValue.Exists() {
+				item.Name = types.StringValue(cValue.String())
+			} else {
+				item.Name = types.StringNull()
+			}
+			if cValue := v.Get("id"); cValue.Exists() {
+				item.Id = types.StringValue(cValue.String())
+			} else {
+				item.Id = types.StringNull()
+			}
+			if cValue := v.Get("projectName"); cValue.Exists() {
+				item.ProjectName = types.StringValue(cValue.String())
+			} else {
+				item.ProjectName = types.StringNull()
+			}
+			if cValue := v.Get("language"); cValue.Exists() {
+				item.Language = types.StringValue(cValue.String())
+			} else {
+				item.Language = types.StringNull()
+			}
+			if cValue := v.Get("composite"); cValue.Exists() {
+				item.Composite = types.BoolValue(cValue.Bool())
+			} else {
+				item.Composite = types.BoolNull()
+			}
+			data.ContainingTemplates = append(data.ContainingTemplates, item)
 			return true
 		})
 	}
@@ -560,6 +633,60 @@ func (data *Template) updateFromBody(ctx context.Context, res gjson.Result) {
 			data.TemplateParams[i].SelectionValues = types.MapNull(types.StringType)
 		}
 	}
+	if value := res.Get("composite"); value.Exists() && !data.Composite.IsNull() {
+		data.Composite = types.BoolValue(value.Bool())
+	} else {
+		data.Composite = types.BoolNull()
+	}
+	for i := range data.ContainingTemplates {
+		keys := [...]string{"id"}
+		keyValues := [...]string{data.ContainingTemplates[i].Id.ValueString()}
+
+		var r gjson.Result
+		res.Get("containingTemplates").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("name"); value.Exists() && !data.ContainingTemplates[i].Name.IsNull() {
+			data.ContainingTemplates[i].Name = types.StringValue(value.String())
+		} else {
+			data.ContainingTemplates[i].Name = types.StringNull()
+		}
+		if value := r.Get("id"); value.Exists() && !data.ContainingTemplates[i].Id.IsNull() {
+			data.ContainingTemplates[i].Id = types.StringValue(value.String())
+		} else {
+			data.ContainingTemplates[i].Id = types.StringNull()
+		}
+		if value := r.Get("projectName"); value.Exists() && !data.ContainingTemplates[i].ProjectName.IsNull() {
+			data.ContainingTemplates[i].ProjectName = types.StringValue(value.String())
+		} else {
+			data.ContainingTemplates[i].ProjectName = types.StringNull()
+		}
+		if value := r.Get("language"); value.Exists() && !data.ContainingTemplates[i].Language.IsNull() {
+			data.ContainingTemplates[i].Language = types.StringValue(value.String())
+		} else {
+			data.ContainingTemplates[i].Language = types.StringNull()
+		}
+		if value := r.Get("composite"); value.Exists() && !data.ContainingTemplates[i].Composite.IsNull() {
+			data.ContainingTemplates[i].Composite = types.BoolValue(value.Bool())
+		} else {
+			data.ContainingTemplates[i].Composite = types.BoolNull()
+		}
+	}
 }
 
 // End of section. //template:end updateFromBody
@@ -591,6 +718,12 @@ func (data *Template) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if len(data.TemplateParams) > 0 {
+		return false
+	}
+	if !data.Composite.IsNull() {
+		return false
+	}
+	if len(data.ContainingTemplates) > 0 {
 		return false
 	}
 	return true
