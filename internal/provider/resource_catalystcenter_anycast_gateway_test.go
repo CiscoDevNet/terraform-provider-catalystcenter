@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -42,11 +41,6 @@ func TestAccCcAnycastGateway(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "multiple_ip_to_mac_addresses", "false"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcAnycastGatewayPrerequisitesConfig + testAccCcAnycastGatewayConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcAnycastGatewayPrerequisitesConfig + testAccCcAnycastGatewayConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
@@ -110,12 +104,6 @@ func testAccCcAnycastGatewayConfig_minimum() string {
 	config += `	ip_pool_name = catalystcenter_ip_pool_reservation.test.name` + "\n"
 	config += `	vlan_name = "VLAN401"` + "\n"
 	config += `	traffic_type = "DATA"` + "\n"
-	config += `	critical_pool = false` + "\n"
-	config += `	l2_flooding_enabled = false` + "\n"
-	config += `	wireless_pool = false` + "\n"
-	config += `	ip_directed_broadcast = false` + "\n"
-	config += `	intra_subnet_routing_enabled = false` + "\n"
-	config += `	multiple_ip_to_mac_addresses = false` + "\n"
 	config += `}` + "\n"
 	return config
 }

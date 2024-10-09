@@ -213,6 +213,41 @@ func (r *TemplateResource) Schema(ctx context.Context, req resource.SchemaReques
 					},
 				},
 			},
+			"composite": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Is it composite template").String,
+				Optional:            true,
+			},
+			"containing_templates": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Containing templates for composite template").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Name of the template").String,
+							Required:            true,
+						},
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("ID of the template").String,
+							Required:            true,
+						},
+						"project_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Project name").String,
+							Required:            true,
+						},
+						"language": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Language of the template").AddStringEnumDescription("JINJA", "VELOCITY").String,
+							Required:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("JINJA", "VELOCITY"),
+							},
+						},
+						"composite": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Is it composite template").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

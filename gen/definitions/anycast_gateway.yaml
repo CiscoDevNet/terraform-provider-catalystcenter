@@ -6,6 +6,7 @@ id_from_query_path: response.0
 id_from_query_path_attribute: id
 import_no_id: true
 data_source_no_id: true
+skip_minimum_test: true
 put_id_include_path: "0.id"
 put_no_id: true
 max_async_wait_time: 120
@@ -91,7 +92,6 @@ attributes:
     response_data_path: response.0.isCriticalPool
     tf_name: critical_pool
     type: Bool
-    mandatory: true
     description: Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
     example: false
   - model_name: isLayer2FloodingEnabled
@@ -99,7 +99,6 @@ attributes:
     response_data_path: response.0.isLayer2FloodingEnabled
     tf_name: l2_flooding_enabled
     type: Bool
-    mandatory: true
     description: Enable/disable layer 2 flooding (not applicable to INFRA_VN)
     example: false
   - model_name: isWirelessPool
@@ -107,7 +106,6 @@ attributes:
     response_data_path: response.0.isWirelessPool
     tf_name: wireless_pool
     type: Bool
-    mandatory: true
     description: Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
     example: false
   - model_name: isIpDirectedBroadcast
@@ -115,7 +113,6 @@ attributes:
     response_data_path: response.0.isIpDirectedBroadcast
     tf_name: ip_directed_broadcast
     type: Bool
-    mandatory: true
     description: Enable/disable IP-directed broadcast (not applicable to INFRA_VN)
     example: false
   - model_name: isIntraSubnetRoutingEnabled
@@ -124,7 +121,6 @@ attributes:
     response_data_path: response.0.isIntraSubnetRoutingEnabled
     tf_name: intra_subnet_routing_enabled
     type: Bool
-    mandatory: true
     description: Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
     example: false
   - model_name: isMultipleIpToMacAddresses
@@ -132,7 +128,6 @@ attributes:
     response_data_path: response.0.isMultipleIpToMacAddresses
     tf_name: multiple_ip_to_mac_addresses
     type: Bool
-    mandatory: true
     description: Enable/disable multiple IP-to-MAC Addresses (Wireless Bridged-Network Virtual Machine; not applicable to INFRA_VN)
     example: false
   - model_name: isSupplicantBasedExtendedNodeOnboarding

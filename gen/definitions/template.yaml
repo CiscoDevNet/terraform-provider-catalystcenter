@@ -156,6 +156,42 @@ attributes:
         type: Map
         description: Selection values
         example: "{host1 = \"host1\"}"
+  - model_name: composite
+    type: Bool
+    description: Is it composite template
+    example: false
+  - model_name: containingTemplates
+    type: List
+    description: Containing templates for composite template
+    exclude_test: true
+    attributes:
+      - model_name: name
+        type: String
+        mandatory: true
+        description: Name of the template
+        example: CompositeTemplate1
+      - model_name: id
+        id: true
+        type: String
+        description: ID of the template
+        example: 12345678-1234-1234-1234-123456789012
+      - model_name: projectName
+        type: String
+        mandatory: true
+        description: Project name
+        example: Project1
+      - model_name: language
+        type: String
+        enum_values:
+          - JINJA
+          - VELOCITY
+        mandatory: true
+        description: Language of the template
+        example: JINJA
+      - model_name: composite
+        type: Bool
+        description: Is it composite template
+        example: false
 test_prerequisites: |
   resource "catalystcenter_project" "test" {
     name        = "Project1"
