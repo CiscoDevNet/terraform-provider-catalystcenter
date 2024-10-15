@@ -1,4 +1,4 @@
-## 0.1.13 (unreleased)
+## 0.1.13
 
 - Modify `anycast_gateway` resource to support pool_type `FABRIC_AP`
 - Add composite templates support to `catalystcenter_template` resource
