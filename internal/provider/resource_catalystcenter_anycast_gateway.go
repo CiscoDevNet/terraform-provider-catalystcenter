@@ -135,33 +135,33 @@ func (r *AnycastGatewayResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"critical_pool": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)").String,
-				Required:            true,
+				Optional:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplace(),
 				},
 			},
 			"l2_flooding_enabled": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable layer 2 flooding (not applicable to INFRA_VN)").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"wireless_pool": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"ip_directed_broadcast": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable IP-directed broadcast (not applicable to INFRA_VN)").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"intra_subnet_routing_enabled": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)").String,
-				Required:            true,
+				Optional:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplace(),
 				},
 			},
 			"multiple_ip_to_mac_addresses": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable multiple IP-to-MAC Addresses (Wireless Bridged-Network Virtual Machine; not applicable to INFRA_VN)").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"supplicant_based_extended_node_onboarding": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable Supplicant-Based Extended Node Onboarding (applicable only to INFRA_VN)").String,

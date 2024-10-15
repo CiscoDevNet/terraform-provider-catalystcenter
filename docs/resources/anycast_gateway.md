@@ -35,22 +35,21 @@ resource "catalystcenter_anycast_gateway" "example" {
 
 ### Required
 
-- `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
 - `fabric_id` (String) ID of the fabric to contain this anycast gateway
-- `intra_subnet_routing_enabled` (Boolean) Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
-- `ip_directed_broadcast` (Boolean) Enable/disable IP-directed broadcast (not applicable to INFRA_VN)
 - `ip_pool_name` (String) Name of the IP pool associated with the anycast gateway
-- `l2_flooding_enabled` (Boolean) Enable/disable layer 2 flooding (not applicable to INFRA_VN)
-- `multiple_ip_to_mac_addresses` (Boolean) Enable/disable multiple IP-to-MAC Addresses (Wireless Bridged-Network Virtual Machine; not applicable to INFRA_VN)
 - `traffic_type` (String) The type of traffic the anycast gateway serves
   - Choices: `DATA`, `VOICE`
 - `virtual_network_name` (String) Name of the layer 3 virtual network associated with the anycast gateway. the virtual network must have already been added to the site before creating an anycast gateway with it
 - `vlan_name` (String) Name of the VLAN of the anycast gateway
-- `wireless_pool` (Boolean) Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
 
 ### Optional
 
 - `auto_generate_vlan_name` (Boolean) This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN
+- `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
+- `intra_subnet_routing_enabled` (Boolean) Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
+- `ip_directed_broadcast` (Boolean) Enable/disable IP-directed broadcast (not applicable to INFRA_VN)
+- `l2_flooding_enabled` (Boolean) Enable/disable layer 2 flooding (not applicable to INFRA_VN)
+- `multiple_ip_to_mac_addresses` (Boolean) Enable/disable multiple IP-to-MAC Addresses (Wireless Bridged-Network Virtual Machine; not applicable to INFRA_VN)
 - `pool_type` (String) The pool type of the anycast gateway (required for & applicable only to INFRA_VN)
   - Choices: `EXTENDED_NODE`, `FABRIC_AP`
 - `security_group_name` (String) Name of the associated Security Group (not applicable to INFRA_VN)
@@ -58,6 +57,7 @@ resource "catalystcenter_anycast_gateway" "example" {
 - `tcp_mss_adjustment` (Number) TCP maximum segment size adjustment
   - Range: `500`-`1440`
 - `vlan_id` (Number) ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
+- `wireless_pool` (Boolean) Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
 
 ### Read-Only
 
