@@ -9,7 +9,7 @@ description: |-
 
 ## 0.1.13 (unreleased)
 
-- Modify `anycast_gateway` to support pool_type FABRIC_AP
+- Modify `anycast_gateway` resource to support pool_type `FABRIC_AP`
 - Add composite templates support to `catalystcenter_template` resource
 - Fix issue with catalystcenter_ip_pool forces replacement on `catalystcenter_ip_pool` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/125)
 
