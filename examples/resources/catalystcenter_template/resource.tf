@@ -29,4 +29,5 @@ resource "catalystcenter_template" "example" {
       selection_values = { host1 = "host1" }
     }
   ]
+  composite = false
 }

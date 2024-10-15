@@ -49,6 +49,7 @@ func TestAccDataSourceCcTemplate(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "template_params.0.parameter_name", "hostname"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "template_params.0.required", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "template_params.0.selection_type", "SINGLE_SELECT"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_template.test", "composite", "false"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -102,6 +103,7 @@ func testAccDataSourceCcTemplateConfig() string {
 	config += `	  selection_type = "SINGLE_SELECT"` + "\n"
 	config += `	  selection_values = {host1 = "host1"}` + "\n"
 	config += `	}]` + "\n"
+	config += `	composite = false` + "\n"
 	config += `}` + "\n"
 
 	config += `

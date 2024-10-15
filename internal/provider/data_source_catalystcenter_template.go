@@ -197,6 +197,38 @@ func (d *TemplateDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 					},
 				},
 			},
+			"composite": schema.BoolAttribute{
+				MarkdownDescription: "Is it composite template",
+				Computed:            true,
+			},
+			"containing_templates": schema.ListNestedAttribute{
+				MarkdownDescription: "Containing templates for composite template",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							MarkdownDescription: "Name of the template",
+							Computed:            true,
+						},
+						"id": schema.StringAttribute{
+							MarkdownDescription: "ID of the template",
+							Computed:            true,
+						},
+						"project_name": schema.StringAttribute{
+							MarkdownDescription: "Project name",
+							Computed:            true,
+						},
+						"language": schema.StringAttribute{
+							MarkdownDescription: "Language of the template",
+							Computed:            true,
+						},
+						"composite": schema.BoolAttribute{
+							MarkdownDescription: "Is it composite template",
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
