@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.14 (unreleased)
+
+- Add `catalystcenter_aaa_settings` resource and data source
+
 ## 0.1.13
 
 - Modify `anycast_gateway` resource to support pool_type `FABRIC_AP`
