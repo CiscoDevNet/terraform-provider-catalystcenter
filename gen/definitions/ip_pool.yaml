@@ -3,6 +3,7 @@ name: IP Pool
 rest_endpoint: /api/v2/ippool
 get_requires_id: true
 id_from_query_path: response
+get_extra_query_params: "?limit=1000"
 doc_category: Network Settings
 attributes:
   - model_name: ipPoolName

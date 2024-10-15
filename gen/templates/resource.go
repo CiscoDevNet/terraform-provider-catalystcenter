@@ -451,6 +451,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	params += {{$queryParams}}
 		{{- end}}
 		{{- end}}
+	{{- if .GetExtraQueryParams}}
+	params += "{{.GetExtraQueryParams}}"
+	{{- end}}
 	res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
