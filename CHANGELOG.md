@@ -1,5 +1,6 @@
 ## 0.1.14 (unreleased)
 
+- Modify `deploy_template` to support resourceParams
 - Add `catalystcenter_aaa_settings` resource and data source
 
 ## 0.1.13

@@ -60,7 +60,18 @@ Optional:
 - `host_name` (String) Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
 - `id` (String) ID of device is required if `type` is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
-- `resource_params` (Map of String) Resource params to be provisioned
+- `resource_params` (Attributes List) Resource params to be provisioned (see [below for nested schema](#nestedatt--target_info--resource_params))
+
+<a id="nestedatt--target_info--resource_params"></a>
+### Nested Schema for `target_info.resource_params`
+
+Optional:
+
+- `scope` (String) Scope
+- `type` (String) Target type of device
+  - Choices: `MANAGED_DEVICE_IP`, `MANAGED_DEVICE_UUID`, `PRE_PROVISIONED_SERIAL`, `PRE_PROVISIONED_MAC`, `DEFAULT`, `MANAGED_DEVICE_HOSTNAME`
+- `value` (String) Value
+
 
 
 <a id="nestedatt--member_template_deployment_info"></a>
@@ -91,4 +102,14 @@ Optional:
 - `host_name` (String) Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
 - `id` (String) ID of device is required if targetType is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
-- `resource_params` (Map of String) Resource params to be provisioned
+- `resource_params` (Attributes List) Resource params to be provisioned (see [below for nested schema](#nestedatt--member_template_deployment_info--target_info--resource_params))
+
+<a id="nestedatt--member_template_deployment_info--target_info--resource_params"></a>
+### Nested Schema for `member_template_deployment_info.target_info.resource_params`
+
+Optional:
+
+- `scope` (String) Scope
+- `type` (String) Target type of device
+  - Choices: `MANAGED_DEVICE_IP`, `MANAGED_DEVICE_UUID`, `PRE_PROVISIONED_SERIAL`, `PRE_PROVISIONED_MAC`, `DEFAULT`, `MANAGED_DEVICE_HOSTNAME`
+- `value` (String) Value

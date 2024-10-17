@@ -124,10 +124,28 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 										ElementType:         types.StringType,
 										Optional:            true,
 									},
-									"resource_params": schema.MapAttribute{
+									"resource_params": schema.ListNestedAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Resource params to be provisioned").String,
-										ElementType:         types.StringType,
 										Optional:            true,
+										NestedObject: schema.NestedAttributeObject{
+											Attributes: map[string]schema.Attribute{
+												"type": schema.StringAttribute{
+													MarkdownDescription: helpers.NewAttributeDescription("Target type of device").AddStringEnumDescription("MANAGED_DEVICE_IP", "MANAGED_DEVICE_UUID", "PRE_PROVISIONED_SERIAL", "PRE_PROVISIONED_MAC", "DEFAULT", "MANAGED_DEVICE_HOSTNAME").String,
+													Optional:            true,
+													Validators: []validator.String{
+														stringvalidator.OneOf("MANAGED_DEVICE_IP", "MANAGED_DEVICE_UUID", "PRE_PROVISIONED_SERIAL", "PRE_PROVISIONED_MAC", "DEFAULT", "MANAGED_DEVICE_HOSTNAME"),
+													},
+												},
+												"scope": schema.StringAttribute{
+													MarkdownDescription: helpers.NewAttributeDescription("Scope").String,
+													Optional:            true,
+												},
+												"value": schema.StringAttribute{
+													MarkdownDescription: helpers.NewAttributeDescription("Value").String,
+													Optional:            true,
+												},
+											},
+										},
 									},
 									"type": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Target type of device").AddStringEnumDescription("MANAGED_DEVICE_IP", "MANAGED_DEVICE_UUID", "PRE_PROVISIONED_SERIAL", "PRE_PROVISIONED_MAC", "DEFAULT", "MANAGED_DEVICE_HOSTNAME").String,
@@ -164,10 +182,28 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 							ElementType:         types.StringType,
 							Optional:            true,
 						},
-						"resource_params": schema.MapAttribute{
+						"resource_params": schema.ListNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Resource params to be provisioned").String,
-							ElementType:         types.StringType,
 							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Target type of device").AddStringEnumDescription("MANAGED_DEVICE_IP", "MANAGED_DEVICE_UUID", "PRE_PROVISIONED_SERIAL", "PRE_PROVISIONED_MAC", "DEFAULT", "MANAGED_DEVICE_HOSTNAME").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("MANAGED_DEVICE_IP", "MANAGED_DEVICE_UUID", "PRE_PROVISIONED_SERIAL", "PRE_PROVISIONED_MAC", "DEFAULT", "MANAGED_DEVICE_HOSTNAME"),
+										},
+									},
+									"scope": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Scope").String,
+										Optional:            true,
+									},
+									"value": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Value").String,
+										Optional:            true,
+									},
+								},
+							},
 						},
 						"type": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Target type of device").AddStringEnumDescription("MANAGED_DEVICE_IP", "MANAGED_DEVICE_UUID", "PRE_PROVISIONED_SERIAL", "PRE_PROVISIONED_MAC", "DEFAULT", "MANAGED_DEVICE_HOSTNAME").String,

@@ -49,21 +49,33 @@ type DeployTemplateMemberTemplateDeploymentInfo struct {
 }
 
 type DeployTemplateTargetInfo struct {
-	HostName            types.String `tfsdk:"host_name"`
-	Id                  types.String `tfsdk:"id"`
-	Params              types.Map    `tfsdk:"params"`
-	ResourceParams      types.Map    `tfsdk:"resource_params"`
-	Type                types.String `tfsdk:"type"`
-	VersionedTemplateId types.String `tfsdk:"versioned_template_id"`
+	HostName            types.String                             `tfsdk:"host_name"`
+	Id                  types.String                             `tfsdk:"id"`
+	Params              types.Map                                `tfsdk:"params"`
+	ResourceParams      []DeployTemplateTargetInfoResourceParams `tfsdk:"resource_params"`
+	Type                types.String                             `tfsdk:"type"`
+	VersionedTemplateId types.String                             `tfsdk:"versioned_template_id"`
 }
 
 type DeployTemplateMemberTemplateDeploymentInfoTargetInfo struct {
-	HostName            types.String `tfsdk:"host_name"`
-	Id                  types.String `tfsdk:"id"`
-	Params              types.Map    `tfsdk:"params"`
-	ResourceParams      types.Map    `tfsdk:"resource_params"`
-	Type                types.String `tfsdk:"type"`
-	VersionedTemplateId types.String `tfsdk:"versioned_template_id"`
+	HostName            types.String                                                         `tfsdk:"host_name"`
+	Id                  types.String                                                         `tfsdk:"id"`
+	Params              types.Map                                                            `tfsdk:"params"`
+	ResourceParams      []DeployTemplateMemberTemplateDeploymentInfoTargetInfoResourceParams `tfsdk:"resource_params"`
+	Type                types.String                                                         `tfsdk:"type"`
+	VersionedTemplateId types.String                                                         `tfsdk:"versioned_template_id"`
+}
+
+type DeployTemplateTargetInfoResourceParams struct {
+	Type  types.String `tfsdk:"type"`
+	Scope types.String `tfsdk:"scope"`
+	Value types.String `tfsdk:"value"`
+}
+
+type DeployTemplateMemberTemplateDeploymentInfoTargetInfoResourceParams struct {
+	Type  types.String `tfsdk:"type"`
+	Scope types.String `tfsdk:"scope"`
+	Value types.String `tfsdk:"value"`
 }
 
 // End of section. //template:end types
@@ -130,10 +142,21 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 						childItem.Params.ElementsAs(ctx, &values, false)
 						itemChildBody, _ = sjson.Set(itemChildBody, "params", values)
 					}
-					if !childItem.ResourceParams.IsNull() {
-						var values map[string]string
-						childItem.ResourceParams.ElementsAs(ctx, &values, false)
-						itemChildBody, _ = sjson.Set(itemChildBody, "resourceParams", values)
+					if len(childItem.ResourceParams) > 0 {
+						itemChildBody, _ = sjson.Set(itemChildBody, "resourceParams", []interface{}{})
+						for _, childChildItem := range childItem.ResourceParams {
+							itemChildChildBody := ""
+							if !childChildItem.Type.IsNull() {
+								itemChildChildBody, _ = sjson.Set(itemChildChildBody, "type", childChildItem.Type.ValueString())
+							}
+							if !childChildItem.Scope.IsNull() {
+								itemChildChildBody, _ = sjson.Set(itemChildChildBody, "scope", childChildItem.Scope.ValueString())
+							}
+							if !childChildItem.Value.IsNull() {
+								itemChildChildBody, _ = sjson.Set(itemChildChildBody, "value", childChildItem.Value.ValueString())
+							}
+							itemChildBody, _ = sjson.SetRaw(itemChildBody, "resourceParams.-1", itemChildChildBody)
+						}
 					}
 					if !childItem.Type.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
@@ -162,10 +185,21 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 				item.Params.ElementsAs(ctx, &values, false)
 				itemBody, _ = sjson.Set(itemBody, "params", values)
 			}
-			if !item.ResourceParams.IsNull() {
-				var values map[string]string
-				item.ResourceParams.ElementsAs(ctx, &values, false)
-				itemBody, _ = sjson.Set(itemBody, "resourceParams", values)
+			if len(item.ResourceParams) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "resourceParams", []interface{}{})
+				for _, childItem := range item.ResourceParams {
+					itemChildBody := ""
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					if !childItem.Scope.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "scope", childItem.Scope.ValueString())
+					}
+					if !childItem.Value.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "value", childItem.Value.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "resourceParams.-1", itemChildBody)
+				}
 			}
 			if !item.Type.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
@@ -246,10 +280,28 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 					} else {
 						cItem.Params = types.MapNull(types.StringType)
 					}
-					if ccValue := cv.Get("resourceParams"); ccValue.Exists() && len(ccValue.Map()) > 0 {
-						cItem.ResourceParams = helpers.GetStringMap(ccValue.Map())
-					} else {
-						cItem.ResourceParams = types.MapNull(types.StringType)
+					if ccValue := cv.Get("resourceParams"); ccValue.Exists() && len(ccValue.Array()) > 0 {
+						cItem.ResourceParams = make([]DeployTemplateMemberTemplateDeploymentInfoTargetInfoResourceParams, 0)
+						ccValue.ForEach(func(cck, ccv gjson.Result) bool {
+							ccItem := DeployTemplateMemberTemplateDeploymentInfoTargetInfoResourceParams{}
+							if cccValue := ccv.Get("type"); cccValue.Exists() {
+								ccItem.Type = types.StringValue(cccValue.String())
+							} else {
+								ccItem.Type = types.StringNull()
+							}
+							if cccValue := ccv.Get("scope"); cccValue.Exists() {
+								ccItem.Scope = types.StringValue(cccValue.String())
+							} else {
+								ccItem.Scope = types.StringNull()
+							}
+							if cccValue := ccv.Get("value"); cccValue.Exists() {
+								ccItem.Value = types.StringValue(cccValue.String())
+							} else {
+								ccItem.Value = types.StringNull()
+							}
+							cItem.ResourceParams = append(cItem.ResourceParams, ccItem)
+							return true
+						})
 					}
 					if ccValue := cv.Get("type"); ccValue.Exists() {
 						cItem.Type = types.StringValue(ccValue.String())
@@ -288,10 +340,28 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Params = types.MapNull(types.StringType)
 			}
-			if cValue := v.Get("resourceParams"); cValue.Exists() && len(cValue.Map()) > 0 {
-				item.ResourceParams = helpers.GetStringMap(cValue.Map())
-			} else {
-				item.ResourceParams = types.MapNull(types.StringType)
+			if cValue := v.Get("resourceParams"); cValue.Exists() && len(cValue.Array()) > 0 {
+				item.ResourceParams = make([]DeployTemplateTargetInfoResourceParams, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := DeployTemplateTargetInfoResourceParams{}
+					if ccValue := cv.Get("type"); ccValue.Exists() {
+						cItem.Type = types.StringValue(ccValue.String())
+					} else {
+						cItem.Type = types.StringNull()
+					}
+					if ccValue := cv.Get("scope"); ccValue.Exists() {
+						cItem.Scope = types.StringValue(ccValue.String())
+					} else {
+						cItem.Scope = types.StringNull()
+					}
+					if ccValue := cv.Get("value"); ccValue.Exists() {
+						cItem.Value = types.StringValue(ccValue.String())
+					} else {
+						cItem.Value = types.StringNull()
+					}
+					item.ResourceParams = append(item.ResourceParams, cItem)
+					return true
+				})
 			}
 			if cValue := v.Get("type"); cValue.Exists() {
 				item.Type = types.StringValue(cValue.String())
@@ -414,10 +484,44 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 			} else {
 				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Params = types.MapNull(types.StringType)
 			}
-			if value := cr.Get("resourceParams"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams.IsNull() {
-				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams = helpers.GetStringMap(value.Map())
-			} else {
-				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams = types.MapNull(types.StringType)
+			for cci := range data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams {
+				keys := [...]string{"type", "scope", "value"}
+				keyValues := [...]string{data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Type.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Scope.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Value.ValueString()}
+
+				var ccr gjson.Result
+				cr.Get("resourceParams").ForEach(
+					func(_, v gjson.Result) bool {
+						found := false
+						for ik := range keys {
+							if v.Get(keys[ik]).String() == keyValues[ik] {
+								found = true
+								continue
+							}
+							found = false
+							break
+						}
+						if found {
+							ccr = v
+							return false
+						}
+						return true
+					},
+				)
+				if value := ccr.Get("type"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Type.IsNull() {
+					data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Type = types.StringValue(value.String())
+				} else {
+					data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Type = types.StringNull()
+				}
+				if value := ccr.Get("scope"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Scope.IsNull() {
+					data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Scope = types.StringValue(value.String())
+				} else {
+					data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Scope = types.StringNull()
+				}
+				if value := ccr.Get("value"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Value.IsNull() {
+					data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Value = types.StringValue(value.String())
+				} else {
+					data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].ResourceParams[cci].Value = types.StringNull()
+				}
 			}
 			if value := cr.Get("type"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Type.IsNull() {
 				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Type = types.StringValue(value.String())
@@ -469,10 +573,44 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 		} else {
 			data.TargetInfo[i].Params = types.MapNull(types.StringType)
 		}
-		if value := r.Get("resourceParams"); value.Exists() && !data.TargetInfo[i].ResourceParams.IsNull() {
-			data.TargetInfo[i].ResourceParams = helpers.GetStringMap(value.Map())
-		} else {
-			data.TargetInfo[i].ResourceParams = types.MapNull(types.StringType)
+		for ci := range data.TargetInfo[i].ResourceParams {
+			keys := [...]string{"type", "scope", "value"}
+			keyValues := [...]string{data.TargetInfo[i].ResourceParams[ci].Type.ValueString(), data.TargetInfo[i].ResourceParams[ci].Scope.ValueString(), data.TargetInfo[i].ResourceParams[ci].Value.ValueString()}
+
+			var cr gjson.Result
+			r.Get("resourceParams").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("type"); value.Exists() && !data.TargetInfo[i].ResourceParams[ci].Type.IsNull() {
+				data.TargetInfo[i].ResourceParams[ci].Type = types.StringValue(value.String())
+			} else {
+				data.TargetInfo[i].ResourceParams[ci].Type = types.StringNull()
+			}
+			if value := cr.Get("scope"); value.Exists() && !data.TargetInfo[i].ResourceParams[ci].Scope.IsNull() {
+				data.TargetInfo[i].ResourceParams[ci].Scope = types.StringValue(value.String())
+			} else {
+				data.TargetInfo[i].ResourceParams[ci].Scope = types.StringNull()
+			}
+			if value := cr.Get("value"); value.Exists() && !data.TargetInfo[i].ResourceParams[ci].Value.IsNull() {
+				data.TargetInfo[i].ResourceParams[ci].Value = types.StringValue(value.String())
+			} else {
+				data.TargetInfo[i].ResourceParams[ci].Value = types.StringNull()
+			}
 		}
 		if value := r.Get("type"); value.Exists() && !data.TargetInfo[i].Type.IsNull() {
 			data.TargetInfo[i].Type = types.StringValue(value.String())
