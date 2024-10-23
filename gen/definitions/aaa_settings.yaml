@@ -1,0 +1,120 @@
+---
+name: AAA Settings
+rest_endpoint: /dna/intent/api/v1/sites/%v/aaaSettings
+put_no_id: true
+get_no_id: true
+get_extra_query_params: "?_inherited=true"
+put_create: true
+no_delete: true
+test_tags: [AAA]
+doc_category: Network Settings
+attributes:
+  - model_name: siteId
+    type: String
+    id: true
+    reference: true
+    description: The site ID
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_area.test.id
+  - model_name: serverType
+    data_path: aaaNetwork
+    response_data_path: response.aaaNetwork.serverType
+    tf_name: network_aaa_server_type
+    type: String
+    mandatory: true
+    enum_values: [AAA, ISE]
+    description: Type of network AAA server
+    example: AAA
+  - model_name: protocol
+    data_path: aaaNetwork
+    response_data_path: response.aaaNetwork.protocol
+    tf_name: network_aaa_protocol
+    type: String
+    mandatory: true
+    enum_values: [RADIUS, TACACS]
+    description: Server protocol
+    example: RADIUS
+  - model_name: pan
+    data_path: aaaNetwork
+    response_data_path: response.aaaNetwork.pan
+    tf_name: network_aaa_pan
+    type: String
+    description: Administration Node. Required for ISE
+    exclude_test: true
+  - model_name: primaryServerIp
+    data_path: aaaNetwork
+    response_data_path: response.aaaNetwork.primaryServerIp
+    tf_name: network_aaa_primary_server_ip
+    mandatory: true
+    type: String
+    description: The server to use as a primary
+    example: 1.2.3.4
+  - model_name: secondaryServerIp
+    data_path: aaaNetwork
+    response_data_path: response.aaaNetwork.secondaryServerIp
+    tf_name: network_aaa_secondary_server_ip
+    type: String
+    description: The server to use as a secondary
+    example: 1.2.3.5
+  - model_name: sharedSecret
+    response_data_path: response.aaaNetwork.sharedSecret
+    data_path: aaaNetwork
+    tf_name: network_aaa_shared_secret
+    write_only: true
+    type: String
+    description: Only relevant for server type `ISE`, shared secret
+    example: Secret123
+  - model_name: serverType
+    data_path: aaaClient
+    response_data_path: response.aaaClient.serverType
+    tf_name: client_aaa_server_type
+    type: String
+    mandatory: true
+    enum_values: [AAA, ISE]
+    description: Type of client AAA server
+    example: AAA
+  - model_name: protocol
+    data_path: aaaClient
+    response_data_path: response.aaaClient.protocol
+    tf_name: client_aaa_protocol
+    type: String
+    mandatory: true
+    enum_values: [RADIUS, TACACS]
+    description: Server protocol
+    example: RADIUS
+  - model_name: pan
+    data_path: aaaClient
+    response_data_path: response.aaaClient.pan
+    tf_name: client_aaa_pan
+    type: String
+    description: Administration Node. Required for ISE
+    exclude_test: true
+  - model_name: primaryServerIp
+    data_path: aaaClient
+    response_data_path: response.aaaClient.primaryServerIp
+    tf_name: client_aaa_primary_server_ip
+    mandatory: true
+    type: String
+    description: The server to use as a primary
+    example: 1.2.3.4
+  - model_name: secondaryServerIp
+    data_path: aaaClient
+    response_data_path: response.aaaClient.secondaryServerIp
+    tf_name: client_aaa_secondary_server_ip
+    type: String
+    description: The server to use as a secondary
+    example: 1.2.3.5
+  - model_name: sharedSecret
+    response_data_path: response.aaaClient.sharedSecret
+    write_only: true
+    data_path: aaaClient
+    tf_name: client_aaa_shared_secret
+    type: String
+    description: Only relevant for server type `ISE`, shared secret
+    example: Secret123
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  

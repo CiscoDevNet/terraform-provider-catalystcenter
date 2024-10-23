@@ -188,7 +188,7 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
 	params = ""
