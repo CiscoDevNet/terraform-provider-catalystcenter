@@ -61,8 +61,25 @@ attributes:
             type: Map
             description:  Template params/values to be provisioned
           - model_name: resourceParams
-            type: Map
+            type: List
             description: Resource params to be provisioned
+            attributes:
+              - model_name: type
+                type: String
+                enum_values:
+                  - MANAGED_DEVICE_IP
+                  - MANAGED_DEVICE_UUID
+                  - PRE_PROVISIONED_SERIAL
+                  - PRE_PROVISIONED_MAC
+                  - DEFAULT
+                  - MANAGED_DEVICE_HOSTNAME
+                description: Target type of device
+              - model_name: scope
+                type: String
+                description: Scope
+              - model_name: value
+                type: String
+                description: Value
           - model_name: type
             type: String
             enum_values:
@@ -96,9 +113,26 @@ attributes:
         description:  Template params/values to be provisioned
         exclude_test: true
       - model_name: resourceParams
-        type: Map
+        type: List
         description: Resource params to be provisioned
         exclude_test: true
+        attributes:
+          - model_name: type
+            type: String
+            enum_values:
+              - MANAGED_DEVICE_IP
+              - MANAGED_DEVICE_UUID
+              - PRE_PROVISIONED_SERIAL
+              - PRE_PROVISIONED_MAC
+              - DEFAULT
+              - MANAGED_DEVICE_HOSTNAME
+            description: Target type of device
+          - model_name: scope
+            type: String
+            description: Scope
+          - model_name: value
+            type: String
+            description: Value
       - model_name: type
         type: String
         enum_values:
