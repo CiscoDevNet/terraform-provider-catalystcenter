@@ -1,3 +1,7 @@
+## 0.1.15 (unreleased)
+
+- Fix issue in `catalystcenter_fabric_l3_handoff_ip_transit` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/146)
+
 ## 0.1.14
 
 - Modify `catalystcenter_deploy_template` resource to support `resource_params`

@@ -56,13 +56,13 @@ attributes:
   - model_name: virtualNetworkName
     data_path: '0'
     requires_replace: true
-    match_id: true
     response_data_path: virtualNetworkName
     mandatory: true
     type: String
     description: Name of the virtual network associated with this fabric site
     example: SDA_VN1
   - model_name: vlanId
+    match_id: true
     data_path: '0'
     requires_replace: true
     response_data_path: vlanId

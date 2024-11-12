@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -198,7 +199,7 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(virtualNetworkName==\"" + plan.VirtualNetworkName.ValueString() + "\").id").String())
+	plan.Id = types.StringValue(res.Get("response.#(vlanId==\"" + strconv.FormatInt(plan.VlanId.ValueInt64(), 10) + "\").id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
