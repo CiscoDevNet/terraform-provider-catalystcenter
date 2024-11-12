@@ -53,7 +53,6 @@ Required:
 
 - `type` (String) Target type of device
   - Choices: `MANAGED_DEVICE_IP`, `MANAGED_DEVICE_UUID`, `PRE_PROVISIONED_SERIAL`, `PRE_PROVISIONED_MAC`, `DEFAULT`, `MANAGED_DEVICE_HOSTNAME`
-- `versioned_template_id` (String) Versioned template ID to be provisioned
 
 Optional:
 
@@ -61,6 +60,7 @@ Optional:
 - `id` (String) ID of device is required if `type` is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
 - `resource_params` (Attributes List) Resource params to be provisioned (see [below for nested schema](#nestedatt--target_info--resource_params))
+- `versioned_template_id` (String) Versioned template ID to be provisioned
 
 <a id="nestedatt--target_info--resource_params"></a>
 ### Nested Schema for `target_info.resource_params`
@@ -80,13 +80,14 @@ Optional:
 Required:
 
 - `target_info` (Attributes List) Target info to deploy template (see [below for nested schema](#nestedatt--member_template_deployment_info--target_info))
-- `template_id` (String) ID of template to be provisioned
+- `template_id` (String) Versioned Template ID
 
 Optional:
 
+- `copying_config` (Boolean) Copying Config
 - `force_push_template` (Boolean) Force Push Template
 - `is_composite` (Boolean) Composite template flag
-- `main_template_id` (String) Composite Template ID
+- `main_template_id` (String) Template ID
 
 <a id="nestedatt--member_template_deployment_info--target_info"></a>
 ### Nested Schema for `member_template_deployment_info.target_info`
@@ -95,7 +96,6 @@ Required:
 
 - `type` (String) Target type of device
   - Choices: `MANAGED_DEVICE_IP`, `MANAGED_DEVICE_UUID`, `PRE_PROVISIONED_SERIAL`, `PRE_PROVISIONED_MAC`, `DEFAULT`, `MANAGED_DEVICE_HOSTNAME`
-- `versioned_template_id` (String) Versioned template ID to be provisioned
 
 Optional:
 
@@ -103,6 +103,7 @@ Optional:
 - `id` (String) ID of device is required if targetType is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
 - `resource_params` (Attributes List) Resource params to be provisioned (see [below for nested schema](#nestedatt--member_template_deployment_info--target_info--resource_params))
+- `versioned_template_id` (String) Versioned template ID to be provisioned
 
 <a id="nestedatt--member_template_deployment_info--target_info--resource_params"></a>
 ### Nested Schema for `member_template_deployment_info.target_info.resource_params`

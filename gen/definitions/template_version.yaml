@@ -1,13 +1,16 @@
 ---
 name: Template Version
+# Manual modifications in Create and Read functions to read Template Version Id
 rest_endpoint: /dna/intent/api/v1/template-programmer/template/version
 no_delete: true
+no_data_source: true
 id_from_attribute: true
 doc_category: Templates
 attributes:
   - model_name: templateId
     type: String
-    id: true
+    query_param: true
+    data_source_query: true
     response_data_path: 0.templateId
     description: UUID of template
     example: 12345678-1234-1234-1234-123456789012

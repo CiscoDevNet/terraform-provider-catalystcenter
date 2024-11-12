@@ -41,10 +41,6 @@ func TestAccCcTemplateVersion(t *testing.T) {
 		Config: testAccCcTemplateVersionPrerequisitesConfig + testAccCcTemplateVersionConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_template_version.test",
-		ImportState:  true,
-	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.16 (unreleased)
+
+- Modify `catalystcenter_template_version` resource to use versioned template id as `id` and remove data_source
+
 ## 0.1.15
 
 - Fix issue in `catalystcenter_fabric_l3_handoff_ip_transit` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/146)

@@ -365,7 +365,6 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewSPProfileDataSource,
 		NewTagDataSource,
 		NewTemplateDataSource,
-		NewTemplateVersionDataSource,
 		NewTransitNetworkDataSource,
 		NewUserDataSource,
 		NewWirelessEnterpriseSSIDDataSource,

@@ -91,7 +91,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"template_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of template to be provisioned").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Versioned Template ID").String,
 							Required:            true,
 						},
 						"force_push_template": schema.BoolAttribute{
@@ -102,8 +102,12 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 							MarkdownDescription: helpers.NewAttributeDescription("Composite template flag").String,
 							Optional:            true,
 						},
+						"copying_config": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Copying Config").String,
+							Optional:            true,
+						},
 						"main_template_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Composite Template ID").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Template ID").String,
 							Optional:            true,
 						},
 						"target_info": schema.ListNestedAttribute{
@@ -156,7 +160,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 									},
 									"versioned_template_id": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Versioned template ID to be provisioned").String,
-										Required:            true,
+										Optional:            true,
 									},
 								},
 							},
@@ -214,7 +218,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 						},
 						"versioned_template_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Versioned template ID to be provisioned").String,
-							Required:            true,
+							Optional:            true,
 						},
 					},
 				},
