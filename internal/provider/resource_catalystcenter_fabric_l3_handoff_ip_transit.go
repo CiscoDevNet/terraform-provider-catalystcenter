@@ -103,6 +103,7 @@ func (r *FabricL3HandoffIPTransitResource) Schema(ctx context.Context, req resou
 			"external_connectivity_ip_pool_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("External connectivity ip pool will be used by Catalyst Center to allocate IP address for the connection between the border node and peer").String,
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -131,6 +132,7 @@ func (r *FabricL3HandoffIPTransitResource) Schema(ctx context.Context, req resou
 			"local_ip_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Local ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name").String,
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -138,6 +140,7 @@ func (r *FabricL3HandoffIPTransitResource) Schema(ctx context.Context, req resou
 			"remote_ip_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Remote ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name").String,
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -145,6 +148,7 @@ func (r *FabricL3HandoffIPTransitResource) Schema(ctx context.Context, req resou
 			"local_ipv6_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Local ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name").String,
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -152,6 +156,7 @@ func (r *FabricL3HandoffIPTransitResource) Schema(ctx context.Context, req resou
 			"remote_ipv6_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Remote ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name").String,
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
