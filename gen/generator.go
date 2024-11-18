@@ -164,6 +164,7 @@ type YamlConfigAttribute struct {
 	DataSourceQuery      bool                  `yaml:"data_source_query"`
 	QueryParamNoBody     bool                  `yaml:"query_param_no_body"`
 	Mandatory            bool                  `yaml:"mandatory"`
+	Computed             bool                  `yaml:"computed"`
 	WriteOnly            bool                  `yaml:"write_only"`
 	ExcludeFromPut       bool                  `yaml:"exclude_from_put"`
 	ExcludeTest          bool                  `yaml:"exclude_test"`
