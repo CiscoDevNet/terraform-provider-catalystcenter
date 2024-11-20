@@ -8,7 +8,6 @@ put_id_include_path: 0.id
 import_no_id: true
 data_source_no_id: true
 put_no_id: true
-max_async_wait_time: 300
 doc_category: SDA
 test_tags: [SDA]
 attributes:

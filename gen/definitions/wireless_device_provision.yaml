@@ -10,7 +10,6 @@ no_import: true
 put_no_id: true
 id_from_attribute: true
 doc_category: Wireless
-max_async_wait_time: 300
 test_tags: [WIRELESS]
 attributes:
   - model_name: deviceName

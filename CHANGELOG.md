@@ -1,5 +1,6 @@
 ## 0.1.16 (unreleased)
 
+- Remove `max_async_wait_time` attribute and use timeout from `CC_MAX_TIMEOUT`
 - Modify `catalystcenter_deploy_template` resource to support deploying composite templates
 - Modify `catalystcenter_template_version` resource to use versioned template id as `id` and remove data_source
 
