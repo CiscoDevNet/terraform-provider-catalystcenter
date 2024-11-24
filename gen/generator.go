@@ -499,10 +499,18 @@ func GenerateQueryParamString(method string, inputSource string, attributes []Ya
 		// Construct the query parameter string if includeParam is true
 		if includeParam {
 			if first {
-				params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				if attr.Type == "Int64" {
+					params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(strconv.FormatInt(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`(), 10))`)
+				} else {
+					params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				}
 				first = false
 			} else {
-				params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				if attr.Type == "Int64" {
+					params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(strconv.FormatInt(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`(), 10))`)
+				} else {
+					params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				}
 			}
 		}
 	}
