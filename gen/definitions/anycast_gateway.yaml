@@ -10,6 +10,7 @@ skip_minimum_test: true
 put_id_include_path: "0.id"
 put_no_id: true
 doc_category: SDA
+test_tags: [SDA]
 attributes:
   - model_name: fabricId
     requires_replace: true
