@@ -1,0 +1,72 @@
+---
+name: Fabric L2 Virtual Network
+rest_endpoint: /dna/intent/api/v1/sda/layer2VirtualNetworks
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+import_no_id: true
+data_source_no_id: true
+skip_minimum_test: true
+put_id_include_path: "0.id"
+put_no_id: true
+doc_category: SDA
+attributes:
+  - model_name: fabricId
+    requires_replace: true
+    data_path: '0'
+    query_param: true
+    response_data_path: response.0.fabricId
+    mandatory: true
+    description: ID of the fabric this layer 2 virtual network is to be assigned to
+    type: String
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_fabric_site.test.id
+  - model_name: vlanName
+    requires_replace: true
+    data_path: '0'
+    query_param: true
+    response_data_path: response.0.vlanName
+    type: String
+    mandatory: true
+    description: Name of the VLAN of the layer 2 virtual network. Must contain only alphanumeric characters, underscores, and hyphens
+    example: VLAN401
+  - model_name: vlanId
+    requires_replace: true
+    data_path: '0'
+    response_data_path: response.0.vlanId
+    type: Int64
+    description: ID of the VLAN of the layer 2 virtual network. Allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, and 2046. If deploying on a fabric zone, this vlanId must match the vlanId of the corresponding layer 2 virtual network on the fabric site
+    example: 401
+  - model_name: trafficType
+    data_path: '0'
+    response_data_path: response.0.trafficType
+    type: String
+    enum_values: [DATA, VOICE]
+    mandatory: true
+    description: The type of traffic that is served
+    example: DATA
+  - model_name: isFabricEnabledWireless
+    data_path: '0'
+    response_data_path: response.0.isFabricEnabledWireless
+    tf_name: fabric_enabled_wireless
+    type: Bool
+    description: Set to true to enable wireless. Default is false
+    example: false
+  - model_name: associatedLayer3VirtualNetworkName
+    requires_replace: true
+    data_path: '0'
+    response_data_path: response.0.associatedLayer3VirtualNetworkName
+    tf_name: associated_l3_virtual_network_name
+    type: String
+    description: Name of the layer 3 virtual network associated with the layer 2 virtual network. This field is provided to support requests related to virtual network anchoring. The layer 3 virtual network must have already been added to the fabric before association. This field must either be present in all payload elements or none
+    example: SDA_VN1
+    exclude_test: true
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+  }

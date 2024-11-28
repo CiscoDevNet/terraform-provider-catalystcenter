@@ -9,6 +9,8 @@ description: |-
 
 ## 0.1.16 (unreleased)
 
+- Add Device Unreachability Warning to `catalystcenter_fabric_l3_handoff_ip_transit` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/150)
+- Add `catalystcenter_fabric_l2_virtual_network` resource and data source
 - Remove `max_async_wait_time` attribute and use timeout from `CC_MAX_TIMEOUT`
 - Modify `catalystcenter_deploy_template` resource to support deploying composite templates
 - Modify `catalystcenter_template_version` resource to use versioned template id as `id` and remove data_source
