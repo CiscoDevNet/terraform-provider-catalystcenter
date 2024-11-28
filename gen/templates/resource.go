@@ -219,7 +219,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							PlanModifiers: []planmodifier.{{.Type}}{
 								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 							},
-							{{- end}}							
+							{{- end}}
 							{{- if isNestedListSet .}}
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{

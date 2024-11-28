@@ -10,7 +10,6 @@ skip_minimum_test: true
 put_id_include_path: "0.id"
 put_no_id: true
 doc_category: SDA
-test_tags: [SDA]
 attributes:
   - model_name: fabricId
     requires_replace: true
@@ -175,7 +174,7 @@ test_prerequisites: |
     sg_names             = ["Employees"]
   }
   resource "catalystcenter_virtual_network_to_fabric_site" "test" {
-    virtual_network_name = "SDA_VN1"
+    virtual_network_name = catalystcenter_fabric_virtual_network.test.id
     site_name_hierarchy  = "Global/Area1"
-    depends_on = [catalystcenter_fabric_virtual_network.test, catalystcenter_fabric_site.test]
+    depends_on = [catalystcenter_fabric_site.test]
   }

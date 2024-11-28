@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -29,9 +28,6 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcAnycastGateway(t *testing.T) {
-	if os.Getenv("SDA") == "" {
-		t.Skip("skipping test, set environment variable SDA")
-	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "tcp_mss_adjustment", "1400"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "vlan_name", "VLAN401"))
@@ -92,9 +88,9 @@ resource "catalystcenter_fabric_virtual_network" "test" {
   sg_names             = ["Employees"]
 }
 resource "catalystcenter_virtual_network_to_fabric_site" "test" {
-  virtual_network_name = "SDA_VN1"
+  virtual_network_name = catalystcenter_fabric_virtual_network.test.id
   site_name_hierarchy  = "Global/Area1"
-  depends_on = [catalystcenter_fabric_virtual_network.test, catalystcenter_fabric_site.test]
+  depends_on = [catalystcenter_fabric_site.test]
 }
 `
 
