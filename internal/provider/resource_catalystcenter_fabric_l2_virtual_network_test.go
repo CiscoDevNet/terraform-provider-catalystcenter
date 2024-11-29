@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,17 +27,16 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccCcTemplateVersion(t *testing.T) {
+func TestAccCcFabricL2VirtualNetwork(t *testing.T) {
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_l2_virtual_network.test", "vlan_name", "VLAN401"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_l2_virtual_network.test", "vlan_id", "401"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_l2_virtual_network.test", "traffic_type", "DATA"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_l2_virtual_network.test", "fabric_enabled_wireless", "false"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcTemplateVersionPrerequisitesConfig + testAccCcTemplateVersionConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcTemplateVersionPrerequisitesConfig + testAccCcTemplateVersionConfig_all(),
+		Config: testAccCcFabricL2VirtualNetworkPrerequisitesConfig + testAccCcFabricL2VirtualNetworkConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -52,36 +50,27 @@ func TestAccCcTemplateVersion(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-const testAccCcTemplateVersionPrerequisitesConfig = `
-resource "catalystcenter_project" "test" {
-  name        = "Project1"
+const testAccCcFabricL2VirtualNetworkPrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+resource "catalystcenter_fabric_site" "test" {
+  site_id                     = catalystcenter_area.test.id
+  pub_sub_enabled             = false
+  authentication_profile_name = "No Authentication"
 }
 
-resource "catalystcenter_template" "test" {
-  project_id  = catalystcenter_project.test.id
-  name        = "Template1"
-  description = "My description"
-  device_types = [
-    {
-      product_family = "Switches and Hubs"
-      product_series = "Cisco Catalyst 9300 Series Switches"
-      product_type   = "Cisco Catalyst 9300 Switch"
-    }
-  ]
-  language         = "JINJA"
-  software_type    = "IOS-XE"
-  software_variant = "XE"
-  software_version = "16.12.1a"
-  template_content = "hostname SW1"
-}
 `
 
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccCcTemplateVersionConfig_minimum() string {
-	config := `resource "catalystcenter_template_version" "test" {` + "\n"
-	config += `	template_id = catalystcenter_template.test.id` + "\n"
+func testAccCcFabricL2VirtualNetworkConfig_minimum() string {
+	config := `resource "catalystcenter_fabric_l2_virtual_network" "test" {` + "\n"
+	config += `	fabric_id = catalystcenter_fabric_site.test.id` + "\n"
+	config += `	vlan_name = "VLAN401"` + "\n"
+	config += `	traffic_type = "DATA"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -89,10 +78,13 @@ func testAccCcTemplateVersionConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccCcTemplateVersionConfig_all() string {
-	config := `resource "catalystcenter_template_version" "test" {` + "\n"
-	config += `	template_id = catalystcenter_template.test.id` + "\n"
-	config += `	comments = "New Version"` + "\n"
+func testAccCcFabricL2VirtualNetworkConfig_all() string {
+	config := `resource "catalystcenter_fabric_l2_virtual_network" "test" {` + "\n"
+	config += `	fabric_id = catalystcenter_fabric_site.test.id` + "\n"
+	config += `	vlan_name = "VLAN401"` + "\n"
+	config += `	vlan_id = 401` + "\n"
+	config += `	traffic_type = "DATA"` + "\n"
+	config += `	fabric_enabled_wireless = false` + "\n"
 	config += `}` + "\n"
 	return config
 }

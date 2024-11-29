@@ -106,7 +106,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else}}
 				Optional:            true,
 				{{- end}}
-				{{- if len .DefaultValue}}
+				{{- if or (len .DefaultValue) .Computed}}
 				Computed:            true,
 				{{- end}}
 				{{- if len .EnumValues}}
@@ -143,6 +143,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 				},
 				{{- end}}
+				{{- if .Computed}}
+				PlanModifiers: []planmodifier.{{.Type}}{
+					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+				},
+				{{- end}}
 				{{- if isNestedListSet .}}
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -173,7 +178,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else}}
 							Optional:            true,
 							{{- end}}
-							{{- if len .DefaultValue}}
+							{{- if or (len .DefaultValue) .Computed}}
 							Computed:            true,
 							{{- end}}
 							{{- if len .EnumValues}}
@@ -210,6 +215,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 							},
 							{{- end}}
+							{{- if .Computed}}
+							PlanModifiers: []planmodifier.{{.Type}}{
+								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+							},
+							{{- end}}
 							{{- if isNestedListSet .}}
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -240,7 +250,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- else}}
 										Optional:            true,
 										{{- end}}
-										{{- if len .DefaultValue}}
+										{{- if or (len .DefaultValue) .Computed}}
 										Computed:            true,
 										{{- end}}
 										{{- if len .EnumValues}}
@@ -277,6 +287,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 										},
 										{{- end}}
+										{{- if .Computed}}
+										PlanModifiers: []planmodifier.{{.Type}}{
+											{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+										},
+										{{- end}}
 										{{- if isNestedListSet .}}
 										NestedObject: schema.NestedAttributeObject{
 											Attributes: map[string]schema.Attribute{
@@ -307,7 +322,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- else}}
 													Optional:            true,
 													{{- end}}
-													{{- if len .DefaultValue}}
+													{{- if or (len .DefaultValue) .Computed}}
 													Computed:            true,
 													{{- end}}
 													{{- if len .EnumValues}}
@@ -342,6 +357,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- if .RequiresReplace}}
 													PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 														{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
+													},
+													{{- end}}
+													{{- if .Computed}}
+													PlanModifiers: []planmodifier.{{.Type}}{
+														{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 													},
 													{{- end}}
 												},

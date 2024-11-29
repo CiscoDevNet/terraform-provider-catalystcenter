@@ -36,16 +36,19 @@ attributes:
       - model_name: templateId
         type: String
         id: true
-        description: ID of template to be provisioned
+        description: Versioned Template ID
       - model_name: forcePushTemplate
         type: Bool
         description: Force Push Template
       - model_name: isComposite
         type: Bool
         description: Composite template flag
+      - model_name: copyingConfig
+        type: Bool
+        description: Copying Config
       - model_name: mainTemplateId
         type: String
-        description: Composite Template ID
+        description: Template ID
       - model_name: targetInfo
         type: List
         mandatory: true
@@ -93,7 +96,6 @@ attributes:
             description: Target type of device
           - model_name: versionedTemplateId
             type: String
-            mandatory: true
             description: Versioned template ID to be provisioned
   - model_name: targetInfo
     type: List
@@ -147,7 +149,6 @@ attributes:
         example: MANAGED_DEVICE_HOSTNAME
       - model_name: versionedTemplateId
         type: String
-        mandatory: true
         description: Versioned template ID to be provisioned
         example: 12345678-1234-1234-1234-123456789012
         test_value: catalystcenter_template_version.example.id

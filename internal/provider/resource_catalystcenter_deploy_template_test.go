@@ -92,7 +92,6 @@ func testAccCcDeployTemplateConfig_minimum() string {
 	config += `	template_id = catalystcenter_template_version.example.id` + "\n"
 	config += `	target_info = [{` + "\n"
 	config += `	  type = "MANAGED_DEVICE_HOSTNAME"` + "\n"
-	config += `	  versioned_template_id = catalystcenter_template_version.example.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config

@@ -70,10 +70,7 @@ func (r *TemplateVersionResource) Schema(ctx context.Context, req resource.Schem
 			},
 			"template_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("UUID of template").String,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:            true,
 			},
 			"comments": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Template version comments").String,
@@ -96,7 +93,6 @@ func (r *TemplateVersionResource) Configure(_ context.Context, req resource.Conf
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *TemplateVersionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan TemplateVersion
 
@@ -118,7 +114,12 @@ func (r *TemplateVersionResource) Create(ctx context.Context, req resource.Creat
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.TemplateId.ValueString()))
+	res, err = r.client.Get(plan.getPath() + "/" + url.QueryEscape(plan.TemplateId.ValueString()))
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.Id = types.StringValue(res.Get("0.versionsInfo.#(versionComment==\"" + plan.Comments.ValueString() + "\").id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -126,9 +127,6 @@ func (r *TemplateVersionResource) Create(ctx context.Context, req resource.Creat
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end create
-
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *TemplateVersionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state TemplateVersion
 
@@ -142,7 +140,7 @@ func (r *TemplateVersionResource) Read(ctx context.Context, req resource.ReadReq
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "/" + url.QueryEscape(state.Id.ValueString())
+	params += "/" + url.QueryEscape(state.TemplateId.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -165,8 +163,6 @@ func (r *TemplateVersionResource) Read(ctx context.Context, req resource.ReadReq
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end read
-
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *TemplateVersionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state TemplateVersion
@@ -188,7 +184,7 @@ func (r *TemplateVersionResource) Update(ctx context.Context, req resource.Updat
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -234,7 +230,6 @@ func (r *TemplateVersionResource) ImportState(ctx context.Context, req resource.
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("template_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
 }
 
 // End of section. //template:end import

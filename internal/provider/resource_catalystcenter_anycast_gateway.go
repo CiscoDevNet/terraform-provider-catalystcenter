@@ -202,7 +202,7 @@ func (r *AnycastGatewayResource) Create(ctx context.Context, req resource.Create
 	body := plan.toBody(ctx, AnycastGateway{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 120 })
+	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
@@ -284,7 +284,7 @@ func (r *AnycastGatewayResource) Update(ctx context.Context, req resource.Update
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 120 })
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return

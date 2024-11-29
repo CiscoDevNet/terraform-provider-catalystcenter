@@ -154,7 +154,7 @@ func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resour
 	body := plan.toBody(ctx, WirelessDeviceProvision{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 300 })
+	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
@@ -211,7 +211,7 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body, func(r *cc.Req) { r.MaxAsyncWaitTime = 300 })
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return

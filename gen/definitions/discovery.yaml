@@ -19,7 +19,6 @@ no_update: true
 no_import: true
 get_from_all: true
 id_from_query_path: response
-max_async_wait_time: 600
 doc_category: Discovery
 attributes:
   - model_name: cdpLevel

@@ -170,7 +170,6 @@ func (r *FabricL3HandoffIPTransitResource) Configure(_ context.Context, req reso
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FabricL3HandoffIPTransit
 
@@ -189,8 +188,15 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCDP10000" {
+			// Log a warning and continue execution when device is unreachable
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
 	}
 	params = ""
 	params += "?networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(plan.FabricId.ValueString())
@@ -206,8 +212,6 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricL3HandoffIPTransitResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {

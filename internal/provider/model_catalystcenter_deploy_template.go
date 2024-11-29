@@ -44,6 +44,7 @@ type DeployTemplateMemberTemplateDeploymentInfo struct {
 	TemplateId        types.String                                           `tfsdk:"template_id"`
 	ForcePushTemplate types.Bool                                             `tfsdk:"force_push_template"`
 	IsComposite       types.Bool                                             `tfsdk:"is_composite"`
+	CopyingConfig     types.Bool                                             `tfsdk:"copying_config"`
 	MainTemplateId    types.String                                           `tfsdk:"main_template_id"`
 	TargetInfo        []DeployTemplateMemberTemplateDeploymentInfoTargetInfo `tfsdk:"target_info"`
 }
@@ -123,6 +124,9 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 			}
 			if !item.IsComposite.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "isComposite", item.IsComposite.ValueBool())
+			}
+			if !item.CopyingConfig.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "copyingConfig", item.CopyingConfig.ValueBool())
 			}
 			if !item.MainTemplateId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "mainTemplateId", item.MainTemplateId.ValueString())
@@ -255,6 +259,11 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 				item.IsComposite = types.BoolValue(cValue.Bool())
 			} else {
 				item.IsComposite = types.BoolNull()
+			}
+			if cValue := v.Get("copyingConfig"); cValue.Exists() {
+				item.CopyingConfig = types.BoolValue(cValue.Bool())
+			} else {
+				item.CopyingConfig = types.BoolNull()
 			}
 			if cValue := v.Get("mainTemplateId"); cValue.Exists() {
 				item.MainTemplateId = types.StringValue(cValue.String())
@@ -440,6 +449,11 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 			data.MemberTemplateDeploymentInfo[i].IsComposite = types.BoolValue(value.Bool())
 		} else {
 			data.MemberTemplateDeploymentInfo[i].IsComposite = types.BoolNull()
+		}
+		if value := r.Get("copyingConfig"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].CopyingConfig.IsNull() {
+			data.MemberTemplateDeploymentInfo[i].CopyingConfig = types.BoolValue(value.Bool())
+		} else {
+			data.MemberTemplateDeploymentInfo[i].CopyingConfig = types.BoolNull()
 		}
 		if value := r.Get("mainTemplateId"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].MainTemplateId.IsNull() {
 			data.MemberTemplateDeploymentInfo[i].MainTemplateId = types.StringValue(value.String())

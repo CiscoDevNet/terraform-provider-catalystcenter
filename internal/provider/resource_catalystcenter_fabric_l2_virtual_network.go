@@ -25,11 +25,14 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -40,25 +43,25 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &FabricProvisionDeviceResource{}
-var _ resource.ResourceWithImportState = &FabricProvisionDeviceResource{}
+var _ resource.Resource = &FabricL2VirtualNetworkResource{}
+var _ resource.ResourceWithImportState = &FabricL2VirtualNetworkResource{}
 
-func NewFabricProvisionDeviceResource() resource.Resource {
-	return &FabricProvisionDeviceResource{}
+func NewFabricL2VirtualNetworkResource() resource.Resource {
+	return &FabricL2VirtualNetworkResource{}
 }
 
-type FabricProvisionDeviceResource struct {
+type FabricL2VirtualNetworkResource struct {
 	client *cc.Client
 }
 
-func (r *FabricProvisionDeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_provision_device"
+func (r *FabricL2VirtualNetworkResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_l2_virtual_network"
 }
 
-func (r *FabricProvisionDeviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *FabricL2VirtualNetworkResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Fabric Provision Device.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Fabric L2 Virtual Network.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,16 +71,41 @@ func (r *FabricProvisionDeviceResource) Schema(ctx context.Context, req resource
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"site_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of the site this network device needs to be provisioned").String,
+			"fabric_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric this layer 2 virtual network is to be assigned to").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"network_device_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of network device to be provisioned").String,
+			"vlan_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the VLAN of the layer 2 virtual network. Must contain only alphanumeric characters, underscores, and hyphens").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"vlan_id": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the VLAN of the layer 2 virtual network. Allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, and 2046. If deploying on a fabric zone, this vlanId must match the vlanId of the corresponding layer 2 virtual network on the fabric site").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
+			},
+			"traffic_type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The type of traffic that is served").AddStringEnumDescription("DATA", "VOICE").String,
+				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("DATA", "VOICE"),
+				},
+			},
+			"fabric_enabled_wireless": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Set to true to enable wireless. Default is false").String,
+				Optional:            true,
+			},
+			"associated_l3_virtual_network_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the layer 3 virtual network associated with the layer 2 virtual network. This field is provided to support requests related to virtual network anchoring. The layer 3 virtual network must have already been added to the fabric before association. This field must either be present in all payload elements or none").String,
+				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -86,7 +114,7 @@ func (r *FabricProvisionDeviceResource) Schema(ctx context.Context, req resource
 	}
 }
 
-func (r *FabricProvisionDeviceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *FabricL2VirtualNetworkResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -97,8 +125,8 @@ func (r *FabricProvisionDeviceResource) Configure(_ context.Context, req resourc
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan FabricProvisionDevice
+func (r *FabricL2VirtualNetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan FabricL2VirtualNetwork
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -110,7 +138,7 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, FabricProvisionDevice{})
+	body := plan.toBody(ctx, FabricL2VirtualNetwork{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -119,7 +147,7 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 		return
 	}
 	params = ""
-	params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
+	params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&vlanName=" + url.QueryEscape(plan.VlanName.ValueString())
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
@@ -136,8 +164,8 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *FabricProvisionDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state FabricProvisionDevice
+func (r *FabricL2VirtualNetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state FabricL2VirtualNetwork
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -149,7 +177,7 @@ func (r *FabricProvisionDeviceResource) Read(ctx context.Context, req resource.R
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?siteId=" + url.QueryEscape(state.SiteId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	params += "?fabricId=" + url.QueryEscape(state.FabricId.ValueString()) + "&vlanName=" + url.QueryEscape(state.VlanName.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -175,8 +203,8 @@ func (r *FabricProvisionDeviceResource) Read(ctx context.Context, req resource.R
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state FabricProvisionDevice
+func (r *FabricL2VirtualNetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state FabricL2VirtualNetwork
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -210,8 +238,8 @@ func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state FabricProvisionDevice
+func (r *FabricL2VirtualNetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state FabricL2VirtualNetwork
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -235,18 +263,18 @@ func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *FabricProvisionDeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *FabricL2VirtualNetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <site_id>,<network_device_id>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <fabric_id>,<vlan_name>. Got: %q", req.ID),
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_device_id"), idParts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_id"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("vlan_name"), idParts[1])...)
 }
 
 // End of section. //template:end import

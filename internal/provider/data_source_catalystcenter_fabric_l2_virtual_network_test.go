@@ -27,14 +27,18 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-func TestAccDataSourceCcTemplateVersion(t *testing.T) {
+func TestAccDataSourceCcFabricL2VirtualNetwork(t *testing.T) {
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l2_virtual_network.test", "vlan_name", "VLAN401"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l2_virtual_network.test", "vlan_id", "401"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l2_virtual_network.test", "traffic_type", "DATA"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l2_virtual_network.test", "fabric_enabled_wireless", "false"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcTemplateVersionPrerequisitesConfig + testAccDataSourceCcTemplateVersionConfig(),
+				Config: testAccDataSourceCcFabricL2VirtualNetworkPrerequisitesConfig + testAccDataSourceCcFabricL2VirtualNetworkConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -44,42 +48,36 @@ func TestAccDataSourceCcTemplateVersion(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-const testAccDataSourceCcTemplateVersionPrerequisitesConfig = `
-resource "catalystcenter_project" "test" {
-  name        = "Project1"
+const testAccDataSourceCcFabricL2VirtualNetworkPrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+resource "catalystcenter_fabric_site" "test" {
+  site_id                     = catalystcenter_area.test.id
+  pub_sub_enabled             = false
+  authentication_profile_name = "No Authentication"
 }
 
-resource "catalystcenter_template" "test" {
-  project_id  = catalystcenter_project.test.id
-  name        = "Template1"
-  description = "My description"
-  device_types = [
-    {
-      product_family = "Switches and Hubs"
-      product_series = "Cisco Catalyst 9300 Series Switches"
-      product_type   = "Cisco Catalyst 9300 Switch"
-    }
-  ]
-  language         = "JINJA"
-  software_type    = "IOS-XE"
-  software_variant = "XE"
-  software_version = "16.12.1a"
-  template_content = "hostname SW1"
-}
 `
 
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-func testAccDataSourceCcTemplateVersionConfig() string {
-	config := `resource "catalystcenter_template_version" "test" {` + "\n"
-	config += `	template_id = catalystcenter_template.test.id` + "\n"
-	config += `	comments = "New Version"` + "\n"
+func testAccDataSourceCcFabricL2VirtualNetworkConfig() string {
+	config := `resource "catalystcenter_fabric_l2_virtual_network" "test" {` + "\n"
+	config += `	fabric_id = catalystcenter_fabric_site.test.id` + "\n"
+	config += `	vlan_name = "VLAN401"` + "\n"
+	config += `	vlan_id = 401` + "\n"
+	config += `	traffic_type = "DATA"` + "\n"
+	config += `	fabric_enabled_wireless = false` + "\n"
 	config += `}` + "\n"
 
 	config += `
-		data "catalystcenter_template_version" "test" {
-			id = catalystcenter_template_version.test.id
+		data "catalystcenter_fabric_l2_virtual_network" "test" {
+			fabric_id = catalystcenter_fabric_site.test.id
+			vlan_name = "VLAN401"
+			depends_on = [catalystcenter_fabric_l2_virtual_network.test]
 		}
 	`
 	return config

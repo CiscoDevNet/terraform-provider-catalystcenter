@@ -164,6 +164,7 @@ type YamlConfigAttribute struct {
 	DataSourceQuery      bool                  `yaml:"data_source_query"`
 	QueryParamNoBody     bool                  `yaml:"query_param_no_body"`
 	Mandatory            bool                  `yaml:"mandatory"`
+	Computed             bool                  `yaml:"computed"`
 	WriteOnly            bool                  `yaml:"write_only"`
 	ExcludeFromPut       bool                  `yaml:"exclude_from_put"`
 	ExcludeTest          bool                  `yaml:"exclude_test"`
@@ -498,10 +499,18 @@ func GenerateQueryParamString(method string, inputSource string, attributes []Ya
 		// Construct the query parameter string if includeParam is true
 		if includeParam {
 			if first {
-				params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				if attr.Type == "Int64" {
+					params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(strconv.FormatInt(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`(), 10))`)
+				} else {
+					params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				}
 				first = false
 			} else {
-				params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				if attr.Type == "Int64" {
+					params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(strconv.FormatInt(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`(), 10))`)
+				} else {
+					params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
+				}
 			}
 		}
 	}

@@ -58,7 +58,6 @@ const testAccDataSourceCcAnycastGatewayPrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
-  depends_on  = [catalystcenter_ip_pool.test]
 }
 resource "catalystcenter_ip_pool" "test" {
   name             = "MyPool1"
@@ -78,7 +77,6 @@ resource "catalystcenter_fabric_site" "test" {
   site_id                     = catalystcenter_area.test.id
   pub_sub_enabled             = false
   authentication_profile_name = "No Authentication"
-  depends_on = [catalystcenter_area.test]
 }
 resource "catalystcenter_fabric_virtual_network" "test" {
   virtual_network_name = "SDA_VN1"
@@ -86,9 +84,9 @@ resource "catalystcenter_fabric_virtual_network" "test" {
   sg_names             = ["Employees"]
 }
 resource "catalystcenter_virtual_network_to_fabric_site" "test" {
-  virtual_network_name = "SDA_VN1"
+  virtual_network_name = catalystcenter_fabric_virtual_network.test.id
   site_name_hierarchy  = "Global/Area1"
-  depends_on = [catalystcenter_fabric_virtual_network.test, catalystcenter_fabric_site.test]
+  depends_on = [catalystcenter_fabric_site.test]
 }
 `
 
