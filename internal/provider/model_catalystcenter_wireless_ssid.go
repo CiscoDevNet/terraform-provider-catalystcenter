@@ -69,6 +69,8 @@ type WirelessSSID struct {
 	AuthKey8021xSha256                     types.Bool                     `tfsdk:"auth_key8021x_sha256"`
 	AuthKeySae                             types.Bool                     `tfsdk:"auth_key_sae"`
 	AuthKeySaePlusFt                       types.Bool                     `tfsdk:"auth_key_sae_plus_ft"`
+	AuthKeyPsk                             types.Bool                     `tfsdk:"auth_key_psk"`
+	AuthKeyPskPlusFt                       types.Bool                     `tfsdk:"auth_key_psk_plus_ft"`
 	AuthKeyOwe                             types.Bool                     `tfsdk:"auth_key_owe"`
 	AuthKeyEasyPsk                         types.Bool                     `tfsdk:"auth_key_easy_psk"`
 	AuthKeyEasyPskSha256                   types.Bool                     `tfsdk:"auth_key_easy_psk_sha256"`
@@ -244,6 +246,12 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 	}
 	if !data.AuthKeySaePlusFt.IsNull() {
 		body, _ = sjson.Set(body, "isAuthKeySaePlusFT", data.AuthKeySaePlusFt.ValueBool())
+	}
+	if !data.AuthKeyPsk.IsNull() {
+		body, _ = sjson.Set(body, "isAuthKeyPSK", data.AuthKeyPsk.ValueBool())
+	}
+	if !data.AuthKeyPskPlusFt.IsNull() {
+		body, _ = sjson.Set(body, "isAuthKeyPSKPlusFT", data.AuthKeyPskPlusFt.ValueBool())
 	}
 	if !data.AuthKeyOwe.IsNull() {
 		body, _ = sjson.Set(body, "isAuthKeyOWE", data.AuthKeyOwe.ValueBool())
@@ -528,6 +536,16 @@ func (data *WirelessSSID) fromBody(ctx context.Context, res gjson.Result) {
 		data.AuthKeySaePlusFt = types.BoolValue(value.Bool())
 	} else {
 		data.AuthKeySaePlusFt = types.BoolNull()
+	}
+	if value := res.Get("isAuthKeyPSK"); value.Exists() {
+		data.AuthKeyPsk = types.BoolValue(value.Bool())
+	} else {
+		data.AuthKeyPsk = types.BoolNull()
+	}
+	if value := res.Get("isAuthKeyPSKPlusFT"); value.Exists() {
+		data.AuthKeyPskPlusFt = types.BoolValue(value.Bool())
+	} else {
+		data.AuthKeyPskPlusFt = types.BoolNull()
 	}
 	if value := res.Get("isAuthKeyOWE"); value.Exists() {
 		data.AuthKeyOwe = types.BoolValue(value.Bool())
@@ -884,6 +902,16 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 	} else {
 		data.AuthKeySaePlusFt = types.BoolNull()
 	}
+	if value := res.Get("isAuthKeyPSK"); value.Exists() && !data.AuthKeyPsk.IsNull() {
+		data.AuthKeyPsk = types.BoolValue(value.Bool())
+	} else {
+		data.AuthKeyPsk = types.BoolNull()
+	}
+	if value := res.Get("isAuthKeyPSKPlusFT"); value.Exists() && !data.AuthKeyPskPlusFt.IsNull() {
+		data.AuthKeyPskPlusFt = types.BoolValue(value.Bool())
+	} else {
+		data.AuthKeyPskPlusFt = types.BoolNull()
+	}
 	if value := res.Get("isAuthKeyOWE"); value.Exists() && !data.AuthKeyOwe.IsNull() {
 		data.AuthKeyOwe = types.BoolValue(value.Bool())
 	} else {
@@ -1140,6 +1168,12 @@ func (data *WirelessSSID) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.AuthKeySaePlusFt.IsNull() {
+		return false
+	}
+	if !data.AuthKeyPsk.IsNull() {
+		return false
+	}
+	if !data.AuthKeyPskPlusFt.IsNull() {
 		return false
 	}
 	if !data.AuthKeyOwe.IsNull() {

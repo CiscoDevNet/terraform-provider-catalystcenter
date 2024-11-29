@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.17 (unreleased)
+
+- Add `isAuthKeyPSK` and `isAuthKeyPSKPlusFT` attributes to `catalystcenter_wireless_ssid` resource
+
 ## 0.1.16
 
 - Add device unreachability warning to `catalystcenter_fabric_l3_handoff_ip_transit` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/150)

@@ -67,6 +67,8 @@ resource "catalystcenter_wireless_ssid" "example" {
 - `auth_key_easy_psk` (Boolean) When set to true, the feature that enables the use of Easy Pre-shared Key (PSK) authentication is activated
 - `auth_key_easy_psk_sha256` (Boolean) The feature that allows the use of Pre-shared Key (PSK) authentication with the SHA256 algorithm is enabled when it is set to true
 - `auth_key_owe` (Boolean) When set to true, the Opportunistic Wireless Encryption (OWE) authentication key feature is turned on
+- `auth_key_psk` (Boolean) When set to true, the Pre-shared Key (PSK) authentication feature is enabled
+- `auth_key_psk_plus_ft` (Boolean) When set to true, the feature that enables the combination of Pre-shared Key (PSK) and Fast Transition (FT) authentication keys is activated
 - `auth_key_sae` (Boolean) When set to true, the feature enabling the Simultaneous Authentication of Equals (SAE) authentication key is activated
 - `auth_key_sae_ext` (Boolean) When set to true, the Simultaneous Authentication of Equals (SAE) Extended Authentication key feature is turned on
 - `auth_key_sae_ext_plus_tf` (Boolean) When set to true, the Simultaneous Authentication of Equals (SAE) combined with Fast Transition (FT) Authentication Key feature is enabled
