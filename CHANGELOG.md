@@ -1,4 +1,4 @@
-## 0.1.16 (unreleased)
+## 0.1.16
 
 - Add device unreachability warning to `catalystcenter_fabric_l3_handoff_ip_transit` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/150)
 - Add `catalystcenter_fabric_l2_virtual_network` resource and data source
