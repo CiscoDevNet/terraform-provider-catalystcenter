@@ -1,7 +1,7 @@
 ## 0.1.17 (unreleased)
 
 - Add device unreachability warning to `catalystcenter_anycast_gateway`, `catalystcenter_fabric_l2_handoff`, `catalystcenter_fabric_device`, `catalystcenter_fabric_port_assignment` and `catalystcenter_provision_device` resources
-- Add `isAuthKeyPSK` and `isAuthKeyPSKPlusFT` attributes to `catalystcenter_wireless_ssid` resource
+- Add `auth_key_psk` and `auth_key_psk_plus_ft` attributes to `catalystcenter_wireless_ssid` resource and data source
 
 ## 0.1.16
 
