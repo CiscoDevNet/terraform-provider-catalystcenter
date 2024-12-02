@@ -26,6 +26,7 @@ id_from_query_path: str(required=False) # Specify path to ID container if ID is 
 id_from_query_path_attribute: str(required=False) # Specify attribute name of ID, only relevant if "id_from_query_path" option used, default is "id"
 id_query_param: str(required=False) # Query parameter used to specify the ID
 id_from_attribute: bool(required=False) # Set to true if the ID is derived from an attribute
+device_unreachability_warning: bool(required=False) # Set to true if a warning should be displayed for device unreachability instead of error
 put_id_include_path: str(required=False) # If PUT needs to have specific JSON path where ID should be inserted
 put_id_query_param: str(required=False) # If PUT needs to have specific query parameter where ID should be inserted
 put_no_id: bool(required=False) # Set to true if the PUT request does not require an ID

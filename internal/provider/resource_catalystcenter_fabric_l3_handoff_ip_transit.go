@@ -170,6 +170,7 @@ func (r *FabricL3HandoffIPTransitResource) Configure(_ context.Context, req reso
 
 // End of section. //template:end model
 
+// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FabricL3HandoffIPTransit
 
@@ -212,6 +213,8 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricL3HandoffIPTransitResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
