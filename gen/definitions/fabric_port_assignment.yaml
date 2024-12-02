@@ -8,6 +8,7 @@ data_source_no_id: true
 id_from_attribute: true
 root_list: true
 skip_minimum_test: true
+device_unreachability_warning: true
 doc_category: SDA
 test_tags: [SDA]
 attributes:

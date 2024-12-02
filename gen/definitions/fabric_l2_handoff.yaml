@@ -7,6 +7,7 @@ id_from_query_path_attribute: id
 put_id_include_path: 0.id
 get_from_all: true
 put_no_id: true
+device_unreachability_warning: true
 doc_category: SDA
 test_tags: [SDA]
 attributes:

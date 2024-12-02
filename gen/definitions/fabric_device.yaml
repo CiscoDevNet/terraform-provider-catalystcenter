@@ -8,6 +8,7 @@ put_id_include_path: 0.id
 import_no_id: true
 data_source_no_id: true
 put_no_id: true
+device_unreachability_warning: true
 doc_category: SDA
 test_tags: [SDA]
 attributes:

@@ -223,6 +223,16 @@ attributes:
     type: Bool
     description: When set to true, the feature that enables the combination of Pre-shared Key (PSK) and Fast Transition (FT) authentication keys is activated
     exclude_test: true
+  - model_name: isAuthKeyPSK
+    tf_name: auth_key_psk
+    type: Bool
+    description: When set to true, the Pre-shared Key (PSK) authentication feature is enabled
+    exclude_test: true
+  - model_name: isAuthKeyPSKPlusFT
+    tf_name: auth_key_psk_plus_ft
+    type: Bool
+    description: When set to true, the feature that enables the combination of Pre-shared Key (PSK) and Fast Transition (FT) authentication keys is activated
+    exclude_test: true
   - model_name: isAuthKeyOWE
     tf_name: auth_key_owe
     type: Bool

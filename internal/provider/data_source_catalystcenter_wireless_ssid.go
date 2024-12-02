@@ -218,6 +218,14 @@ func (d *WirelessSSIDDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "When set to true, the feature that enables the combination of Pre-shared Key (PSK) and Fast Transition (FT) authentication keys is activated",
 				Computed:            true,
 			},
+			"auth_key_psk": schema.BoolAttribute{
+				MarkdownDescription: "When set to true, the Pre-shared Key (PSK) authentication feature is enabled",
+				Computed:            true,
+			},
+			"auth_key_psk_plus_ft": schema.BoolAttribute{
+				MarkdownDescription: "When set to true, the feature that enables the combination of Pre-shared Key (PSK) and Fast Transition (FT) authentication keys is activated",
+				Computed:            true,
+			},
 			"auth_key_owe": schema.BoolAttribute{
 				MarkdownDescription: "When set to true, the Opportunistic Wireless Encryption (OWE) authentication key feature is turned on",
 				Computed:            true,

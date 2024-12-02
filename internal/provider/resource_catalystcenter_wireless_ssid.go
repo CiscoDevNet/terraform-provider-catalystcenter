@@ -267,6 +267,14 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: helpers.NewAttributeDescription("When set to true, the feature that enables the combination of Pre-shared Key (PSK) and Fast Transition (FT) authentication keys is activated").String,
 				Optional:            true,
 			},
+			"auth_key_psk": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("When set to true, the Pre-shared Key (PSK) authentication feature is enabled").String,
+				Optional:            true,
+			},
+			"auth_key_psk_plus_ft": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("When set to true, the feature that enables the combination of Pre-shared Key (PSK) and Fast Transition (FT) authentication keys is activated").String,
+				Optional:            true,
+			},
 			"auth_key_owe": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("When set to true, the Opportunistic Wireless Encryption (OWE) authentication key feature is turned on").String,
 				Optional:            true,
