@@ -204,7 +204,7 @@ attributes:
     description: When set to true, the 802.1X authentication key is in use
     exclude_test: true
   - model_name: isAuthKey8021xPlusFT
-    tf_name: auth_key8021x_plus_tf
+    tf_name: auth_key8021x_plus_ft
     type: Bool
     description: When set to true, the 802.1X-Plus-FT authentication key is in use
     exclude_test: true
@@ -357,7 +357,7 @@ attributes:
     description: When set to true, the Simultaneous Authentication of Equals (SAE) Extended Authentication key feature is turned on
     example: true
   - model_name: isAuthKeySaeExtPlusFT
-    tf_name: auth_key_sae_ext_plus_tf
+    tf_name: auth_key_sae_ext_plus_ft
     type: Bool
     description: When set to true, the Simultaneous Authentication of Equals (SAE) combined with Fast Transition (FT) Authentication Key feature is enabled
     exclude_test: true

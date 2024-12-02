@@ -202,7 +202,7 @@ func (d *WirelessSSIDDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "When set to true, the 802.1X authentication key is in use",
 				Computed:            true,
 			},
-			"auth_key8021x_plus_tf": schema.BoolAttribute{
+			"auth_key8021x_plus_ft": schema.BoolAttribute{
 				MarkdownDescription: "When set to true, the 802.1X-Plus-FT authentication key is in use",
 				Computed:            true,
 			},
@@ -316,7 +316,7 @@ func (d *WirelessSSIDDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "When set to true, the Simultaneous Authentication of Equals (SAE) Extended Authentication key feature is turned on",
 				Computed:            true,
 			},
-			"auth_key_sae_ext_plus_tf": schema.BoolAttribute{
+			"auth_key_sae_ext_plus_ft": schema.BoolAttribute{
 				MarkdownDescription: "When set to true, the Simultaneous Authentication of Equals (SAE) combined with Fast Transition (FT) Authentication Key feature is enabled",
 				Computed:            true,
 			},
