@@ -1,5 +1,7 @@
 ## 0.1.17 (unreleased)
 
+- BREAKING CHANGE: Rename `auth_key_sae_ext_plus_tf` attribute of `catalystcenter_wireless_ssid` resource to `auth_key_sae_ext_plus_ft`
+- BREAKING CHANGE: Rename `auth_key8021x_plus_tf` attribute of `catalystcenter_wireless_ssid` resource to `auth_key8021x_plus_ft`
 - Add device unreachability warning to `catalystcenter_anycast_gateway`, `catalystcenter_fabric_l2_handoff`, `catalystcenter_fabric_device`, `catalystcenter_fabric_port_assignment` and `catalystcenter_provision_device` resources
 - Add `auth_key_psk` and `auth_key_psk_plus_ft` attributes to `catalystcenter_wireless_ssid` resource and data source
 

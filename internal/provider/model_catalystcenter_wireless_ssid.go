@@ -65,7 +65,7 @@ type WirelessSSID struct {
 	RsnCipherSuiteCcmp128                  types.Bool                     `tfsdk:"rsn_cipher_suite_ccmp128"`
 	Ghz6PolicyClientSteering               types.Bool                     `tfsdk:"ghz6_policy_client_steering"`
 	AuthKey8021x                           types.Bool                     `tfsdk:"auth_key8021x"`
-	AuthKey8021xPlusTf                     types.Bool                     `tfsdk:"auth_key8021x_plus_tf"`
+	AuthKey8021xPlusFt                     types.Bool                     `tfsdk:"auth_key8021x_plus_ft"`
 	AuthKey8021xSha256                     types.Bool                     `tfsdk:"auth_key8021x_sha256"`
 	AuthKeySae                             types.Bool                     `tfsdk:"auth_key_sae"`
 	AuthKeySaePlusFt                       types.Bool                     `tfsdk:"auth_key_sae_plus_ft"`
@@ -93,7 +93,7 @@ type WirelessSSID struct {
 	AuthKeySuiteB1x                        types.Bool                     `tfsdk:"auth_key_suite_b1x"`
 	AuthKeySuiteB1921x                     types.Bool                     `tfsdk:"auth_key_suite_b1921x"`
 	AuthKeySaeExt                          types.Bool                     `tfsdk:"auth_key_sae_ext"`
-	AuthKeySaeExtPlusTf                    types.Bool                     `tfsdk:"auth_key_sae_ext_plus_tf"`
+	AuthKeySaeExtPlusFt                    types.Bool                     `tfsdk:"auth_key_sae_ext_plus_ft"`
 	ApBeaconProtection                     types.Bool                     `tfsdk:"ap_beacon_protection"`
 	Ghz24Policy                            types.String                   `tfsdk:"ghz24_policy"`
 	CckmTsfTolerance                       types.Int64                    `tfsdk:"cckm_tsf_tolerance"`
@@ -235,8 +235,8 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 	if !data.AuthKey8021x.IsNull() {
 		body, _ = sjson.Set(body, "isAuthKey8021x", data.AuthKey8021x.ValueBool())
 	}
-	if !data.AuthKey8021xPlusTf.IsNull() {
-		body, _ = sjson.Set(body, "isAuthKey8021xPlusFT", data.AuthKey8021xPlusTf.ValueBool())
+	if !data.AuthKey8021xPlusFt.IsNull() {
+		body, _ = sjson.Set(body, "isAuthKey8021xPlusFT", data.AuthKey8021xPlusFt.ValueBool())
 	}
 	if !data.AuthKey8021xSha256.IsNull() {
 		body, _ = sjson.Set(body, "isAuthKey8021x_SHA256", data.AuthKey8021xSha256.ValueBool())
@@ -323,8 +323,8 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 	if !data.AuthKeySaeExt.IsNull() {
 		body, _ = sjson.Set(body, "isAuthKeySaeExt", data.AuthKeySaeExt.ValueBool())
 	}
-	if !data.AuthKeySaeExtPlusTf.IsNull() {
-		body, _ = sjson.Set(body, "isAuthKeySaeExtPlusFT", data.AuthKeySaeExtPlusTf.ValueBool())
+	if !data.AuthKeySaeExtPlusFt.IsNull() {
+		body, _ = sjson.Set(body, "isAuthKeySaeExtPlusFT", data.AuthKeySaeExtPlusFt.ValueBool())
 	}
 	if !data.ApBeaconProtection.IsNull() {
 		body, _ = sjson.Set(body, "isApBeaconProtectionEnabled", data.ApBeaconProtection.ValueBool())
@@ -518,9 +518,9 @@ func (data *WirelessSSID) fromBody(ctx context.Context, res gjson.Result) {
 		data.AuthKey8021x = types.BoolNull()
 	}
 	if value := res.Get("isAuthKey8021xPlusFT"); value.Exists() {
-		data.AuthKey8021xPlusTf = types.BoolValue(value.Bool())
+		data.AuthKey8021xPlusFt = types.BoolValue(value.Bool())
 	} else {
-		data.AuthKey8021xPlusTf = types.BoolNull()
+		data.AuthKey8021xPlusFt = types.BoolNull()
 	}
 	if value := res.Get("isAuthKey8021x_SHA256"); value.Exists() {
 		data.AuthKey8021xSha256 = types.BoolValue(value.Bool())
@@ -658,9 +658,9 @@ func (data *WirelessSSID) fromBody(ctx context.Context, res gjson.Result) {
 		data.AuthKeySaeExt = types.BoolNull()
 	}
 	if value := res.Get("isAuthKeySaeExtPlusFT"); value.Exists() {
-		data.AuthKeySaeExtPlusTf = types.BoolValue(value.Bool())
+		data.AuthKeySaeExtPlusFt = types.BoolValue(value.Bool())
 	} else {
-		data.AuthKeySaeExtPlusTf = types.BoolNull()
+		data.AuthKeySaeExtPlusFt = types.BoolNull()
 	}
 	if value := res.Get("isApBeaconProtectionEnabled"); value.Exists() {
 		data.ApBeaconProtection = types.BoolValue(value.Bool())
@@ -882,10 +882,10 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 	} else {
 		data.AuthKey8021x = types.BoolNull()
 	}
-	if value := res.Get("isAuthKey8021xPlusFT"); value.Exists() && !data.AuthKey8021xPlusTf.IsNull() {
-		data.AuthKey8021xPlusTf = types.BoolValue(value.Bool())
+	if value := res.Get("isAuthKey8021xPlusFT"); value.Exists() && !data.AuthKey8021xPlusFt.IsNull() {
+		data.AuthKey8021xPlusFt = types.BoolValue(value.Bool())
 	} else {
-		data.AuthKey8021xPlusTf = types.BoolNull()
+		data.AuthKey8021xPlusFt = types.BoolNull()
 	}
 	if value := res.Get("isAuthKey8021x_SHA256"); value.Exists() && !data.AuthKey8021xSha256.IsNull() {
 		data.AuthKey8021xSha256 = types.BoolValue(value.Bool())
@@ -1022,10 +1022,10 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 	} else {
 		data.AuthKeySaeExt = types.BoolNull()
 	}
-	if value := res.Get("isAuthKeySaeExtPlusFT"); value.Exists() && !data.AuthKeySaeExtPlusTf.IsNull() {
-		data.AuthKeySaeExtPlusTf = types.BoolValue(value.Bool())
+	if value := res.Get("isAuthKeySaeExtPlusFT"); value.Exists() && !data.AuthKeySaeExtPlusFt.IsNull() {
+		data.AuthKeySaeExtPlusFt = types.BoolValue(value.Bool())
 	} else {
-		data.AuthKeySaeExtPlusTf = types.BoolNull()
+		data.AuthKeySaeExtPlusFt = types.BoolNull()
 	}
 	if value := res.Get("isApBeaconProtectionEnabled"); value.Exists() && !data.ApBeaconProtection.IsNull() {
 		data.ApBeaconProtection = types.BoolValue(value.Bool())
@@ -1158,7 +1158,7 @@ func (data *WirelessSSID) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.AuthKey8021x.IsNull() {
 		return false
 	}
-	if !data.AuthKey8021xPlusTf.IsNull() {
+	if !data.AuthKey8021xPlusFt.IsNull() {
 		return false
 	}
 	if !data.AuthKey8021xSha256.IsNull() {
@@ -1242,7 +1242,7 @@ func (data *WirelessSSID) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.AuthKeySaeExt.IsNull() {
 		return false
 	}
-	if !data.AuthKeySaeExtPlusTf.IsNull() {
+	if !data.AuthKeySaeExtPlusFt.IsNull() {
 		return false
 	}
 	if !data.ApBeaconProtection.IsNull() {
