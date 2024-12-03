@@ -1,4 +1,4 @@
-## 0.1.17 (unreleased)
+## 0.1.17
 
 - BREAKING CHANGE: Rename `auth_key_sae_ext_plus_tf` attribute of `catalystcenter_wireless_ssid` resource to `auth_key_sae_ext_plus_ft`
 - BREAKING CHANGE: Rename `auth_key8021x_plus_tf` attribute of `catalystcenter_wireless_ssid` resource to `auth_key8021x_plus_ft`
