@@ -101,11 +101,6 @@ func (data *IPPool) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("IpAddressSpace"); value.Exists() {
-		data.IpAddressSpace = types.StringValue(value.String())
-	} else {
-		data.IpAddressSpace = types.StringValue("IPv4")
-	}
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
 	} else {
@@ -141,11 +136,6 @@ func (data *IPPool) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
-	}
-	if value := res.Get("IpAddressSpace"); value.Exists() && !data.IpAddressSpace.IsNull() {
-		data.IpAddressSpace = types.StringValue(value.String())
-	} else if data.IpAddressSpace.ValueString() != "IPv4" {
-		data.IpAddressSpace = types.StringNull()
 	}
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())

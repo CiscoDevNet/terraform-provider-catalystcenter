@@ -1,3 +1,7 @@
+## 0.1.18 (unreleased)
+
+- Fix issue in `catalystcenter_ip_pool_reservation` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/156)
+
 ## 0.1.17
 
 - BREAKING CHANGE: Rename `auth_key_sae_ext_plus_tf` attribute of `catalystcenter_wireless_ssid` resource to `auth_key_sae_ext_plus_ft`

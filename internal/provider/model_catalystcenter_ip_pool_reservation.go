@@ -20,6 +20,8 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -145,7 +147,6 @@ func (data IPPoolReservation) toBody(ctx context.Context, state IPPoolReservatio
 
 // End of section. //template:end toBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *IPPoolReservation) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
 	if value := res.Get("response.0.id"); value.Exists() {
@@ -158,50 +159,169 @@ func (data *IPPoolReservation) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("response.0.ipPools.0.gateways.0"); value.Exists() {
-		data.Ipv4Gateway = types.StringValue(value.String())
-	} else {
-		data.Ipv4Gateway = types.StringNull()
-	}
-	if value := res.Get("response.0.ipPools.0.dhcpServerIps"); value.Exists() && len(value.Array()) > 0 {
-		data.Ipv4DhcpServers = helpers.GetStringSet(value.Array())
-	} else {
-		data.Ipv4DhcpServers = types.SetNull(types.StringType)
-	}
-	if value := res.Get("response.0.ipPools.0.dnsServerIps"); value.Exists() && len(value.Array()) > 0 {
-		data.Ipv4DnsServers = helpers.GetStringSet(value.Array())
-	} else {
-		data.Ipv4DnsServers = types.SetNull(types.StringType)
+	// Added support for Dual Stack Pool Reservations
+	if pools := res.Get("response.0.ipPools"); pools.IsArray() {
+		ipPools := pools.Array()
+		for _, pool := range ipPools {
+			if pool.Get("ipv6").Bool() { // Check if the pool is IPv6
+				if value := pool.Get("gateways.0"); value.Exists() {
+					data.Ipv6Gateway = types.StringValue(value.String())
+				} else {
+					data.Ipv6Gateway = types.StringNull()
+				}
+				if value := pool.Get("dhcpServerIps"); value.Exists() && len(value.Array()) > 0 {
+					data.Ipv6DhcpServers = helpers.GetStringSet(value.Array())
+				} else {
+					data.Ipv6DhcpServers = types.SetNull(types.StringType)
+				}
+				if value := pool.Get("dnsServerIps"); value.Exists() && len(value.Array()) > 0 {
+					data.Ipv6DnsServers = helpers.GetStringSet(value.Array())
+				} else {
+					data.Ipv6DnsServers = types.SetNull(types.StringType)
+				}
+				// Extract and assign Ipv6Subnet and Ipv6Prefix from ipPoolCidr
+				if cidr := pool.Get("ipPoolCidr"); cidr.Exists() && cidr.String() != "" {
+					cidrParts := strings.Split(cidr.String(), "/")
+					if len(cidrParts) == 2 {
+						data.Ipv6Subnet = types.StringValue(cidrParts[0])
+						if prefixLength, err := strconv.ParseInt(cidrParts[1], 10, 64); err == nil {
+							data.Ipv6PrefixLength = types.Int64Value(prefixLength)
+						} else {
+							data.Ipv6PrefixLength = types.Int64Null()
+						}
+					} else {
+						data.Ipv6Subnet = types.StringNull()
+						data.Ipv6PrefixLength = types.Int64Null()
+					}
+				} else {
+					data.Ipv6Subnet = types.StringNull()
+					data.Ipv6PrefixLength = types.Int64Null()
+				}
+			} else { // Otherwise it's IPv4
+				if value := pool.Get("gateways.0"); value.Exists() {
+					data.Ipv4Gateway = types.StringValue(value.String())
+				} else {
+					data.Ipv4Gateway = types.StringNull()
+				}
+				if value := pool.Get("dhcpServerIps"); value.Exists() && len(value.Array()) > 0 {
+					data.Ipv4DhcpServers = helpers.GetStringSet(value.Array())
+				} else {
+					data.Ipv4DhcpServers = types.SetNull(types.StringType)
+				}
+				if value := pool.Get("dnsServerIps"); value.Exists() && len(value.Array()) > 0 {
+					data.Ipv4DnsServers = helpers.GetStringSet(value.Array())
+				} else {
+					data.Ipv4DnsServers = types.SetNull(types.StringType)
+				}
+				// Extract and assign Ipv4Subnet and Ipv4Prefix from ipPoolCidr
+				if cidr := pool.Get("ipPoolCidr"); cidr.Exists() && cidr.String() != "" {
+					cidrParts := strings.Split(cidr.String(), "/")
+					if len(cidrParts) == 2 {
+						data.Ipv4Subnet = types.StringValue(cidrParts[0])
+						if prefixLength, err := strconv.ParseInt(cidrParts[1], 10, 64); err == nil {
+							data.Ipv4PrefixLength = types.Int64Value(prefixLength)
+						} else {
+							data.Ipv4PrefixLength = types.Int64Null()
+						}
+					} else {
+						data.Ipv4Subnet = types.StringNull()
+						data.Ipv4PrefixLength = types.Int64Null()
+					}
+				} else {
+					data.Ipv4Subnet = types.StringNull()
+					data.Ipv4PrefixLength = types.Int64Null()
+				}
+			}
+		}
 	}
 }
 
-// End of section. //template:end fromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *IPPoolReservation) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.0.groupName"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("response.0.ipPools.0.gateways.0"); value.Exists() && !data.Ipv4Gateway.IsNull() {
-		data.Ipv4Gateway = types.StringValue(value.String())
-	} else {
-		data.Ipv4Gateway = types.StringNull()
-	}
-	if value := res.Get("response.0.ipPools.0.dhcpServerIps"); value.Exists() && !data.Ipv4DhcpServers.IsNull() {
-		data.Ipv4DhcpServers = helpers.GetStringSet(value.Array())
-	} else {
-		data.Ipv4DhcpServers = types.SetNull(types.StringType)
-	}
-	if value := res.Get("response.0.ipPools.0.dnsServerIps"); value.Exists() && !data.Ipv4DnsServers.IsNull() {
-		data.Ipv4DnsServers = helpers.GetStringSet(value.Array())
-	} else {
-		data.Ipv4DnsServers = types.SetNull(types.StringType)
+	// Added support for Dual Stack Pool Reservations
+	if pools := res.Get("response.0.ipPools"); pools.IsArray() {
+		ipPools := pools.Array()
+		for _, pool := range ipPools {
+			if pool.Get("ipv6").Bool() { // Check if the pool is IPv6
+				if value := pool.Get("gateways.0"); value.Exists() && !data.Ipv6Gateway.IsNull() {
+					data.Ipv6Gateway = types.StringValue(value.String())
+				} else {
+					data.Ipv6Gateway = types.StringNull()
+				}
+				if value := pool.Get("dhcpServerIps"); value.Exists() && !data.Ipv6DhcpServers.IsNull() {
+					data.Ipv6DhcpServers = helpers.GetStringSet(value.Array())
+				} else {
+					data.Ipv6DhcpServers = types.SetNull(types.StringType)
+				}
+				if value := pool.Get("dnsServerIps"); value.Exists() && !data.Ipv6DnsServers.IsNull() {
+					data.Ipv6DnsServers = helpers.GetStringSet(value.Array())
+				} else {
+					data.Ipv6DnsServers = types.SetNull(types.StringType)
+				}
+				// Extract and assign Ipv6Subnet and Ipv6Prefix from ipPoolCidr
+				if cidr := pool.Get("ipPoolCidr"); cidr.Exists() && cidr.String() != "" {
+					cidrParts := strings.Split(cidr.String(), "/")
+					if len(cidrParts) == 2 {
+						if data.Ipv6Subnet.IsNull() {
+							data.Ipv6Subnet = types.StringValue(cidrParts[0])
+						}
+						if prefixLength, err := strconv.ParseInt(cidrParts[1], 10, 64); err == nil && !data.Ipv6PrefixLength.IsNull() {
+							data.Ipv6PrefixLength = types.Int64Value(prefixLength)
+						} else {
+							data.Ipv6PrefixLength = types.Int64Null()
+						}
+					} else {
+						data.Ipv6Subnet = types.StringNull()
+						data.Ipv6PrefixLength = types.Int64Null()
+					}
+				} else {
+					data.Ipv6Subnet = types.StringNull()
+					data.Ipv6PrefixLength = types.Int64Null()
+				}
+			} else { // Otherwise it's IPv4
+				if value := pool.Get("gateways.0"); value.Exists() && !data.Ipv4Gateway.IsNull() {
+					data.Ipv4Gateway = types.StringValue(value.String())
+				} else {
+					data.Ipv4Gateway = types.StringNull()
+				}
+				if value := pool.Get("dhcpServerIps"); value.Exists() && !data.Ipv4DhcpServers.IsNull() {
+					data.Ipv4DhcpServers = helpers.GetStringSet(value.Array())
+				} else {
+					data.Ipv4DhcpServers = types.SetNull(types.StringType)
+				}
+				if value := pool.Get("dnsServerIps"); value.Exists() && !data.Ipv4DnsServers.IsNull() {
+					data.Ipv4DnsServers = helpers.GetStringSet(value.Array())
+				} else {
+					data.Ipv4DnsServers = types.SetNull(types.StringType)
+				}
+				// Extract and assign Ipv4Subnet and Ipv4Prefix from ipPoolCidr
+				if cidr := pool.Get("ipPoolCidr"); cidr.Exists() && cidr.String() != "" {
+					cidrParts := strings.Split(cidr.String(), "/")
+					if len(cidrParts) == 2 {
+						if data.Ipv4Subnet.IsNull() {
+							data.Ipv4Subnet = types.StringValue(cidrParts[0])
+						}
+						if prefixLength, err := strconv.ParseInt(cidrParts[1], 10, 64); err == nil && !data.Ipv4PrefixLength.IsNull() {
+							data.Ipv4PrefixLength = types.Int64Value(prefixLength)
+						} else {
+							data.Ipv4PrefixLength = types.Int64Null()
+						}
+					} else {
+						data.Ipv4Subnet = types.StringNull()
+						data.Ipv4PrefixLength = types.Int64Null()
+					}
+				} else {
+					data.Ipv4Subnet = types.StringNull()
+					data.Ipv4PrefixLength = types.Int64Null()
+				}
+			}
+		}
 	}
 }
-
-// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *IPPoolReservation) isNull(ctx context.Context, res gjson.Result) bool {

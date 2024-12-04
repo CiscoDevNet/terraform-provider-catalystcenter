@@ -19,6 +19,7 @@ attributes:
     enum_values: [IPv4, IPv6]
     default_value: IPv4
     description: IP address version
+    write_only: true
     example: IPv4
   - model_name: type
     type: String

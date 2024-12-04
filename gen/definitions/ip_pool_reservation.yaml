@@ -1,5 +1,6 @@
 ---
 name: IP Pool Reservation
+# Manual modifications in model file in updateFromBody and fromBody to support dual-stack pools
 rest_endpoint: /dna/intent/api/v1/reserve-ip-subpool
 id_from_query_path: response.0
 id_from_query_path_attribute: id
@@ -28,9 +29,9 @@ attributes:
   - model_name: type
     type: String
     mandatory: true
-    write_only: true
     response_data_path: response.0.type
     exclude_from_put: true
+    write_only: true
     enum_values: [Generic, LAN, WAN, management, service]
     description: The type of the IP pool reservation
     example: Generic
@@ -55,14 +56,14 @@ attributes:
     example: true
   - model_name: ipv4PrefixLength
     type: Int64
-    write_only: true
+    requires_replace: true
     exclude_from_put: true
     description: The IPv4 prefix length is required when `ipv4_prefix` value is `true`.
     example: 24
     minimum_test_value: 24
   - model_name: ipv4Subnet
     type: String
-    write_only: true
+    requires_replace: true
     exclude_from_put: true
     description: The IPv4 subnet
     example: 172.32.1.0
@@ -112,21 +113,18 @@ attributes:
   - model_name: ipv6GateWay
     tf_name: ipv6_gateway
     type: String
-    write_only: true
     description: The gateway for the IP pool reservation
     example: "2001:db8:85a3:0:100::1"
     exclude_test: true
   - model_name: ipv6DhcpServers
     type: Set
     element_type: String
-    write_only: true
     description: List of DHCP Server IPs
     example: "2001:db8::1234"
     exclude_test: true
   - model_name: ipv6DnsServers
     type: Set
     element_type: String
-    write_only: true
     description: List of DNS Server IPs
     example: "2001:db8::1234"
     exclude_test: true
