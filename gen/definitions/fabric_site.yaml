@@ -38,6 +38,6 @@ attributes:
     example: false
 test_prerequisites: |
   resource "catalystcenter_area" "test" {
-    name        = "Area 1"
+    name        = "Area1"
     parent_name = "Global"
   }
