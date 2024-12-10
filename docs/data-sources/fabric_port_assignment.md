@@ -30,7 +30,7 @@ data "catalystcenter_fabric_port_assignment" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
-- `port_assignments` (Attributes List) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
+- `port_assignments` (Attributes Set) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
 
 <a id="nestedatt--port_assignments"></a>
 ### Nested Schema for `port_assignments`
@@ -41,6 +41,7 @@ Read-Only:
 - `connected_device_type` (String) Connected device type of the port assignment
 - `data_vlan_name` (String) Data VLAN name of the port assignment
 - `fabric_id` (String) ID of the fabric the device is assigned to
+- `id` (String) ID of the port assignment
 - `interface_description` (String) Interface description of the port assignment
 - `interface_name` (String) Interface name of the port assignment
 - `network_device_id` (String) Network device ID of the port assignment

@@ -37,6 +37,7 @@ type FabricPortAssignment struct {
 }
 
 type FabricPortAssignmentPortAssignments struct {
+	Id                       types.String `tfsdk:"id"`
 	FabricId                 types.String `tfsdk:"fabric_id"`
 	NetworkDeviceId          types.String `tfsdk:"network_device_id"`
 	InterfaceName            types.String `tfsdk:"interface_name"`
@@ -79,6 +80,9 @@ func (data FabricPortAssignment) toBody(ctx context.Context, state FabricPortAss
 		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.PortAssignments {
 			itemBody := ""
+			if !item.Id.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
 			if !item.FabricId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "fabricId", item.FabricId.ValueString())
 			}
@@ -128,6 +132,11 @@ func (data *FabricPortAssignment) fromBody(ctx context.Context, res gjson.Result
 		data.PortAssignments = make([]FabricPortAssignmentPortAssignments, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := FabricPortAssignmentPortAssignments{}
+			if cValue := v.Get("id"); cValue.Exists() {
+				item.Id = types.StringValue(cValue.String())
+			} else {
+				item.Id = types.StringNull()
+			}
 			if cValue := v.Get("fabricId"); cValue.Exists() {
 				item.FabricId = types.StringValue(cValue.String())
 			} else {
@@ -186,8 +195,8 @@ func (data *FabricPortAssignment) updateFromBody(ctx context.Context, res gjson.
 
 	res = res.Get("response")
 	for i := range data.PortAssignments {
-		keys := [...]string{"fabricId", "networkDeviceId", "interfaceName", "connectedDeviceType", "dataVlanName", "voiceVlanName", "authenticateTemplateName", "securityGroupName", "interfaceDescription"}
-		keyValues := [...]string{data.PortAssignments[i].FabricId.ValueString(), data.PortAssignments[i].NetworkDeviceId.ValueString(), data.PortAssignments[i].InterfaceName.ValueString(), data.PortAssignments[i].ConnectedDeviceType.ValueString(), data.PortAssignments[i].DataVlanName.ValueString(), data.PortAssignments[i].VoiceVlanName.ValueString(), data.PortAssignments[i].AuthenticateTemplateName.ValueString(), data.PortAssignments[i].SecurityGroupName.ValueString(), data.PortAssignments[i].InterfaceDescription.ValueString()}
+		keys := [...]string{"interfaceName"}
+		keyValues := [...]string{data.PortAssignments[i].InterfaceName.ValueString()}
 
 		var r gjson.Result
 		res.ForEach(
@@ -208,6 +217,11 @@ func (data *FabricPortAssignment) updateFromBody(ctx context.Context, res gjson.
 				return true
 			},
 		)
+		if value := r.Get("id"); value.Exists() && !data.PortAssignments[i].Id.IsNull() {
+			data.PortAssignments[i].Id = types.StringValue(value.String())
+		} else {
+			data.PortAssignments[i].Id = types.StringNull()
+		}
 		if value := r.Get("fabricId"); value.Exists() && !data.PortAssignments[i].FabricId.IsNull() {
 			data.PortAssignments[i].FabricId = types.StringValue(value.String())
 		} else {

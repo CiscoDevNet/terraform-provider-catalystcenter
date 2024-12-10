@@ -79,11 +79,19 @@ func (r *FabricPortAssignmentResource) Schema(ctx context.Context, req resource.
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"port_assignments": schema.ListNestedAttribute{
+			"port_assignments": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of port assignments in SD-Access fabric").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("ID of the port assignment").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 						"fabric_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric the device is assigned to").String,
 							Required:            true,
@@ -143,7 +151,6 @@ func (r *FabricPortAssignmentResource) Configure(_ context.Context, req resource
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricPortAssignmentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FabricPortAssignment
 
@@ -172,6 +179,31 @@ func (r *FabricPortAssignmentResource) Create(ctx context.Context, req resource.
 			return
 		}
 	}
+	params = ""
+	params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
+	res, err = r.client.Get(plan.getPath() + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	// Map response to portAssignments
+	responseArray := res.Get("response").Array()
+	portAssignments := make([]FabricPortAssignmentPortAssignments, len(plan.PortAssignments))
+	copy(portAssignments, plan.PortAssignments) // Make a copy to update values
+	for i, port := range portAssignments {
+		for _, respPort := range responseArray {
+			if respPort.Get("interfaceName").String() == port.InterfaceName.ValueString() {
+				port.Id = types.StringValue(respPort.Get("id").String())
+				break
+			}
+		}
+		portAssignments[i] = port
+	}
+
+	// Update the plan with mapped portAssignments
+	plan.PortAssignments = portAssignments
+
 	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -179,8 +211,6 @@ func (r *FabricPortAssignmentResource) Create(ctx context.Context, req resource.
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricPortAssignmentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -221,7 +251,6 @@ func (r *FabricPortAssignmentResource) Read(ctx context.Context, req resource.Re
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricPortAssignmentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state FabricPortAssignment
 
@@ -240,13 +269,91 @@ func (r *FabricPortAssignmentResource) Update(ctx context.Context, req resource.
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
+	// Identify removed interfaces
+	stateAssignments := make(map[string]FabricPortAssignmentPortAssignments)
+	for _, sa := range state.PortAssignments {
+		stateAssignments[sa.InterfaceName.ValueString()] = sa
+	}
+
+	planAssignments := make(map[string]FabricPortAssignmentPortAssignments)
+	for _, pa := range plan.PortAssignments {
+		planAssignments[pa.InterfaceName.ValueString()] = pa
+	}
+
+	// Find interfaces to delete
+	for interfaceName, stateAssignment := range stateAssignments {
+		if _, exists := planAssignments[interfaceName]; !exists {
+			// Interface exists in state but not in plan, delete it
+			_, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(stateAssignment.Id.ValueString()))
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete port assignment for interface %s, got error: %s", interfaceName, err))
+			} else {
+				tflog.Debug(ctx, fmt.Sprintf("Deleted port assignment for interface: %s", interfaceName))
+			}
+		}
+	}
+
+	// Find interfaces to create
+	for interfaceName, planAssignment := range planAssignments {
+		if _, exists := stateAssignments[interfaceName]; !exists {
+			// Create a temporary FabricPortAssignment for the current interface
+			singlePortAssignment := FabricPortAssignment{
+				FabricId:        plan.FabricId,
+				NetworkDeviceId: plan.NetworkDeviceId,
+				PortAssignments: []FabricPortAssignmentPortAssignments{planAssignment}, // Filtered for the current interface
+			}
+
+			// Generate the body using the existing toBody function
+			body := singlePortAssignment.toBody(ctx, state)
+
+			// Send the body as the POST request
+			_, err := r.client.Post(state.getPath(), body)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to create port assignment for interface %s, got error: %s", interfaceName, err))
+			} else {
+				tflog.Debug(ctx, fmt.Sprintf("Created port assignment for interface: %s", interfaceName))
+
+				// Get the existing ID for the given interface
+				params := "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
+
+				res, err := r.client.Get(plan.getPath() + params)
+				if err != nil {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+					return
+				}
+
+				// Log the full response for debugging purposes
+				tflog.Debug(ctx, fmt.Sprintf("API response: %s", res.String()))
+
+				// Check if the ID is present in the response
+				planAssignment.Id = types.StringValue(res.Get("response.#(interfaceName==\"" + planAssignment.InterfaceName.ValueString() + "\").id").String())
+
+				// Update the assignment in the plan
+				for i := range plan.PortAssignments {
+					if plan.PortAssignments[i].InterfaceName.ValueString() == planAssignment.InterfaceName.ValueString() {
+						plan.PortAssignments[i] = planAssignment
+						break
+					}
+				}
+			}
+		}
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("Plan Port Assignments: %+v", plan.PortAssignments))
+
+	body := plan.toBody(ctx, state)
+	params := ""
+	res, err := r.client.Put(plan.getPath()+params, body)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		return
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricPortAssignmentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

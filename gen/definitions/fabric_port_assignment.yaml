@@ -2,7 +2,6 @@
 name: Fabric Port Assignment
 rest_endpoint: /dna/intent/api/v1/sda/portAssignments
 res_description: Manages port assignments in SD-Access fabric.
-no_update: true
 no_import: true
 data_source_no_id: true
 id_from_attribute: true
@@ -32,28 +31,30 @@ attributes:
     description: Network device ID of the port assignment
     example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b
   - tf_name: port_assignments
-    type: List
+    type: Set
     response_data_path: response
     mandatory: true
     description: List of port assignments in SD-Access fabric
     attributes:
+      - model_name: id
+        type: String
+        computed: true
+        description: ID of the port assignment
+        example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
       - model_name: fabricId
-        query_param: true
         type: String
         mandatory: true
         description: ID of the fabric the device is assigned to
         example: c4b85bb2-ce3f-4db9-a32b-e439a388ac2f
         test_value: catalystcenter_fabric_site.test.id
       - model_name: networkDeviceId
-        match_id: true
-        query_param: true
         mandatory: true
         description: Network device ID of the port assignment
         type: String
         example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
       - model_name: interfaceName
-        query_param: true
         mandatory: true
+        id: true
         type: String
         description: Interface name of the port assignment
         example: GigabitEthernet1/0/2

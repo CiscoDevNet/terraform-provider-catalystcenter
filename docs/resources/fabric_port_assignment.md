@@ -18,6 +18,7 @@ resource "catalystcenter_fabric_port_assignment" "example" {
   network_device_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b"
   port_assignments = [
     {
+      id                         = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
       fabric_id                  = "c4b85bb2-ce3f-4db9-a32b-e439a388ac2f"
       network_device_id          = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
       interface_name             = "GigabitEthernet1/0/2"
@@ -36,7 +37,7 @@ resource "catalystcenter_fabric_port_assignment" "example" {
 ### Required
 
 - `network_device_id` (String) Network device ID of the port assignment
-- `port_assignments` (Attributes List) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
+- `port_assignments` (Attributes Set) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
 
 ### Optional
 
@@ -62,6 +63,7 @@ Optional:
 - `authenticate_template_name` (String) Authenticate template name of the port assignment
   - Choices: `No Authentication`, `Open Authentication`, `Closed Authentication`, `Low Impact`
 - `data_vlan_name` (String) Data VLAN name of the port assignment
+- `id` (String) ID of the port assignment
 - `interface_description` (String) Interface description of the port assignment
 - `security_group_name` (String) Security group name of the port assignment
 - `voice_vlan_name` (String) Voice VLAN name of the port assignment
