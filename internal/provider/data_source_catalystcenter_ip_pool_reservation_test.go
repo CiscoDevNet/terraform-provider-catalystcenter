@@ -30,6 +30,8 @@ import (
 func TestAccDataSourceCcIPPoolReservation(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool_reservation.test", "name", "MyRes1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool_reservation.test", "ipv4_prefix_length", "24"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool_reservation.test", "ipv4_subnet", "172.32.1.0"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pool_reservation.test", "ipv4_gateway", "172.32.1.1"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

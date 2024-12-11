@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -103,10 +104,16 @@ func (r *IPPoolReservationResource) Schema(ctx context.Context, req resource.Sch
 			"ipv4_prefix_length": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 prefix length is required when `ipv4_prefix` value is `true`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"ipv4_subnet": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 subnet").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"ipv4_gateway": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The gateway for the IP pool reservation").String,

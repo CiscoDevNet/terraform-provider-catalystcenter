@@ -7,6 +7,13 @@ description: |-
 
 # Changelog
 
+## 0.1.18 (unreleased)
+
+- Add `Free Space` allowed value to rf_model attribute in `catalystcenter_floor` resource
+- Add import and update support to `catalystcenter_fabric_port_assignment` resource
+- Add device unreachability warning to DELETE in `catalystcenter_fabric_l3_handoff_ip_transit`, `catalystcenter_anycast_gateway`, `catalystcenter_fabric_l2_handoff`, `catalystcenter_fabric_device`, `catalystcenter_fabric_port_assignment` and `catalystcenter_provision_device` resources
+- Fix issue in `catalystcenter_ip_pool_reservation` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/156)
+
 ## 0.1.17
 
 - BREAKING CHANGE: Rename `auth_key_sae_ext_plus_tf` attribute of `catalystcenter_wireless_ssid` resource to `auth_key_sae_ext_plus_ft`
