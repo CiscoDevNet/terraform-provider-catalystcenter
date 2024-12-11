@@ -69,7 +69,7 @@ func (d *FabricPortAssignmentDataSource) Schema(ctx context.Context, req datasou
 				MarkdownDescription: "Network device ID of the port assignment",
 				Required:            true,
 			},
-			"port_assignments": schema.SetNestedAttribute{
+			"port_assignments": schema.ListNestedAttribute{
 				MarkdownDescription: "List of port assignments in SD-Access fabric",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{

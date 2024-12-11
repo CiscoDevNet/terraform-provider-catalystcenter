@@ -30,7 +30,7 @@ data "catalystcenter_fabric_port_assignment" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
-- `port_assignments` (Attributes Set) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
+- `port_assignments` (Attributes List) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
 
 <a id="nestedatt--port_assignments"></a>
 ### Nested Schema for `port_assignments`

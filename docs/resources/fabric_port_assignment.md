@@ -37,7 +37,7 @@ resource "catalystcenter_fabric_port_assignment" "example" {
 ### Required
 
 - `network_device_id` (String) Network device ID of the port assignment
-- `port_assignments` (Attributes Set) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
+- `port_assignments` (Attributes List) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
 
 ### Optional
 
@@ -67,3 +67,11 @@ Optional:
 - `interface_description` (String) Interface description of the port assignment
 - `security_group_name` (String) Security group name of the port assignment
 - `voice_vlan_name` (String) Voice VLAN name of the port assignment
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import catalystcenter_fabric_port_assignment.example "<fabric_id>,<network_device_id>"
+```

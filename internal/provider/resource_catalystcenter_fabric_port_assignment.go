@@ -26,6 +26,7 @@ import (
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -42,6 +43,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &FabricPortAssignmentResource{}
+var _ resource.ResourceWithImportState = &FabricPortAssignmentResource{}
 
 func NewFabricPortAssignmentResource() resource.Resource {
 	return &FabricPortAssignmentResource{}
@@ -79,7 +81,7 @@ func (r *FabricPortAssignmentResource) Schema(ctx context.Context, req resource.
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"port_assignments": schema.SetNestedAttribute{
+			"port_assignments": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of port assignments in SD-Access fabric").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -269,78 +271,6 @@ func (r *FabricPortAssignmentResource) Update(ctx context.Context, req resource.
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// Identify removed interfaces
-	stateAssignments := make(map[string]FabricPortAssignmentPortAssignments)
-	for _, sa := range state.PortAssignments {
-		stateAssignments[sa.InterfaceName.ValueString()] = sa
-	}
-
-	planAssignments := make(map[string]FabricPortAssignmentPortAssignments)
-	for _, pa := range plan.PortAssignments {
-		planAssignments[pa.InterfaceName.ValueString()] = pa
-	}
-
-	// Find interfaces to delete
-	for interfaceName, stateAssignment := range stateAssignments {
-		if _, exists := planAssignments[interfaceName]; !exists {
-			// Interface exists in state but not in plan, delete it
-			_, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(stateAssignment.Id.ValueString()))
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete port assignment for interface %s, got error: %s", interfaceName, err))
-			} else {
-				tflog.Debug(ctx, fmt.Sprintf("Deleted port assignment for interface: %s", interfaceName))
-			}
-		}
-	}
-
-	// Find interfaces to create
-	for interfaceName, planAssignment := range planAssignments {
-		if _, exists := stateAssignments[interfaceName]; !exists {
-			// Create a temporary FabricPortAssignment for the current interface
-			singlePortAssignment := FabricPortAssignment{
-				FabricId:        plan.FabricId,
-				NetworkDeviceId: plan.NetworkDeviceId,
-				PortAssignments: []FabricPortAssignmentPortAssignments{planAssignment}, // Filtered for the current interface
-			}
-
-			// Generate the body using the existing toBody function
-			body := singlePortAssignment.toBody(ctx, state)
-
-			// Send the body as the POST request
-			_, err := r.client.Post(state.getPath(), body)
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to create port assignment for interface %s, got error: %s", interfaceName, err))
-			} else {
-				tflog.Debug(ctx, fmt.Sprintf("Created port assignment for interface: %s", interfaceName))
-
-				// Get the existing ID for the given interface
-				params := "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
-
-				res, err := r.client.Get(plan.getPath() + params)
-				if err != nil {
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-					return
-				}
-
-				// Log the full response for debugging purposes
-				tflog.Debug(ctx, fmt.Sprintf("API response: %s", res.String()))
-
-				// Check if the ID is present in the response
-				planAssignment.Id = types.StringValue(res.Get("response.#(interfaceName==\"" + planAssignment.InterfaceName.ValueString() + "\").id").String())
-
-				// Update the assignment in the plan
-				for i := range plan.PortAssignments {
-					if plan.PortAssignments[i].InterfaceName.ValueString() == planAssignment.InterfaceName.ValueString() {
-						plan.PortAssignments[i] = planAssignment
-						break
-					}
-				}
-			}
-		}
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Plan Port Assignments: %+v", plan.PortAssignments))
-
 	body := plan.toBody(ctx, state)
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body)
@@ -389,4 +319,19 @@ func (r *FabricPortAssignmentResource) Delete(ctx context.Context, req resource.
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *FabricPortAssignmentResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <fabric_id>,<network_device_id>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_id"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_device_id"), idParts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[1])...)
+}
+
 // End of section. //template:end import

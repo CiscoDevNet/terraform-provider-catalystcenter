@@ -1,8 +1,9 @@
 ---
 name: Fabric Port Assignment
+# Manual modifications in resource file in Create function to compute id of ports
 rest_endpoint: /dna/intent/api/v1/sda/portAssignments
 res_description: Manages port assignments in SD-Access fabric.
-no_import: true
+import_no_id: true
 data_source_no_id: true
 id_from_attribute: true
 root_list: true
@@ -31,7 +32,7 @@ attributes:
     description: Network device ID of the port assignment
     example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b
   - tf_name: port_assignments
-    type: Set
+    type: List
     response_data_path: response
     mandatory: true
     description: List of port assignments in SD-Access fabric
