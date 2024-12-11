@@ -34,7 +34,7 @@ resource "catalystcenter_floor" "example" {
 - `name` (String) The name of the floor
 - `parent_name` (String) The path of the parent building, e.g. `Global/Building1`
 - `rf_model` (String) The RF model
-  - Choices: `Cubes And Walled Offices`, `Drywall Office Only`, `Indoor High Ceiling`, `Outdoor Open Space`
+  - Choices: `Cubes And Walled Offices`, `Drywall Office Only`, `Indoor High Ceiling`, `Outdoor Open Space`, `Free Space`
 - `width` (Number) Width
 
 ### Optional
