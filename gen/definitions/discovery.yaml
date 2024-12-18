@@ -81,7 +81,7 @@ attributes:
     mandatory: true
     match_id: true
     description: A name of the discovery.
-    test_value: '"testing terraform provider"'
+    test_value: catalystcenter_credentials_cli.test.id
     example: disco42
     requires_replace: true
   - model_name: netconfPort
@@ -205,3 +205,9 @@ attributes:
     exclude_test: true
     exclude_example: true
     requires_replace: true
+test_prerequisites: |
+  resource "catalystcenter_credentials_cli" "test" {
+    description = "TestCli1"
+    username    = "user1"
+    password    = "password1"
+  }

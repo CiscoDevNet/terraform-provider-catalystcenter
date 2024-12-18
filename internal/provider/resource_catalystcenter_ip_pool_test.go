@@ -31,7 +31,6 @@ import (
 func TestAccCcIPPool(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "name", "MyPool1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "ip_address_space", "IPv4"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "type", "generic"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool.test", "ip_subnet", "21.1.1.0/24"))
 

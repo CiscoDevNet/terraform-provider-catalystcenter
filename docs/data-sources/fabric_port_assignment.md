@@ -41,6 +41,7 @@ Read-Only:
 - `connected_device_type` (String) Connected device type of the port assignment
 - `data_vlan_name` (String) Data VLAN name of the port assignment
 - `fabric_id` (String) ID of the fabric the device is assigned to
+- `id` (String) ID of the port assignment
 - `interface_description` (String) Interface description of the port assignment
 - `interface_name` (String) Interface name of the port assignment
 - `network_device_id` (String) Network device ID of the port assignment
