@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.1.18 (unreleased)
+
+- Add `catalystcenter_fabric_l3_virtual_network` resource and data source
+
 ## 0.1.17
 
 - BREAKING CHANGE: Rename `auth_key_sae_ext_plus_tf` attribute of `catalystcenter_wireless_ssid` resource to `auth_key_sae_ext_plus_ft`
