@@ -11,7 +11,7 @@ doc_category: SDA
 attributes:
   - model_name: siteId
     requires_replace: true
-    data_path: '0'
+    data_path: "0"
     match_id: true
     data_source_query: true
     response_data_path: siteId
@@ -21,15 +21,21 @@ attributes:
     example: 8e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
     test_value: catalystcenter_area.test.id
   - model_name: authenticationProfileName
-    data_path: '0'
+    data_path: "0"
     response_data_path: authenticationProfileName
     mandatory: true
     type: String
     description: Authentication profile used for this fabric
-    enum_values: [Closed Authentication, Low Impact, No Authentication, Open Authentication]
+    enum_values:
+      [
+        Closed Authentication,
+        Low Impact,
+        No Authentication,
+        Open Authentication,
+      ]
     example: No Authentication
   - model_name: isPubSubEnabled
-    data_path: '0'
+    data_path: "0"
     response_data_path: isPubSubEnabled
     tf_name: pub_sub_enabled
     type: Bool
@@ -38,6 +44,6 @@ attributes:
     example: false
 test_prerequisites: |
   resource "catalystcenter_area" "test" {
-    name        = "Area 1"
+    name        = "Area1"
     parent_name = "Global"
   }

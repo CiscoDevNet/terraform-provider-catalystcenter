@@ -48,9 +48,10 @@ func TestAccDataSourceCcFabricSite(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcFabricSitePrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
-  name        = "Area 1"
+  name        = "Area1"
   parent_name = "Global"
 }
+
 `
 
 // End of section. //template:end testPrerequisites
