@@ -3,6 +3,7 @@
 - Add `catalystcenter_fabric_l3_virtual_network` resource and data source
 - Add `Free Space` allowed value to `rf_model` attribute of `catalystcenter_floor` resource
 - Add device unreachability warning to 'delete' implementation of `catalystcenter_fabric_l3_handoff_ip_transit`, `catalystcenter_anycast_gateway`, `catalystcenter_fabric_l2_handoff`, `catalystcenter_fabric_device`, `catalystcenter_fabric_port_assignment` and `catalystcenter_provision_device` resources
+- Fix issue with `catalystcenter_ip_pool_reservation` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/156)
 
 ## 0.1.17
 
