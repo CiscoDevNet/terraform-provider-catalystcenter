@@ -1,4 +1,4 @@
-## 0.1.18 (unreleased)
+## 0.1.18
 
 - Add `catalystcenter_fabric_l3_virtual_network` resource and data source
 - Add `Free Space` allowed value to `rf_model` attribute of `catalystcenter_floor` resource
