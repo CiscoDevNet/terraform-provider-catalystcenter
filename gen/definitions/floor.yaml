@@ -33,7 +33,14 @@ attributes:
   - model_name: rfModel
     data_path: site.floor
     type: String
-    enum_values: ["Cubes And Walled Offices", "Drywall Office Only", "Indoor High Ceiling", "Outdoor Open Space"]
+    enum_values:
+      [
+        "Cubes And Walled Offices",
+        "Drywall Office Only",
+        "Indoor High Ceiling",
+        "Outdoor Open Space",
+        "Free Space",
+      ]
     mandatory: true
     write_only: true
     description: The RF model
@@ -68,4 +75,3 @@ test_prerequisites: |
     latitude    = 37.338
     longitude   = -121.832
   }
-  

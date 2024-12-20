@@ -87,10 +87,10 @@ func (r *FloorResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				},
 			},
 			"rf_model": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The RF model").AddStringEnumDescription("Cubes And Walled Offices", "Drywall Office Only", "Indoor High Ceiling", "Outdoor Open Space").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The RF model").AddStringEnumDescription("Cubes And Walled Offices", "Drywall Office Only", "Indoor High Ceiling", "Outdoor Open Space", "Free Space").String,
 				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("Cubes And Walled Offices", "Drywall Office Only", "Indoor High Ceiling", "Outdoor Open Space"),
+					stringvalidator.OneOf("Cubes And Walled Offices", "Drywall Office Only", "Indoor High Ceiling", "Outdoor Open Space", "Free Space"),
 				},
 			},
 			"width": schema.Float64Attribute{
