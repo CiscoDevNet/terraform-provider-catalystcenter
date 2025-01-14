@@ -3,7 +3,7 @@ name: Assign Templates to Tag
 rest_endpoint: /dna/intent/api/v1/tag/%v/member
 get_extra_query_params: '?memberType=template'
 get_no_id: true
-# Manual updates in Delete function to handle removal of templates from tag in resource file, and fromBody, updateFromBody functions in model file
+# Manual updates in Update and Delete function to handle removal of templates from tag in resource file, and fromBody, updateFromBody functions in model file
 res_description: 'This resource is responsible for assigning templates to a specified tag during creation
   and removing the template from the tag during destroy operation.'
 post_update: true
