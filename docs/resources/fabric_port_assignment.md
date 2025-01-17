@@ -62,6 +62,7 @@ Optional:
 - `authenticate_template_name` (String) Authenticate template name of the port assignment
   - Choices: `No Authentication`, `Open Authentication`, `Closed Authentication`, `Low Impact`
 - `data_vlan_name` (String) Data VLAN name of the port assignment
+- `id` (String) ID of the port assignment
 - `interface_description` (String) Interface description of the port assignment
 - `security_group_name` (String) Security group name of the port assignment
 - `voice_vlan_name` (String) Voice VLAN name of the port assignment

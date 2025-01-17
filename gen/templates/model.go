@@ -646,6 +646,200 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 }
 // End of section. //template:end updateFromBody
 
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
+
+// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
+// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
+func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+{{- if .RootList}}
+{{- range .Attributes}}
+{{if .ResponseDataPath}}
+res = res.Get("{{.ResponseDataPath}}")
+{{- end}}
+{{- end}}
+{{- end}}
+{{- range .Attributes}}
+{{- if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
+{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
+if data.{{toGoName .TfName}}.IsUnknown() {
+	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+	} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
+		data.{{toGoName .TfName}} = types.{{.Type}}Null()
+	}
+}
+{{- else if isListSet .}}
+if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+	data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+} else {
+	data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
+}
+{{- else if eq .Type "Map"}}
+if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+	data.{{toGoName .TfName}} = helpers.GetStringMap(value.Map())
+} else {
+	data.{{toGoName .TfName}} = types.MapNull(types.StringType)
+}
+{{- else if isNestedListSet .}}
+{{- $list := (toGoName .TfName)}}
+for i := range data.{{toGoName .TfName}} {
+	keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}}{{end}} }
+	keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}}{{end}} }
+
+	var r gjson.Result
+	res.{{if .ModelName}}Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}").{{end}}ForEach(
+		func(_, v gjson.Result) bool {
+			found := false
+			for ik := range keys {
+				if v.Get(keys[ik]).String() == keyValues[ik] {
+					found = true
+					continue
+				}
+				found = false
+				break
+			}
+			if found {
+				r = v
+				return false
+			}
+			return true
+		},
+	)
+
+	{{- range .Attributes}}
+	{{- if and (not .Value) (not .WriteOnly) (not .Reference) .Computed}}
+	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
+	if data.{{$list}}[i].{{toGoName .TfName}}.IsUnknown() {
+		if value := r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
+			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+		} else {{if .DefaultValue}}if data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
+			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Null()
+		}
+	}
+	{{- else if isListSet .}}
+	if value := r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
+		data.{{$list}}[i].{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+	} else {
+		data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
+	}
+	{{- else if eq .Type "Map"}}
+	if value := r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
+		data.{{$list}}[i].{{toGoName .TfName}} = helpers.GetStringMap(value.Map())
+	} else {
+		data.{{$list}}[i].{{toGoName .TfName}} = types.MapNull(types.StringType)
+	}
+	{{- else if isNestedListSet .}}
+	{{- $clist := (toGoName .TfName)}}
+	for ci := range data.{{$list}}[i].{{toGoName .TfName}} {
+		keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
+		keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
+
+		var cr gjson.Result
+		r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					cr = v
+					return false
+				}
+				return true
+			},
+		)
+
+		{{- range .Attributes}}
+		{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+		{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
+		if value := cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.IsNull() {
+			data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+		} else {{if .DefaultValue}}if data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
+			data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Null()
+		}
+		{{- else if isListSet .}}
+		if value := cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.IsNull() {
+			data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+		} else {
+			data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
+		}
+		{{- else if eq .Type "Map"}}
+		if value := cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.IsNull() {
+			data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = helpers.GetStringMap(value.Map())
+		} else {
+			data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.MapNull(types.StringType)
+		}
+		{{- else if isNestedListSet .}}
+		{{- $cclist := (toGoName .TfName)}}
+		for cci := range data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} {
+			keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
+			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
+
+			var ccr gjson.Result
+			cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						ccr = v
+						return false
+					}
+					return true
+				},
+			)
+
+			{{- range .Attributes}}
+			{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
+			if value := ccr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.IsNull() {
+				data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+			} else {{if .DefaultValue}}if data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
+				data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Null()
+			}
+			{{- else if isListSet .}}
+			if value := ccr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.IsNull() {
+				data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+			} else {
+				data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
+			}
+			{{- else if eq .Type "Map"}}
+			if value := ccr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.IsNull() {
+				data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = helpers.GetStringMap(value.Map())
+			} else {
+				data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.MapNull(types.StringType)
+			}
+			{{- end}}
+			{{- end}}
+			{{- end}}
+		}
+
+		{{- end}}
+		{{- end}}
+		{{- end}}
+	}
+	{{- end}}
+	{{- end}}
+	{{- end}}
+}
+{{- end}}
+{{- end}}
+{{- end}}
+}
+// End of section. //template:end fromBodyUnknowns
+
+
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) bool {
 	{{- range .Attributes}}
