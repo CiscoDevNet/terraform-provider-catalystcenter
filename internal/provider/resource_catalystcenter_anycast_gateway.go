@@ -103,7 +103,7 @@ func (r *AnycastGatewayResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"vlan_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Name of the VLAN of the anycast gateway").String,
-				Required:            true,
+				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -169,7 +169,7 @@ func (r *AnycastGatewayResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"auto_generate_vlan_name": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN").String,
-				Optional:            true,
+				Required:            true,
 			},
 		},
 	}

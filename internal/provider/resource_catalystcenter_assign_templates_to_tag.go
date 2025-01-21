@@ -163,7 +163,6 @@ func (r *AssignTemplatesToTagResource) Read(ctx context.Context, req resource.Re
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state AssignTemplatesToTag
 
@@ -182,6 +181,37 @@ func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
+	// Handle removed template IDs
+	stateTemplateIds := make(map[string]struct{})
+	planTemplateIds := make(map[string]struct{})
+
+	if !state.TemplateIds.IsNull() {
+		var stateValues []string
+		state.TemplateIds.ElementsAs(ctx, &stateValues, false)
+		for _, id := range stateValues {
+			stateTemplateIds[id] = struct{}{}
+		}
+	}
+
+	if !plan.TemplateIds.IsNull() {
+		var planValues []string
+		plan.TemplateIds.ElementsAs(ctx, &planValues, false)
+		for _, id := range planValues {
+			planTemplateIds[id] = struct{}{}
+		}
+	}
+
+	for id := range stateTemplateIds {
+		if _, exists := planTemplateIds[id]; !exists {
+			_, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(id))
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete template (%s), got error: %s", id, err))
+				return
+			}
+		}
+	}
+	//
+
 	body := plan.toBody(ctx, state)
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -195,8 +225,6 @@ func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 func (r *AssignTemplatesToTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state AssignTemplatesToTag

@@ -108,6 +108,7 @@ func testAccDataSourceCcAnycastGatewayConfig() string {
 	config += `	ip_directed_broadcast = false` + "\n"
 	config += `	intra_subnet_routing_enabled = false` + "\n"
 	config += `	multiple_ip_to_mac_addresses = false` + "\n"
+	config += `	auto_generate_vlan_name = false` + "\n"
 	config += `}` + "\n"
 
 	config += `

@@ -27,6 +27,7 @@ resource "catalystcenter_anycast_gateway" "example" {
   ip_directed_broadcast        = false
   intra_subnet_routing_enabled = false
   multiple_ip_to_mac_addresses = false
+  auto_generate_vlan_name      = false
 }
 ```
 
@@ -35,16 +36,15 @@ resource "catalystcenter_anycast_gateway" "example" {
 
 ### Required
 
+- `auto_generate_vlan_name` (Boolean) This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN
 - `fabric_id` (String) ID of the fabric to contain this anycast gateway
 - `ip_pool_name` (String) Name of the IP pool associated with the anycast gateway
 - `traffic_type` (String) The type of traffic the anycast gateway serves
   - Choices: `DATA`, `VOICE`
 - `virtual_network_name` (String) Name of the layer 3 virtual network associated with the anycast gateway. the virtual network must have already been added to the site before creating an anycast gateway with it
-- `vlan_name` (String) Name of the VLAN of the anycast gateway
 
 ### Optional
 
-- `auto_generate_vlan_name` (Boolean) This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN
 - `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
 - `intra_subnet_routing_enabled` (Boolean) Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
 - `ip_directed_broadcast` (Boolean) Enable/disable IP-directed broadcast (not applicable to INFRA_VN)
@@ -57,6 +57,7 @@ resource "catalystcenter_anycast_gateway" "example" {
 - `tcp_mss_adjustment` (Number) TCP maximum segment size adjustment
   - Range: `500`-`1440`
 - `vlan_id` (Number) ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
+- `vlan_name` (String) Name of the VLAN of the anycast gateway
 - `wireless_pool` (Boolean) Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
 
 ### Read-Only

@@ -100,8 +100,8 @@ func testAccCcAnycastGatewayConfig_minimum() string {
 	config += `	fabric_id = catalystcenter_fabric_site.test.id` + "\n"
 	config += `	virtual_network_name = catalystcenter_virtual_network_to_fabric_site.test.virtual_network_name` + "\n"
 	config += `	ip_pool_name = catalystcenter_ip_pool_reservation.test.name` + "\n"
-	config += `	vlan_name = "VLAN401"` + "\n"
 	config += `	traffic_type = "DATA"` + "\n"
+	config += `	auto_generate_vlan_name = false` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -124,6 +124,7 @@ func testAccCcAnycastGatewayConfig_all() string {
 	config += `	ip_directed_broadcast = false` + "\n"
 	config += `	intra_subnet_routing_enabled = false` + "\n"
 	config += `	multiple_ip_to_mac_addresses = false` + "\n"
+	config += `	auto_generate_vlan_name = false` + "\n"
 	config += `}` + "\n"
 	return config
 }

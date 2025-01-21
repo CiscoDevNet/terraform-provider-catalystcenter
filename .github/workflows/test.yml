@@ -22,6 +22,11 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      matrix:
+        terraform:
+          - "1.0.*"
+          - "1.5.*"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,6 +36,10 @@ jobs:
         with:
           go-version-file: "go.mod"
           cache: true
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ matrix.terraform }}
+          terraform_wrapper: false
       - run: pip install yamale
       - run: yamale -s gen/schema/schema.yaml gen/definitions/
       - run: go mod download

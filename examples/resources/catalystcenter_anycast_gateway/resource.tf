@@ -12,4 +12,5 @@ resource "catalystcenter_anycast_gateway" "example" {
   ip_directed_broadcast        = false
   intra_subnet_routing_enabled = false
   multiple_ip_to_mac_addresses = false
+  auto_generate_vlan_name      = false
 }

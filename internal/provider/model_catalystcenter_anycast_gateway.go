@@ -216,11 +216,6 @@ func (data *AnycastGateway) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.SupplicantBasedExtendedNodeOnboarding = types.BoolNull()
 	}
-	if value := res.Get("response.0.autoGenerateVlanName"); value.Exists() {
-		data.AutoGenerateVlanName = types.BoolValue(value.Bool())
-	} else {
-		data.AutoGenerateVlanName = types.BoolNull()
-	}
 }
 
 // End of section. //template:end fromBody
@@ -306,11 +301,6 @@ func (data *AnycastGateway) updateFromBody(ctx context.Context, res gjson.Result
 		data.SupplicantBasedExtendedNodeOnboarding = types.BoolValue(value.Bool())
 	} else {
 		data.SupplicantBasedExtendedNodeOnboarding = types.BoolNull()
-	}
-	if value := res.Get("response.0.autoGenerateVlanName"); value.Exists() && !data.AutoGenerateVlanName.IsNull() {
-		data.AutoGenerateVlanName = types.BoolValue(value.Bool())
-	} else {
-		data.AutoGenerateVlanName = types.BoolNull()
 	}
 }
 
