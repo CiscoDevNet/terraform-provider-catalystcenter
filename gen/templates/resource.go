@@ -175,7 +175,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- end}}
 							{{- if or .Id .Reference .Mandatory}}
 							Required:            true,
-							{{- else}}
+							{{- else if not .Computed}}
 							Optional:            true,
 							{{- end}}
 							{{- if or (len .DefaultValue) .Computed}}
@@ -500,6 +500,39 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- else if hasId .Attributes}}
 		{{- $id := getId .Attributes}}
 	plan.Id = types.StringValue(fmt.Sprint(plan.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
+	{{- end}}
+
+	{{- if .UpdateComputed }}
+	params = ""
+	{{- $queryParams := generateQueryParamString "GET" "plan" .Attributes }}
+
+	{{- if .IdQueryParam}}
+	params += "?{{.IdQueryParam}}=" + url.QueryEscape(plan.Id.ValueString())
+	{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
+	{{- if $queryParams }}
+	params += {{$queryParams}}
+	{{- end}}
+	{{- else if and (not .GetNoId) (not .GetFromAll)}}
+	params += "/" + url.QueryEscape(plan.Id.ValueString())
+	{{- end}}
+	{{- if .GetExtraQueryParams}}
+	params += "{{.GetExtraQueryParams}}"
+	{{- end}}
+	res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	{{- if .GetFromAll}}
+		{{- if .IdFromAttribute}}
+			{{- $id := getId .Attributes}}
+	res = res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\"" + state.{{toGoName $id.TfName}}.Value{{$id.Type}}() + "\")")
+		{{- else}}
+	res = res.Get("{{.IdFromQueryPath}}.#({{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}==\"" + state.Id.ValueString() + "\")")
+		{{- end}}
+	{{- end}}
+	plan.fromBodyUnknowns(ctx, res)
 	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))

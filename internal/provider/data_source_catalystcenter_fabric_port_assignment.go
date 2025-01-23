@@ -74,6 +74,10 @@ func (d *FabricPortAssignmentDataSource) Schema(ctx context.Context, req datasou
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "ID of the port assignment",
+							Computed:            true,
+						},
 						"fabric_id": schema.StringAttribute{
 							MarkdownDescription: "ID of the fabric the device is assigned to",
 							Computed:            true,

@@ -1,5 +1,6 @@
 ## 0.1.19 (unreleased)
 
+- Add Update support for `catalystcenter_fabric_port_assignment` resource
 - Add support for auto_generated_vlan_name in `catalystcenter_anycast_gateway` resource
 - Fix issue with tags removal from templates in `catalystcenter_assign_templates_to_tag` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/165)
 

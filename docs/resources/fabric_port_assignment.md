@@ -65,3 +65,7 @@ Optional:
 - `interface_description` (String) Interface description of the port assignment
 - `security_group_name` (String) Security group name of the port assignment
 - `voice_vlan_name` (String) Voice VLAN name of the port assignment
+
+Read-Only:
+
+- `id` (String) ID of the port assignment

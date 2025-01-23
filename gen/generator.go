@@ -114,6 +114,7 @@ type YamlConfig struct {
 	ImportNoId                  bool                  `yaml:"import_no_id"`
 	PostUpdate                  bool                  `yaml:"post_update"`
 	PutCreate                   bool                  `yaml:"put_create"`
+	UpdateComputed              bool                  `yaml:"update_computed"`
 	RootList                    bool                  `yaml:"root_list"`
 	NoReadPrefix                bool                  `yaml:"no_read_prefix"`
 	IdPath                      string                `yaml:"id_path"`

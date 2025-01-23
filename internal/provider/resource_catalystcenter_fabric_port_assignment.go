@@ -84,6 +84,13 @@ func (r *FabricPortAssignmentResource) Schema(ctx context.Context, req resource.
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("ID of the port assignment").String,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 						"fabric_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric the device is assigned to").String,
 							Required:            true,
@@ -173,6 +180,14 @@ func (r *FabricPortAssignmentResource) Create(ctx context.Context, req resource.
 		}
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
+	params = ""
+	params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
+	res, err = r.client.Get(plan.getPath() + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -239,6 +254,14 @@ func (r *FabricPortAssignmentResource) Update(ctx context.Context, req resource.
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+
+	body := plan.toBody(ctx, state)
+	params := ""
+	res, err := r.client.Put(plan.getPath()+params, body)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		return
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
