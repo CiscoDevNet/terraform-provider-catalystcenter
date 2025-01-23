@@ -86,6 +86,7 @@ func (r *FabricPortAssignmentResource) Schema(ctx context.Context, req resource.
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("ID of the port assignment").String,
+							Optional:            true,
 							Computed:            true,
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),

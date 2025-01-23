@@ -1,1 +1,0 @@
-terraform import catalystcenter_fabric_control_plane.example "<device_management_ip_address>"
