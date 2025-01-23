@@ -1,0 +1,30 @@
+---
+name: Fabric Control Plane
+rest_endpoint: /dna/intent/api/v1/business/sda/control-plane-device
+res_description: Manages Fabric Control Plane
+import_no_id: true
+data_source_no_id: true
+no_update: true
+delete_id_query_param: deviceManagementIpAddress
+device_unreachability_warning: true
+doc_category: SDA
+test_tags: [SDA]
+attributes:
+  - model_name: deviceManagementIpAddress
+    type: String
+    mandatory: true
+    query_param: true
+    id: true
+    description: Management Ip Address of the Device which is provisioned successfully
+    example: 192.168.10.1
+  - model_name: siteNameHierarchy
+    type: String
+    mandatory: true
+    description: siteNameHierarchy of the Provisioned Device(site should be part of Fabric Site)
+    example: Global/Area1
+  - model_name: routeDistributionProtocol
+    type: String
+    enum_values: [LISP_BGP, LISP_PUB_SUB]
+    description: Route Distribution Protocol for Control Plane Device
+    example: LISP_BGP
+ 

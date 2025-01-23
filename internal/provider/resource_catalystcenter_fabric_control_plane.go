@@ -26,6 +26,7 @@ import (
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -41,24 +42,25 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &FabricPortAssignmentResource{}
+var _ resource.Resource = &FabricControlPlaneResource{}
+var _ resource.ResourceWithImportState = &FabricControlPlaneResource{}
 
-func NewFabricPortAssignmentResource() resource.Resource {
-	return &FabricPortAssignmentResource{}
+func NewFabricControlPlaneResource() resource.Resource {
+	return &FabricControlPlaneResource{}
 }
 
-type FabricPortAssignmentResource struct {
+type FabricControlPlaneResource struct {
 	client *cc.Client
 }
 
-func (r *FabricPortAssignmentResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_port_assignment"
+func (r *FabricControlPlaneResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_control_plane"
 }
 
-func (r *FabricPortAssignmentResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *FabricControlPlaneResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages port assignments in SD-Access fabric.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages Fabric Control Plane").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,79 +70,29 @@ func (r *FabricPortAssignmentResource) Schema(ctx context.Context, req resource.
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"fabric_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric the device is assigned to").String,
-				Optional:            true,
-			},
-			"network_device_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Network device ID of the port assignment").String,
+			"device_management_ip_address": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Management Ip Address of the Device which is provisioned successfully").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"port_assignments": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of port assignments in SD-Access fabric").String,
+			"site_name_hierarchy": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("siteNameHierarchy of the Provisioned Device(site should be part of Fabric Site)").String,
 				Required:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of the port assignment").String,
-							Computed:            true,
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
-						},
-						"fabric_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric the device is assigned to").String,
-							Required:            true,
-						},
-						"network_device_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Network device ID of the port assignment").String,
-							Required:            true,
-						},
-						"interface_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface name of the port assignment").String,
-							Required:            true,
-						},
-						"connected_device_type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Connected device type of the port assignment").AddStringEnumDescription("USER_DEVICE", "ACCESS_POINT", "TRUNKING_DEVICE", "AUTHENTICATOR_SWITCH", "SUPPLICANT_BASED_EXTENDED_NODE").String,
-							Required:            true,
-							Validators: []validator.String{
-								stringvalidator.OneOf("USER_DEVICE", "ACCESS_POINT", "TRUNKING_DEVICE", "AUTHENTICATOR_SWITCH", "SUPPLICANT_BASED_EXTENDED_NODE"),
-							},
-						},
-						"data_vlan_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Data VLAN name of the port assignment").String,
-							Optional:            true,
-						},
-						"voice_vlan_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Voice VLAN name of the port assignment").String,
-							Optional:            true,
-						},
-						"authenticate_template_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Authenticate template name of the port assignment").AddStringEnumDescription("No Authentication", "Open Authentication", "Closed Authentication", "Low Impact").String,
-							Optional:            true,
-							Validators: []validator.String{
-								stringvalidator.OneOf("No Authentication", "Open Authentication", "Closed Authentication", "Low Impact"),
-							},
-						},
-						"security_group_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Security group name of the port assignment").String,
-							Optional:            true,
-						},
-						"interface_description": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface description of the port assignment").String,
-							Optional:            true,
-						},
-					},
+			},
+			"route_distribution_protocol": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Route Distribution Protocol for Control Plane Device").AddStringEnumDescription("LISP_BGP", "LISP_PUB_SUB").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("LISP_BGP", "LISP_PUB_SUB"),
 				},
 			},
 		},
 	}
 }
 
-func (r *FabricPortAssignmentResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *FabricControlPlaneResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -151,8 +103,8 @@ func (r *FabricPortAssignmentResource) Configure(_ context.Context, req resource
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *FabricPortAssignmentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan FabricPortAssignment
+func (r *FabricControlPlaneResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan FabricControlPlane
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -164,7 +116,7 @@ func (r *FabricPortAssignmentResource) Create(ctx context.Context, req resource.
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, FabricPortAssignment{})
+	body := plan.toBody(ctx, FabricControlPlane{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -179,15 +131,7 @@ func (r *FabricPortAssignmentResource) Create(ctx context.Context, req resource.
 			return
 		}
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
-	params = ""
-	params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
-	res, err = r.client.Get(plan.getPath() + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-	plan.fromBodyUnknowns(ctx, res)
+	plan.Id = types.StringValue(fmt.Sprint(plan.DeviceManagementIpAddress.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -198,8 +142,8 @@ func (r *FabricPortAssignmentResource) Create(ctx context.Context, req resource.
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *FabricPortAssignmentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state FabricPortAssignment
+func (r *FabricControlPlaneResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state FabricControlPlane
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -211,7 +155,7 @@ func (r *FabricPortAssignmentResource) Read(ctx context.Context, req resource.Re
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?fabricId=" + url.QueryEscape(state.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	params += "?deviceManagementIpAddress=" + url.QueryEscape(state.DeviceManagementIpAddress.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -237,8 +181,8 @@ func (r *FabricPortAssignmentResource) Read(ctx context.Context, req resource.Re
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *FabricPortAssignmentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state FabricPortAssignment
+func (r *FabricControlPlaneResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state FabricControlPlane
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -255,14 +199,6 @@ func (r *FabricPortAssignmentResource) Update(ctx context.Context, req resource.
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
-	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-		return
-	}
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
@@ -272,8 +208,8 @@ func (r *FabricPortAssignmentResource) Update(ctx context.Context, req resource.
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *FabricPortAssignmentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state FabricPortAssignment
+func (r *FabricControlPlaneResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state FabricControlPlane
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -283,8 +219,7 @@ func (r *FabricPortAssignmentResource) Delete(ctx context.Context, req resource.
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	params := "?fabricId=" + url.QueryEscape(state.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
-	res, err := r.client.Delete(state.getPath() + params)
+	res, err := r.client.Delete(state.getPath() + "?deviceManagementIpAddress=" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {
@@ -305,4 +240,17 @@ func (r *FabricPortAssignmentResource) Delete(ctx context.Context, req resource.
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *FabricControlPlaneResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 1 || idParts[0] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <device_management_ip_address>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("device_management_ip_address"), idParts[0])...)
+}
+
 // End of section. //template:end import

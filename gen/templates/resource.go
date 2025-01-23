@@ -175,7 +175,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- end}}
 							{{- if or .Id .Reference .Mandatory}}
 							Required:            true,
-							{{- else}}
+							{{- else if not .Computed}}
 							Optional:            true,
 							{{- end}}
 							{{- if or (len .DefaultValue) .Computed}}
