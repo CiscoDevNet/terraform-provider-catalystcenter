@@ -1,4 +1,4 @@
-## 0.1.19 (unreleased)
+## 0.1.19
 
 - Add update support for individual port assignments with `catalystcenter_fabric_port_assignment` resource
 - Add support to auto-generate VLAN name in `catalystcenter_anycast_gateway` resource
