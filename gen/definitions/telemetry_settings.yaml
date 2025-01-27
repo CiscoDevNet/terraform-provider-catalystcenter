@@ -1,0 +1,106 @@
+---
+name: Telemetry Settings
+rest_endpoint: /dna/intent/api/v1/sites/%v/telemetrySettings
+put_no_id: true
+get_no_id: true
+data_source_no_id: true
+import_no_id: true
+delete_no_id: true
+get_extra_query_params: "?_inherited=true"
+put_create: true
+put_delete: true
+doc_category: Network Settings
+attributes:
+  - model_name: siteId
+    type: String
+    id: true
+    reference: true
+    description: The site ID
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_area.test.id
+  - model_name: enableWiredDataCollection
+    tf_name: enable_wired_data_collection
+    data_path: wiredDataCollection
+    response_data_path: response.wiredDataCollection.enableWiredDataCollection
+    type: Bool
+    mandatory: true
+    description: 
+      'Track the presence, location, and movement of wired endpoints in the network. 
+      Traffic received from endpoints is used to extract and store their identity information (MAC address and IP address). 
+      Other features, such as IEEE 802.1X, web authentication, Cisco Security Groups (formerly TrustSec), SD-Access, and Assurance, 
+      depend on this identity information to operate properly. Wired Endpoint Data Collection enables Device Tracking policies on devices assigned to the Access role in Inventory'
+    example: true
+  - model_name: enableWirelessTelemetry
+    data_path: wirelessTelemetry
+    response_data_path: response.wirelessTelemetry.enableWirelessTelemetry
+    type: Bool
+    mandatory: true
+    description: Enables Streaming Telemetry on your wireless controllers in order to determine the health of your wireless controller, access points and wireless clients
+    example: true
+  - model_name: useBuiltinTrapServer
+    data_path: snmpTraps
+    response_data_path: response.snmpTraps.useBuiltinTrapServer
+    type: Bool
+    mandatory: true
+    description: Enable this server as a destination server for SNMP traps and messages from your network
+    example: true
+  - model_name: externalTrapServers
+    data_path: snmpTraps
+    response_data_path: response.snmpTraps.externalTrapServers
+    type: Set
+    element_type: String
+    description: External SNMP trap servers
+    example: "10.0.0.1"
+  - model_name: useBuiltinSyslogServer
+    data_path: syslogs
+    response_data_path: response.syslogs.useBuiltinSyslogServer
+    type: Bool
+    mandatory: true
+    description: Enable this server as a destination server for syslog messages
+    example: true
+  - model_name: externalSyslogServers
+    data_path: syslogs
+    response_data_path: response.syslogs.externalSyslogServers
+    type: Set
+    element_type: String
+    description: External syslog servers
+    example: "10.0.0.1"
+  - model_name: collectorType
+    tf_name: netflow_collector
+    data_path: applicationVisibility.collector
+    response_data_path: response.applicationVisibility.collector.collectorType
+    type: String
+    mandatory: true
+    enum_values: [Builtin, TelemetryBrokerOrUDPDirector]
+    description: Application Visibility Collector Type
+    example: "Builtin"
+  - model_name: address
+    tf_name: netflow_collector_ip_address
+    data_path: applicationVisibility.collector
+    response_data_path: response.applicationVisibility.collector.addres
+    type: String
+    description: IP Address. If collection type is `TelemetryBrokerOrUDPDirector`, this field value is mandatory otherwise it is optional
+    exclude_test: true
+  - model_name: port
+    tf_name: netflow_collector_port
+    data_path: applicationVisibility.collector
+    response_data_path: response.applicationVisibility.collector.port
+    type: Int64
+    min_int: 1
+    max_int: 65535
+    description: If collection type is `TelemetryBrokerOrUDPDirector`, this field value is mandatory otherwise it is optional
+    exclude_test: true
+  - model_name: enableOnWiredAccessDevices
+    tf_name: enable_netflow_collector_on_devices
+    data_path: applicationVisibility
+    response_data_path: response.applicationVisibility.enableOnWiredAccessDevices
+    type: Bool
+    mandatory: true
+    description: Enable Netflow Application Telemetry and Controller Based Application Recognition (CBAR) by default upon network device site assignment for wired access devices
+    example: false
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  

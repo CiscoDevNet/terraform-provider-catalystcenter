@@ -84,8 +84,8 @@ func testAccDataSourceCcAAASettingsConfig() string {
 
 	config += `
 		data "catalystcenter_aaa_settings" "test" {
-			id = catalystcenter_aaa_settings.test.id
 			site_id = catalystcenter_area.test.id
+			depends_on = [catalystcenter_aaa_settings.test]
 		}
 	`
 	return config

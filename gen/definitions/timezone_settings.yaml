@@ -1,0 +1,33 @@
+---
+name: TimeZone Settings
+rest_endpoint: /dna/intent/api/v1/sites/%v/timeZoneSettings
+put_no_id: true
+get_no_id: true
+data_source_no_id: true
+import_no_id: true
+no_delete: true #Internal error 500 on delete
+delete_no_id: true
+get_extra_query_params: "?_inherited=true"
+put_create: true
+put_delete: true
+doc_category: Network Settings
+attributes:
+  - model_name: siteId
+    type: String
+    id: true
+    reference: true
+    description: The site ID
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_area.test.id
+  - model_name: identifier
+    data_path: timeZone
+    response_data_path: response.timeZone.identifier
+    type: String
+    description: Time zone that corresponds to the site's physical location. The site time zone is used when scheduling device provisioning and updates
+    example: "GMT"
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  

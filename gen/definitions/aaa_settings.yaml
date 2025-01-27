@@ -3,9 +3,13 @@ name: AAA Settings
 rest_endpoint: /dna/intent/api/v1/sites/%v/aaaSettings
 put_no_id: true
 get_no_id: true
+data_source_no_id: true
+import_no_id: true
+no_delete: true #Internal error 500 on delete
+delete_no_id: true
 get_extra_query_params: "?_inherited=true"
 put_create: true
-no_delete: true
+put_delete: true
 test_tags: [AAA]
 doc_category: Network Settings
 attributes:
