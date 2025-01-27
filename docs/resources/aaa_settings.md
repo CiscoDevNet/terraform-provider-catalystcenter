@@ -63,5 +63,5 @@ resource "catalystcenter_aaa_settings" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_aaa_settings.example "<site_id>,<id>"
+terraform import catalystcenter_aaa_settings.example "<site_id>"
 ```

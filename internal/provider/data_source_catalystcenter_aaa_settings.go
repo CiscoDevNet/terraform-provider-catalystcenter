@@ -58,7 +58,7 @@ func (d *AAASettingsDataSource) Schema(ctx context.Context, req datasource.Schem
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
+				Computed:            true,
 			},
 			"site_id": schema.StringAttribute{
 				MarkdownDescription: "The site ID",

@@ -112,6 +112,12 @@ func (data AAASettings) toBody(ctx context.Context, state AAASettings) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *AAASettings) fromBody(ctx context.Context, res gjson.Result) {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	if value := res.Get(""); value.Exists() {
+		data.Id = types.StringValue(value.String())
+	} else {
+		data.Id = types.StringNull()
+	}
 	if value := res.Get("response.aaaNetwork.serverType"); value.Exists() {
 		data.NetworkAaaServerType = types.StringValue(value.String())
 	} else {

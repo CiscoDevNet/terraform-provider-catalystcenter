@@ -1,0 +1,39 @@
+---
+name: DNS Settings
+rest_endpoint: /dna/intent/api/v1/sites/%v/dnsSettings
+put_no_id: true
+get_no_id: true
+data_source_no_id: true
+import_no_id: true
+delete_no_id: true
+get_extra_query_params: "?_inherited=true"
+put_create: true
+put_delete: true
+doc_category: Network Settings
+attributes:
+  - model_name: siteId
+    type: String
+    id: true
+    reference: true
+    description: The site ID
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_area.test.id
+  - model_name: domainName
+    data_path: dns
+    response_data_path: response.dns.domainName
+    type: String
+    description: Network's domain name
+    example: myCompany.com
+  - model_name: dnsServers
+    data_path: dns
+    response_data_path: response.dns.dnsServers
+    type: Set
+    element_type: String
+    description: DNS servers for hostname resolution
+    example: "10.0.0.1"
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  

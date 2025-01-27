@@ -675,6 +675,25 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
 	{{- if not .NoDelete}}
+	{{- if .PutDelete}}
+	{{- if .DeleteNoId}}
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, "{}")
+	{{- else if .DeleteIdQueryParam}}
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), "{}")
+	{{- else if hasDeleteQueryParam .Attributes }}
+	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
+	{{- if $queryParams }}
+	params := {{$queryParams}}
+	{{- end}}
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, "{}")
+	{{- else}}
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), "{}")
+	{{- end}}
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (PUT), got error: %s, %s", err, res.String()))
+		return
+	}
+	{{- else}}
 	{{- if .DeleteNoId}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}})
 	{{- else if .DeleteIdQueryParam}}
@@ -704,6 +723,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 		return
 	{{- end}}
 	}
+	{{- end}}
 	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))

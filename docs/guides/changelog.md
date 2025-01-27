@@ -7,6 +7,15 @@ description: |-
 
 # Changelog
 
+## 0.1.20 (unreleased)
+
+- Add `catalystcenter_banner_settings` resource and data source
+- Add `catalystcenter_dhcp_settings` resource and data source
+- Add `catalystcenter_dns_settings` resource and data source
+- Add `catalystcenter_ntp_settings` resource and data source
+- Add `catalystcenter_telemetry_settings` resource and data source
+- Add `catalystcenter_timezone_settings` resource and data source
+
 ## 0.1.19
 
 - Add update support for individual port assignments with `catalystcenter_fabric_port_assignment` resource
