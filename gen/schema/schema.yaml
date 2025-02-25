@@ -19,6 +19,7 @@ no_import: bool(required=False) # Set to true if the resource does not support i
 import_no_id: bool(required=False) # Set to true if import does not require an ID
 post_update: bool(required=False) # Set to true if the POST request is used for update
 put_create: bool(required=False) # Set to true if the PUT request is used for create
+put_delete: bool(required=False) # Set to true if the PUT request is used for delete
 update_computed: bool(required=False) # Set to true if the computed attributes should be updated, only relevant if computed is set on one of the attributes
 root_list: bool(required=False) # Set to true if the root element of the data structure is a list
 no_read_prefix: bool(required=False) # Set to true if it is an Open API endpoint put the response is not embeeded into a "response" element

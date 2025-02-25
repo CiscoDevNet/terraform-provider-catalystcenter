@@ -14,7 +14,6 @@ This data source can read the AAA Settings.
 
 ```terraform
 data "catalystcenter_aaa_settings" "example" {
-  id      = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
   site_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
 }
 ```
@@ -24,7 +23,6 @@ data "catalystcenter_aaa_settings" "example" {
 
 ### Required
 
-- `id` (String) The id of the object
 - `site_id` (String) The site ID
 
 ### Read-Only
@@ -35,6 +33,7 @@ data "catalystcenter_aaa_settings" "example" {
 - `client_aaa_secondary_server_ip` (String) The server to use as a secondary
 - `client_aaa_server_type` (String) Type of client AAA server
 - `client_aaa_shared_secret` (String) Only relevant for server type `ISE`, shared secret
+- `id` (String) The id of the object
 - `network_aaa_pan` (String) Administration Node. Required for ISE
 - `network_aaa_primary_server_ip` (String) The server to use as a primary
 - `network_aaa_protocol` (String) Server protocol
