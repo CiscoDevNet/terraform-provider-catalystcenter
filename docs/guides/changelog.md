@@ -9,6 +9,7 @@ description: |-
 
 ## 0.1.20 (unreleased)
 
+- Fix issue with security group name in `catalystcenter_anycast_gateway` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/179)
 - Add `catalystcenter_banner_settings` resource and data source
 - Add `catalystcenter_dhcp_settings` resource and data source
 - Add `catalystcenter_dns_settings` resource and data source
