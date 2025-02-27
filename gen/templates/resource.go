@@ -690,8 +690,20 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), "{}")
 	{{- end}}
 	if err != nil {
+	{{- if .PutDelete}}
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCND01090" {
+			// Log a warning and continue execution when Empty input - the groupUuid is null or empty
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Empty input Warning", fmt.Sprintf("Empty input detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
+	{{- else}}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (PUT), got error: %s, %s", err, res.String()))
 		return
+	{{- end}}
 	}
 	{{- else}}
 	{{- if .DeleteNoId}}
@@ -708,7 +720,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()))
 	{{- end}}
 	if err != nil {
-		{{- if .DeviceUnreachabilityWarning}}
+	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {
 			// Log a warning and continue execution when device is unreachable

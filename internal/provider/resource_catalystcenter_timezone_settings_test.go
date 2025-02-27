@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -33,11 +32,6 @@ func TestAccCcTimeZoneSettings(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_timezone_settings.test", "identifier", "GMT"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcTimeZoneSettingsPrerequisitesConfig + testAccCcTimeZoneSettingsConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcTimeZoneSettingsPrerequisitesConfig + testAccCcTimeZoneSettingsConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),

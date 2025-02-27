@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -34,11 +33,6 @@ func TestAccCcBannerSettings(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_banner_settings.test", "message", "Banner message"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcBannerSettingsPrerequisitesConfig + testAccCcBannerSettingsConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcBannerSettingsPrerequisitesConfig + testAccCcBannerSettingsConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
