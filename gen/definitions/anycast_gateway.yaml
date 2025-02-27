@@ -81,7 +81,7 @@ attributes:
     exclude_test: true
   - model_name: securityGroupName
     data_path: '0'
-    response_data_path: response.0.securityGroupNames
+    response_data_path: response.0.securityGroupName
     type: String
     description: Name of the associated Security Group (not applicable to INFRA_VN)
     exclude_test: true

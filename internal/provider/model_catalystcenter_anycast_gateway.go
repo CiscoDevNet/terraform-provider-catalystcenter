@@ -176,7 +176,7 @@ func (data *AnycastGateway) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.PoolType = types.StringNull()
 	}
-	if value := res.Get("response.0.securityGroupNames"); value.Exists() {
+	if value := res.Get("response.0.securityGroupName"); value.Exists() {
 		data.SecurityGroupName = types.StringValue(value.String())
 	} else {
 		data.SecurityGroupName = types.StringNull()
@@ -262,7 +262,7 @@ func (data *AnycastGateway) updateFromBody(ctx context.Context, res gjson.Result
 	} else {
 		data.PoolType = types.StringNull()
 	}
-	if value := res.Get("response.0.securityGroupNames"); value.Exists() && !data.SecurityGroupName.IsNull() {
+	if value := res.Get("response.0.securityGroupName"); value.Exists() && !data.SecurityGroupName.IsNull() {
 		data.SecurityGroupName = types.StringValue(value.String())
 	} else {
 		data.SecurityGroupName = types.StringNull()
