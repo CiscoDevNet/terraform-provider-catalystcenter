@@ -7,6 +7,7 @@
 - Add `catalystcenter_ntp_settings` resource and data source
 - Add `catalystcenter_telemetry_settings` resource and data source
 - Add `catalystcenter_timezone_settings` resource and data source
+- Changed default timeout of asynchronous tasks to 180 seconds
 
 ## 0.1.19
 

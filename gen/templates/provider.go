@@ -92,7 +92,7 @@ func (p *CcProvider) Schema(ctx context.Context, req provider.SchemaRequest, res
 				},
 			},
 			"max_timeout": schema.Int64Attribute{
-				MarkdownDescription: "Timeout in seconds for asynchronous tasks. This can also be set as the CC_MAX_TIMEOUT environment variable. Defaults to `60`.",
+				MarkdownDescription: "Timeout in seconds for asynchronous tasks. This can also be set as the CC_MAX_TIMEOUT environment variable. Defaults to `180`.",
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 3600),
@@ -244,7 +244,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 	if config.MaxTimeout.IsNull() {
 		maxTimeoutStr := os.Getenv("CC_MAX_TIMEOUT")
 		if maxTimeoutStr == "" {
-			maxTimeout = 60
+			maxTimeout = 180
 		} else {
 			maxTimeout, _ = strconv.ParseInt(maxTimeoutStr, 0, 64)
 		}

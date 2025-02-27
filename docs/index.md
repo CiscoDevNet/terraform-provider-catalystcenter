@@ -39,7 +39,7 @@ provider "catalystcenter" {
 ### Optional
 
 - `insecure` (Boolean) Allow insecure HTTPS client. This can also be set as the CC_INSECURE environment variable. Defaults to `true`.
-- `max_timeout` (Number) Timeout in seconds for asynchronous tasks. This can also be set as the CC_MAX_TIMEOUT environment variable. Defaults to `60`.
+- `max_timeout` (Number) Timeout in seconds for asynchronous tasks. This can also be set as the CC_MAX_TIMEOUT environment variable. Defaults to `180`.
 - `password` (String, Sensitive) Password for the Catalyst Center instance. This can also be set as the CC_PASSWORD environment variable.
 - `retries` (Number) Number of retries for REST API calls. This can also be set as the CC_RETRIES environment variable. Defaults to `3`.
 - `url` (String) URL of the Catalyst Center instance. This can also be set as the CC_URL environment variable.
