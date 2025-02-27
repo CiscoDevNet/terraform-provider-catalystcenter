@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -33,11 +32,6 @@ func TestAccCcDNSSettings(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_dns_settings.test", "domain_name", "myCompany.com"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcDNSSettingsPrerequisitesConfig + testAccCcDNSSettingsConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcDNSSettingsPrerequisitesConfig + testAccCcDNSSettingsConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),

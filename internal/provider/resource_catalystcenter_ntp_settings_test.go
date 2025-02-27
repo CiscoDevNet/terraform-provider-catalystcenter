@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -32,11 +31,6 @@ func TestAccCcNTPSettings(t *testing.T) {
 	var checks []resource.TestCheckFunc
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcNTPSettingsPrerequisitesConfig + testAccCcNTPSettingsConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcNTPSettingsPrerequisitesConfig + testAccCcNTPSettingsConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
