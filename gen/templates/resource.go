@@ -622,7 +622,9 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+
 	{{- if not .NoUpdate}}
+	{{- if not (strContains (camelCase .Name) "FabricProvision") }}
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -651,6 +653,19 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 	{{- if and .IdPath .PutUpdateId}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
+	{{- end}}
+	{{- else}}
+	if plan.Reprovision.ValueBool() {
+		body := plan.toBody(ctx, state)
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Fabric Device Re-Provisioining", plan.Id.ValueString()))
+		params := ""
+		res, err := r.client.Put(plan.getPath()+params, body)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Fabric Device Re-Provisioining finished successfully", plan.Id.ValueString()))
+	}
 	{{- end}}
 	{{- end}}
 
