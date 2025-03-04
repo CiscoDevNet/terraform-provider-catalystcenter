@@ -35,10 +35,12 @@ func TestAccDataSourceCcAAASettings(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_server_type", "AAA"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_protocol", "RADIUS"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_pan", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_primary_server_ip", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_secondary_server_ip", "1.2.3.5"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_server_type", "AAA"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_protocol", "RADIUS"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_pan", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_primary_server_ip", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_secondary_server_ip", "1.2.3.5"))
 	resource.Test(t, resource.TestCase{
@@ -72,11 +74,13 @@ func testAccDataSourceCcAAASettingsConfig() string {
 	config += `	site_id = catalystcenter_area.test.id` + "\n"
 	config += `	network_aaa_server_type = "AAA"` + "\n"
 	config += `	network_aaa_protocol = "RADIUS"` + "\n"
+	config += `	network_aaa_pan = "1.2.3.4"` + "\n"
 	config += `	network_aaa_primary_server_ip = "1.2.3.4"` + "\n"
 	config += `	network_aaa_secondary_server_ip = "1.2.3.5"` + "\n"
 	config += `	network_aaa_shared_secret = "Secret123"` + "\n"
 	config += `	client_aaa_server_type = "AAA"` + "\n"
 	config += `	client_aaa_protocol = "RADIUS"` + "\n"
+	config += `	client_aaa_pan = "1.2.3.4"` + "\n"
 	config += `	client_aaa_primary_server_ip = "1.2.3.4"` + "\n"
 	config += `	client_aaa_secondary_server_ip = "1.2.3.5"` + "\n"
 	config += `	client_aaa_shared_secret = "Secret123"` + "\n"

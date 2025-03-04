@@ -78,14 +78,14 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 			},
 			"network_aaa_server_type": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Type of network AAA server").AddStringEnumDescription("AAA", "ISE").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("AAA", "ISE"),
 				},
 			},
 			"network_aaa_protocol": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Server protocol").AddStringEnumDescription("RADIUS", "TACACS").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("RADIUS", "TACACS"),
 				},
@@ -96,7 +96,7 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 			},
 			"network_aaa_primary_server_ip": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The server to use as a primary").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"network_aaa_secondary_server_ip": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The server to use as a secondary").String,
@@ -108,14 +108,14 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 			},
 			"client_aaa_server_type": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Type of client AAA server").AddStringEnumDescription("AAA", "ISE").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("AAA", "ISE"),
 				},
 			},
 			"client_aaa_protocol": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Server protocol").AddStringEnumDescription("RADIUS", "TACACS").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("RADIUS", "TACACS"),
 				},
@@ -126,7 +126,7 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 			},
 			"client_aaa_primary_server_ip": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The server to use as a primary").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"client_aaa_secondary_server_ip": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The server to use as a secondary").String,
