@@ -535,6 +535,12 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	plan.fromBodyUnknowns(ctx, res)
 	{{- end}}
 
+	{{- range .Attributes}}
+	{{- if .Computed}}
+	plan.fromBodyUnknowns(ctx, res)
+	{{- end}}
+	{{- end}}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
