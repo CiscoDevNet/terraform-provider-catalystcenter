@@ -99,7 +99,6 @@ func (data *FabricProvisionDevice) fromBody(ctx context.Context, res gjson.Resul
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *FabricProvisionDevice) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.0.siteId"); value.Exists() && !data.SiteId.IsNull() {
 		data.SiteId = types.StringValue(value.String())
@@ -117,8 +116,6 @@ func (data *FabricProvisionDevice) updateFromBody(ctx context.Context, res gjson
 		data.Reprovision = types.BoolValue(false)
 	}
 }
-
-// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *FabricProvisionDevice) isNull(ctx context.Context, res gjson.Result) bool {
