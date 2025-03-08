@@ -27,6 +27,10 @@ resource "catalystcenter_fabric_provision_device" "example" {
 - `network_device_id` (String) ID of network device to be provisioned
 - `site_id` (String) ID of the site this network device needs to be provisioned
 
+### Optional
+
+- `reprovision` (Boolean) Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply
+
 ### Read-Only
 
 - `id` (String) The id of the object

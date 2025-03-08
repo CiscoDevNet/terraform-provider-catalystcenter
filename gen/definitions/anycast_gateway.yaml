@@ -58,7 +58,7 @@ attributes:
     description: Name of the VLAN of the anycast gateway
     example: VLAN401
   - model_name: vlanId
-    requires_replace: true
+    computed: true
     data_path: '0'
     response_data_path: response.0.vlanId
     type: Int64

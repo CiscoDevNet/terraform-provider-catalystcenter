@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.2.1 (unreleased)
+
+- Add `reprovision` attribute to `catalystcenter_fabric_provision_device`
+
 ## 0.2.0
 
 - Fix issue with security group name in `catalystcenter_anycast_gateway` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/179)

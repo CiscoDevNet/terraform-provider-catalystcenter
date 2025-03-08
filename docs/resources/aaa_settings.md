@@ -17,11 +17,13 @@ resource "catalystcenter_aaa_settings" "example" {
   site_id                         = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
   network_aaa_server_type         = "AAA"
   network_aaa_protocol            = "RADIUS"
+  network_aaa_pan                 = "1.2.3.4"
   network_aaa_primary_server_ip   = "1.2.3.4"
   network_aaa_secondary_server_ip = "1.2.3.5"
   network_aaa_shared_secret       = "Secret123"
   client_aaa_server_type          = "AAA"
   client_aaa_protocol             = "RADIUS"
+  client_aaa_pan                  = "1.2.3.4"
   client_aaa_primary_server_ip    = "1.2.3.4"
   client_aaa_secondary_server_ip  = "1.2.3.5"
   client_aaa_shared_secret        = "Secret123"
@@ -33,25 +35,25 @@ resource "catalystcenter_aaa_settings" "example" {
 
 ### Required
 
-- `client_aaa_primary_server_ip` (String) The server to use as a primary
-- `client_aaa_protocol` (String) Server protocol
-  - Choices: `RADIUS`, `TACACS`
-- `client_aaa_server_type` (String) Type of client AAA server
-  - Choices: `AAA`, `ISE`
-- `network_aaa_primary_server_ip` (String) The server to use as a primary
-- `network_aaa_protocol` (String) Server protocol
-  - Choices: `RADIUS`, `TACACS`
-- `network_aaa_server_type` (String) Type of network AAA server
-  - Choices: `AAA`, `ISE`
 - `site_id` (String) The site ID
 
 ### Optional
 
 - `client_aaa_pan` (String) Administration Node. Required for ISE
+- `client_aaa_primary_server_ip` (String) The server to use as a primary
+- `client_aaa_protocol` (String) Server protocol
+  - Choices: `RADIUS`, `TACACS`
 - `client_aaa_secondary_server_ip` (String) The server to use as a secondary
+- `client_aaa_server_type` (String) Type of client AAA server
+  - Choices: `AAA`, `ISE`
 - `client_aaa_shared_secret` (String) Only relevant for server type `ISE`, shared secret
 - `network_aaa_pan` (String) Administration Node. Required for ISE
+- `network_aaa_primary_server_ip` (String) The server to use as a primary
+- `network_aaa_protocol` (String) Server protocol
+  - Choices: `RADIUS`, `TACACS`
 - `network_aaa_secondary_server_ip` (String) The server to use as a secondary
+- `network_aaa_server_type` (String) Type of network AAA server
+  - Choices: `AAA`, `ISE`
 - `network_aaa_shared_secret` (String) Only relevant for server type `ISE`, shared secret
 
 ### Read-Only

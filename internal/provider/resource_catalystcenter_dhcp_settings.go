@@ -214,8 +214,8 @@ func (r *DHCPSettingsResource) Delete(ctx context.Context, req resource.DeleteRe
 	res, err := r.client.Put(state.getPath(), "{}")
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCND01090" {
-			// Log a warning and continue execution when Empty input - the groupUuid is null or empty
+		if strings.HasPrefix(errorCode, "NCND") {
+			// Log a warning and continue execution when NCND**** error is detected
 			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Empty input Warning", fmt.Sprintf("Empty input detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {

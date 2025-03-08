@@ -33,6 +33,7 @@ type FabricProvisionDevice struct {
 	Id              types.String `tfsdk:"id"`
 	SiteId          types.String `tfsdk:"site_id"`
 	NetworkDeviceId types.String `tfsdk:"network_device_id"`
+	Reprovision     types.Bool   `tfsdk:"reprovision"`
 }
 
 // End of section. //template:end types
@@ -63,6 +64,9 @@ func (data FabricProvisionDevice) toBody(ctx context.Context, state FabricProvis
 	if !data.NetworkDeviceId.IsNull() {
 		body, _ = sjson.Set(body, "0.networkDeviceId", data.NetworkDeviceId.ValueString())
 	}
+	if !data.Reprovision.IsNull() {
+		body, _ = sjson.Set(body, "", data.Reprovision.ValueBool())
+	}
 	return body
 }
 
@@ -86,11 +90,15 @@ func (data *FabricProvisionDevice) fromBody(ctx context.Context, res gjson.Resul
 	} else {
 		data.NetworkDeviceId = types.StringNull()
 	}
+	if value := res.Get(""); value.Exists() {
+		data.Reprovision = types.BoolValue(value.Bool())
+	} else {
+		data.Reprovision = types.BoolNull()
+	}
 }
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *FabricProvisionDevice) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.0.siteId"); value.Exists() && !data.SiteId.IsNull() {
 		data.SiteId = types.StringValue(value.String())
@@ -102,12 +110,18 @@ func (data *FabricProvisionDevice) updateFromBody(ctx context.Context, res gjson
 	} else {
 		data.NetworkDeviceId = types.StringNull()
 	}
+	if value := res.Get(""); value.Exists() && !data.Reprovision.IsNull() {
+		data.Reprovision = types.BoolValue(value.Bool())
+	} else {
+		data.Reprovision = types.BoolValue(false)
+	}
 }
-
-// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *FabricProvisionDevice) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Reprovision.IsNull() {
+		return false
+	}
 	return true
 }
 

@@ -111,8 +111,9 @@ func (r *AnycastGatewayResource) Schema(ctx context.Context, req resource.Schema
 			"vlan_id": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site").String,
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"traffic_type": schema.StringAttribute{
@@ -222,6 +223,7 @@ func (r *AnycastGatewayResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.0.id").String())
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
