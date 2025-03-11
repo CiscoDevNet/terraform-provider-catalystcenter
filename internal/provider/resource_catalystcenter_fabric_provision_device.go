@@ -205,7 +205,7 @@ func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 	if plan.Reprovision.ValueBool() {
 		body := plan.toBody(ctx, state)
-		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Fabric Device Re-Provisioining", plan.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Re-Provisioning", plan.Id.ValueString()))
 		params := ""
 		res, err := r.client.Put(plan.getPath()+params, body)
 		if err != nil {
