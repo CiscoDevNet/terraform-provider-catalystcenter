@@ -535,6 +535,12 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	plan.fromBodyUnknowns(ctx, res)
 	{{- end}}
 
+	{{- range .Attributes}}
+	{{- if .Computed}}
+	plan.fromBodyUnknowns(ctx, res)
+	{{- end}}
+	{{- end}}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
@@ -622,7 +628,9 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+
 	{{- if not .NoUpdate}}
+	{{- if not (strContains (camelCase .Name) "FabricProvision") }}
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -651,6 +659,19 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 	{{- if and .IdPath .PutUpdateId}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
+	{{- end}}
+	{{- else}}
+	if plan.Reprovision.ValueBool() {
+		body := plan.toBody(ctx, state)
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Re-Provisioning", plan.Id.ValueString()))
+		params := ""
+		res, err := r.client.Put(plan.getPath()+params, body)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Fabric Device Re-Provisioining finished successfully", plan.Id.ValueString()))
+	}
 	{{- end}}
 	{{- end}}
 
@@ -692,8 +713,8 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	if err != nil {
 	{{- if .PutDelete}}
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCND01090" {
-			// Log a warning and continue execution when Empty input - the groupUuid is null or empty
+		if strings.HasPrefix(errorCode, "NCND") {
+			// Log a warning and continue execution when NCND**** error is detected
 			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Empty input Warning", fmt.Sprintf("Empty input detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {

@@ -87,7 +87,7 @@ func (data AnycastGateway) toBody(ctx context.Context, state AnycastGateway) str
 	if !data.VlanName.IsNull() {
 		body, _ = sjson.Set(body, "0.vlanName", data.VlanName.ValueString())
 	}
-	if !data.VlanId.IsNull() {
+	if state.Id.ValueString() != "" && !data.VlanId.IsNull() {
 		body, _ = sjson.Set(body, "0.vlanId", data.VlanId.ValueInt64())
 	}
 	if !data.TrafficType.IsNull() {
@@ -305,6 +305,127 @@ func (data *AnycastGateway) updateFromBody(ctx context.Context, res gjson.Result
 }
 
 // End of section. //template:end updateFromBody
+
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
+
+// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
+// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
+func (data *AnycastGateway) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.FabricId.IsUnknown() {
+		if value := res.Get("response.0.fabricId"); value.Exists() && !data.FabricId.IsNull() {
+			data.FabricId = types.StringValue(value.String())
+		} else {
+			data.FabricId = types.StringNull()
+		}
+	}
+	if data.VirtualNetworkName.IsUnknown() {
+		if value := res.Get("response.0.virtualNetworkName"); value.Exists() && !data.VirtualNetworkName.IsNull() {
+			data.VirtualNetworkName = types.StringValue(value.String())
+		} else {
+			data.VirtualNetworkName = types.StringNull()
+		}
+	}
+	if data.IpPoolName.IsUnknown() {
+		if value := res.Get("response.0.ipPoolName"); value.Exists() && !data.IpPoolName.IsNull() {
+			data.IpPoolName = types.StringValue(value.String())
+		} else {
+			data.IpPoolName = types.StringNull()
+		}
+	}
+	if data.TcpMssAdjustment.IsUnknown() {
+		if value := res.Get("response.0.tcpMssAdjustment"); value.Exists() && !data.TcpMssAdjustment.IsNull() {
+			data.TcpMssAdjustment = types.Int64Value(value.Int())
+		} else {
+			data.TcpMssAdjustment = types.Int64Null()
+		}
+	}
+	if data.VlanName.IsUnknown() {
+		if value := res.Get("response.0.vlanName"); value.Exists() && !data.VlanName.IsNull() {
+			data.VlanName = types.StringValue(value.String())
+		} else {
+			data.VlanName = types.StringNull()
+		}
+	}
+	if data.VlanId.IsUnknown() {
+		if value := res.Get("response.0.vlanId"); value.Exists() && !data.VlanId.IsNull() {
+			data.VlanId = types.Int64Value(value.Int())
+		} else {
+			data.VlanId = types.Int64Null()
+		}
+	}
+	if data.TrafficType.IsUnknown() {
+		if value := res.Get("response.0.trafficType"); value.Exists() && !data.TrafficType.IsNull() {
+			data.TrafficType = types.StringValue(value.String())
+		} else {
+			data.TrafficType = types.StringNull()
+		}
+	}
+	if data.PoolType.IsUnknown() {
+		if value := res.Get("response.0.poolType"); value.Exists() && !data.PoolType.IsNull() {
+			data.PoolType = types.StringValue(value.String())
+		} else {
+			data.PoolType = types.StringNull()
+		}
+	}
+	if data.SecurityGroupName.IsUnknown() {
+		if value := res.Get("response.0.securityGroupName"); value.Exists() && !data.SecurityGroupName.IsNull() {
+			data.SecurityGroupName = types.StringValue(value.String())
+		} else {
+			data.SecurityGroupName = types.StringNull()
+		}
+	}
+	if data.CriticalPool.IsUnknown() {
+		if value := res.Get("response.0.isCriticalPool"); value.Exists() && !data.CriticalPool.IsNull() {
+			data.CriticalPool = types.BoolValue(value.Bool())
+		} else {
+			data.CriticalPool = types.BoolNull()
+		}
+	}
+	if data.L2FloodingEnabled.IsUnknown() {
+		if value := res.Get("response.0.isLayer2FloodingEnabled"); value.Exists() && !data.L2FloodingEnabled.IsNull() {
+			data.L2FloodingEnabled = types.BoolValue(value.Bool())
+		} else {
+			data.L2FloodingEnabled = types.BoolNull()
+		}
+	}
+	if data.WirelessPool.IsUnknown() {
+		if value := res.Get("response.0.isWirelessPool"); value.Exists() && !data.WirelessPool.IsNull() {
+			data.WirelessPool = types.BoolValue(value.Bool())
+		} else {
+			data.WirelessPool = types.BoolNull()
+		}
+	}
+	if data.IpDirectedBroadcast.IsUnknown() {
+		if value := res.Get("response.0.isIpDirectedBroadcast"); value.Exists() && !data.IpDirectedBroadcast.IsNull() {
+			data.IpDirectedBroadcast = types.BoolValue(value.Bool())
+		} else {
+			data.IpDirectedBroadcast = types.BoolNull()
+		}
+	}
+	if data.IntraSubnetRoutingEnabled.IsUnknown() {
+		if value := res.Get("response.0.isIntraSubnetRoutingEnabled"); value.Exists() && !data.IntraSubnetRoutingEnabled.IsNull() {
+			data.IntraSubnetRoutingEnabled = types.BoolValue(value.Bool())
+		} else {
+			data.IntraSubnetRoutingEnabled = types.BoolNull()
+		}
+	}
+	if data.MultipleIpToMacAddresses.IsUnknown() {
+		if value := res.Get("response.0.isMultipleIpToMacAddresses"); value.Exists() && !data.MultipleIpToMacAddresses.IsNull() {
+			data.MultipleIpToMacAddresses = types.BoolValue(value.Bool())
+		} else {
+			data.MultipleIpToMacAddresses = types.BoolNull()
+		}
+	}
+	if data.SupplicantBasedExtendedNodeOnboarding.IsUnknown() {
+		if value := res.Get("response.0.isSupplicantBasedExtendedNodeOnboarding"); value.Exists() && !data.SupplicantBasedExtendedNodeOnboarding.IsNull() {
+			data.SupplicantBasedExtendedNodeOnboarding = types.BoolValue(value.Bool())
+		} else {
+			data.SupplicantBasedExtendedNodeOnboarding = types.BoolNull()
+		}
+	}
+}
+
+// End of section. //template:end fromBodyUnknowns
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AnycastGateway) isNull(ctx context.Context, res gjson.Result) bool {
