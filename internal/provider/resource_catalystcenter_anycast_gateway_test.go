@@ -31,7 +31,6 @@ func TestAccCcAnycastGateway(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "tcp_mss_adjustment", "1400"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "vlan_name", "VLAN401"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "vlan_id", "401"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "traffic_type", "DATA"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "critical_pool", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_anycast_gateway.test", "l2_flooding_enabled", "false"))
@@ -116,7 +115,6 @@ func testAccCcAnycastGatewayConfig_all() string {
 	config += `	ip_pool_name = catalystcenter_ip_pool_reservation.test.name` + "\n"
 	config += `	tcp_mss_adjustment = 1400` + "\n"
 	config += `	vlan_name = "VLAN401"` + "\n"
-	config += `	vlan_id = 401` + "\n"
 	config += `	traffic_type = "DATA"` + "\n"
 	config += `	critical_pool = false` + "\n"
 	config += `	l2_flooding_enabled = false` + "\n"

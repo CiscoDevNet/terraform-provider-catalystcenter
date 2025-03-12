@@ -4,7 +4,6 @@ resource "catalystcenter_anycast_gateway" "example" {
   ip_pool_name                 = "MyRes1"
   tcp_mss_adjustment           = 1400
   vlan_name                    = "VLAN401"
-  vlan_id                      = 401
   traffic_type                 = "DATA"
   critical_pool                = false
   l2_flooding_enabled          = false
