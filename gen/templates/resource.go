@@ -628,9 +628,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
-
 	{{- if not .NoUpdate}}
-	{{- if not (strContains (camelCase .Name) "FabricProvision") }}
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -653,25 +651,24 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
 	{{- end}}
 	if err != nil {
+	{{- if .DeviceUnreachabilityWarning}}
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCDP10000" {
+			// Log a warning and continue execution when device is unreachable
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", {{- if .PostUpdate }} "POST" {{- else }} "PUT" {{- end }}, err, res.String()))
+			return
+		}
+	{{- else}}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
+	{{- end}}
 	}
 
 	{{- if and .IdPath .PutUpdateId}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
-	{{- end}}
-	{{- else}}
-	if plan.Reprovision.ValueBool() {
-		body := plan.toBody(ctx, state)
-		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Re-Provisioning", plan.Id.ValueString()))
-		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-			return
-		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Fabric Device Re-Provisioining finished successfully", plan.Id.ValueString()))
-	}
 	{{- end}}
 	{{- end}}
 
