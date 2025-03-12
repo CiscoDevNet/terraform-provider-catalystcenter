@@ -246,8 +246,15 @@ func (r *FabricDeviceResource) Update(ctx context.Context, req resource.UpdateRe
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-		return
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCDP10000" {
+			// Log a warning and continue execution when device is unreachable
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
