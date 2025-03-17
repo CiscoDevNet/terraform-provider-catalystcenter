@@ -15,8 +15,6 @@ This data source can read the Fabric L3 Virtual Network.
 ```terraform
 data "catalystcenter_fabric_l3_virtual_network" "example" {
   virtual_network_name = "MyL3VN"
-  fabric_ids           = ["5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"]
-  anchored_site_id     = ""
 }
 ```
 
@@ -25,10 +23,10 @@ data "catalystcenter_fabric_l3_virtual_network" "example" {
 
 ### Required
 
-- `anchored_site_id` (String) Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.
-- `fabric_ids` (Set of String) IDs of the fabrics this layer 3 virtual network is to be assigned to.
 - `virtual_network_name` (String) Name of the layer 3 virtual network.
 
 ### Read-Only
 
+- `anchored_site_id` (String) Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.
+- `fabric_ids` (Set of String) IDs of the fabrics this layer 3 virtual network is to be assigned to.
 - `id` (String) The id of the object

@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.2.2 (unreleased)
+
+- Remove query_param from anchoredSiteId in `catalystcenter_fabric_l3_virtual_network'
+
 ## 0.2.1
 
 - Add device unreachability warning to 'update' method in `catalystcenter_fabric_l3_handoff_ip_transit`, `catalystcenter_anycast_gateway`, `catalystcenter_fabric_l2_handoff`, `catalystcenter_fabric_device`, `catalystcenter_fabric_port_assignment` and `catalystcenter_provision_device`

@@ -22,7 +22,6 @@ attributes:
   - model_name: fabricIds
     requires_replace: true
     data_path: "0"
-    query_param: true
     response_data_path: response.0.fabricIds
     description: IDs of the fabrics this layer 3 virtual network is to be assigned to.
     type: Set
@@ -32,7 +31,6 @@ attributes:
   - model_name: anchoredSiteId
     requires_replace: true
     data_path: "0"
-    query_param: true
     response_data_path: response.0.anchoredSiteId
     description: Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.
     type: String

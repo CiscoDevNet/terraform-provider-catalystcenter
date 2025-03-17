@@ -257,16 +257,14 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 func (r *FabricL3VirtualNetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
-	if len(idParts) != 3 || idParts[0] == "" || idParts[1] == "" || idParts[2] == "" {
+	if len(idParts) != 1 || idParts[0] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <virtual_network_name>,<fabric_ids>,<anchored_site_id>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <virtual_network_name>. Got: %q", req.ID),
 		)
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("virtual_network_name"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_ids"), idParts[1])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("anchored_site_id"), idParts[2])...)
 }
 
 // End of section. //template:end import

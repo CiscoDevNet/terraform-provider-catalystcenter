@@ -66,8 +66,6 @@ resource "catalystcenter_fabric_site" "test" {
 func testAccCcFabricL3VirtualNetworkConfig_minimum() string {
 	config := `resource "catalystcenter_fabric_l3_virtual_network" "test" {` + "\n"
 	config += `	virtual_network_name = "MyL3VN"` + "\n"
-	config += `	fabric_ids = [catalystcenter_fabric_site.test.id]` + "\n"
-	config += `	anchored_site_id = ""` + "\n"
 	config += `}` + "\n"
 	return config
 }

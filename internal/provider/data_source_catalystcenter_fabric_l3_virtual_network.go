@@ -69,11 +69,11 @@ func (d *FabricL3VirtualNetworkDataSource) Schema(ctx context.Context, req datas
 			"fabric_ids": schema.SetAttribute{
 				MarkdownDescription: "IDs of the fabrics this layer 3 virtual network is to be assigned to.",
 				ElementType:         types.StringType,
-				Required:            true,
+				Computed:            true,
 			},
 			"anchored_site_id": schema.StringAttribute{
 				MarkdownDescription: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.",
-				Required:            true,
+				Computed:            true,
 			},
 		},
 	}
