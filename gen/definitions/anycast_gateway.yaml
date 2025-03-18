@@ -136,6 +136,13 @@ attributes:
     type: Bool
     description: Enable/disable Supplicant-Based Extended Node Onboarding (applicable only to INFRA_VN)
     exclude_test: true
+  - model_name: isGroupBasedPolicyEnforcementEnabled
+    data_path: '0'
+    response_data_path: response.0.isGroupBasedPolicyEnforcementEnabled
+    tf_name: group_based_policy_enforcement_enabled
+    type: Bool
+    description: Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false)
+    exclude_test: true
   - model_name: autoGenerateVlanName
     data_path: '0'
     response_data_path: response.0.autoGenerateVlanName

@@ -1,3 +1,8 @@
+## 0.2.2 (unreleased)
+
+- Fix issue with isGroupBasedPolicyEnforcementEnabled flag missing in `catalystcenter_anycast_gateway` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/190)
+- Remove query_param from anchoredSiteId and fabricIds in `catalystcenter_fabric_l3_virtual_network`
+
 ## 0.2.1
 
 - Add device unreachability warning to 'update' method in `catalystcenter_fabric_l3_handoff_ip_transit`, `catalystcenter_anycast_gateway`, `catalystcenter_fabric_l2_handoff`, `catalystcenter_fabric_device`, `catalystcenter_fabric_port_assignment` and `catalystcenter_provision_device`

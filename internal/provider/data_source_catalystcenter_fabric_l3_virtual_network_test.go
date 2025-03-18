@@ -70,8 +70,6 @@ func testAccDataSourceCcFabricL3VirtualNetworkConfig() string {
 	config += `
 		data "catalystcenter_fabric_l3_virtual_network" "test" {
 			virtual_network_name = "MyL3VN"
-			fabric_ids = [catalystcenter_fabric_site.test.id]
-			anchored_site_id = ""
 			depends_on = [catalystcenter_fabric_l3_virtual_network.test]
 		}
 	`
