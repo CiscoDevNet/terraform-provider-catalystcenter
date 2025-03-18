@@ -1,6 +1,7 @@
 ## 0.2.2 (unreleased)
 
-- Remove query_param from anchoredSiteId in `catalystcenter_fabric_l3_virtual_network'
+- Fix issue with isGroupBasedPolicyEnforcementEnabled flag missing in `catalystcenter_anycast_gateway` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/190)
+- Remove query_param from anchoredSiteId and fabricIds in `catalystcenter_fabric_l3_virtual_network`
 
 ## 0.2.1
 

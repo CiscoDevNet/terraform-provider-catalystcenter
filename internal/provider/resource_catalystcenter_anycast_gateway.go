@@ -168,6 +168,10 @@ func (r *AnycastGatewayResource) Schema(ctx context.Context, req resource.Schema
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable Supplicant-Based Extended Node Onboarding (applicable only to INFRA_VN)").String,
 				Optional:            true,
 			},
+			"group_based_policy_enforcement_enabled": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false)").String,
+				Optional:            true,
+			},
 			"auto_generate_vlan_name": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN").String,
 				Required:            true,

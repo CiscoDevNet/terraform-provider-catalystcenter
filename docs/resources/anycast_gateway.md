@@ -45,6 +45,7 @@ resource "catalystcenter_anycast_gateway" "example" {
 ### Optional
 
 - `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
+- `group_based_policy_enforcement_enabled` (Boolean) Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false)
 - `intra_subnet_routing_enabled` (Boolean) Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
 - `ip_directed_broadcast` (Boolean) Enable/disable IP-directed broadcast (not applicable to INFRA_VN)
 - `l2_flooding_enabled` (Boolean) Enable/disable layer 2 flooding (not applicable to INFRA_VN)

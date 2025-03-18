@@ -33,6 +33,7 @@ data "catalystcenter_anycast_gateway" "example" {
 
 - `auto_generate_vlan_name` (Boolean) This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN
 - `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
+- `group_based_policy_enforcement_enabled` (Boolean) Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false)
 - `id` (String) The id of the object
 - `intra_subnet_routing_enabled` (Boolean) Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
 - `ip_directed_broadcast` (Boolean) Enable/disable IP-directed broadcast (not applicable to INFRA_VN)

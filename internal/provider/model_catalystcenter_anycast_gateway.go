@@ -47,6 +47,7 @@ type AnycastGateway struct {
 	IntraSubnetRoutingEnabled             types.Bool   `tfsdk:"intra_subnet_routing_enabled"`
 	MultipleIpToMacAddresses              types.Bool   `tfsdk:"multiple_ip_to_mac_addresses"`
 	SupplicantBasedExtendedNodeOnboarding types.Bool   `tfsdk:"supplicant_based_extended_node_onboarding"`
+	GroupBasedPolicyEnforcementEnabled    types.Bool   `tfsdk:"group_based_policy_enforcement_enabled"`
 	AutoGenerateVlanName                  types.Bool   `tfsdk:"auto_generate_vlan_name"`
 }
 
@@ -119,6 +120,9 @@ func (data AnycastGateway) toBody(ctx context.Context, state AnycastGateway) str
 	}
 	if !data.SupplicantBasedExtendedNodeOnboarding.IsNull() {
 		body, _ = sjson.Set(body, "0.isSupplicantBasedExtendedNodeOnboarding", data.SupplicantBasedExtendedNodeOnboarding.ValueBool())
+	}
+	if !data.GroupBasedPolicyEnforcementEnabled.IsNull() {
+		body, _ = sjson.Set(body, "0.isGroupBasedPolicyEnforcementEnabled", data.GroupBasedPolicyEnforcementEnabled.ValueBool())
 	}
 	if !data.AutoGenerateVlanName.IsNull() {
 		body, _ = sjson.Set(body, "0.autoGenerateVlanName", data.AutoGenerateVlanName.ValueBool())
@@ -216,6 +220,11 @@ func (data *AnycastGateway) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.SupplicantBasedExtendedNodeOnboarding = types.BoolNull()
 	}
+	if value := res.Get("response.0.isGroupBasedPolicyEnforcementEnabled"); value.Exists() {
+		data.GroupBasedPolicyEnforcementEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.GroupBasedPolicyEnforcementEnabled = types.BoolNull()
+	}
 }
 
 // End of section. //template:end fromBody
@@ -301,6 +310,11 @@ func (data *AnycastGateway) updateFromBody(ctx context.Context, res gjson.Result
 		data.SupplicantBasedExtendedNodeOnboarding = types.BoolValue(value.Bool())
 	} else {
 		data.SupplicantBasedExtendedNodeOnboarding = types.BoolNull()
+	}
+	if value := res.Get("response.0.isGroupBasedPolicyEnforcementEnabled"); value.Exists() && !data.GroupBasedPolicyEnforcementEnabled.IsNull() {
+		data.GroupBasedPolicyEnforcementEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.GroupBasedPolicyEnforcementEnabled = types.BoolNull()
 	}
 }
 
@@ -423,6 +437,13 @@ func (data *AnycastGateway) fromBodyUnknowns(ctx context.Context, res gjson.Resu
 			data.SupplicantBasedExtendedNodeOnboarding = types.BoolNull()
 		}
 	}
+	if data.GroupBasedPolicyEnforcementEnabled.IsUnknown() {
+		if value := res.Get("response.0.isGroupBasedPolicyEnforcementEnabled"); value.Exists() && !data.GroupBasedPolicyEnforcementEnabled.IsNull() {
+			data.GroupBasedPolicyEnforcementEnabled = types.BoolValue(value.Bool())
+		} else {
+			data.GroupBasedPolicyEnforcementEnabled = types.BoolNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns
@@ -466,6 +487,9 @@ func (data *AnycastGateway) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.SupplicantBasedExtendedNodeOnboarding.IsNull() {
+		return false
+	}
+	if !data.GroupBasedPolicyEnforcementEnabled.IsNull() {
 		return false
 	}
 	if !data.AutoGenerateVlanName.IsNull() {
