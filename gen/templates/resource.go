@@ -143,7 +143,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 				},
 				{{- end}}
-				{{- if .Computed}}
+				{{- if and .Computed (not (hasComputedRefreshValue .Attributes))}}
 				PlanModifiers: []planmodifier.{{.Type}}{
 					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 				},
@@ -173,7 +173,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if eq .Type "Map"}}
 							ElementType:         types.StringType,
 							{{- end}}
-							{{- if or .Id .Reference .Mandatory}}
+							{{- if or (and .Id (not .ComputedRefreshValue)) .Reference .Mandatory }}
 							Required:            true,
 							{{- else if not .Computed}}
 							Optional:            true,
@@ -215,7 +215,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 							},
 							{{- end}}
-							{{- if .Computed}}
+							{{- if and .Computed (not .ComputedRefreshValue)}}
 							PlanModifiers: []planmodifier.{{.Type}}{
 								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 							},
@@ -287,7 +287,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 										},
 										{{- end}}
-										{{- if .Computed}}
+										{{- if and .Computed (not .ComputedRefreshValue)}}
 										PlanModifiers: []planmodifier.{{.Type}}{
 											{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 										},
@@ -359,7 +359,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 														{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 													},
 													{{- end}}
-													{{- if .Computed}}
+													{{- if and .Computed (not .ComputedRefreshValue)}}
 													PlanModifiers: []planmodifier.{{.Type}}{
 														{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 													},
