@@ -42,7 +42,7 @@ func TestAccCcFabricPortAssignment(t *testing.T) {
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcFabricPortAssignmentConfig_all(),
+		Config: testAccCcFabricPortAssignmentPrerequisitesConfig + testAccCcFabricPortAssignmentConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -56,6 +56,18 @@ func TestAccCcFabricPortAssignment(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccCcFabricPortAssignmentPrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+resource "catalystcenter_fabric_site" "test" {
+  site_id                     = catalystcenter_area.test.id
+  pub_sub_enabled             = false
+  authentication_profile_name = "No Authentication"
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal

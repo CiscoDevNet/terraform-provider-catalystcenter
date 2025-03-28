@@ -14,6 +14,7 @@ This data source can read the Fabric Port Assignment.
 
 ```terraform
 data "catalystcenter_fabric_port_assignment" "example" {
+  id                = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b"
   fabric_id         = "e02d9911-b0a7-435b-bb46-079d877d7b3e"
   network_device_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b"
 }
@@ -25,12 +26,12 @@ data "catalystcenter_fabric_port_assignment" "example" {
 ### Required
 
 - `fabric_id` (String) ID of the fabric the device is assigned to
+- `id` (String) The id of the object
 - `network_device_id` (String) Network device ID of the port assignment
 
 ### Read-Only
 
-- `id` (String) The id of the object
-- `port_assignments` (Attributes List) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
+- `port_assignments` (Attributes Set) List of port assignments in SD-Access fabric (see [below for nested schema](#nestedatt--port_assignments))
 
 <a id="nestedatt--port_assignments"></a>
 ### Nested Schema for `port_assignments`
