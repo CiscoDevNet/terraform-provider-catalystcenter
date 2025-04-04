@@ -1,11 +1,9 @@
 ---
-name: Fabric Port Assignment
+name: Fabric Port Assignments
 rest_endpoint: /dna/intent/api/v1/sda/portAssignments
 res_description: Manages port assignments in SD-Access fabric.
-no_import: true
 root_list: true
 update_computed: true
-data_source_no_id: true
 id_from_attribute: true
 skip_minimum_test: true
 device_unreachability_warning: true
@@ -13,6 +11,8 @@ doc_category: SDA
 test_tags: [SDA]
 attributes:
   - tf_name: fabric_id
+    mandatory: true
+    requires_replace: true
     write_only: true
     query_param: true
     delete_query_param: true
@@ -32,7 +32,7 @@ attributes:
     description: Network device ID of the port assignment
     example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b
   - tf_name: port_assignments
-    type: List
+    type: Set
     response_data_path: response
     mandatory: true
     description: List of port assignments in SD-Access fabric
@@ -40,6 +40,7 @@ attributes:
       - model_name: id
         type: String
         computed: true
+        computed_refresh_value: true
         description: ID of the port assignment
         exclude_test: true
       - model_name: fabricId
@@ -49,7 +50,6 @@ attributes:
         example: c4b85bb2-ce3f-4db9-a32b-e439a388ac2f
         test_value: catalystcenter_fabric_site.test.id
       - model_name: networkDeviceId
-        match_id: true
         mandatory: true
         description: Network device ID of the port assignment
         type: String
@@ -87,3 +87,13 @@ attributes:
         type: String
         description: Interface description of the port assignment
         exclude_test: true
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+  }

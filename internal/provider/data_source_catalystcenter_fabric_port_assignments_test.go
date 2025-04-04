@@ -28,23 +28,23 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-func TestAccDataSourceCcFabricPortAssignment(t *testing.T) {
+func TestAccDataSourceCcFabricPortAssignments(t *testing.T) {
 	if os.Getenv("SDA") == "" {
 		t.Skip("skipping test, set environment variable SDA")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignment.test", "port_assignments.0.network_device_id", "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignment.test", "port_assignments.0.interface_name", "GigabitEthernet1/0/2"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignment.test", "port_assignments.0.connected_device_type", "USER_DEVICE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignment.test", "port_assignments.0.data_vlan_name", "DATA_VLAN"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignment.test", "port_assignments.0.voice_vlan_name", "VOICE_VLAN"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignment.test", "port_assignments.0.authenticate_template_name", "No Authentication"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignments.test", "port_assignments.0.network_device_id", "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignments.test", "port_assignments.0.interface_name", "GigabitEthernet1/0/2"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignments.test", "port_assignments.0.connected_device_type", "USER_DEVICE"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignments.test", "port_assignments.0.data_vlan_name", "DATA_VLAN"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignments.test", "port_assignments.0.voice_vlan_name", "VOICE_VLAN"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_port_assignments.test", "port_assignments.0.authenticate_template_name", "No Authentication"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcFabricPortAssignmentConfig(),
+				Config: testAccDataSourceCcFabricPortAssignmentsPrerequisitesConfig + testAccDataSourceCcFabricPortAssignmentsConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -54,11 +54,23 @@ func TestAccDataSourceCcFabricPortAssignment(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceCcFabricPortAssignmentsPrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+resource "catalystcenter_fabric_site" "test" {
+  site_id                     = catalystcenter_area.test.id
+  pub_sub_enabled             = false
+  authentication_profile_name = "No Authentication"
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-func testAccDataSourceCcFabricPortAssignmentConfig() string {
-	config := `resource "catalystcenter_fabric_port_assignment" "test" {` + "\n"
+func testAccDataSourceCcFabricPortAssignmentsConfig() string {
+	config := `resource "catalystcenter_fabric_port_assignments" "test" {` + "\n"
 	config += `	fabric_id = "e02d9911-b0a7-435b-bb46-079d877d7b3e"` + "\n"
 	config += `	network_device_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b"` + "\n"
 	config += `	port_assignments = [{` + "\n"
@@ -73,10 +85,10 @@ func testAccDataSourceCcFabricPortAssignmentConfig() string {
 	config += `}` + "\n"
 
 	config += `
-		data "catalystcenter_fabric_port_assignment" "test" {
+		data "catalystcenter_fabric_port_assignments" "test" {
+			id = catalystcenter_fabric_port_assignments.test.id
 			fabric_id = "e02d9911-b0a7-435b-bb46-079d877d7b3e"
 			network_device_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b"
-			depends_on = [catalystcenter_fabric_port_assignment.test]
 		}
 	`
 	return config

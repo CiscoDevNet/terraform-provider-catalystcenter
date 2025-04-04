@@ -35,31 +35,31 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &FabricPortAssignmentDataSource{}
-	_ datasource.DataSourceWithConfigure = &FabricPortAssignmentDataSource{}
+	_ datasource.DataSource              = &FabricPortAssignmentsDataSource{}
+	_ datasource.DataSourceWithConfigure = &FabricPortAssignmentsDataSource{}
 )
 
-func NewFabricPortAssignmentDataSource() datasource.DataSource {
-	return &FabricPortAssignmentDataSource{}
+func NewFabricPortAssignmentsDataSource() datasource.DataSource {
+	return &FabricPortAssignmentsDataSource{}
 }
 
-type FabricPortAssignmentDataSource struct {
+type FabricPortAssignmentsDataSource struct {
 	client *cc.Client
 }
 
-func (d *FabricPortAssignmentDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_port_assignment"
+func (d *FabricPortAssignmentsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_port_assignments"
 }
 
-func (d *FabricPortAssignmentDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *FabricPortAssignmentsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Fabric Port Assignment.",
+		MarkdownDescription: "This data source can read the Fabric Port Assignments.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Computed:            true,
+				Required:            true,
 			},
 			"fabric_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the fabric the device is assigned to",
@@ -69,7 +69,7 @@ func (d *FabricPortAssignmentDataSource) Schema(ctx context.Context, req datasou
 				MarkdownDescription: "Network device ID of the port assignment",
 				Required:            true,
 			},
-			"port_assignments": schema.ListNestedAttribute{
+			"port_assignments": schema.SetNestedAttribute{
 				MarkdownDescription: "List of port assignments in SD-Access fabric",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -121,7 +121,7 @@ func (d *FabricPortAssignmentDataSource) Schema(ctx context.Context, req datasou
 	}
 }
 
-func (d *FabricPortAssignmentDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *FabricPortAssignmentsDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -132,8 +132,8 @@ func (d *FabricPortAssignmentDataSource) Configure(_ context.Context, req dataso
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *FabricPortAssignmentDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config FabricPortAssignment
+func (d *FabricPortAssignmentsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config FabricPortAssignments
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

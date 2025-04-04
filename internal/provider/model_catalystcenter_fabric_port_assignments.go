@@ -29,14 +29,14 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-type FabricPortAssignment struct {
-	Id              types.String                          `tfsdk:"id"`
-	FabricId        types.String                          `tfsdk:"fabric_id"`
-	NetworkDeviceId types.String                          `tfsdk:"network_device_id"`
-	PortAssignments []FabricPortAssignmentPortAssignments `tfsdk:"port_assignments"`
+type FabricPortAssignments struct {
+	Id              types.String                           `tfsdk:"id"`
+	FabricId        types.String                           `tfsdk:"fabric_id"`
+	NetworkDeviceId types.String                           `tfsdk:"network_device_id"`
+	PortAssignments []FabricPortAssignmentsPortAssignments `tfsdk:"port_assignments"`
 }
 
-type FabricPortAssignmentPortAssignments struct {
+type FabricPortAssignmentsPortAssignments struct {
 	Id                       types.String `tfsdk:"id"`
 	FabricId                 types.String `tfsdk:"fabric_id"`
 	NetworkDeviceId          types.String `tfsdk:"network_device_id"`
@@ -52,7 +52,7 @@ type FabricPortAssignmentPortAssignments struct {
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
-func (data FabricPortAssignment) getPath() string {
+func (data FabricPortAssignments) getPath() string {
 	return "/dna/intent/api/v1/sda/portAssignments"
 }
 
@@ -63,7 +63,7 @@ func (data FabricPortAssignment) getPath() string {
 // End of section. //template:end getPathDelete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data FabricPortAssignment) toBody(ctx context.Context, state FabricPortAssignment) string {
+func (data FabricPortAssignments) toBody(ctx context.Context, state FabricPortAssignments) string {
 	body := "[]"
 	put := false
 	if state.Id.ValueString() != "" {
@@ -119,19 +119,13 @@ func (data FabricPortAssignment) toBody(ctx context.Context, state FabricPortAss
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-func (data *FabricPortAssignment) fromBody(ctx context.Context, res gjson.Result) {
+func (data *FabricPortAssignments) fromBody(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
-	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get(""); value.Exists() {
-		data.Id = types.StringValue(value.String())
-	} else {
-		data.Id = types.StringNull()
-	}
 	if value := res; value.Exists() && len(value.Array()) > 0 {
-		data.PortAssignments = make([]FabricPortAssignmentPortAssignments, 0)
+		data.PortAssignments = make([]FabricPortAssignmentsPortAssignments, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := FabricPortAssignmentPortAssignments{}
+			item := FabricPortAssignmentsPortAssignments{}
 			if cValue := v.Get("id"); cValue.Exists() {
 				item.Id = types.StringValue(cValue.String())
 			} else {
@@ -191,7 +185,7 @@ func (data *FabricPortAssignment) fromBody(ctx context.Context, res gjson.Result
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *FabricPortAssignment) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *FabricPortAssignments) updateFromBody(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
 	for i := range data.PortAssignments {
@@ -276,7 +270,7 @@ func (data *FabricPortAssignment) updateFromBody(ctx context.Context, res gjson.
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
-func (data *FabricPortAssignment) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+func (data *FabricPortAssignments) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
 	for i := range data.PortAssignments {
@@ -315,7 +309,7 @@ func (data *FabricPortAssignment) fromBodyUnknowns(ctx context.Context, res gjso
 // End of section. //template:end fromBodyUnknowns
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
-func (data *FabricPortAssignment) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *FabricPortAssignments) isNull(ctx context.Context, res gjson.Result) bool {
 	if len(data.PortAssignments) > 0 {
 		return false
 	}

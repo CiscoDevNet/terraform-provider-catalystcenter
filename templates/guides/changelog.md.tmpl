@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.2.3 (unreleased)
+
+- BREAKING CHANGE: Rename resource `catalystcenter_fabric_port_assignment` to `catalystcenter_fabric_port_assignments` and fix issue with adding/removing ports to/from `catalystcenter_fabric_port_assignments` resource
+
 ## 0.2.2
 
 - Fix issue with isGroupBasedPolicyEnforcementEnabled flag missing in `catalystcenter_anycast_gateway` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/190)
