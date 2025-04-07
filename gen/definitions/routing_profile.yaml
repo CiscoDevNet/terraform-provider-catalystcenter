@@ -1,0 +1,90 @@
+---
+name: Routing Profile
+rest_endpoint: /api/v1/siteprofile
+get_extra_query_params: "?populated=true"
+id_from_query_path: response
+id_from_query_path_attribute: siteProfileUuid
+doc_category: Network Settings
+attributes:
+  - model_name: name
+    response_data_path: response.name
+    type: String
+    match_id: true
+    data_source_query: true
+    description: The name of the network profile
+    example: Profile1
+  - model_name: namespace
+    response_data_path: response.namespace
+    type: String
+    description: Profile type
+    value: routing
+  - model_name: profileAttributes
+    response_data_path: response.profileAttributes
+    type: List
+    attributes:
+      - model_name: key
+        id: true
+        type: String
+        enum_values: [cli.templates, day0.templates, underlay.lanConnectivity, nfv.device.name, nfv.serviceprovider.list]
+        description: Attribute type
+        example: nfv.device.name
+      - model_name: value
+        type: String
+        description: Attribute value
+        example: ISR
+      - model_name: attribs
+        tf_name: attributes
+        type: List
+        attributes:
+          - model_name: key
+            type: String
+            description: Attribute key
+            example: nfv.device.deviceType
+          - model_name: value
+            type: String
+            id: true
+            description: Attribute value
+            example: Cisco Catalyst 8000V Edge Software
+          - model_name: attribs
+            tf_name: attributes
+            type: List
+            exclude_test: true
+            attributes:
+              - model_name: key
+                type: String
+                description: Attribute key
+                example: nfv.device.deviceType
+              - model_name: value
+                type: String
+                id: true
+                description: Attribute value
+                example: Cisco Catalyst 8000V Edge Software
+                test_value: catalystcenter_template.test.id
+              - model_name: attribs
+                tf_name: attributes
+                type: List
+                attributes:
+                  - model_name: key
+                    type: String
+                    description: Attribute key
+                    example: nfv.device.deviceType
+                  - model_name: value
+                    type: String
+                    id: true
+                    description: Attribute value
+                    example: Cisco Catalyst 8000V Edge Software
+                    test_value: catalystcenter_template.test.id
+                  - model_name: attribs
+                    tf_name: attributes
+                    type: List
+                    attributes:
+                      - model_name: key
+                        type: String
+                        description: Attribute key
+                        example: nfv.device.deviceType
+                      - model_name: value
+                        type: String
+                        id: true
+                        description: Attribute value
+                        example: Cisco Catalyst 8000V Edge Software
+                        test_value: catalystcenter_template.test.id
