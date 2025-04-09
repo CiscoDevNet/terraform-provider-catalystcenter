@@ -1,4 +1,4 @@
-## 0.2.3 (unreleased)
+## 0.2.3
 
 - BREAKING CHANGE: Rename resource `catalystcenter_fabric_port_assignment` to `catalystcenter_fabric_port_assignments` and fix issue with adding/removing ports to/from `catalystcenter_fabric_port_assignments` resource
 
