@@ -21,7 +21,6 @@ attributes:
     description: Name of the layer 3 virtual network.
     example: MyL3VN
   - model_name: fabricIds
-    requires_replace: true
     data_path: "0"
     response_data_path: response.0.fabricIds
     description: IDs of the fabrics this layer 3 virtual network is to be assigned to.
