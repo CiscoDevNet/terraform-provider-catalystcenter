@@ -450,9 +450,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
 	{{- end}}
 	{{- if .PutCreate}}
-	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}
@@ -641,15 +641,15 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	params += "?{{.PutIdQueryParam}}=" + url.QueryEscape(plan.Id.ValueString())
 	{{- end}}
 	{{- if .PostUpdate}}
-	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .PutCreate}}
-	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if hasQueryParam .Attributes}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .PutNoId}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}
@@ -745,7 +745,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	if len(toDelete.{{toGoName $items}}) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.{{toGoName $items}})))
 		for _, v := range toDelete.{{toGoName $items}} {
-			res, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(v.Id.ValueString()))
+			res, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(v.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 			if err != nil {
 			{{- if .DeviceUnreachabilityWarning}}
 				errorCode := res.Get("response.errorCode").String()
@@ -775,7 +775,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{- $createQueryPath := getCreateQueryPath .Attributes}}
 		params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
 		{{- end}}
-		res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+		res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 		if err != nil {
 		{{- if .DeviceUnreachabilityWarning}}
 			errorCode := res.Get("response.errorCode").String()
@@ -841,7 +841,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 		body := toUpdate.toBody(ctx, {{camelCase .Name}}{})
 		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body)
+		res, err := r.client.Put(plan.getPath()+params, body{{- if .Mutex }}, cc.UseMutex{{- end}})
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 			return
@@ -872,17 +872,17 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- if not .NoDelete}}
 	{{- if .PutDelete}}
 	{{- if .DeleteNoId}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, "{}")
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), "{}")
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if hasDeleteQueryParam .Attributes }}
 	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
 	{{- if $queryParams }}
 	params := {{$queryParams}}
 	{{- end}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, "{}")
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), "{}")
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), "{}"){{- if .Mutex }}, cc.UseMutex{{- end}}
 	{{- end}}
 	if err != nil {
 	{{- if .PutDelete}}
@@ -902,17 +902,17 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	}
 	{{- else}}
 	{{- if .DeleteNoId}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}})
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if hasDeleteQueryParam .Attributes }}
 	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
 	{{- if $queryParams }}
 	params := {{$queryParams}}
 	{{- end}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params)
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}

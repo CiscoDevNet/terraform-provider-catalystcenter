@@ -11,6 +11,7 @@ put_id_include_path: "0.id"
 put_no_id: true
 device_unreachability_warning: true
 doc_category: SDA
+mutex: true
 attributes:
   - model_name: fabricId
     requires_replace: true

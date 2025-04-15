@@ -133,7 +133,7 @@ func (r *FabricVLANToSSIDResource) Create(ctx context.Context, req resource.Crea
 	body := plan.toBody(ctx, FabricVLANToSSID{})
 
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
@@ -207,7 +207,7 @@ func (r *FabricVLANToSSIDResource) Update(ctx context.Context, req resource.Upda
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return

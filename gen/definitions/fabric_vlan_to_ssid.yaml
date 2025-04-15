@@ -18,6 +18,7 @@ id_from_attribute: true
 root_list: true
 skip_minimum_test: true
 doc_category: Wireless
+mutex: true
 test_tags: [WIRELESS]
 attributes:
   - tf_name: fabric_id

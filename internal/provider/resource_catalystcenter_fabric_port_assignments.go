@@ -170,7 +170,7 @@ func (r *FabricPortAssignmentsResource) Create(ctx context.Context, req resource
 	body := plan.toBody(ctx, FabricPortAssignments{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {
@@ -311,7 +311,7 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 	if len(toDelete.PortAssignments) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.PortAssignments)))
 		for _, v := range toDelete.PortAssignments {
-			res, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(v.Id.ValueString()))
+			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
 				if errorCode == "NCDP10000" {
@@ -332,7 +332,7 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.PortAssignments)))
 		body := toCreate.toBody(ctx, FabricPortAssignments{}) // Convert to request body
 		params := ""
-		res, err := r.client.Post(plan.getPath()+params, body)
+		res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
 			if errorCode == "NCDP10000" {
@@ -374,7 +374,7 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 
 		body := toUpdate.toBody(ctx, FabricPortAssignments{})
 		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body)
+		res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 			return
@@ -402,7 +402,7 @@ func (r *FabricPortAssignmentsResource) Delete(ctx context.Context, req resource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	params := "?fabricId=" + url.QueryEscape(state.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
-	res, err := r.client.Delete(state.getPath() + params)
+	res, err := r.client.Delete(state.getPath()+params, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {

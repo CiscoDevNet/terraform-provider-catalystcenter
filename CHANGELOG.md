@@ -1,3 +1,7 @@
+## 0.2.4 (unreleased)
+
+- Add mutex to resources to prevent multiple concurrent operations (such as Create, Update, or Delete) on the same resource instance or API endpoint, in order to bypass the sequential API execution limitation
+
 ## 0.2.3
 
 - BREAKING CHANGE: Rename resource `catalystcenter_fabric_port_assignment` to `catalystcenter_fabric_port_assignments` and fix issue with adding/removing ports to/from `catalystcenter_fabric_port_assignments` resource
