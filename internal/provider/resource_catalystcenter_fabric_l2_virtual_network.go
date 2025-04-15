@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -51,7 +52,8 @@ func NewFabricL2VirtualNetworkResource() resource.Resource {
 }
 
 type FabricL2VirtualNetworkResource struct {
-	client *cc.Client
+	client                      *cc.Client
+	fabricL2VirtualNetworkMutex *sync.Mutex
 }
 
 func (r *FabricL2VirtualNetworkResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -120,6 +122,7 @@ func (r *FabricL2VirtualNetworkResource) Configure(_ context.Context, req resour
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.fabricL2VirtualNetworkMutex = req.ProviderData.(*CcProviderData).FabricL2VirtualNetworkMutex
 }
 
 // End of section. //template:end model
@@ -136,6 +139,8 @@ func (r *FabricL2VirtualNetworkResource) Create(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	r.fabricL2VirtualNetworkMutex.Lock()
+	defer r.fabricL2VirtualNetworkMutex.Unlock()
 
 	// Create object
 	body := plan.toBody(ctx, FabricL2VirtualNetwork{})
@@ -220,6 +225,8 @@ func (r *FabricL2VirtualNetworkResource) Update(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	r.fabricL2VirtualNetworkMutex.Lock()
+	defer r.fabricL2VirtualNetworkMutex.Unlock()
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -249,6 +256,8 @@ func (r *FabricL2VirtualNetworkResource) Delete(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	r.fabricL2VirtualNetworkMutex.Lock()
+	defer r.fabricL2VirtualNetworkMutex.Unlock()
 	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))

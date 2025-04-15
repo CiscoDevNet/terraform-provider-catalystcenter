@@ -139,6 +139,7 @@ type YamlConfig struct {
 	TestTags                    []string              `yaml:"test_tags"`
 	TestPrerequisites           string                `yaml:"test_prerequisites"`
 	MaxAsyncWaitTime            int64                 `yaml:"max_async_wait_time"`
+	Mutex                       bool                  `yaml:"mutex"`
 }
 
 type YamlConfigAttribute struct {
@@ -216,6 +217,23 @@ func CamelCase(s string) string {
 
 	for _, value := range p {
 		g = append(g, strings.Title(value))
+	}
+	return strings.Join(g, "")
+}
+
+// Templating helper function to convert string to lower camel case
+func LowerCamelCase(s string) string {
+	var g []string
+
+	s = strings.ReplaceAll(s, "-", " ")
+	p := strings.Fields(s)
+
+	for i, value := range p {
+		if i == 0 {
+			g = append(g, strings.ToLower(value))
+		} else {
+			g = append(g, strings.Title(value))
+		}
 	}
 	return strings.Join(g, "")
 }
@@ -570,6 +588,7 @@ func Subtract(a, b int) int {
 var functions = template.FuncMap{
 	"toGoName":                 ToGoName,
 	"camelCase":                CamelCase,
+	"lowerCamelCase":           LowerCamelCase,
 	"strContains":              strings.Contains,
 	"snakeCase":                SnakeCase,
 	"sprintf":                  fmt.Sprintf,

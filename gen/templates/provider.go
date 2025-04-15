@@ -56,6 +56,11 @@ type CcProviderModel struct {
 // CcProviderData describes the data maintained by the provider.
 type CcProviderData struct {
 	Client *cc.Client
+	{{- range .}}
+	{{- if and (not .NoResource) .Mutex }}
+	{{camelCase .Name}}Mutex *sync.Mutex
+	{{- end}}
+	{{- end}}
 }
 
 // Metadata returns the provider type name.
@@ -262,7 +267,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		return
 	}
 
-	data := CcProviderData{Client: &c}
+	data := CcProviderData{Client: &c {{- range .}}{{- if and (not .NoResource) .Mutex }},{{camelCase .Name}}Mutex: &sync.Mutex{}{{- end}}{{- end}}}
 	resp.DataSourceData = &data
 	resp.ResourceData = &data
 }

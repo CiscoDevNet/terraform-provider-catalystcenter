@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -51,7 +52,8 @@ func NewFabricPortAssignmentsResource() resource.Resource {
 }
 
 type FabricPortAssignmentsResource struct {
-	client *cc.Client
+	client                     *cc.Client
+	fabricPortAssignmentsMutex *sync.Mutex
 }
 
 func (r *FabricPortAssignmentsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -149,6 +151,7 @@ func (r *FabricPortAssignmentsResource) Configure(_ context.Context, req resourc
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.fabricPortAssignmentsMutex = req.ProviderData.(*CcProviderData).FabricPortAssignmentsMutex
 }
 
 // End of section. //template:end model
@@ -165,6 +168,8 @@ func (r *FabricPortAssignmentsResource) Create(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	r.fabricPortAssignmentsMutex.Lock()
+	defer r.fabricPortAssignmentsMutex.Unlock()
 
 	// Create object
 	body := plan.toBody(ctx, FabricPortAssignments{})
@@ -257,6 +262,8 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	r.fabricPortAssignmentsMutex.Lock()
+	defer r.fabricPortAssignmentsMutex.Unlock()
 
 	// Initialize toDelete, toCreate, and toUpdate with empty slices
 	var toDelete = FabricPortAssignments{
@@ -401,6 +408,8 @@ func (r *FabricPortAssignmentsResource) Delete(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	r.fabricPortAssignmentsMutex.Lock()
+	defer r.fabricPortAssignmentsMutex.Unlock()
 	params := "?fabricId=" + url.QueryEscape(state.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
 	res, err := r.client.Delete(state.getPath() + params)
 	if err != nil {

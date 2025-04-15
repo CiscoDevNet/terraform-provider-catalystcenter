@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -50,7 +51,8 @@ func NewFabricL2HandoffResource() resource.Resource {
 }
 
 type FabricL2HandoffResource struct {
-	client *cc.Client
+	client               *cc.Client
+	fabricL2HandoffMutex *sync.Mutex
 }
 
 func (r *FabricL2HandoffResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -115,6 +117,7 @@ func (r *FabricL2HandoffResource) Configure(_ context.Context, req resource.Conf
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.fabricL2HandoffMutex = req.ProviderData.(*CcProviderData).FabricL2HandoffMutex
 }
 
 // End of section. //template:end model
@@ -131,6 +134,8 @@ func (r *FabricL2HandoffResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	r.fabricL2HandoffMutex.Lock()
+	defer r.fabricL2HandoffMutex.Unlock()
 
 	// Create object
 	body := plan.toBody(ctx, FabricL2Handoff{})
@@ -223,6 +228,8 @@ func (r *FabricL2HandoffResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	r.fabricL2HandoffMutex.Lock()
+	defer r.fabricL2HandoffMutex.Unlock()
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -259,6 +266,8 @@ func (r *FabricL2HandoffResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	r.fabricL2HandoffMutex.Lock()
+	defer r.fabricL2HandoffMutex.Unlock()
 	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()

@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -49,7 +50,8 @@ func NewFabricL3VirtualNetworkResource() resource.Resource {
 }
 
 type FabricL3VirtualNetworkResource struct {
-	client *cc.Client
+	client                      *cc.Client
+	fabricL3VirtualNetworkMutex *sync.Mutex
 }
 
 func (r *FabricL3VirtualNetworkResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -101,6 +103,7 @@ func (r *FabricL3VirtualNetworkResource) Configure(_ context.Context, req resour
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.fabricL3VirtualNetworkMutex = req.ProviderData.(*CcProviderData).FabricL3VirtualNetworkMutex
 }
 
 // End of section. //template:end model
@@ -116,6 +119,8 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	r.fabricL3VirtualNetworkMutex.Lock()
+	defer r.fabricL3VirtualNetworkMutex.Unlock()
 
 	// Create object
 	body := plan.toBody(ctx, FabricL3VirtualNetwork{})
@@ -212,6 +217,8 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	r.fabricL3VirtualNetworkMutex.Lock()
+	defer r.fabricL3VirtualNetworkMutex.Unlock()
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -240,6 +247,9 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	r.fabricL3VirtualNetworkMutex.Lock()
+	defer r.fabricL3VirtualNetworkMutex.Unlock()
+
 	params := ""
 	params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
 	res, err := r.client.Delete(state.getPath() + params)

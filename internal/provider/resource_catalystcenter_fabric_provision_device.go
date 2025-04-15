@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -48,7 +49,8 @@ func NewFabricProvisionDeviceResource() resource.Resource {
 }
 
 type FabricProvisionDeviceResource struct {
-	client *cc.Client
+	client                     *cc.Client
+	fabricProvisionDeviceMutex *sync.Mutex
 }
 
 func (r *FabricProvisionDeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -96,6 +98,7 @@ func (r *FabricProvisionDeviceResource) Configure(_ context.Context, req resourc
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.fabricProvisionDeviceMutex = req.ProviderData.(*CcProviderData).FabricProvisionDeviceMutex
 }
 
 // End of section. //template:end model
@@ -112,6 +115,8 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	r.fabricProvisionDeviceMutex.Lock()
+	defer r.fabricProvisionDeviceMutex.Unlock()
 
 	// Create object
 	body := plan.toBody(ctx, FabricProvisionDevice{})
@@ -239,6 +244,8 @@ func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	r.fabricProvisionDeviceMutex.Lock()
+	defer r.fabricProvisionDeviceMutex.Unlock()
 	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()

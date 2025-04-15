@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
@@ -52,7 +53,8 @@ func NewFabricL3HandoffIPTransitResource() resource.Resource {
 }
 
 type FabricL3HandoffIPTransitResource struct {
-	client *cc.Client
+	client                        *cc.Client
+	fabricL3HandoffIPTransitMutex *sync.Mutex
 }
 
 func (r *FabricL3HandoffIPTransitResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -166,6 +168,7 @@ func (r *FabricL3HandoffIPTransitResource) Configure(_ context.Context, req reso
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.fabricL3HandoffIPTransitMutex = req.ProviderData.(*CcProviderData).FabricL3HandoffIPTransitMutex
 }
 
 // End of section. //template:end model
@@ -182,6 +185,8 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	r.fabricL3HandoffIPTransitMutex.Lock()
+	defer r.fabricL3HandoffIPTransitMutex.Unlock()
 
 	// Create object
 	body := plan.toBody(ctx, FabricL3HandoffIPTransit{})
@@ -274,6 +279,8 @@ func (r *FabricL3HandoffIPTransitResource) Update(ctx context.Context, req resou
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	r.fabricL3HandoffIPTransitMutex.Lock()
+	defer r.fabricL3HandoffIPTransitMutex.Unlock()
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -310,6 +317,8 @@ func (r *FabricL3HandoffIPTransitResource) Delete(ctx context.Context, req resou
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	r.fabricL3HandoffIPTransitMutex.Lock()
+	defer r.fabricL3HandoffIPTransitMutex.Unlock()
 	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()

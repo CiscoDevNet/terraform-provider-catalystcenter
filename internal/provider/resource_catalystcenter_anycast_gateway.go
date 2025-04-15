@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
@@ -53,7 +54,8 @@ func NewAnycastGatewayResource() resource.Resource {
 }
 
 type AnycastGatewayResource struct {
-	client *cc.Client
+	client              *cc.Client
+	anycastGatewayMutex *sync.Mutex
 }
 
 func (r *AnycastGatewayResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -186,6 +188,7 @@ func (r *AnycastGatewayResource) Configure(_ context.Context, req resource.Confi
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.anycastGatewayMutex = req.ProviderData.(*CcProviderData).AnycastGatewayMutex
 }
 
 // End of section. //template:end model
@@ -202,6 +205,8 @@ func (r *AnycastGatewayResource) Create(ctx context.Context, req resource.Create
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	r.anycastGatewayMutex.Lock()
+	defer r.anycastGatewayMutex.Unlock()
 
 	// Create object
 	body := plan.toBody(ctx, AnycastGateway{})
@@ -294,6 +299,8 @@ func (r *AnycastGatewayResource) Update(ctx context.Context, req resource.Update
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	r.anycastGatewayMutex.Lock()
+	defer r.anycastGatewayMutex.Unlock()
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -330,6 +337,8 @@ func (r *AnycastGatewayResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	r.anycastGatewayMutex.Lock()
+	defer r.anycastGatewayMutex.Unlock()
 	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()

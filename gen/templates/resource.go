@@ -58,6 +58,9 @@ func New{{camelCase .Name}}Resource() resource.Resource {
 
 type {{camelCase .Name}}Resource struct {
 	client *cc.Client
+	{{- if and (not .NoResource) .Mutex }}
+	{{lowerCamelCase .Name}}Mutex *sync.Mutex
+	{{- end}}
 }
 
 func (r *{{camelCase .Name}}Resource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -425,6 +428,9 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	{{- if and (not .NoResource) .Mutex }}
+	r.{{lowerCamelCase .Name}}Mutex = req.ProviderData.(*CcProviderData).{{camelCase .Name}}Mutex
+	{{- end}}
 }
 // End of section. //template:end model
 
@@ -440,6 +446,11 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+
+	{{- if and (not .NoResource) .Mutex}}
+	r.{{lowerCamelCase .Name}}Mutex.Lock()
+	defer r.{{lowerCamelCase .Name}}Mutex.Unlock()
+	{{- end}}
 
 	// Create object
 	body := plan.toBody(ctx, {{camelCase .Name}}{})
@@ -628,6 +639,10 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	{{- if and (not .NoResource) .Mutex}}
+	r.{{lowerCamelCase .Name}}Mutex.Lock()
+	defer r.{{lowerCamelCase .Name}}Mutex.Unlock()
+	{{- end}}
 	{{- if not .NoUpdate}}
 	{{- if not .UpdateComputed}}
 
@@ -868,6 +883,10 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	{{- if and (not .NoResource) .Mutex}}
+	r.{{lowerCamelCase .Name}}Mutex.Lock()
+	defer r.{{lowerCamelCase .Name}}Mutex.Unlock()
+	{{- end}}
 
 	{{- if not .NoDelete}}
 	{{- if .PutDelete}}

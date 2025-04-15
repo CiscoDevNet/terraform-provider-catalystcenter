@@ -22,6 +22,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -53,7 +54,15 @@ type CcProviderModel struct {
 
 // CcProviderData describes the data maintained by the provider.
 type CcProviderData struct {
-	Client *cc.Client
+	Client                        *cc.Client
+	AnycastGatewayMutex           *sync.Mutex
+	FabricDeviceMutex             *sync.Mutex
+	FabricL2HandoffMutex          *sync.Mutex
+	FabricL2VirtualNetworkMutex   *sync.Mutex
+	FabricL3HandoffIPTransitMutex *sync.Mutex
+	FabricL3VirtualNetworkMutex   *sync.Mutex
+	FabricPortAssignmentsMutex    *sync.Mutex
+	FabricProvisionDeviceMutex    *sync.Mutex
 }
 
 // Metadata returns the provider type name.
@@ -260,7 +269,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		return
 	}
 
-	data := CcProviderData{Client: &c}
+	data := CcProviderData{Client: &c, AnycastGatewayMutex: &sync.Mutex{}, FabricDeviceMutex: &sync.Mutex{}, FabricL2HandoffMutex: &sync.Mutex{}, FabricL2VirtualNetworkMutex: &sync.Mutex{}, FabricL3HandoffIPTransitMutex: &sync.Mutex{}, FabricL3VirtualNetworkMutex: &sync.Mutex{}, FabricPortAssignmentsMutex: &sync.Mutex{}, FabricProvisionDeviceMutex: &sync.Mutex{}}
 	resp.DataSourceData = &data
 	resp.ResourceData = &data
 }
