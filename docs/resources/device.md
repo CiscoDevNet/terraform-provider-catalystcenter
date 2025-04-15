@@ -48,11 +48,24 @@ resource "catalystcenter_device" "example" {
 
 ### Required
 
+- `ip_address` (String) IP address of the device
+
+### Optional
+
 - `cli_transport` (String) CLI transport
   - Choices: `telnet`, `ssh`
+- `compute_device` (Boolean) Compute device
 - `enable_password` (String) CLI enable password of the device
-- `ip_address` (String) IP address of the device
+- `extended_discovery_info` (String) This field holds that info as whether to add device with canned data or not.
+  - Choices: `DISCOVER_WITH_CANNED_DATA`
+- `http_password` (String) HTTP password of the device
+- `http_port` (String) HTTP port of the device
+- `http_secure` (Boolean) Enable HTTPS
+- `http_user_name` (String) HTTP username of the device
+- `meraki_org_ids` (Set of String) Selected Meraki organizations for which the devices needs to be imported
+- `netconf_port` (String) NETCONF port of the device
 - `password` (String) CLI password of the device
+- `serial_number` (String) Serial number of the device
 - `snmp_auth_passphrase` (String) SNMPv3 authentication passphrase of the device
 - `snmp_auth_protocol` (String) SNMPv3 authentication protocol of the device
   - Choices: `sha`, `md5`
@@ -72,21 +85,8 @@ resource "catalystcenter_device" "example" {
   - Choices: `v2`, `v3`
 - `type` (String) Device type
   - Choices: `COMPUTE_DEVICE`, `MERAKI_DASHBOARD`, `NETWORK_DEVICE`, `FIREPOWER MANAGEMENT CENTER`, `THIRD PARTY DEVICE`, `NODATACHANGE`
-- `user_name` (String) CLI username of the device
-
-### Optional
-
-- `compute_device` (Boolean) Compute device
-- `extended_discovery_info` (String) This field holds that info as whether to add device with canned data or not.
-  - Choices: `DISCOVER_WITH_CANNED_DATA`
-- `http_password` (String) HTTP password of the device
-- `http_port` (String) HTTP port of the device
-- `http_secure` (Boolean) Enable HTTPS
-- `http_user_name` (String) HTTP username of the device
-- `meraki_org_ids` (Set of String) Selected Meraki organizations for which the devices needs to be imported
-- `netconf_port` (String) NETCONF port of the device
-- `serial_number` (String) Serial number of the device
 - `update_mgmt_ip_addresses` (Attributes List) IP address of the device to be mapped to New IP address (see [below for nested schema](#nestedatt--update_mgmt_ip_addresses))
+- `user_name` (String) CLI username of the device
 
 ### Read-Only
 

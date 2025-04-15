@@ -21,7 +21,6 @@ package provider
 import (
 	"context"
 
-	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -183,153 +182,15 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("cliTransport"); value.Exists() {
-		data.CliTransport = types.StringValue(value.String())
-	} else {
-		data.CliTransport = types.StringNull()
-	}
-	if value := res.Get("computeDevice"); value.Exists() {
-		data.ComputeDevice = types.BoolValue(value.Bool())
-	} else {
-		data.ComputeDevice = types.BoolNull()
-	}
-	if value := res.Get("enablePassword"); value.Exists() {
-		data.EnablePassword = types.StringValue(value.String())
-	} else {
-		data.EnablePassword = types.StringNull()
-	}
-	if value := res.Get("extendedDiscoveryInfo"); value.Exists() {
-		data.ExtendedDiscoveryInfo = types.StringValue(value.String())
-	} else {
-		data.ExtendedDiscoveryInfo = types.StringNull()
-	}
-	if value := res.Get("httpPassword"); value.Exists() {
-		data.HttpPassword = types.StringValue(value.String())
-	} else {
-		data.HttpPassword = types.StringNull()
-	}
-	if value := res.Get("httpPort"); value.Exists() {
-		data.HttpPort = types.StringValue(value.String())
-	} else {
-		data.HttpPort = types.StringNull()
-	}
-	if value := res.Get("httpSecure"); value.Exists() {
-		data.HttpSecure = types.BoolValue(value.Bool())
-	} else {
-		data.HttpSecure = types.BoolNull()
-	}
-	if value := res.Get("httpUserName"); value.Exists() {
-		data.HttpUserName = types.StringValue(value.String())
-	} else {
-		data.HttpUserName = types.StringNull()
-	}
-	if value := res.Get("ipAddress.0"); value.Exists() {
+	if value := res.Get("response.managementIpAddress"); value.Exists() {
 		data.IpAddress = types.StringValue(value.String())
 	} else {
 		data.IpAddress = types.StringNull()
 	}
-	if value := res.Get("merakiOrgId"); value.Exists() && len(value.Array()) > 0 {
-		data.MerakiOrgIds = helpers.GetStringSet(value.Array())
-	} else {
-		data.MerakiOrgIds = types.SetNull(types.StringType)
-	}
-	if value := res.Get("netconfPort"); value.Exists() {
-		data.NetconfPort = types.StringValue(value.String())
-	} else {
-		data.NetconfPort = types.StringNull()
-	}
-	if value := res.Get("password"); value.Exists() {
-		data.Password = types.StringValue(value.String())
-	} else {
-		data.Password = types.StringNull()
-	}
-	if value := res.Get("serialNumber"); value.Exists() {
+	if value := res.Get("response.serialNumber"); value.Exists() {
 		data.SerialNumber = types.StringValue(value.String())
 	} else {
 		data.SerialNumber = types.StringNull()
-	}
-	if value := res.Get("snmpAuthPassphrase"); value.Exists() {
-		data.SnmpAuthPassphrase = types.StringValue(value.String())
-	} else {
-		data.SnmpAuthPassphrase = types.StringNull()
-	}
-	if value := res.Get("snmpAuthProtocol"); value.Exists() {
-		data.SnmpAuthProtocol = types.StringValue(value.String())
-	} else {
-		data.SnmpAuthProtocol = types.StringNull()
-	}
-	if value := res.Get("snmpMode"); value.Exists() {
-		data.SnmpMode = types.StringValue(value.String())
-	} else {
-		data.SnmpMode = types.StringNull()
-	}
-	if value := res.Get("snmpPrivPassphrase"); value.Exists() {
-		data.SnmpPrivPassphrase = types.StringValue(value.String())
-	} else {
-		data.SnmpPrivPassphrase = types.StringNull()
-	}
-	if value := res.Get("snmpPrivProtocol"); value.Exists() {
-		data.SnmpPrivProtocol = types.StringValue(value.String())
-	} else {
-		data.SnmpPrivProtocol = types.StringNull()
-	}
-	if value := res.Get("snmpROCommunity"); value.Exists() {
-		data.SnmpRoCommunity = types.StringValue(value.String())
-	} else {
-		data.SnmpRoCommunity = types.StringNull()
-	}
-	if value := res.Get("snmpRWCommunity"); value.Exists() {
-		data.SnmpRwCommunity = types.StringValue(value.String())
-	} else {
-		data.SnmpRwCommunity = types.StringNull()
-	}
-	if value := res.Get("snmpRetry"); value.Exists() {
-		data.SnmpRetry = types.Int64Value(value.Int())
-	} else {
-		data.SnmpRetry = types.Int64Null()
-	}
-	if value := res.Get("snmpTimeout"); value.Exists() {
-		data.SnmpTimeout = types.Int64Value(value.Int())
-	} else {
-		data.SnmpTimeout = types.Int64Null()
-	}
-	if value := res.Get("snmpUserName"); value.Exists() {
-		data.SnmpUserName = types.StringValue(value.String())
-	} else {
-		data.SnmpUserName = types.StringNull()
-	}
-	if value := res.Get("snmpVersion"); value.Exists() {
-		data.SnmpVersion = types.StringValue(value.String())
-	} else {
-		data.SnmpVersion = types.StringNull()
-	}
-	if value := res.Get("type"); value.Exists() {
-		data.Type = types.StringValue(value.String())
-	} else {
-		data.Type = types.StringNull()
-	}
-	if value := res.Get("updateMgmtIPaddressList"); value.Exists() && len(value.Array()) > 0 {
-		data.UpdateMgmtIpAddresses = make([]DeviceUpdateMgmtIpAddresses, 0)
-		value.ForEach(func(k, v gjson.Result) bool {
-			item := DeviceUpdateMgmtIpAddresses{}
-			if cValue := v.Get("existMgmtIpAddress"); cValue.Exists() {
-				item.ExistMgmtIpAddress = types.StringValue(cValue.String())
-			} else {
-				item.ExistMgmtIpAddress = types.StringNull()
-			}
-			if cValue := v.Get("newMgmtIpAddress"); cValue.Exists() {
-				item.NewMgmtIpAddress = types.StringValue(cValue.String())
-			} else {
-				item.NewMgmtIpAddress = types.StringNull()
-			}
-			data.UpdateMgmtIpAddresses = append(data.UpdateMgmtIpAddresses, item)
-			return true
-		})
-	}
-	if value := res.Get("userName"); value.Exists() {
-		data.UserName = types.StringValue(value.String())
-	} else {
-		data.UserName = types.StringNull()
 	}
 }
 
@@ -337,169 +198,15 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("cliTransport"); value.Exists() && !data.CliTransport.IsNull() {
-		data.CliTransport = types.StringValue(value.String())
-	} else {
-		data.CliTransport = types.StringNull()
-	}
-	if value := res.Get("computeDevice"); value.Exists() && !data.ComputeDevice.IsNull() {
-		data.ComputeDevice = types.BoolValue(value.Bool())
-	} else {
-		data.ComputeDevice = types.BoolNull()
-	}
-	if value := res.Get("enablePassword"); value.Exists() && !data.EnablePassword.IsNull() {
-		data.EnablePassword = types.StringValue(value.String())
-	} else {
-		data.EnablePassword = types.StringNull()
-	}
-	if value := res.Get("extendedDiscoveryInfo"); value.Exists() && !data.ExtendedDiscoveryInfo.IsNull() {
-		data.ExtendedDiscoveryInfo = types.StringValue(value.String())
-	} else {
-		data.ExtendedDiscoveryInfo = types.StringNull()
-	}
-	if value := res.Get("httpPassword"); value.Exists() && !data.HttpPassword.IsNull() {
-		data.HttpPassword = types.StringValue(value.String())
-	} else {
-		data.HttpPassword = types.StringNull()
-	}
-	if value := res.Get("httpPort"); value.Exists() && !data.HttpPort.IsNull() {
-		data.HttpPort = types.StringValue(value.String())
-	} else {
-		data.HttpPort = types.StringNull()
-	}
-	if value := res.Get("httpSecure"); value.Exists() && !data.HttpSecure.IsNull() {
-		data.HttpSecure = types.BoolValue(value.Bool())
-	} else {
-		data.HttpSecure = types.BoolNull()
-	}
-	if value := res.Get("httpUserName"); value.Exists() && !data.HttpUserName.IsNull() {
-		data.HttpUserName = types.StringValue(value.String())
-	} else {
-		data.HttpUserName = types.StringNull()
-	}
-	if value := res.Get("ipAddress.0"); value.Exists() && !data.IpAddress.IsNull() {
+	if value := res.Get("response.managementIpAddress"); value.Exists() && !data.IpAddress.IsNull() {
 		data.IpAddress = types.StringValue(value.String())
 	} else {
 		data.IpAddress = types.StringNull()
 	}
-	if value := res.Get("merakiOrgId"); value.Exists() && !data.MerakiOrgIds.IsNull() {
-		data.MerakiOrgIds = helpers.GetStringSet(value.Array())
-	} else {
-		data.MerakiOrgIds = types.SetNull(types.StringType)
-	}
-	if value := res.Get("netconfPort"); value.Exists() && !data.NetconfPort.IsNull() {
-		data.NetconfPort = types.StringValue(value.String())
-	} else {
-		data.NetconfPort = types.StringNull()
-	}
-	if value := res.Get("password"); value.Exists() && !data.Password.IsNull() {
-		data.Password = types.StringValue(value.String())
-	} else {
-		data.Password = types.StringNull()
-	}
-	if value := res.Get("serialNumber"); value.Exists() && !data.SerialNumber.IsNull() {
+	if value := res.Get("response.serialNumber"); value.Exists() && !data.SerialNumber.IsNull() {
 		data.SerialNumber = types.StringValue(value.String())
 	} else {
 		data.SerialNumber = types.StringNull()
-	}
-	if value := res.Get("snmpAuthPassphrase"); value.Exists() && !data.SnmpAuthPassphrase.IsNull() {
-		data.SnmpAuthPassphrase = types.StringValue(value.String())
-	} else {
-		data.SnmpAuthPassphrase = types.StringNull()
-	}
-	if value := res.Get("snmpAuthProtocol"); value.Exists() && !data.SnmpAuthProtocol.IsNull() {
-		data.SnmpAuthProtocol = types.StringValue(value.String())
-	} else {
-		data.SnmpAuthProtocol = types.StringNull()
-	}
-	if value := res.Get("snmpMode"); value.Exists() && !data.SnmpMode.IsNull() {
-		data.SnmpMode = types.StringValue(value.String())
-	} else {
-		data.SnmpMode = types.StringNull()
-	}
-	if value := res.Get("snmpPrivPassphrase"); value.Exists() && !data.SnmpPrivPassphrase.IsNull() {
-		data.SnmpPrivPassphrase = types.StringValue(value.String())
-	} else {
-		data.SnmpPrivPassphrase = types.StringNull()
-	}
-	if value := res.Get("snmpPrivProtocol"); value.Exists() && !data.SnmpPrivProtocol.IsNull() {
-		data.SnmpPrivProtocol = types.StringValue(value.String())
-	} else {
-		data.SnmpPrivProtocol = types.StringNull()
-	}
-	if value := res.Get("snmpROCommunity"); value.Exists() && !data.SnmpRoCommunity.IsNull() {
-		data.SnmpRoCommunity = types.StringValue(value.String())
-	} else {
-		data.SnmpRoCommunity = types.StringNull()
-	}
-	if value := res.Get("snmpRWCommunity"); value.Exists() && !data.SnmpRwCommunity.IsNull() {
-		data.SnmpRwCommunity = types.StringValue(value.String())
-	} else {
-		data.SnmpRwCommunity = types.StringNull()
-	}
-	if value := res.Get("snmpRetry"); value.Exists() && !data.SnmpRetry.IsNull() {
-		data.SnmpRetry = types.Int64Value(value.Int())
-	} else {
-		data.SnmpRetry = types.Int64Null()
-	}
-	if value := res.Get("snmpTimeout"); value.Exists() && !data.SnmpTimeout.IsNull() {
-		data.SnmpTimeout = types.Int64Value(value.Int())
-	} else {
-		data.SnmpTimeout = types.Int64Null()
-	}
-	if value := res.Get("snmpUserName"); value.Exists() && !data.SnmpUserName.IsNull() {
-		data.SnmpUserName = types.StringValue(value.String())
-	} else {
-		data.SnmpUserName = types.StringNull()
-	}
-	if value := res.Get("snmpVersion"); value.Exists() && !data.SnmpVersion.IsNull() {
-		data.SnmpVersion = types.StringValue(value.String())
-	} else {
-		data.SnmpVersion = types.StringNull()
-	}
-	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
-		data.Type = types.StringValue(value.String())
-	} else {
-		data.Type = types.StringNull()
-	}
-	for i := range data.UpdateMgmtIpAddresses {
-		keys := [...]string{"existMgmtIpAddress", "newMgmtIpAddress"}
-		keyValues := [...]string{data.UpdateMgmtIpAddresses[i].ExistMgmtIpAddress.ValueString(), data.UpdateMgmtIpAddresses[i].NewMgmtIpAddress.ValueString()}
-
-		var r gjson.Result
-		res.Get("updateMgmtIPaddressList").ForEach(
-			func(_, v gjson.Result) bool {
-				found := false
-				for ik := range keys {
-					if v.Get(keys[ik]).String() == keyValues[ik] {
-						found = true
-						continue
-					}
-					found = false
-					break
-				}
-				if found {
-					r = v
-					return false
-				}
-				return true
-			},
-		)
-		if value := r.Get("existMgmtIpAddress"); value.Exists() && !data.UpdateMgmtIpAddresses[i].ExistMgmtIpAddress.IsNull() {
-			data.UpdateMgmtIpAddresses[i].ExistMgmtIpAddress = types.StringValue(value.String())
-		} else {
-			data.UpdateMgmtIpAddresses[i].ExistMgmtIpAddress = types.StringNull()
-		}
-		if value := r.Get("newMgmtIpAddress"); value.Exists() && !data.UpdateMgmtIpAddresses[i].NewMgmtIpAddress.IsNull() {
-			data.UpdateMgmtIpAddresses[i].NewMgmtIpAddress = types.StringValue(value.String())
-		} else {
-			data.UpdateMgmtIpAddresses[i].NewMgmtIpAddress = types.StringNull()
-		}
-	}
-	if value := res.Get("userName"); value.Exists() && !data.UserName.IsNull() {
-		data.UserName = types.StringValue(value.String())
-	} else {
-		data.UserName = types.StringNull()
 	}
 }
 
