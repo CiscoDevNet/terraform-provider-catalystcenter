@@ -97,20 +97,6 @@ func (data *NTPSettings) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end updateFromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
-
-// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
-// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
-func (data *NTPSettings) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.ntp.servers"); value.Exists() && !data.Servers.IsNull() {
-		data.Servers = helpers.GetStringSet(value.Array())
-	} else {
-		data.Servers = types.SetNull(types.StringType)
-	}
-}
-
-// End of section. //template:end fromBodyUnknowns
-
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *NTPSettings) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Servers.IsNull() {

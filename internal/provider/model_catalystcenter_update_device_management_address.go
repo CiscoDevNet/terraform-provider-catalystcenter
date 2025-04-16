@@ -88,22 +88,6 @@ func (data *UpdateDeviceManagementAddress) updateFromBody(ctx context.Context, r
 
 // End of section. //template:end updateFromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
-
-// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
-// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
-func (data *UpdateDeviceManagementAddress) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
-	if data.NewIp.IsUnknown() {
-		if value := res.Get("response.managementIpAddress"); value.Exists() && !data.NewIp.IsNull() {
-			data.NewIp = types.StringValue(value.String())
-		} else {
-			data.NewIp = types.StringNull()
-		}
-	}
-}
-
-// End of section. //template:end fromBodyUnknowns
-
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *UpdateDeviceManagementAddress) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.NewIp.IsNull() {
