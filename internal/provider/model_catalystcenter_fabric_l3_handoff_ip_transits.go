@@ -179,11 +179,6 @@ func (data *FabricL3HandoffIPTransits) fromBody(ctx context.Context, res gjson.R
 			} else {
 				item.VlanId = types.Int64Null()
 			}
-			if cValue := v.Get("tcpMssAdjustment"); cValue.Exists() {
-				item.TcpMssAdjustment = types.Int64Value(cValue.Int())
-			} else {
-				item.TcpMssAdjustment = types.Int64Null()
-			}
 			if cValue := v.Get("localIpAddress"); cValue.Exists() {
 				item.LocalIpAddress = types.StringValue(cValue.String())
 			} else {
@@ -278,11 +273,6 @@ func (data *FabricL3HandoffIPTransits) updateFromBody(ctx context.Context, res g
 			data.L3Handoffs[i].VlanId = types.Int64Value(value.Int())
 		} else {
 			data.L3Handoffs[i].VlanId = types.Int64Null()
-		}
-		if value := r.Get("tcpMssAdjustment"); value.Exists() && !data.L3Handoffs[i].TcpMssAdjustment.IsNull() {
-			data.L3Handoffs[i].TcpMssAdjustment = types.Int64Value(value.Int())
-		} else {
-			data.L3Handoffs[i].TcpMssAdjustment = types.Int64Null()
 		}
 		if value := r.Get("localIpAddress"); value.Exists() && !data.L3Handoffs[i].LocalIpAddress.IsNull() {
 			data.L3Handoffs[i].LocalIpAddress = types.StringValue(value.String())

@@ -1,5 +1,6 @@
 ## 0.2.4 (unreleased)
 
+- Add `catalystcenter_fabric_l3_handoff_ip_transits` resource and data source
 - Add `catalystcenter_update_device_management_address` resource
 - Fix issue with terraform not detecting delta in `catalystcenter_device` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/200)
 - Make all attributes optional in `catalyscenter_device` resource to match API documentation

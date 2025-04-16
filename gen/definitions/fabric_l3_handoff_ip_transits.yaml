@@ -84,6 +84,7 @@ attributes:
         description: VLAN number for the Switch Virtual Interface (SVI) used to establish BGP peering with the external domain for the virtual network. Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094)
         example: 205
       - model_name: tcpMssAdjustment
+        write_only: true
         type: Int64
         min_int: 500
         max_int: 1440

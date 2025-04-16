@@ -37,7 +37,6 @@ func TestAccDataSourceCcFabricL3HandoffIPTransits(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l3_handoff_ip_transits.test", "l3_handoffs.0.interface_name", "TenGigabitEthernet1/0/2"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l3_handoff_ip_transits.test", "l3_handoffs.0.virtual_network_name", "SDA_VN1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l3_handoff_ip_transits.test", "l3_handoffs.0.vlan_id", "205"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l3_handoff_ip_transits.test", "l3_handoffs.0.tcp_mss_adjustment", "1400"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l3_handoff_ip_transits.test", "l3_handoffs.0.local_ip_address", "10.0.0.1/24"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l3_handoff_ip_transits.test", "l3_handoffs.0.remote_ip_address", "10.0.0.2/24"))
 	resource.Test(t, resource.TestCase{
