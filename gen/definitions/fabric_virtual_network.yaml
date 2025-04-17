@@ -5,6 +5,7 @@ id_query_param: virtualNetworkName
 delete_id_query_param: virtualNetworkName
 id_from_attribute: true
 doc_category: SDA
+mutex: true
 attributes:
   - model_name: virtualNetworkName
     type: String

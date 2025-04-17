@@ -108,29 +108,6 @@ func (data *BannerSettings) updateFromBody(ctx context.Context, res gjson.Result
 
 // End of section. //template:end updateFromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
-
-// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
-// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
-func (data *BannerSettings) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
-	if data.Type.IsUnknown() {
-		if value := res.Get("response.banner.type"); value.Exists() && !data.Type.IsNull() {
-			data.Type = types.StringValue(value.String())
-		} else {
-			data.Type = types.StringNull()
-		}
-	}
-	if data.Message.IsUnknown() {
-		if value := res.Get("response.banner.message"); value.Exists() && !data.Message.IsNull() {
-			data.Message = types.StringValue(value.String())
-		} else {
-			data.Message = types.StringNull()
-		}
-	}
-}
-
-// End of section. //template:end fromBodyUnknowns
-
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *BannerSettings) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Type.IsNull() {

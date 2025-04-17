@@ -41,6 +41,7 @@ resource "catalystcenter_deploy_template" "example" {
 - `is_composite` (Boolean) Composite template flag
 - `main_template_id` (String) Composite Template ID
 - `member_template_deployment_info` (Attributes List) Member Template Deployment Info (see [below for nested schema](#nestedatt--member_template_deployment_info))
+- `redeploy` (Boolean) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
 
 ### Read-Only
 

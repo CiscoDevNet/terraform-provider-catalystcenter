@@ -141,7 +141,7 @@ func (r *FabricL2VirtualNetworkResource) Create(ctx context.Context, req resourc
 	body := plan.toBody(ctx, FabricL2VirtualNetwork{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
@@ -223,7 +223,7 @@ func (r *FabricL2VirtualNetworkResource) Update(ctx context.Context, req resourc
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -249,7 +249,7 @@ func (r *FabricL2VirtualNetworkResource) Delete(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

@@ -73,7 +73,7 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 			"cli_transport": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("CLI transport").AddStringEnumDescription("telnet", "ssh").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("telnet", "ssh"),
 				},
@@ -84,7 +84,7 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 			"enable_password": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("CLI enable password of the device").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"extended_discovery_info": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("This field holds that info as whether to add device with canned data or not.").AddStringEnumDescription("DISCOVER_WITH_CANNED_DATA").String,
@@ -127,7 +127,7 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 			"password": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("CLI password of the device").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"serial_number": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Serial number of the device").String,
@@ -135,71 +135,71 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 			"snmp_auth_passphrase": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 authentication passphrase of the device").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"snmp_auth_protocol": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 authentication protocol of the device").AddStringEnumDescription("sha", "md5").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("sha", "md5"),
 				},
 			},
 			"snmp_mode": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 mode of the device").AddStringEnumDescription("noAuthnoPriv", "authNoPriv", "authPriv").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("noAuthnoPriv", "authNoPriv", "authPriv"),
 				},
 			},
 			"snmp_priv_passphrase": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 privacy passphrase of the device").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"snmp_priv_protocol": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 privacy protocol of the device").AddStringEnumDescription("AES128").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("AES128"),
 				},
 			},
 			"snmp_ro_community": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv2 read-only community of the device").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"snmp_rw_community": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv2 read-write community of the device").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"snmp_retry": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP retry count").AddIntegerRangeDescription(0, 3).String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 3),
 				},
 			},
 			"snmp_timeout": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP timeout in seconds").AddIntegerRangeDescription(0, 300).String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 300),
 				},
 			},
 			"snmp_user_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 username of the device").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"snmp_version": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMP version of the device").AddStringEnumDescription("v2", "v3").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("v2", "v3"),
 				},
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Device type").AddStringEnumDescription("COMPUTE_DEVICE", "MERAKI_DASHBOARD", "NETWORK_DEVICE", "FIREPOWER MANAGEMENT CENTER", "THIRD PARTY DEVICE", "NODATACHANGE").String,
-				Required:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("Device type").AddStringEnumDescription("COMPUTE_DEVICE", "MERAKI_DASHBOARD", "NETWORK_DEVICE", "THIRD PARTY DEVICE").String,
+				Optional:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("COMPUTE_DEVICE", "MERAKI_DASHBOARD", "NETWORK_DEVICE", "FIREPOWER MANAGEMENT CENTER", "THIRD PARTY DEVICE", "NODATACHANGE"),
+					stringvalidator.OneOf("COMPUTE_DEVICE", "MERAKI_DASHBOARD", "NETWORK_DEVICE", "THIRD PARTY DEVICE"),
 				},
 			},
 			"update_mgmt_ip_addresses": schema.ListNestedAttribute{
@@ -220,7 +220,7 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 			"user_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("CLI username of the device").String,
-				Required:            true,
+				Optional:            true,
 			},
 		},
 	}
@@ -286,6 +286,24 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
+
+	params := ""
+	params += "/" + url.QueryEscape(state.Id.ValueString())
+	res, err := r.client.Get(state.getPath() + params)
+	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
+	if state.isNull(ctx, res) {
+		state.fromBody(ctx, res)
+	} else {
+		state.updateFromBody(ctx, res)
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
@@ -357,16 +375,7 @@ func (r *DeviceResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *DeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
-
-	if len(idParts) != 1 || idParts[0] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // End of section. //template:end import

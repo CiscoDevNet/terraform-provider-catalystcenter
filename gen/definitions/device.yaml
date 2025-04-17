@@ -2,147 +2,169 @@
 name: Device
 no_data_source: true
 rest_endpoint: /dna/intent/api/v1/network-device
-no_read: true
 put_no_id: true
 id_from_query_path: response
+import_no_id: true
 doc_category: Inventory
 attributes:
   - model_name: cliTransport
+    write_only: true
     type: String
     enum_values: [telnet, ssh]
-    mandatory: true
     description: CLI transport
     example: ssh
+    minimum_test_value: '"ssh"'
   - model_name: computeDevice
+    write_only: true
     type: Bool
     description: Compute device
     example: false
   - model_name: enablePassword
+    write_only: true
     type: String
-    mandatory: true
     description: CLI enable password of the device 
     example: cisco123
+    minimum_test_value: '"cisco123"'
   - model_name: extendedDiscoveryInfo
+    write_only: true
     type: String
     enum_values: [DISCOVER_WITH_CANNED_DATA]
     description: This field holds that info as whether to add device with canned data or not.
     example: DISCOVER_WITH_CANNED_DATA
   - model_name: httpPassword
+    write_only: true
     type: String
     description: HTTP password of the device
     example: cisco123
   - model_name: httpPort
+    write_only: true
     type: String
     description: HTTP port of the device
     example: "80"
   - model_name: httpSecure
+    write_only: true
     type: Bool
     description: Enable HTTPS
     example: true
   - model_name: httpUserName
+    write_only: true
     type: String
     description: HTTP username of the device
     example: admin
   - model_name: "0"
     data_path: ipAddress
     response_model_name: managementIpAddress
+    response_data_path: response.managementIpAddress
     tf_name: ip_address
     type: String
     match_id: true
-    mandatory: true
     description: IP address of the device
     example: 1.2.3.4
   - model_name: merakiOrgId
+    write_only: true
     tf_name: meraki_org_ids
     type: Set
     element_type: String
     description: Selected Meraki organizations for which the devices needs to be imported
     example: 12345678901234567890
   - model_name: netconfPort
+    write_only: true
     type: String
     description: NETCONF port of the device
     example: "830"
   - model_name: password
+    write_only: true
     type: String
-    mandatory: true
     description: CLI password of the device
     example: cisco123
+    minimum_test_value: '"cisco123"'
   - model_name: serialNumber
+    write_only: true
+    response_data_path: response.serialNumber
     type: String
     description: Serial number of the device
     example: FOC12345678
+    minimum_test_value: '"FOC12345678"'
   - model_name: snmpAuthPassphrase
+    write_only: true
     type: String
-    mandatory: true
     description: SNMPv3 authentication passphrase of the device
     example: cisco123
+    minimum_test_value: '"cisco123"'
   - model_name: snmpAuthProtocol
+    write_only: true
     type: String
     enum_values: [sha, md5]
-    mandatory: true
     description: SNMPv3 authentication protocol of the device
     example: sha
+    minimum_test_value: '"sha"'
   - model_name: snmpMode
+    write_only: true
     type: String
     enum_values: [noAuthnoPriv, authNoPriv, authPriv]
-    mandatory: true
     description: SNMPv3 mode of the device
     example: authPriv
+    minimum_test_value: '"authPriv"'
   - model_name: snmpPrivPassphrase
+    write_only: true
     type: String
-    mandatory: true
     description: SNMPv3 privacy passphrase of the device
     example: cisco123
+    minimum_test_value: '"cisco123"'
   - model_name: snmpPrivProtocol
+    write_only: true
     type: String
     enum_values: [AES128]
-    mandatory: true
     description: SNMPv3 privacy protocol of the device
     example: AES128
+    minimum_test_value: '"AES128"'
   - model_name: snmpROCommunity
+    write_only: true
     tf_name: snmp_ro_community
     type: String
-    mandatory: true
     description: SNMPv2 read-only community of the device
     example: com1
   - model_name: snmpRWCommunity
+    write_only: true
     tf_name: snmp_rw_community
     type: String
-    mandatory: true
     description: SNMPv2 read-write community of the device
     example: com2
   - model_name: snmpRetry
+    write_only: true
     type: Int64
     min_int: 0
     max_int: 3
-    mandatory: true
     description: SNMP retry count
     example: 3
   - model_name: snmpTimeout
+    write_only: true
     type: Int64
     min_int: 0
     max_int: 300
-    mandatory: true
     description: SNMP timeout in seconds
     example: 10
   - model_name: snmpUserName
+    write_only: true
     type: String
-    mandatory: true
     description: SNMPv3 username of the device
     example: admin
+    minimum_test_value: '"admin"'
   - model_name: snmpVersion
+    write_only: true
     type: String
-    mandatory: true
     enum_values: [v2, v3]
     description: SNMP version of the device
     example: v3
+    minimum_test_value: '"v3"'
   - model_name: type
+    write_only: true
     type: String
-    enum_values: [COMPUTE_DEVICE, MERAKI_DASHBOARD, NETWORK_DEVICE, FIREPOWER MANAGEMENT CENTER, THIRD PARTY DEVICE, NODATACHANGE]
-    mandatory: true
+    enum_values: [COMPUTE_DEVICE, MERAKI_DASHBOARD, NETWORK_DEVICE, THIRD PARTY DEVICE]
     description: Device type
     example: NETWORK_DEVICE
   - model_name: updateMgmtIPaddressList
+    write_only: true
     tf_name: update_mgmt_ip_addresses
     type: List
     description: IP address of the device to be mapped to New IP address
@@ -157,8 +179,8 @@ attributes:
         description: New IP address of the device
         example: 3.4.5.6
   - model_name: userName
+    write_only: true
     type: String
-    mandatory: true
     description: CLI username of the device
     example: admin
-  
+    minimum_test_value: '"admin"'

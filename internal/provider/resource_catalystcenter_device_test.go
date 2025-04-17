@@ -30,31 +30,7 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcDevice(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "cli_transport", "ssh"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "compute_device", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "enable_password", "cisco123"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "extended_discovery_info", "DISCOVER_WITH_CANNED_DATA"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "http_password", "cisco123"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "http_port", "80"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "http_secure", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "http_user_name", "admin"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "ip_address", "1.2.3.4"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "netconf_port", "830"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "password", "cisco123"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "serial_number", "FOC12345678"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_auth_passphrase", "cisco123"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_auth_protocol", "sha"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_mode", "authPriv"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_priv_passphrase", "cisco123"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_priv_protocol", "AES128"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_ro_community", "com1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_rw_community", "com2"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_retry", "3"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_timeout", "10"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_user_name", "admin"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_version", "v3"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "type", "NETWORK_DEVICE"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "user_name", "admin"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -90,18 +66,14 @@ func testAccCcDeviceConfig_minimum() string {
 	config += `	enable_password = "cisco123"` + "\n"
 	config += `	ip_address = "1.2.3.4"` + "\n"
 	config += `	password = "cisco123"` + "\n"
+	config += `	serial_number = "FOC12345678"` + "\n"
 	config += `	snmp_auth_passphrase = "cisco123"` + "\n"
 	config += `	snmp_auth_protocol = "sha"` + "\n"
 	config += `	snmp_mode = "authPriv"` + "\n"
 	config += `	snmp_priv_passphrase = "cisco123"` + "\n"
 	config += `	snmp_priv_protocol = "AES128"` + "\n"
-	config += `	snmp_ro_community = "com1"` + "\n"
-	config += `	snmp_rw_community = "com2"` + "\n"
-	config += `	snmp_retry = 3` + "\n"
-	config += `	snmp_timeout = 10` + "\n"
 	config += `	snmp_user_name = "admin"` + "\n"
 	config += `	snmp_version = "v3"` + "\n"
-	config += `	type = "NETWORK_DEVICE"` + "\n"
 	config += `	user_name = "admin"` + "\n"
 	config += `}` + "\n"
 	return config

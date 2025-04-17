@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -80,9 +79,6 @@ func (r *FabricL3VirtualNetworkResource) Schema(ctx context.Context, req resourc
 				MarkdownDescription: helpers.NewAttributeDescription("IDs of the fabrics this layer 3 virtual network is to be assigned to.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.RequiresReplace(),
-				},
 			},
 			"anchored_site_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.").String,
@@ -121,7 +117,7 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 	body := plan.toBody(ctx, FabricL3VirtualNetwork{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
@@ -215,7 +211,7 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -242,7 +238,7 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	params := ""
 	params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
-	res, err := r.client.Delete(state.getPath() + params)
+	res, err := r.client.Delete(state.getPath()+params, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

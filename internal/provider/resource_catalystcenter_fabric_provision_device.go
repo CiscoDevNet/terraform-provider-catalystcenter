@@ -117,7 +117,7 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 	body := plan.toBody(ctx, FabricProvisionDevice{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {
@@ -239,7 +239,7 @@ func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {

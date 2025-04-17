@@ -33,6 +33,7 @@ import (
 type DeployTemplate struct {
 	Id                           types.String                                 `tfsdk:"id"`
 	TemplateId                   types.String                                 `tfsdk:"template_id"`
+	Redeploy                     types.Bool                                   `tfsdk:"redeploy"`
 	ForcePushTemplate            types.Bool                                   `tfsdk:"force_push_template"`
 	IsComposite                  types.Bool                                   `tfsdk:"is_composite"`
 	MainTemplateId               types.String                                 `tfsdk:"main_template_id"`
@@ -102,6 +103,9 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 	_ = put
 	if !data.TemplateId.IsNull() {
 		body, _ = sjson.Set(body, "templateId", data.TemplateId.ValueString())
+	}
+	if !data.Redeploy.IsNull() {
+		body, _ = sjson.Set(body, "", data.Redeploy.ValueBool())
 	}
 	if !data.ForcePushTemplate.IsNull() {
 		body, _ = sjson.Set(body, "forcePushTemplate", data.ForcePushTemplate.ValueBool())
@@ -225,6 +229,11 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 		data.TemplateId = types.StringValue(value.String())
 	} else {
 		data.TemplateId = types.StringNull()
+	}
+	if value := res.Get(""); value.Exists() {
+		data.Redeploy = types.BoolValue(value.Bool())
+	} else {
+		data.Redeploy = types.BoolNull()
 	}
 	if value := res.Get("forcePushTemplate"); value.Exists() {
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
@@ -396,6 +405,11 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 		data.TemplateId = types.StringValue(value.String())
 	} else {
 		data.TemplateId = types.StringNull()
+	}
+	if value := res.Get(""); value.Exists() && !data.Redeploy.IsNull() {
+		data.Redeploy = types.BoolValue(value.Bool())
+	} else {
+		data.Redeploy = types.BoolNull()
 	}
 	if value := res.Get("forcePushTemplate"); value.Exists() && !data.ForcePushTemplate.IsNull() {
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
@@ -643,6 +657,9 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *DeployTemplate) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Redeploy.IsNull() {
+		return false
+	}
 	if !data.ForcePushTemplate.IsNull() {
 		return false
 	}

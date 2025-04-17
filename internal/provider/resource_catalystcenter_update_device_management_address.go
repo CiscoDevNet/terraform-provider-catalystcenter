@@ -21,10 +21,10 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -39,25 +39,24 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &FabricVLANToSSIDResource{}
-var _ resource.ResourceWithImportState = &FabricVLANToSSIDResource{}
+var _ resource.Resource = &UpdateDeviceManagementAddressResource{}
 
-func NewFabricVLANToSSIDResource() resource.Resource {
-	return &FabricVLANToSSIDResource{}
+func NewUpdateDeviceManagementAddressResource() resource.Resource {
+	return &UpdateDeviceManagementAddressResource{}
 }
 
-type FabricVLANToSSIDResource struct {
+type UpdateDeviceManagementAddressResource struct {
 	client *cc.Client
 }
 
-func (r *FabricVLANToSSIDResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_vlan_to_ssid"
+func (r *UpdateDeviceManagementAddressResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_update_device_management_address"
 }
 
-func (r *FabricVLANToSSIDResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *UpdateDeviceManagementAddressResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Add, update, or remove SSID mappings to a VLAN. If the configuration does not contain a 'vlanName' which has SSIDs mapping done earlier then all the mapped SSIDs of the 'vlanName' are cleared. The request must include all SSIDs currently mapped to a VLAN, as determined by the response from the GET operation for the same fabricId used in the request. If an already-mapped SSID is not included in the confiugration, its mapping will be removed by this resource. Conversely, if a new SSID is provided, it will be added to the mapping. Ensure that any new SSID added is a Fabric SSID. This API can also be used to add a VLAN and associate the relevant SSIDs with it. The 'vlanName' must be 'Fabric Wireless Enabled' and should be part of the Fabric Site representing 'Fabric ID' specified in the configuration.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource edit the management IP Address of the device.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -67,46 +66,22 @@ func (r *FabricVLANToSSIDResource) Schema(ctx context.Context, req resource.Sche
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"fabric_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Fabric ID").String,
+			"device_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The device ID").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"mappings": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of VLAN to SSID mappings").String,
-				Required:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"vlan_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("VLAN Name").String,
-							Required:            true,
-						},
-						"ssid_details": schema.ListNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("SSID Details").String,
-							Optional:            true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"name": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Name of the SSID").String,
-										Optional:            true,
-									},
-									"security_group_tag": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Represents the name of the Security Group. Example: Auditors, BYOD, Developers, etc.").String,
-										Optional:            true,
-									},
-								},
-							},
-						},
-					},
-				},
+			"new_ip": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("New IP Address of the device to be Updated").String,
+				Optional:            true,
 			},
 		},
 	}
 }
 
-func (r *FabricVLANToSSIDResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *UpdateDeviceManagementAddressResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -117,8 +92,8 @@ func (r *FabricVLANToSSIDResource) Configure(_ context.Context, req resource.Con
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *FabricVLANToSSIDResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan FabricVLANToSSID
+func (r *UpdateDeviceManagementAddressResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan UpdateDeviceManagementAddress
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -130,15 +105,15 @@ func (r *FabricVLANToSSIDResource) Create(ctx context.Context, req resource.Crea
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, FabricVLANToSSID{})
+	body := plan.toBody(ctx, UpdateDeviceManagementAddress{})
 
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.FabricId.ValueString()))
+	plan.Id = types.StringValue(fmt.Sprint(plan.DeviceId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -149,8 +124,8 @@ func (r *FabricVLANToSSIDResource) Create(ctx context.Context, req resource.Crea
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *FabricVLANToSSIDResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state FabricVLANToSSID
+func (r *UpdateDeviceManagementAddressResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state UpdateDeviceManagementAddress
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -162,7 +137,8 @@ func (r *FabricVLANToSSIDResource) Read(ctx context.Context, req resource.ReadRe
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	res, err := r.client.Get(state.getPath() + params)
+	params += "/" + url.QueryEscape(state.Id.ValueString())
+	res, err := r.client.Get("/dna/intent/api/v1/network-device" + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -187,8 +163,8 @@ func (r *FabricVLANToSSIDResource) Read(ctx context.Context, req resource.ReadRe
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *FabricVLANToSSIDResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state FabricVLANToSSID
+func (r *UpdateDeviceManagementAddressResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state UpdateDeviceManagementAddress
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -207,7 +183,7 @@ func (r *FabricVLANToSSIDResource) Update(ctx context.Context, req resource.Upda
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -221,8 +197,9 @@ func (r *FabricVLANToSSIDResource) Update(ctx context.Context, req resource.Upda
 
 // End of section. //template:end update
 
-func (r *FabricVLANToSSIDResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state FabricVLANToSSID
+// Section below is generated&owned by "gen/generator.go". //template:begin delete
+func (r *UpdateDeviceManagementAddressResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state UpdateDeviceManagementAddress
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -232,31 +209,13 @@ func (r *FabricVLANToSSIDResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	body := "[]" // Empty body
-	res, err := r.client.Put(state.getPath(), body)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
-		return
-	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
 	resp.State.RemoveResource(ctx)
 }
 
+// End of section. //template:end delete
+
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *FabricVLANToSSIDResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
-
-	if len(idParts) != 1 || idParts[0] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <fabric_id>. Got: %q", req.ID),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
-}
-
 // End of section. //template:end import
