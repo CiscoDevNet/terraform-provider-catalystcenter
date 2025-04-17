@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -76,6 +77,9 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 			"redeploy": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"force_push_template": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Force Push Template").String,
@@ -293,6 +297,7 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 	resp.Diagnostics.Append(diags...)
 }
 
+// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *DeployTemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state DeployTemplate
 
@@ -310,23 +315,14 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
-	if plan.Redeploy.ValueBool() {
-		body := plan.toBody(ctx, state)
-		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Template Re-Deployment", plan.Id.ValueString()))
-		params := ""
-		res, err := r.client.Post(plan.getPath()+params, body)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-			return
-		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Template Re-Deployment finished successfully", plan.Id.ValueString()))
-	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *DeployTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
