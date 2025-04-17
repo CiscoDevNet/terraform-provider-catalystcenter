@@ -31,7 +31,6 @@ import (
 func TestAccCcDevice(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "ip_address", "1.2.3.4"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "serial_number", "FOC12345678"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -63,7 +62,19 @@ func TestAccCcDevice(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcDeviceConfig_minimum() string {
 	config := `resource "catalystcenter_device" "test" {` + "\n"
+	config += `	cli_transport = "ssh"` + "\n"
+	config += `	enable_password = "cisco123"` + "\n"
 	config += `	ip_address = "1.2.3.4"` + "\n"
+	config += `	password = "cisco123"` + "\n"
+	config += `	serial_number = "FOC12345678"` + "\n"
+	config += `	snmp_auth_passphrase = "cisco123"` + "\n"
+	config += `	snmp_auth_protocol = "sha"` + "\n"
+	config += `	snmp_mode = "authPriv"` + "\n"
+	config += `	snmp_priv_passphrase = "cisco123"` + "\n"
+	config += `	snmp_priv_protocol = "AES128"` + "\n"
+	config += `	snmp_user_name = "admin"` + "\n"
+	config += `	snmp_version = "v3"` + "\n"
+	config += `	user_name = "admin"` + "\n"
 	config += `}` + "\n"
 	return config
 }

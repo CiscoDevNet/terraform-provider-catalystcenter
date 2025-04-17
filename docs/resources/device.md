@@ -84,7 +84,7 @@ resource "catalystcenter_device" "example" {
 - `snmp_version` (String) SNMP version of the device
   - Choices: `v2`, `v3`
 - `type` (String) Device type
-  - Choices: `COMPUTE_DEVICE`, `MERAKI_DASHBOARD`, `NETWORK_DEVICE`, `FIREPOWER MANAGEMENT CENTER`, `THIRD PARTY DEVICE`, `NODATACHANGE`
+  - Choices: `COMPUTE_DEVICE`, `MERAKI_DASHBOARD`, `NETWORK_DEVICE`, `THIRD PARTY DEVICE`
 - `update_mgmt_ip_addresses` (Attributes List) IP address of the device to be mapped to New IP address (see [below for nested schema](#nestedatt--update_mgmt_ip_addresses))
 - `user_name` (String) CLI username of the device
 
@@ -105,5 +105,5 @@ Optional:
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_device.example "<id>"
+terraform import catalystcenter_device.example "4b0b7a80-44c0-4bf2-bab5-fc24b4e0a17e"
 ```

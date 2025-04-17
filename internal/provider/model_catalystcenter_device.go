@@ -187,11 +187,6 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.IpAddress = types.StringNull()
 	}
-	if value := res.Get("response.serialNumber"); value.Exists() {
-		data.SerialNumber = types.StringValue(value.String())
-	} else {
-		data.SerialNumber = types.StringNull()
-	}
 }
 
 // End of section. //template:end fromBody
@@ -202,11 +197,6 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.IpAddress = types.StringValue(value.String())
 	} else {
 		data.IpAddress = types.StringNull()
-	}
-	if value := res.Get("response.serialNumber"); value.Exists() && !data.SerialNumber.IsNull() {
-		data.SerialNumber = types.StringValue(value.String())
-	} else {
-		data.SerialNumber = types.StringNull()
 	}
 }
 

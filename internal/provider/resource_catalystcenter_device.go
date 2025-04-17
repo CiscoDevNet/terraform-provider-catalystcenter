@@ -196,10 +196,10 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Device type").AddStringEnumDescription("COMPUTE_DEVICE", "MERAKI_DASHBOARD", "NETWORK_DEVICE", "FIREPOWER MANAGEMENT CENTER", "THIRD PARTY DEVICE", "NODATACHANGE").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Device type").AddStringEnumDescription("COMPUTE_DEVICE", "MERAKI_DASHBOARD", "NETWORK_DEVICE", "THIRD PARTY DEVICE").String,
 				Optional:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("COMPUTE_DEVICE", "MERAKI_DASHBOARD", "NETWORK_DEVICE", "FIREPOWER MANAGEMENT CENTER", "THIRD PARTY DEVICE", "NODATACHANGE"),
+					stringvalidator.OneOf("COMPUTE_DEVICE", "MERAKI_DASHBOARD", "NETWORK_DEVICE", "THIRD PARTY DEVICE"),
 				},
 			},
 			"update_mgmt_ip_addresses": schema.ListNestedAttribute{
@@ -264,7 +264,7 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(0==\"" + plan.IpAddress.ValueString() + "\").id").String())
+	plan.Id = types.StringValue(res.Get("response.#(managementIpAddress==\"" + plan.IpAddress.ValueString() + "\").id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -375,16 +375,7 @@ func (r *DeviceResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *DeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
-
-	if len(idParts) != 1 || idParts[0] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // End of section. //template:end import
