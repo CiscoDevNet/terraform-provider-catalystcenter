@@ -2,10 +2,10 @@
 name: Deploy Template
 rest_endpoint: /dna/intent/api/v2/template-programmer/template/deploy
 no_delete: true
-no_update: true
-no_read: true
 no_import: true
 no_data_source: true
+no_read: true
+post_update: true
 skip_minimum_test: true
 doc_category: Templates
 test_tags: [TEMPLATES]
@@ -16,6 +16,11 @@ attributes:
     description: ID of template to be provisioned
     test_value: catalystcenter_template_version.example.id
     example: 12345678-1234-1234-1234-123456789012
+  - tf_name: redeploy
+    description: Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+    type: Bool
+    example: false
+    exclude_test: true
   - model_name: forcePushTemplate
     type: Bool
     description: Force Push Template

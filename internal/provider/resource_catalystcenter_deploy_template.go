@@ -73,6 +73,10 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"redeploy": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply").String,
+				Optional:            true,
+			},
 			"force_push_template": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Force Push Template").String,
 				Optional:            true,
@@ -269,7 +273,6 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 
 // End of section. //template:end create
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state DeployTemplate
 
@@ -282,15 +285,14 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
+	state.Redeploy = types.BoolValue(false)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end read
-
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *DeployTemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state DeployTemplate
 
@@ -308,14 +310,23 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	if plan.Redeploy.ValueBool() {
+		body := plan.toBody(ctx, state)
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Template Re-Deployment", plan.Id.ValueString()))
+		params := ""
+		res, err := r.client.Post(plan.getPath()+params, body)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Template Re-Deployment finished successfully", plan.Id.ValueString()))
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *DeployTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
