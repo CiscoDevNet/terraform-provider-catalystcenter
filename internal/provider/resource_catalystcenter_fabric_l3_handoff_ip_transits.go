@@ -268,7 +268,7 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// Initialize toDelete, toCreate, and toUpdate with empty slices
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
 	var toDelete = FabricL3HandoffIPTransits{
 		L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
 	}
@@ -276,6 +276,9 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 		L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
 	}
 	var toUpdate = FabricL3HandoffIPTransits{
+		L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
+	}
+	var toReplace = FabricL3HandoffIPTransits{
 		L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
 	}
 
@@ -300,7 +303,7 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 		}
 	}
 
-	// Find items to create and update
+	// Find items to create update and replace
 	for planKey, planItem := range planMap {
 		if stateItem, exists := stateMap[planKey]; exists {
 			// Exists in both, check if different
@@ -308,12 +311,67 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 				// Update planItem but ensure ID comes from stateItem
 				planItem.Id = stateItem.Id
 				planMap[planKey] = planItem // Store back in planMap
+				// Check if any field marked as requires_replace differs
+				if planItem.TransitNetworkId != stateItem.TransitNetworkId {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.InterfaceName != stateItem.InterfaceName {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.ExternalConnectivityIpPoolName != stateItem.ExternalConnectivityIpPoolName {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.VirtualNetworkName != stateItem.VirtualNetworkName {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.VlanId != stateItem.VlanId {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.LocalIpAddress != stateItem.LocalIpAddress {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.RemoteIpAddress != stateItem.RemoteIpAddress {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.LocalIpv6Address != stateItem.LocalIpv6Address {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.RemoteIpv6Address != stateItem.RemoteIpv6Address {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
 				toUpdate.L3Handoffs = append(toUpdate.L3Handoffs, planItem)
 			}
 		} else {
 			// Exists only in plan → New item
 			toCreate.L3Handoffs = append(toCreate.L3Handoffs, planItem)
 		}
+	}
+
+	// REPLACE
+	// If there are objects marked to be replaced
+	if len(toReplace.L3Handoffs) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.L3Handoffs)))
+		// Clear IDs before recreating
+		var toReplaceNoId = FabricL3HandoffIPTransits{
+			L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
+		}
+		for _, item := range toReplace.L3Handoffs {
+			item.Id = types.StringNull()
+			toReplaceNoId.L3Handoffs = append(toReplaceNoId.L3Handoffs, item)
+		}
+
+		// Replace is done by delete + create
+		toDelete.L3Handoffs = append(toDelete.L3Handoffs, toReplace.L3Handoffs...)
+		toCreate.L3Handoffs = append(toCreate.L3Handoffs, toReplaceNoId.L3Handoffs...)
 	}
 
 	// DELETE

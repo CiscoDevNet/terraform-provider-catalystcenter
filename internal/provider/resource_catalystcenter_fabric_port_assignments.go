@@ -258,7 +258,7 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// Initialize toDelete, toCreate, and toUpdate with empty slices
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
 	var toDelete = FabricPortAssignments{
 		PortAssignments: []FabricPortAssignmentsPortAssignments{},
 	}
@@ -266,6 +266,9 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 		PortAssignments: []FabricPortAssignmentsPortAssignments{},
 	}
 	var toUpdate = FabricPortAssignments{
+		PortAssignments: []FabricPortAssignmentsPortAssignments{},
+	}
+	var toReplace = FabricPortAssignments{
 		PortAssignments: []FabricPortAssignmentsPortAssignments{},
 	}
 
@@ -290,7 +293,7 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 		}
 	}
 
-	// Find items to create and update
+	// Find items to create update and replace
 	for planKey, planItem := range planMap {
 		if stateItem, exists := stateMap[planKey]; exists {
 			// Exists in both, check if different
@@ -298,12 +301,31 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 				// Update planItem but ensure ID comes from stateItem
 				planItem.Id = stateItem.Id
 				planMap[planKey] = planItem // Store back in planMap
+				// Check if any field marked as requires_replace differs
 				toUpdate.PortAssignments = append(toUpdate.PortAssignments, planItem)
 			}
 		} else {
 			// Exists only in plan → New item
 			toCreate.PortAssignments = append(toCreate.PortAssignments, planItem)
 		}
+	}
+
+	// REPLACE
+	// If there are objects marked to be replaced
+	if len(toReplace.PortAssignments) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.PortAssignments)))
+		// Clear IDs before recreating
+		var toReplaceNoId = FabricPortAssignments{
+			PortAssignments: []FabricPortAssignmentsPortAssignments{},
+		}
+		for _, item := range toReplace.PortAssignments {
+			item.Id = types.StringNull()
+			toReplaceNoId.PortAssignments = append(toReplaceNoId.PortAssignments, item)
+		}
+
+		// Replace is done by delete + create
+		toDelete.PortAssignments = append(toDelete.PortAssignments, toReplace.PortAssignments...)
+		toCreate.PortAssignments = append(toCreate.PortAssignments, toReplaceNoId.PortAssignments...)
 	}
 
 	// DELETE

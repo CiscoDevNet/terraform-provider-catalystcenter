@@ -79,6 +79,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				},
 				{{- end}}
 			},
+			{{- $root := . }}
 			{{- range  .Attributes}}
 			{{- if not .Value}}
 			"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
@@ -210,7 +211,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if and (len .DefaultValue) (eq .Type "String")}}
 							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 							{{- end}}
-							{{- if .RequiresReplace}}
+							{{- if and .RequiresReplace (not $root.RootList)}}
 							PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 								{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 							},
@@ -682,7 +683,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- end}}
 	{{- end}}
 
-	// Initialize toDelete, toCreate, and toUpdate with empty slices
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
 	var toDelete = {{camelCase .Name}}{
 		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 	}
@@ -690,6 +691,9 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 	}
 	var toUpdate = {{camelCase .Name}}{
+		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
+	}
+	var toReplace = {{camelCase .Name}}{
 		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 	}
 
@@ -724,7 +728,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		}
 	}
 
-	// Find items to create and update
+	// Find items to create update and replace
 	for planKey, planItem := range planMap {
 		if stateItem, exists := stateMap[planKey]; exists {
 			// Exists in both, check if different
@@ -732,12 +736,41 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				// Update planItem but ensure ID comes from stateItem
 				planItem.Id = stateItem.Id
 				planMap[planKey] = planItem // Store back in planMap
+				// Check if any field marked as requires_replace differs
+				{{- range .Attributes}}
+				{{- range .Attributes}}
+				{{- if .RequiresReplace }}
+				if planItem.{{toGoName .TfName}} != stateItem.{{toGoName .TfName}} {
+					toReplace.{{toGoName $items}} = append(toReplace.{{toGoName $items}}, planItem)
+					continue
+				}
+				{{- end}}
+				{{- end}}
+				{{- end}}
 				toUpdate.{{toGoName $items}} = append(toUpdate.{{toGoName $items}}, planItem)
 			}
 		} else {
 			// Exists only in plan → New item
 			toCreate.{{toGoName $items}} = append(toCreate.{{toGoName $items}}, planItem)
 		}
+	}
+
+	// REPLACE
+	// If there are objects marked to be replaced
+	if len(toReplace.{{toGoName $items}}) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.{{toGoName $items}})))
+		// Clear IDs before recreating
+		var toReplaceNoId = {{camelCase .Name}}{
+			{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
+		}
+		for _, item := range toReplace.{{toGoName $items}} {
+			item.Id = types.StringNull()
+			toReplaceNoId.{{toGoName $items}} = append(toReplaceNoId.{{toGoName $items}}, item)
+		}
+
+		// Replace is done by delete + create
+		toDelete.{{toGoName $items}} = append(toDelete.{{toGoName $items}}, toReplace.{{toGoName $items}}...)
+		toCreate.{{toGoName $items}} = append(toCreate.{{toGoName $items}}, toReplaceNoId.{{toGoName $items}}...)
 	}
 
 	// DELETE

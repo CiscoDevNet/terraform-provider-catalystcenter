@@ -58,26 +58,31 @@ attributes:
         type: String
         example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
       - model_name: transitNetworkId
+        requires_replace: true
         type: String
         mandatory: true
         description: ID of the transit network of the layer 3 handoff ip transit
         example: d71c847b-e9c2-4f13-928c-223372b72b06
         test_value: catalystcenter_transit_network.test.id
       - model_name: interfaceName
+        requires_replace: true
         type: String
         description:  Interface name of the layer 3 handoff ip transit
         example: TenGigabitEthernet1/0/2
       - model_name: externalConnectivityIpPoolName
+        requires_replace: true
         type: String
         description:  External connectivity ip pool will be used by Catalyst Center to allocate IP address for the connection between the border node and peer
         example: "MyPool1"
         exclude_test: true
       - model_name: virtualNetworkName
+        requires_replace: true
         mandatory: true
         type: String
         description: Name of the virtual network associated with this fabric site
         example: SDA_VN1
       - model_name: vlanId
+        requires_replace: true
         id: true
         type: Int64
         mandatory: true
@@ -91,18 +96,22 @@ attributes:
         description: TCP maximum segment size (mss) value for the layer 3 handoff. Allowed range is [500-1440]. TCP MSS Adjustment value is applicable for the TCP sessions over both IPv4 and IPv6
         example: 1400
       - model_name: localIpAddress
+        requires_replace: true
         type: String
         description: Local ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
         example: "10.0.0.1/24"
       - model_name: remoteIpAddress
+        requires_replace: true
         type: String
         description: Remote ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
         example: "10.0.0.2/24"
       - model_name: localIpv6Address
+        requires_replace: true
         type: String
         description: Local ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
         exclude_test: true
       - model_name: remoteIpv6Address
+        requires_replace: true
         type: String
         description: Remote ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name
         exclude_test: true
