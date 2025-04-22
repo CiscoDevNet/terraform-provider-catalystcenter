@@ -9,6 +9,7 @@ get_from_all: true
 put_no_id: true
 device_unreachability_warning: true
 doc_category: SDA
+mutex: true
 test_tags: [SDA]
 attributes:
   - model_name: networkDeviceId

@@ -79,6 +79,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				},
 				{{- end}}
 			},
+			{{- $root := . }}
 			{{- range  .Attributes}}
 			{{- if not .Value}}
 			"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
@@ -210,7 +211,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if and (len .DefaultValue) (eq .Type "String")}}
 							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 							{{- end}}
-							{{- if .RequiresReplace}}
+							{{- if and .RequiresReplace (not $root.RootList)}}
 							PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 								{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 							},
@@ -450,9 +451,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
 	{{- end}}
 	{{- if .PutCreate}}
-	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}
@@ -502,7 +503,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	plan.Id = types.StringValue(fmt.Sprint(plan.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
 	{{- end}}
 
-	{{- if .UpdateComputed }}
+	{{- if and .UpdateComputed .RootList}}
 	params = ""
 	{{- $queryParams := generateQueryParamString "GET" "plan" .Attributes }}
 
@@ -629,7 +630,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 	{{- if not .NoUpdate}}
-	{{- if not .UpdateComputed}}
+	{{- if or (not .UpdateComputed) (not .RootList)}}
 
 	body := plan.toBody(ctx, state)
 	params := ""
@@ -641,15 +642,15 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	params += "?{{.PutIdQueryParam}}=" + url.QueryEscape(plan.Id.ValueString())
 	{{- end}}
 	{{- if .PostUpdate}}
-	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .PutCreate}}
-	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if hasQueryParam .Attributes}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .PutNoId}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}
@@ -682,7 +683,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- end}}
 	{{- end}}
 
-	// Initialize toDelete, toCreate, and toUpdate with empty slices
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
 	var toDelete = {{camelCase .Name}}{
 		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 	}
@@ -690,6 +691,9 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 	}
 	var toUpdate = {{camelCase .Name}}{
+		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
+	}
+	var toReplace = {{camelCase .Name}}{
 		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 	}
 
@@ -724,7 +728,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		}
 	}
 
-	// Find items to create and update
+	// Find items to create update and replace
 	for planKey, planItem := range planMap {
 		if stateItem, exists := stateMap[planKey]; exists {
 			// Exists in both, check if different
@@ -732,6 +736,17 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				// Update planItem but ensure ID comes from stateItem
 				planItem.Id = stateItem.Id
 				planMap[planKey] = planItem // Store back in planMap
+				// Check if any field marked as requires_replace differs
+				{{- range .Attributes}}
+				{{- range .Attributes}}
+				{{- if .RequiresReplace }}
+				if planItem.{{toGoName .TfName}} != stateItem.{{toGoName .TfName}} {
+					toReplace.{{toGoName $items}} = append(toReplace.{{toGoName $items}}, planItem)
+					continue
+				}
+				{{- end}}
+				{{- end}}
+				{{- end}}
 				toUpdate.{{toGoName $items}} = append(toUpdate.{{toGoName $items}}, planItem)
 			}
 		} else {
@@ -740,12 +755,30 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		}
 	}
 
+	// REPLACE
+	// If there are objects marked to be replaced
+	if len(toReplace.{{toGoName $items}}) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.{{toGoName $items}})))
+		// Clear IDs before recreating
+		var toReplaceNoId = {{camelCase .Name}}{
+			{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
+		}
+		for _, item := range toReplace.{{toGoName $items}} {
+			item.Id = types.StringNull()
+			toReplaceNoId.{{toGoName $items}} = append(toReplaceNoId.{{toGoName $items}}, item)
+		}
+
+		// Replace is done by delete + create
+		toDelete.{{toGoName $items}} = append(toDelete.{{toGoName $items}}, toReplace.{{toGoName $items}}...)
+		toCreate.{{toGoName $items}} = append(toCreate.{{toGoName $items}}, toReplaceNoId.{{toGoName $items}}...)
+	}
+
 	// DELETE
 	// If there are objects marked to be deleted
 	if len(toDelete.{{toGoName $items}}) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.{{toGoName $items}})))
 		for _, v := range toDelete.{{toGoName $items}} {
-			res, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(v.Id.ValueString()))
+			res, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(v.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 			if err != nil {
 			{{- if .DeviceUnreachabilityWarning}}
 				errorCode := res.Get("response.errorCode").String()
@@ -775,7 +808,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{- $createQueryPath := getCreateQueryPath .Attributes}}
 		params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
 		{{- end}}
-		res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}})
+		res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 		if err != nil {
 		{{- if .DeviceUnreachabilityWarning}}
 			errorCode := res.Get("response.errorCode").String()
@@ -829,7 +862,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			planIndexMap[{{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(v.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}v.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}] = i
 		}
 		for _, item := range toUpdate.{{toGoName $items}} {
-			toUpdateKey := {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(v.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}item.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}
+			toUpdateKey := {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(item.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}item.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}
 			if updatedItem, exists := planMap[toUpdateKey]; exists {
 				if index, found := planIndexMap[toUpdateKey]; found {
 					plan.{{toGoName $items}}[index] = updatedItem
@@ -841,7 +874,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 		body := toUpdate.toBody(ctx, {{camelCase .Name}}{})
 		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body)
+		res, err := r.client.Put(plan.getPath()+params, body{{- if .Mutex }}, cc.UseMutex{{- end}})
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 			return
@@ -872,17 +905,17 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- if not .NoDelete}}
 	{{- if .PutDelete}}
 	{{- if .DeleteNoId}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, "{}")
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), "{}")
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if hasDeleteQueryParam .Attributes }}
 	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
 	{{- if $queryParams }}
 	params := {{$queryParams}}
 	{{- end}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, "{}")
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), "{}")
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), "{}"){{- if .Mutex }}, cc.UseMutex{{- end}}
 	{{- end}}
 	if err != nil {
 	{{- if .PutDelete}}
@@ -902,17 +935,17 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	}
 	{{- else}}
 	{{- if .DeleteNoId}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}})
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if hasDeleteQueryParam .Attributes }}
 	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
 	{{- if $queryParams }}
 	params := {{$queryParams}}
 	{{- end}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params)
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}

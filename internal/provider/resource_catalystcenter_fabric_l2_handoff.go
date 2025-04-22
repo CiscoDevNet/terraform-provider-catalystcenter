@@ -136,7 +136,7 @@ func (r *FabricL2HandoffResource) Create(ctx context.Context, req resource.Creat
 	body := plan.toBody(ctx, FabricL2Handoff{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {
@@ -226,7 +226,7 @@ func (r *FabricL2HandoffResource) Update(ctx context.Context, req resource.Updat
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {
@@ -259,7 +259,7 @@ func (r *FabricL2HandoffResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {

@@ -8,6 +8,7 @@ get_from_all: true
 put_id_include_path: "0.id"
 put_no_id: true
 doc_category: SDA
+mutex: true
 attributes:
   - model_name: siteId
     requires_replace: true

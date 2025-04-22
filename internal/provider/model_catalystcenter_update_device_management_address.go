@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -32,17 +31,17 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-type NTPSettings struct {
-	Id      types.String `tfsdk:"id"`
-	SiteId  types.String `tfsdk:"site_id"`
-	Servers types.Set    `tfsdk:"servers"`
+type UpdateDeviceManagementAddress struct {
+	Id       types.String `tfsdk:"id"`
+	DeviceId types.String `tfsdk:"device_id"`
+	NewIp    types.String `tfsdk:"new_ip"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
-func (data NTPSettings) getPath() string {
-	return fmt.Sprintf("/dna/intent/api/v1/sites/%v/ntpSettings", url.QueryEscape(data.SiteId.ValueString()))
+func (data UpdateDeviceManagementAddress) getPath() string {
+	return fmt.Sprintf("/dna/intent/api/v1/network-device/%v/management-address", url.QueryEscape(data.DeviceId.ValueString()))
 }
 
 // End of section. //template:end getPath
@@ -52,17 +51,15 @@ func (data NTPSettings) getPath() string {
 // End of section. //template:end getPathDelete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data NTPSettings) toBody(ctx context.Context, state NTPSettings) string {
+func (data UpdateDeviceManagementAddress) toBody(ctx context.Context, state UpdateDeviceManagementAddress) string {
 	body := ""
 	put := false
 	if state.Id.ValueString() != "" {
 		put = true
 	}
 	_ = put
-	if !data.Servers.IsNull() {
-		var values []string
-		data.Servers.ElementsAs(ctx, &values, false)
-		body, _ = sjson.Set(body, "ntp.servers", values)
+	if !data.NewIp.IsNull() {
+		body, _ = sjson.Set(body, "newIP", data.NewIp.ValueString())
 	}
 	return body
 }
@@ -70,36 +67,30 @@ func (data NTPSettings) toBody(ctx context.Context, state NTPSettings) string {
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-func (data *NTPSettings) fromBody(ctx context.Context, res gjson.Result) {
-	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get(""); value.Exists() {
-		data.Id = types.StringValue(value.String())
+func (data *UpdateDeviceManagementAddress) fromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("response.managementIpAddress"); value.Exists() {
+		data.NewIp = types.StringValue(value.String())
 	} else {
-		data.Id = types.StringNull()
-	}
-	if value := res.Get("response.ntp.servers"); value.Exists() && len(value.Array()) > 0 {
-		data.Servers = helpers.GetStringSet(value.Array())
-	} else {
-		data.Servers = types.SetNull(types.StringType)
+		data.NewIp = types.StringNull()
 	}
 }
 
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *NTPSettings) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.ntp.servers"); value.Exists() && !data.Servers.IsNull() {
-		data.Servers = helpers.GetStringSet(value.Array())
+func (data *UpdateDeviceManagementAddress) updateFromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("response.managementIpAddress"); value.Exists() && !data.NewIp.IsNull() {
+		data.NewIp = types.StringValue(value.String())
 	} else {
-		data.Servers = types.SetNull(types.StringType)
+		data.NewIp = types.StringNull()
 	}
 }
 
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
-func (data *NTPSettings) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Servers.IsNull() {
+func (data *UpdateDeviceManagementAddress) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.NewIp.IsNull() {
 		return false
 	}
 	return true

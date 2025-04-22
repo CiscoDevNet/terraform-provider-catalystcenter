@@ -8,6 +8,7 @@ id_from_attribute: true
 skip_minimum_test: true
 device_unreachability_warning: true
 doc_category: SDA
+mutex: true
 test_tags: [SDA]
 attributes:
   - tf_name: fabric_id

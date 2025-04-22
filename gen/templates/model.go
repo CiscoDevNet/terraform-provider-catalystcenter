@@ -646,6 +646,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 }
 // End of section. //template:end updateFromBody
 
+{{if and .UpdateComputed }}
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
@@ -838,7 +839,7 @@ for i := range data.{{toGoName .TfName}} {
 {{- end}}
 }
 // End of section. //template:end fromBodyUnknowns
-
+{{- end}}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) bool {

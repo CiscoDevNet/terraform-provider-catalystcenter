@@ -23,10 +23,11 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -43,25 +44,25 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &FabricPortAssignmentsResource{}
-var _ resource.ResourceWithImportState = &FabricPortAssignmentsResource{}
+var _ resource.Resource = &FabricL3HandoffIPTransitsResource{}
+var _ resource.ResourceWithImportState = &FabricL3HandoffIPTransitsResource{}
 
-func NewFabricPortAssignmentsResource() resource.Resource {
-	return &FabricPortAssignmentsResource{}
+func NewFabricL3HandoffIPTransitsResource() resource.Resource {
+	return &FabricL3HandoffIPTransitsResource{}
 }
 
-type FabricPortAssignmentsResource struct {
+type FabricL3HandoffIPTransitsResource struct {
 	client *cc.Client
 }
 
-func (r *FabricPortAssignmentsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_port_assignments"
+func (r *FabricL3HandoffIPTransitsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_l3_handoff_ip_transits"
 }
 
-func (r *FabricPortAssignmentsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *FabricL3HandoffIPTransitsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages port assignments in SD-Access fabric.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages Layer 3 handoffs with IP transit on fabric device within a single resource, specifying a list of handoffs as input").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -71,69 +72,78 @@ func (r *FabricPortAssignmentsResource) Schema(ctx context.Context, req resource
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"fabric_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric the device is assigned to").String,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"network_device_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Network device ID of the port assignment").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Network device ID of the fabric device").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"port_assignments": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of port assignments in SD-Access fabric").String,
+			"fabric_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric this device belongs to").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"l3_handoffs": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("List of layer 3 handoff ip transits").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of the port assignment").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of the layer 3 handoff ip transit").String,
 							Computed:            true,
 						},
 						"fabric_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric the device is assigned to").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric this device belongs to").String,
 							Required:            true,
 						},
 						"network_device_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Network device ID of the port assignment").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Network device ID of the fabric device").String,
+							Required:            true,
+						},
+						"transit_network_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("ID of the transit network of the layer 3 handoff ip transit").String,
 							Required:            true,
 						},
 						"interface_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface name of the port assignment").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Interface name of the layer 3 handoff ip transit").String,
+							Optional:            true,
+						},
+						"external_connectivity_ip_pool_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("External connectivity ip pool will be used by Catalyst Center to allocate IP address for the connection between the border node and peer").String,
+							Optional:            true,
+						},
+						"virtual_network_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Name of the virtual network associated with this fabric site").String,
 							Required:            true,
 						},
-						"connected_device_type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Connected device type of the port assignment").AddStringEnumDescription("USER_DEVICE", "ACCESS_POINT", "TRUNKING_DEVICE", "AUTHENTICATOR_SWITCH", "SUPPLICANT_BASED_EXTENDED_NODE").String,
+						"vlan_id": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("VLAN number for the Switch Virtual Interface (SVI) used to establish BGP peering with the external domain for the virtual network. Allowed VLAN range is 2-4094 except for reserved vlans (1, 1002-1005, 2046, 4094)").String,
 							Required:            true,
-							Validators: []validator.String{
-								stringvalidator.OneOf("USER_DEVICE", "ACCESS_POINT", "TRUNKING_DEVICE", "AUTHENTICATOR_SWITCH", "SUPPLICANT_BASED_EXTENDED_NODE"),
+						},
+						"tcp_mss_adjustment": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("TCP maximum segment size (mss) value for the layer 3 handoff. Allowed range is [500-1440]. TCP MSS Adjustment value is applicable for the TCP sessions over both IPv4 and IPv6").AddIntegerRangeDescription(500, 1440).String,
+							Optional:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(500, 1440),
 							},
 						},
-						"data_vlan_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Data VLAN name of the port assignment").String,
+						"local_ip_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Local ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name").String,
 							Optional:            true,
 						},
-						"voice_vlan_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Voice VLAN name of the port assignment").String,
+						"remote_ip_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Remote ipv4 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name").String,
 							Optional:            true,
 						},
-						"authenticate_template_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Authenticate template name of the port assignment").AddStringEnumDescription("No Authentication", "Open Authentication", "Closed Authentication", "Low Impact").String,
-							Optional:            true,
-							Validators: []validator.String{
-								stringvalidator.OneOf("No Authentication", "Open Authentication", "Closed Authentication", "Low Impact"),
-							},
-						},
-						"security_group_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Security group name of the port assignment").String,
+						"local_ipv6_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Local ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name").String,
 							Optional:            true,
 						},
-						"interface_description": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface description of the port assignment").String,
+						"remote_ipv6_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Remote ipv6 address for the selected virtual network. Enter the IP addresses and subnet mask in the CIDR notation (IP address/prefix-length). Not applicable if you have already provided an external connectivity ip pool name").String,
 							Optional:            true,
 						},
 					},
@@ -143,7 +153,7 @@ func (r *FabricPortAssignmentsResource) Schema(ctx context.Context, req resource
 	}
 }
 
-func (r *FabricPortAssignmentsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *FabricL3HandoffIPTransitsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -154,8 +164,8 @@ func (r *FabricPortAssignmentsResource) Configure(_ context.Context, req resourc
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *FabricPortAssignmentsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan FabricPortAssignments
+func (r *FabricL3HandoffIPTransitsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan FabricL3HandoffIPTransits
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -167,7 +177,7 @@ func (r *FabricPortAssignmentsResource) Create(ctx context.Context, req resource
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, FabricPortAssignments{})
+	body := plan.toBody(ctx, FabricL3HandoffIPTransits{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
@@ -184,7 +194,7 @@ func (r *FabricPortAssignmentsResource) Create(ctx context.Context, req resource
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
 	params = ""
-	params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
+	params += "?networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(plan.FabricId.ValueString())
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
@@ -201,8 +211,8 @@ func (r *FabricPortAssignmentsResource) Create(ctx context.Context, req resource
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *FabricPortAssignmentsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state FabricPortAssignments
+func (r *FabricL3HandoffIPTransitsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state FabricL3HandoffIPTransits
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -214,7 +224,7 @@ func (r *FabricPortAssignmentsResource) Read(ctx context.Context, req resource.R
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?fabricId=" + url.QueryEscape(state.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	params += "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(state.FabricId.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -240,8 +250,8 @@ func (r *FabricPortAssignmentsResource) Read(ctx context.Context, req resource.R
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state FabricPortAssignments
+func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state FabricL3HandoffIPTransits
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -259,37 +269,37 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
-	var toDelete = FabricPortAssignments{
-		PortAssignments: []FabricPortAssignmentsPortAssignments{},
+	var toDelete = FabricL3HandoffIPTransits{
+		L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
 	}
-	var toCreate = FabricPortAssignments{
-		PortAssignments: []FabricPortAssignmentsPortAssignments{},
+	var toCreate = FabricL3HandoffIPTransits{
+		L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
 	}
-	var toUpdate = FabricPortAssignments{
-		PortAssignments: []FabricPortAssignmentsPortAssignments{},
+	var toUpdate = FabricL3HandoffIPTransits{
+		L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
 	}
-	var toReplace = FabricPortAssignments{
-		PortAssignments: []FabricPortAssignmentsPortAssignments{},
+	var toReplace = FabricL3HandoffIPTransits{
+		L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
 	}
 
-	planMap := make(map[string]FabricPortAssignmentsPortAssignments)
-	stateMap := make(map[string]FabricPortAssignmentsPortAssignments)
+	planMap := make(map[string]FabricL3HandoffIPTransitsL3Handoffs)
+	stateMap := make(map[string]FabricL3HandoffIPTransitsL3Handoffs)
 
 	// Populate state map
-	for _, v := range state.PortAssignments {
-		stateMap[v.InterfaceName.ValueString()] = v
+	for _, v := range state.L3Handoffs {
+		stateMap[strconv.FormatInt(v.VlanId.ValueInt64(), 10)] = v
 	}
 
 	// Populate plan map
-	for _, v := range plan.PortAssignments {
-		planMap[v.InterfaceName.ValueString()] = v
+	for _, v := range plan.L3Handoffs {
+		planMap[strconv.FormatInt(v.VlanId.ValueInt64(), 10)] = v
 	}
 
 	// Find items to delete (exist in state but not in plan)
 	for stateKey, stateItem := range stateMap {
 		if _, exists := planMap[stateKey]; !exists {
 			// Exists only in state → Needs to be deleted
-			toDelete.PortAssignments = append(toDelete.PortAssignments, stateItem)
+			toDelete.L3Handoffs = append(toDelete.L3Handoffs, stateItem)
 		}
 	}
 
@@ -302,37 +312,73 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 				planItem.Id = stateItem.Id
 				planMap[planKey] = planItem // Store back in planMap
 				// Check if any field marked as requires_replace differs
-				toUpdate.PortAssignments = append(toUpdate.PortAssignments, planItem)
+				if planItem.TransitNetworkId != stateItem.TransitNetworkId {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.InterfaceName != stateItem.InterfaceName {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.ExternalConnectivityIpPoolName != stateItem.ExternalConnectivityIpPoolName {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.VirtualNetworkName != stateItem.VirtualNetworkName {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.VlanId != stateItem.VlanId {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.LocalIpAddress != stateItem.LocalIpAddress {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.RemoteIpAddress != stateItem.RemoteIpAddress {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.LocalIpv6Address != stateItem.LocalIpv6Address {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				if planItem.RemoteIpv6Address != stateItem.RemoteIpv6Address {
+					toReplace.L3Handoffs = append(toReplace.L3Handoffs, planItem)
+					continue
+				}
+				toUpdate.L3Handoffs = append(toUpdate.L3Handoffs, planItem)
 			}
 		} else {
 			// Exists only in plan → New item
-			toCreate.PortAssignments = append(toCreate.PortAssignments, planItem)
+			toCreate.L3Handoffs = append(toCreate.L3Handoffs, planItem)
 		}
 	}
 
 	// REPLACE
 	// If there are objects marked to be replaced
-	if len(toReplace.PortAssignments) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.PortAssignments)))
+	if len(toReplace.L3Handoffs) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.L3Handoffs)))
 		// Clear IDs before recreating
-		var toReplaceNoId = FabricPortAssignments{
-			PortAssignments: []FabricPortAssignmentsPortAssignments{},
+		var toReplaceNoId = FabricL3HandoffIPTransits{
+			L3Handoffs: []FabricL3HandoffIPTransitsL3Handoffs{},
 		}
-		for _, item := range toReplace.PortAssignments {
+		for _, item := range toReplace.L3Handoffs {
 			item.Id = types.StringNull()
-			toReplaceNoId.PortAssignments = append(toReplaceNoId.PortAssignments, item)
+			toReplaceNoId.L3Handoffs = append(toReplaceNoId.L3Handoffs, item)
 		}
 
 		// Replace is done by delete + create
-		toDelete.PortAssignments = append(toDelete.PortAssignments, toReplace.PortAssignments...)
-		toCreate.PortAssignments = append(toCreate.PortAssignments, toReplaceNoId.PortAssignments...)
+		toDelete.L3Handoffs = append(toDelete.L3Handoffs, toReplace.L3Handoffs...)
+		toCreate.L3Handoffs = append(toCreate.L3Handoffs, toReplaceNoId.L3Handoffs...)
 	}
 
 	// DELETE
 	// If there are objects marked to be deleted
-	if len(toDelete.PortAssignments) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.PortAssignments)))
-		for _, v := range toDelete.PortAssignments {
+	if len(toDelete.L3Handoffs) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.L3Handoffs)))
+		for _, v := range toDelete.L3Handoffs {
 			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
@@ -350,9 +396,9 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 
 	// CREATE
 	// If there are objects marked for create
-	if len(toCreate.PortAssignments) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.PortAssignments)))
-		body := toCreate.toBody(ctx, FabricPortAssignments{}) // Convert to request body
+	if len(toCreate.L3Handoffs) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.L3Handoffs)))
+		body := toCreate.toBody(ctx, FabricL3HandoffIPTransits{}) // Convert to request body
 		params := ""
 		res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 		if err != nil {
@@ -366,7 +412,7 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 				return
 			}
 		}
-		params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
+		params += "?networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(plan.FabricId.ValueString())
 		res, err = r.client.Get(plan.getPath() + params)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
@@ -379,22 +425,22 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 
 	// UPDATE
 	// Update objects (objects that have different definition in plan and state)
-	if len(toUpdate.PortAssignments) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.PortAssignments)))
+	if len(toUpdate.L3Handoffs) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.L3Handoffs)))
 		planIndexMap := make(map[string]int)
-		for i, v := range plan.PortAssignments {
-			planIndexMap[v.InterfaceName.ValueString()] = i
+		for i, v := range plan.L3Handoffs {
+			planIndexMap[strconv.FormatInt(v.VlanId.ValueInt64(), 10)] = i
 		}
-		for _, item := range toUpdate.PortAssignments {
-			toUpdateKey := item.InterfaceName.ValueString()
+		for _, item := range toUpdate.L3Handoffs {
+			toUpdateKey := strconv.FormatInt(item.VlanId.ValueInt64(), 10)
 			if updatedItem, exists := planMap[toUpdateKey]; exists {
 				if index, found := planIndexMap[toUpdateKey]; found {
-					plan.PortAssignments[index] = updatedItem
+					plan.L3Handoffs[index] = updatedItem
 				}
 			}
 		}
 
-		body := toUpdate.toBody(ctx, FabricPortAssignments{})
+		body := toUpdate.toBody(ctx, FabricL3HandoffIPTransits{})
 		params := ""
 		res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 		if err != nil {
@@ -412,8 +458,8 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *FabricPortAssignmentsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state FabricPortAssignments
+func (r *FabricL3HandoffIPTransitsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state FabricL3HandoffIPTransits
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -423,7 +469,7 @@ func (r *FabricPortAssignmentsResource) Delete(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	params := "?fabricId=" + url.QueryEscape(state.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	params := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(state.FabricId.ValueString())
 	res, err := r.client.Delete(state.getPath()+params, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
@@ -445,19 +491,19 @@ func (r *FabricPortAssignmentsResource) Delete(ctx context.Context, req resource
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *FabricPortAssignmentsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *FabricL3HandoffIPTransitsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <fabric_id>,<network_device_id>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <network_device_id>,<fabric_id>. Got: %q", req.ID),
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_device_id"), idParts[1])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("network_device_id"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_id"), idParts[1])...)
 }
 
 // End of section. //template:end import

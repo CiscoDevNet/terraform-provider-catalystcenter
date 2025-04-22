@@ -1,0 +1,26 @@
+---
+name: Update Device Management Address
+rest_endpoint: /dna/intent/api/v1/network-device/%v/management-address
+get_rest_endpoint: /dna/intent/api/v1/network-device
+res_description: This resource edit the management IP Address of the device.
+no_data_source: true
+put_create: true
+no_delete: true
+no_import: true
+id_from_attribute: true
+doc_category: Inventory
+test_tags: [INVENTORY]
+skip_minimum_test: true
+attributes:
+  - model_name: deviceId
+    type: String
+    reference: true
+    id: true
+    description: The device ID
+    example: 65e422375b4b6e40ef3423f8
+  - model_name: newIP
+    tf_name: new_ip
+    response_data_path: response.managementIpAddress
+    type: String
+    description: New IP Address of the device to be Updated
+    example: 192.168.10.1

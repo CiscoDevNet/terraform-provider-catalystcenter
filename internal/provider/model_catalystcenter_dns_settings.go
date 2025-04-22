@@ -111,27 +111,6 @@ func (data *DNSSettings) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end updateFromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
-
-// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
-// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
-func (data *DNSSettings) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
-	if data.DomainName.IsUnknown() {
-		if value := res.Get("response.dns.domainName"); value.Exists() && !data.DomainName.IsNull() {
-			data.DomainName = types.StringValue(value.String())
-		} else {
-			data.DomainName = types.StringNull()
-		}
-	}
-	if value := res.Get("response.dns.dnsServers"); value.Exists() && !data.DnsServers.IsNull() {
-		data.DnsServers = helpers.GetStringSet(value.Array())
-	} else {
-		data.DnsServers = types.SetNull(types.StringType)
-	}
-}
-
-// End of section. //template:end fromBodyUnknowns
-
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *DNSSettings) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.DomainName.IsNull() {
