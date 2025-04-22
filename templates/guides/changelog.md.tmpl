@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.2.4 (unreleased)
+## 0.2.4
 
 - Add `redeploy` attribute to `catalystcenter_deploy_template`
 - Add `catalystcenter_fabric_l3_handoff_ip_transits` resource and data source
