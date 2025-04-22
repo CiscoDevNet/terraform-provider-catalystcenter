@@ -646,7 +646,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 }
 // End of section. //template:end updateFromBody
 
-{{if and .UpdateComputed }}
+{{if .UpdateComputed}}
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.

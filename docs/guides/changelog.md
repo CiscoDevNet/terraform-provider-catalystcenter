@@ -14,7 +14,7 @@ description: |-
 - Add `catalystcenter_update_device_management_address` resource
 - Fix issue with terraform not detecting delta in `catalystcenter_device` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/200)
 - Make all attributes optional in `catalyscenter_device` resource to match API documentation
-- Fix an issue where modifying the `fabric_ids` attribute would incorrectly recreate the L3 Virtual Network
+- Fix an issue in the `catalystcenter_fabric_l3_virtual_network` resource where modifying the `fabric_ids` attribute would incorrectly recreate L3 Virtual Network
 - Add mutex to resources to prevent multiple concurrent operations (such as Create, Update, or Delete) on the same resource instance or API endpoint, in order to bypass the sequential API execution limitation
 
 ## 0.2.3

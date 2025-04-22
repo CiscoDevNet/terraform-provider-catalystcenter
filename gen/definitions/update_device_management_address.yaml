@@ -2,7 +2,7 @@
 name: Update Device Management Address
 rest_endpoint: /dna/intent/api/v1/network-device/%v/management-address
 get_rest_endpoint: /dna/intent/api/v1/network-device
-res_description: This resource edit the management IP Address of the device.
+res_description: This resource manages the management IP Address of the device.
 no_data_source: true
 put_create: true
 no_delete: true

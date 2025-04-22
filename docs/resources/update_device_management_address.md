@@ -3,12 +3,12 @@
 page_title: "catalystcenter_update_device_management_address Resource - terraform-provider-catalystcenter"
 subcategory: "Inventory"
 description: |-
-  This resource edit the management IP Address of the device.
+  This resource manages the management IP Address of the device.
 ---
 
 # catalystcenter_update_device_management_address (Resource)
 
-This resource edit the management IP Address of the device.
+This resource manages the management IP Address of the device.
 
 ## Example Usage
 

@@ -56,7 +56,7 @@ func (r *UpdateDeviceManagementAddressResource) Metadata(ctx context.Context, re
 func (r *UpdateDeviceManagementAddressResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource edit the management IP Address of the device.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource manages the management IP Address of the device.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
