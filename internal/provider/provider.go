@@ -271,6 +271,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewAnycastGatewayResource,
 		NewAreaResource,
 		NewAssignCredentialsResource,
+		NewAssignDeviceToSiteResource,
 		NewAssignTemplatesToTagResource,
 		NewAssociateSiteToNetworkProfileResource,
 		NewAuthenticationPolicyServerResource,

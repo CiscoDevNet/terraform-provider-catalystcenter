@@ -1,0 +1,42 @@
+---
+name: Assign Device to Site
+rest_endpoint: /dna/intent/api/v1/networkDevices/assignToSite/apply
+get_rest_endpoint: /dna/intent/api/v1/networkDevices/assignedToSite
+delete_rest_endpoint: /dna/intent/api/v1/networkDevices/unassignFromSite/apply
+get_no_id: true
+res_description: Assign unprovisioned network devices to a site.
+post_update: true
+no_import: true
+delete_no_id: true
+no_data_source: true
+test_tags: [INVENTORY]
+doc_category: Sites
+attributes:
+  - model_name: deviceIds
+    type: Set
+    mandatory: true
+    write_only: true
+    element_type: String
+    description: Unassigned network device ID
+    example: 024f383c-14a5-421c-b21d-b80910cde422
+  - model_name: siteId
+    type: String
+    query_param: true
+    response_data_path: "response.0.siteId"
+    id: true
+    description: This must be building Id or floor Id. Access points, Sensors are assigned to floor. Remaining network devices are assigned to building.
+    example: 7ef492ca-b008-479a-9de4-7e40438c7d10
+    test_value: catalystcenter_building.test.id
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_building" "test" {
+    name        = "Building1"
+    parent_name = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"
+    country     = "United States"
+    address     = "150 W Tasman Dr, San Jose"
+    latitude    = 37.338
+    longitude   = -121.832
+  }
