@@ -1,3 +1,7 @@
+## 0.2.5 (unreleased)
+
+- Improve delete operations to treat `404 Not Found` responses as successful, ensuring idempotent behavior when resources are already removed
+
 ## 0.2.4
 
 - Add `redeploy` attribute to `catalystcenter_deploy_template`

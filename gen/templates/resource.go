@@ -917,7 +917,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- else}}
 	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), "{}"){{- if .Mutex }}, cc.UseMutex{{- end}}
 	{{- end}}
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 	{{- if .PutDelete}}
 		errorCode := res.Get("response.errorCode").String()
 		if strings.HasPrefix(errorCode, "NCND") {
@@ -947,7 +947,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- else}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {

@@ -471,7 +471,7 @@ func (r *FabricL3HandoffIPTransitsResource) Delete(ctx context.Context, req reso
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	params := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(state.FabricId.ValueString())
 	res, err := r.client.Delete(state.getPath()+params, cc.UseMutex)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {
 			// Log a warning and continue execution when device is unreachable
