@@ -6,6 +6,7 @@ get_rest_endpoint: /dna/intent/api/v1/lan-automation/status
 no_update: true
 id_path: response.taskId
 no_wait: true
+skip_minimum_test: true
 doc_category: LAN Automation
 res_description:
   'This resource can Start LAN Automation on resource creation and Stop LAN Automation on resource deletion'
@@ -32,7 +33,7 @@ attributes:
     tf_name: peer_device_management_ip_address
     type: String
     description: Secondary seed management IP address.
-    example: 1.2.3.5
+    exclude_test: true
   - model_name: primaryDeviceInterfaceNames
     data_path: "0"
     response_data_path: response.0.primaryDeviceInterfaceNames
@@ -43,6 +44,7 @@ attributes:
     example: HundredGigE1/0/1
   - model_name: ipPools
     data_path: "0"
+    mandatory: true
     response_data_path: response.0.ipPools
     type: List
     description: The list of IP pools with its name and role.

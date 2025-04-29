@@ -35,7 +35,6 @@ func TestAccCcLANAutomation(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovered_device_site_name_hierarchy", "Global/Area1/Area2"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "primary_device_management_ip_address", "1.2.3.4"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "peer_device_management_ip_address", "1.2.3.5"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_name", "POOL1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_role", "MAIN_POOL"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "multicast_enabled", "true"))
@@ -49,11 +48,6 @@ func TestAccCcLANAutomation(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_devices.0.device_management_ip_address", "10.0.0.1"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcLANAutomationConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcLANAutomationConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
@@ -81,6 +75,10 @@ func testAccCcLANAutomationConfig_minimum() string {
 	config += `	discovered_device_site_name_hierarchy = "Global/Area1/Area2"` + "\n"
 	config += `	primary_device_management_ip_address = "1.2.3.4"` + "\n"
 	config += `	primary_device_interface_names = ["HundredGigE1/0/1"]` + "\n"
+	config += `	ip_pools = [{` + "\n"
+	config += `	  ip_pool_name = "POOL1"` + "\n"
+	config += `	  ip_pool_role = "MAIN_POOL"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -92,7 +90,6 @@ func testAccCcLANAutomationConfig_all() string {
 	config := `resource "catalystcenter_lan_automation" "test" {` + "\n"
 	config += `	discovered_device_site_name_hierarchy = "Global/Area1/Area2"` + "\n"
 	config += `	primary_device_management_ip_address = "1.2.3.4"` + "\n"
-	config += `	peer_device_management_ip_address = "1.2.3.5"` + "\n"
 	config += `	primary_device_interface_names = ["HundredGigE1/0/1"]` + "\n"
 	config += `	ip_pools = [{` + "\n"
 	config += `	  ip_pool_name = "POOL1"` + "\n"

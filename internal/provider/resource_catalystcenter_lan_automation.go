@@ -91,7 +91,7 @@ func (r *LANAutomationResource) Schema(ctx context.Context, req resource.SchemaR
 			},
 			"ip_pools": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The list of IP pools with its name and role.").String,
-				Optional:            true,
+				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"ip_pool_name": schema.StringAttribute{
