@@ -25,10 +25,12 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -126,6 +128,46 @@ func (r *LANAutomationResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: helpers.NewAttributeDescription("Advertise LAN Automation summary route into BGP.").String,
 				Optional:            true,
 			},
+			"discovery_level": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Level below primary seed device upto which the new devices will be LAN Automated by this session, level + seed = tier").AddIntegerRangeDescription(1, 5).AddDefaultValueDescription("2").String,
+				Optional:            true,
+				Computed:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 5),
+				},
+				Default: int64default.StaticInt64(2),
+			},
+			"discovery_timeout": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Discovery timeout in minutes. Until this time, the stop processing will not be triggered.").AddIntegerRangeDescription(20, 10080).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(20, 10080),
+				},
+			},
+			"discovery_devices": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("List of specific devices that will be LAN Automated in this session").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"device_serial_number": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Serial number of the device").String,
+							Required:            true,
+						},
+						"device_host_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Hostname of the device").String,
+							Optional:            true,
+						},
+						"device_site_name_hierarchy": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Site name hierarchy for the device, must be a child site of the discoveredDeviceSiteNameHierarchy or same if it’s not area type").String,
+							Optional:            true,
+						},
+						"device_management_ip_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Management IP Address of the device").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -157,12 +199,12 @@ func (r *LANAutomationResource) Create(ctx context.Context, req resource.CreateR
 	body := plan.toBody(ctx, LANAutomation{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.NoWait)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.id").String())
+	plan.Id = types.StringValue(res.Get("response.taskId").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -238,7 +280,6 @@ func (r *LANAutomationResource) Update(ctx context.Context, req resource.UpdateR
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *LANAutomationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state LANAutomation
 
@@ -250,8 +291,8 @@ func (r *LANAutomationResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+	res, err := r.client.Delete(state.getPathDelete() + "/" + url.QueryEscape(state.Id.ValueString()))
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 406") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
 	}
@@ -260,8 +301,6 @@ func (r *LANAutomationResource) Delete(ctx context.Context, req resource.DeleteR
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *LANAutomationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

@@ -40,8 +40,13 @@ func TestAccDataSourceCcLANAutomation(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_role", "MAIN_POOL"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "multicast_enabled", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "host_name_prefix", "TEST"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "isis_domain_password", "cisco123"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "redistribute_isis_to_bgp", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "discovery_level", "2"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "discovery_timeout", "20"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "discovery_devices.0.device_serial_number", "FOC12345678"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "discovery_devices.0.device_host_name", "EDGE01"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "discovery_devices.0.device_site_name_hierarchy", "Global/Area1/Area2"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_lan_automation.test", "discovery_devices.0.device_management_ip_address", "10.0.0.1"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -74,6 +79,14 @@ func testAccDataSourceCcLANAutomationConfig() string {
 	config += `	host_name_prefix = "TEST"` + "\n"
 	config += `	isis_domain_password = "cisco123"` + "\n"
 	config += `	redistribute_isis_to_bgp = true` + "\n"
+	config += `	discovery_level = 2` + "\n"
+	config += `	discovery_timeout = 20` + "\n"
+	config += `	discovery_devices = [{` + "\n"
+	config += `	  device_serial_number = "FOC12345678"` + "\n"
+	config += `	  device_host_name = "EDGE01"` + "\n"
+	config += `	  device_site_name_hierarchy = "Global/Area1/Area2"` + "\n"
+	config += `	  device_management_ip_address = "10.0.0.1"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `

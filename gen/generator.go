@@ -118,6 +118,7 @@ type YamlConfig struct {
 	UpdateComputed              bool                  `yaml:"update_computed"`
 	RootList                    bool                  `yaml:"root_list"`
 	NoReadPrefix                bool                  `yaml:"no_read_prefix"`
+	NoWait                      bool                  `yaml:"no_wait"`
 	IdPath                      string                `yaml:"id_path"`
 	IdFromQueryPath             string                `yaml:"id_from_query_path"`
 	IdFromQueryPathAttribute    string                `yaml:"id_from_query_path_attribute"`
