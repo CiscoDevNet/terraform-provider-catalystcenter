@@ -35,20 +35,19 @@ func TestAccCcLANAutomation(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovered_device_site_name_hierarchy", "Global/Area1/Area2"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "primary_device_management_ip_address", "1.2.3.4"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "peer_device_management_ip_address", "1.2.3.5"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_name", "POOL1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_role", "MAIN_POOL"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "multicast_enabled", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "host_name_prefix", "TEST"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "isis_domain_password", "cisco123"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "redistribute_isis_to_bgp", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_level", "2"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_timeout", "20"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_devices.0.device_serial_number", "FOC12345678"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_devices.0.device_host_name", "EDGE01"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_devices.0.device_site_name_hierarchy", "Global/Area1/Area2"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_devices.0.device_management_ip_address", "10.0.0.1"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcLANAutomationConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcLANAutomationConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
@@ -76,6 +75,10 @@ func testAccCcLANAutomationConfig_minimum() string {
 	config += `	discovered_device_site_name_hierarchy = "Global/Area1/Area2"` + "\n"
 	config += `	primary_device_management_ip_address = "1.2.3.4"` + "\n"
 	config += `	primary_device_interface_names = ["HundredGigE1/0/1"]` + "\n"
+	config += `	ip_pools = [{` + "\n"
+	config += `	  ip_pool_name = "POOL1"` + "\n"
+	config += `	  ip_pool_role = "MAIN_POOL"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -87,7 +90,6 @@ func testAccCcLANAutomationConfig_all() string {
 	config := `resource "catalystcenter_lan_automation" "test" {` + "\n"
 	config += `	discovered_device_site_name_hierarchy = "Global/Area1/Area2"` + "\n"
 	config += `	primary_device_management_ip_address = "1.2.3.4"` + "\n"
-	config += `	peer_device_management_ip_address = "1.2.3.5"` + "\n"
 	config += `	primary_device_interface_names = ["HundredGigE1/0/1"]` + "\n"
 	config += `	ip_pools = [{` + "\n"
 	config += `	  ip_pool_name = "POOL1"` + "\n"
@@ -97,6 +99,14 @@ func testAccCcLANAutomationConfig_all() string {
 	config += `	host_name_prefix = "TEST"` + "\n"
 	config += `	isis_domain_password = "cisco123"` + "\n"
 	config += `	redistribute_isis_to_bgp = true` + "\n"
+	config += `	discovery_level = 2` + "\n"
+	config += `	discovery_timeout = 20` + "\n"
+	config += `	discovery_devices = [{` + "\n"
+	config += `	  device_serial_number = "FOC12345678"` + "\n"
+	config += `	  device_host_name = "EDGE01"` + "\n"
+	config += `	  device_site_name_hierarchy = "Global/Area1/Area2"` + "\n"
+	config += `	  device_management_ip_address = "10.0.0.1"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }

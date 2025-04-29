@@ -1,5 +1,6 @@
 ## 0.2.5 (unreleased)
 
+- Modify `catalystcenter_lan_automation` to use V2 LAN Automation Start API, which supports optional auto-stop processing feature based on the provided timeout or a specific device list, or both.
 - Add `catalystcenter_assign_device_to_site` resource. This resource only works with Catalyst Center version 2.3.7.9+
 - Improve delete operations to treat `404 Not Found` responses as successful, ensuring idempotent behavior when resources are already removed
 

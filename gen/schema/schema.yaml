@@ -34,6 +34,7 @@ put_id_query_param: str(required=False) # If PUT needs to have specific query pa
 put_no_id: bool(required=False) # Set to true if the PUT request does not require an ID
 put_update_id: bool(required=False) # Set to true if the PUT request updates the ID
 delete_id_query_param: str(required=False) # If DELETE needs to have specific query parameter where ID should be inserted
+no_wait: bool(required=False) # Set to true to indicate that the task should not wait for completion
 minimum_version: str(required=False) # Define a minimum supported version
 ds_description: str(required=False) # Define a data source description
 res_description: str(required=False) # Define a resource description

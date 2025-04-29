@@ -115,6 +115,38 @@ func (d *LANAutomationDataSource) Schema(ctx context.Context, req datasource.Sch
 				MarkdownDescription: "Advertise LAN Automation summary route into BGP.",
 				Computed:            true,
 			},
+			"discovery_level": schema.Int64Attribute{
+				MarkdownDescription: "Level below primary seed device upto which the new devices will be LAN Automated by this session, level + seed = tier",
+				Computed:            true,
+			},
+			"discovery_timeout": schema.Int64Attribute{
+				MarkdownDescription: "Discovery timeout in minutes. Until this time, the stop processing will not be triggered.",
+				Computed:            true,
+			},
+			"discovery_devices": schema.SetNestedAttribute{
+				MarkdownDescription: "List of specific devices that will be LAN Automated in this session",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"device_serial_number": schema.StringAttribute{
+							MarkdownDescription: "Serial number of the device",
+							Computed:            true,
+						},
+						"device_host_name": schema.StringAttribute{
+							MarkdownDescription: "Hostname of the device",
+							Computed:            true,
+						},
+						"device_site_name_hierarchy": schema.StringAttribute{
+							MarkdownDescription: "Site name hierarchy for the device, must be a child site of the discoveredDeviceSiteNameHierarchy or same if it’s not area type",
+							Computed:            true,
+						},
+						"device_management_ip_address": schema.StringAttribute{
+							MarkdownDescription: "Management IP Address of the device",
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
