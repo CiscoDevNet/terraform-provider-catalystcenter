@@ -1,0 +1,87 @@
+---
+name: Fabric L3 Handoff SDA Transit
+rest_endpoint: /dna/intent/api/v1/sda/fabricDevices/layer3Handoffs/sdaTransits
+res_description: Manages Layer 3 Handoffs with SDA Transit in Fabric Devices
+id_from_attribute: true
+data_source_no_id: true
+put_no_id: true
+device_unreachability_warning: true
+doc_category: SDA
+mutex: true
+test_tags: [SDA]
+attributes:
+  - model_name: networkDeviceId
+    query_param: true
+    delete_query_param: true
+    requires_replace: true
+    id: true
+    data_path: '0'
+    response_data_path: response.0.networkDeviceId
+    mandatory: true
+    description: Network device ID of the fabric device
+    type: String
+    example: a144a086-750c-4af1-ac57-feab33a69851
+  - model_name: fabricId
+    requires_replace: true
+    query_param: true
+    delete_query_param: true
+    data_path: '0'
+    response_data_path: response.0.fabricId
+    type: String
+    mandatory: true
+    description: ID of the fabric this device is assigned to
+    example: c4b85bb2-ce3f-4db9-a32b-e439a388ac2f
+    test_value: catalystcenter_fabric_site.test.id
+  - model_name: transitNetworkId
+    requires_replace: true
+    data_path: '0'
+    response_data_path: response.0.transitNetworkId
+    type: String
+    mandatory: true
+    description: ID of the transit network of the layer 3 handoff sda transit
+    example: d71c847b-e9c2-4f13-928c-223372b72b06
+    test_value: catalystcenter_transit_network.test.id
+  - model_name: affinityIdPrime
+    data_path: '0'
+    response_data_path: response.0.affinityIdPrime
+    type: Int64
+    min_int: 0
+    max_int: 2147483647
+    description: Affinity id prime value of the border node. It supersedes the border priority to determine border node preference.
+    example: 100
+  - model_name: affinityIdDecider
+    data_path: '0'
+    response_data_path: response.0.affinityIdDecider
+    type: Int64
+    min_int: 0
+    max_int: 2147483647
+    description: Affinity id decider value of the border node. When the affinity id prime value is the same on multiple devices, the affinity id decider value is used as a tiebreaker.
+    example: 100
+  - model_name: connectedToInternet
+    data_path: '0'
+    response_data_path: response.0.connectedToInternet
+    type: Bool
+    description: Set this true to allow associated site to provide internet access to other sites through sd-access.
+    example: false
+  - model_name: isMulticastOverTransitEnabled
+    data_path: '0'
+    response_data_path: response.0.isMulticastOverTransitEnabled
+    type: Bool
+    description: Set this true to configure native multicast over multiple sites that are connected to an sd-access transit.
+    example: false
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = true
+    authentication_profile_name = "No Authentication"
+    depends_on = [catalystcenter_area.test]
+  }
+  resource "catalystcenter_transit_network" "test" {
+    name = "SDA_TRANSIT_1"
+    type = "SDA_LISP_BGP_TRANSIT"
+    control_plane_network_device_ids = ["12345678-1234-1234-1234-123456789012"]
+  }
