@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.2.5 (unreleased)
+## 0.2.5
 
 - Add `catalystcenter_fabric_l3_handoff_sda_transit` resource and data source
 - Modify `catalystcenter_lan_automation` to use V2 LAN Automation Start API, which supports optional auto-stop processing feature based on the provided timeout or a specific device list, or both.
