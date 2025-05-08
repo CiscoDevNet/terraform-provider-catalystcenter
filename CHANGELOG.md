@@ -1,3 +1,7 @@
+## 0.2.6 (unreleased)
+
+Add the `serial_number` query parameter to the `catalystcenter_pnp_device` data source to fix the issue with result pagination
+
 ## 0.2.5
 
 - Add `catalystcenter_fabric_l3_handoff_sda_transit` resource and data source
