@@ -144,7 +144,7 @@ func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "/" + url.QueryEscape(state.Id.ValueString())
+	params += "?serialNumber=" + url.QueryEscape(state.SerialNumber.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -236,11 +236,11 @@ func (r *PnPDeviceResource) ImportState(ctx context.Context, req resource.Import
 	if len(idParts) != 1 || idParts[0] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <serial_number>. Got: %q", req.ID),
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("serial_number"), idParts[0])...)
 }
 
 // End of section. //template:end import

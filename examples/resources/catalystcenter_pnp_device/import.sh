@@ -1,1 +1,1 @@
-terraform import catalystcenter_pnp_device.example "<id>"
+terraform import catalystcenter_pnp_device.example "<serial_number>"

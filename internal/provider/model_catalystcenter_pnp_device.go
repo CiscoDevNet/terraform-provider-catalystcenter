@@ -73,22 +73,28 @@ func (data PnPDevice) toBody(ctx context.Context, state PnPDevice) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *PnPDevice) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("deviceInfo.serialNumber"); value.Exists() {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	if value := res.Get("0.id"); value.Exists() {
+		data.Id = types.StringValue(value.String())
+	} else {
+		data.Id = types.StringNull()
+	}
+	if value := res.Get("0.deviceInfo.serialNumber"); value.Exists() {
 		data.SerialNumber = types.StringValue(value.String())
 	} else {
 		data.SerialNumber = types.StringNull()
 	}
-	if value := res.Get("deviceInfo.stack"); value.Exists() {
+	if value := res.Get("0.deviceInfo.stack"); value.Exists() {
 		data.Stack = types.BoolValue(value.Bool())
 	} else {
 		data.Stack = types.BoolNull()
 	}
-	if value := res.Get("deviceInfo.pid"); value.Exists() {
+	if value := res.Get("0.deviceInfo.pid"); value.Exists() {
 		data.Pid = types.StringValue(value.String())
 	} else {
 		data.Pid = types.StringNull()
 	}
-	if value := res.Get("deviceInfo.hostname"); value.Exists() {
+	if value := res.Get("0.deviceInfo.hostname"); value.Exists() {
 		data.Hostname = types.StringValue(value.String())
 	} else {
 		data.Hostname = types.StringNull()
@@ -99,22 +105,22 @@ func (data *PnPDevice) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *PnPDevice) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("deviceInfo.serialNumber"); value.Exists() && !data.SerialNumber.IsNull() {
+	if value := res.Get("0.deviceInfo.serialNumber"); value.Exists() && !data.SerialNumber.IsNull() {
 		data.SerialNumber = types.StringValue(value.String())
 	} else {
 		data.SerialNumber = types.StringNull()
 	}
-	if value := res.Get("deviceInfo.stack"); value.Exists() && !data.Stack.IsNull() {
+	if value := res.Get("0.deviceInfo.stack"); value.Exists() && !data.Stack.IsNull() {
 		data.Stack = types.BoolValue(value.Bool())
 	} else {
 		data.Stack = types.BoolNull()
 	}
-	if value := res.Get("deviceInfo.pid"); value.Exists() && !data.Pid.IsNull() {
+	if value := res.Get("0.deviceInfo.pid"); value.Exists() && !data.Pid.IsNull() {
 		data.Pid = types.StringValue(value.String())
 	} else {
 		data.Pid = types.StringNull()
 	}
-	if value := res.Get("deviceInfo.hostname"); value.Exists() && !data.Hostname.IsNull() {
+	if value := res.Get("0.deviceInfo.hostname"); value.Exists() && !data.Hostname.IsNull() {
 		data.Hostname = types.StringValue(value.String())
 	} else {
 		data.Hostname = types.StringNull()
@@ -125,9 +131,6 @@ func (data *PnPDevice) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *PnPDevice) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.SerialNumber.IsNull() {
-		return false
-	}
 	if !data.Stack.IsNull() {
 		return false
 	}

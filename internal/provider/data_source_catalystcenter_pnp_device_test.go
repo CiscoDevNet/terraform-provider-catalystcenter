@@ -61,7 +61,8 @@ func testAccDataSourceCcPnPDeviceConfig() string {
 
 	config += `
 		data "catalystcenter_pnp_device" "test" {
-			id = catalystcenter_pnp_device.test.id
+			serial_number = "FOC12345678"
+			depends_on = [catalystcenter_pnp_device.test]
 		}
 	`
 	return config
