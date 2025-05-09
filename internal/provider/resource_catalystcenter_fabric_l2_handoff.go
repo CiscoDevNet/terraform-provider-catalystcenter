@@ -22,7 +22,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -155,7 +154,7 @@ func (r *FabricL2HandoffResource) Create(ctx context.Context, req resource.Creat
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(internalVlanId==\"" + strconv.FormatInt(plan.InternalVlanId.ValueInt64(), 10) + "\").id").String())
+	plan.Id = types.StringValue(res.Get("response.#(interfaceName==\"" + plan.InterfaceName.ValueString() + "\").id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
