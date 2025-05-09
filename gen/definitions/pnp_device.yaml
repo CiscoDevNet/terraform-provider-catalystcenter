@@ -5,6 +5,7 @@ id_path: id
 id_from_query_path: "0"
 id_from_query_path_attribute: id
 data_source_no_id: true
+put_id: true
 import_no_id: true
 doc_category: Plug and Play
 attributes:

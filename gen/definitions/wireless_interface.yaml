@@ -1,0 +1,25 @@
+---
+name: Wireless Interface
+rest_endpoint: /dna/intent/api/v1/wirelessSettings/interfaces
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+data_source_no_id: true
+put_id: true
+import_no_id: true
+doc_category: Wireless
+attributes:
+  - model_name: interfaceName
+    type: String
+    mandatory: true
+    query_param: true
+    response_data_path: response.0.interfaceName
+    description: Interface Name
+    example: GigabitEthernet1/0/1
+  - model_name: vlanId
+    type: Int64
+    mandatory: true
+    response_data_path: response.0.vlanId
+    min_int: 1
+    max_int: 4094
+    description: VLAN ID
+    example: 100
