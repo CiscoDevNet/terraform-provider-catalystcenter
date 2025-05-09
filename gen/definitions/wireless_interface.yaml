@@ -4,7 +4,7 @@ rest_endpoint: /dna/intent/api/v1/wirelessSettings/interfaces
 id_from_query_path: response.0
 id_from_query_path_attribute: id
 data_source_no_id: true
-id_path: response.0.id
+put_id: true
 import_no_id: true
 doc_category: Wireless
 attributes:

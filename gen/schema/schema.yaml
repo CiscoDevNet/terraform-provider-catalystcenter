@@ -31,6 +31,7 @@ id_from_attribute: bool(required=False) # Set to true if the ID is derived from 
 device_unreachability_warning: bool(required=False) # Set to true if a warning should be displayed for device unreachability instead of error
 put_id_include_path: str(required=False) # If PUT needs to have specific JSON path where ID should be inserted
 put_id_query_param: str(required=False) # If PUT needs to have specific query parameter where ID should be inserted
+put_id: bool(required=False) # Set to true if the PUT request requires an ID in the URL path
 put_no_id: bool(required=False) # Set to true if the PUT request does not require an ID
 put_update_id: bool(required=False) # Set to true if the PUT request updates the ID
 delete_id_query_param: str(required=False) # If DELETE needs to have specific query parameter where ID should be inserted

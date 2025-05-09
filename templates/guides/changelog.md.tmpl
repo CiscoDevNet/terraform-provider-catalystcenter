@@ -9,6 +9,7 @@ description: |-
 
 ## 0.2.6 (unreleased)
 
+- Add `catalystcenter_wireless_interface` resource and data source
 - Fix the issue with ID assignment when using multiple interfaces with the same `internal_vlan_id` and `external_vlan_id` in the `catalystcenter_fabric_l2_handoff` resource
 - Add the `serial_number` query parameter to the `catalystcenter_pnp_device` data source to fix the issue with result pagination
 
