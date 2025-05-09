@@ -6,6 +6,7 @@ id_from_query_path_attribute: id
 data_source_no_id: true
 put_id: true
 import_no_id: true
+mutex: true
 doc_category: Wireless
 attributes:
   - model_name: interfaceName
