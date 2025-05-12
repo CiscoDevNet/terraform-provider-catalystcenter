@@ -27,7 +27,7 @@ attributes:
     mandatory: true
     write_only: true
     description: The password
-    example: Cisco123
+    example: C1sco1357
   - model_name: email
     type: String
     description: Email address

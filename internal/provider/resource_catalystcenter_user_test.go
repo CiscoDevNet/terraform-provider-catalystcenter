@@ -72,7 +72,7 @@ data "catalystcenter_role" "test" {
 func testAccCcUserConfig_minimum() string {
 	config := `resource "catalystcenter_user" "test" {` + "\n"
 	config += `	username = "johndoe"` + "\n"
-	config += `	password = "Cisco123"` + "\n"
+	config += `	password = "C1sco1357"` + "\n"
 	config += `	role_ids = [data.catalystcenter_role.test.id]` + "\n"
 	config += `}` + "\n"
 	return config
@@ -86,7 +86,7 @@ func testAccCcUserConfig_all() string {
 	config += `	first_name = "john"` + "\n"
 	config += `	last_name = "doe"` + "\n"
 	config += `	username = "johndoe"` + "\n"
-	config += `	password = "Cisco123"` + "\n"
+	config += `	password = "C1sco1357"` + "\n"
 	config += `	email = "john.doe@cisco.com"` + "\n"
 	config += `	role_ids = [data.catalystcenter_role.test.id]` + "\n"
 	config += `}` + "\n"

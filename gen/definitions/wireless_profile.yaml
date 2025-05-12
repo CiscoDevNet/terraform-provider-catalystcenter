@@ -28,7 +28,7 @@ attributes:
       - model_name: enableFabric
         type: Bool
         description: "True if fabric is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time"
-        example: true
+        example: false
       - model_name: enableFlexConnect
         data_path: flexConnect
         type: Bool
