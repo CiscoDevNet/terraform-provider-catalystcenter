@@ -33,7 +33,7 @@ func TestAccCcUser(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_user.test", "first_name", "john"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_user.test", "last_name", "doe"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_user.test", "username", "johndoe"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_user.test", "email", "john.doe@cisco.com"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_user.test", "email", "john.doe@example.com"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -72,7 +72,7 @@ data "catalystcenter_role" "test" {
 func testAccCcUserConfig_minimum() string {
 	config := `resource "catalystcenter_user" "test" {` + "\n"
 	config += `	username = "johndoe"` + "\n"
-	config += `	password = "Cisco123"` + "\n"
+	config += `	password = "C1sco1357"` + "\n"
 	config += `	role_ids = [data.catalystcenter_role.test.id]` + "\n"
 	config += `}` + "\n"
 	return config
@@ -86,8 +86,8 @@ func testAccCcUserConfig_all() string {
 	config += `	first_name = "john"` + "\n"
 	config += `	last_name = "doe"` + "\n"
 	config += `	username = "johndoe"` + "\n"
-	config += `	password = "Cisco123"` + "\n"
-	config += `	email = "john.doe@cisco.com"` + "\n"
+	config += `	password = "C1sco1357"` + "\n"
+	config += `	email = "john.doe@example.com"` + "\n"
 	config += `	role_ids = [data.catalystcenter_role.test.id]` + "\n"
 	config += `}` + "\n"
 	return config

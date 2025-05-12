@@ -53,7 +53,7 @@ attributes:
     description: TCP maximum segment size adjustment
     example: 1400
   - model_name: vlanName
-    requires_replace: true
+    computed: true
     data_path: '0'
     response_data_path: response.0.vlanName
     type: String

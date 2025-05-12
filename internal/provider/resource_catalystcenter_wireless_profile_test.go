@@ -31,7 +31,7 @@ import (
 func TestAccCcWirelessProfile(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "wireless_profile_name", "Wireless_Profile_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.enable_fabric", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.enable_fabric", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_profile.test", "ssid_details.0.enable_flex_connect", "false"))
 
 	var steps []resource.TestStep
@@ -86,7 +86,7 @@ func testAccCcWirelessProfileConfig_all() string {
 	config += `	wireless_profile_name = "Wireless_Profile_1"` + "\n"
 	config += `	ssid_details = [{` + "\n"
 	config += `	  ssid_name = catalystcenter_wireless_enterprise_ssid.test.name` + "\n"
-	config += `	  enable_fabric = true` + "\n"
+	config += `	  enable_fabric = false` + "\n"
 	config += `	  enable_flex_connect = false` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"

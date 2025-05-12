@@ -1,0 +1,82 @@
+---
+name: Update Authentication Profile
+rest_endpoint: /dna/intent/api/v1/sda/authenticationProfiles
+res_description: Updates an Authentication Profile
+put_create: true
+no_delete: true
+no_import: true
+id_from_attribute: true
+put_id_include_path: "0.id"
+skip_minimum_test: true
+mutex: true
+doc_category: SDA
+attributes:
+  - model_name: id
+    tf_name: authentication_profile_id
+    data_path: "0"
+    response_data_path: response.0.id
+    type: String
+    id: true
+    description: ID of the authentication profile
+    example: cc0b30bc-94e7-458a-80e2-c7bbecc829f5
+  - model_name: fabricId
+    response_data_path: response.0.fabricId
+    data_path: "0"
+    type: String
+    description: ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.
+    exclude_test: true
+  - model_name: authenticationProfileName
+    data_path: "0"
+    response_data_path: response.0.authenticationProfileName
+    type: String
+    mandatory: true
+    query_param: true
+    description: The default host authentication template
+    enum_values:
+      - Open Authentication
+      - Closed Authentication
+      - Low Impact
+    example: Closed Authentication
+  - model_name: authenticationOrder
+    data_path: "0"
+    response_data_path: response.0.authenticationOrder
+    type: String
+    mandatory: true
+    description: First authentication method
+    enum_values:
+      - dot1x
+      - mac
+    example: mac
+  - model_name: dot1xToMabFallbackTimeout
+    tf_name: dot1x_to_mab_fallback_timeout
+    response_data_path: response.0.dot1xToMabFallbackTimeout
+    data_path: "0"
+    type: Int64
+    mandatory: true
+    description: 802.1x Timeout
+    max_int: 120
+    min_int: 3
+    example: 10
+  - model_name: wakeOnLan
+    response_data_path: response.0.wakeOnLan
+    data_path: "0"
+    type: Bool
+    mandatory: true
+    description: Wake on LAN
+    example: true
+  - model_name: numberOfHosts
+    response_data_path: response.0.numberOfHosts
+    data_path: "0"
+    type: String
+    mandatory: true
+    description: Number of hosts
+    enum_values:
+      - Single
+      - Unlimited
+    example: Unlimited
+  - model_name: isBpduGuardEnabled
+    response_data_path: response.0.isBpduGuardEnabled
+    data_path: "0"
+    type: Bool
+    description: 'Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`'
+    exclude_test: true

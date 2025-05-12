@@ -18,7 +18,7 @@ resource "catalystcenter_wireless_profile" "example" {
   ssid_details = [
     {
       ssid_name           = "mySSID1"
-      enable_fabric       = true
+      enable_fabric       = false
       enable_flex_connect = false
     }
   ]
