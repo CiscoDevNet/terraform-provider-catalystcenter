@@ -85,7 +85,7 @@ func (data AnycastGateway) toBody(ctx context.Context, state AnycastGateway) str
 	if !data.TcpMssAdjustment.IsNull() {
 		body, _ = sjson.Set(body, "0.tcpMssAdjustment", data.TcpMssAdjustment.ValueInt64())
 	}
-	if !data.VlanName.IsNull() {
+	if state.Id.ValueString() != "" && !data.VlanName.IsNull() {
 		body, _ = sjson.Set(body, "0.vlanName", data.VlanName.ValueString())
 	}
 	if state.Id.ValueString() != "" && !data.VlanId.IsNull() {

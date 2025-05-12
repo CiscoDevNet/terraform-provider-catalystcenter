@@ -104,8 +104,9 @@ func (r *AnycastGatewayResource) Schema(ctx context.Context, req resource.Schema
 			"vlan_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Name of the VLAN of the anycast gateway").String,
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"vlan_id": schema.Int64Attribute{
