@@ -31,7 +31,7 @@ attributes:
   - model_name: email
     type: String
     description: Email address
-    example: john.doe@cisco.com
+    example: john.doe@example.com
   - model_name: roleList
     tf_name: role_ids
     type: Set
