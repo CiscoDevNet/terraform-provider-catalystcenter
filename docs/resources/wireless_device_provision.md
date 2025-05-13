@@ -15,6 +15,7 @@ This resource is used to provision a wireless device. Every time this resource i
 ```terraform
 resource "catalystcenter_wireless_device_provision" "example" {
   device_name          = "WLC_01"
+  network_device_id    = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"
   site                 = "Global/Area1"
   managed_ap_locations = ["Global/Area1"]
 }
@@ -27,6 +28,7 @@ resource "catalystcenter_wireless_device_provision" "example" {
 
 - `device_name` (String) Controller Name
 - `managed_ap_locations` (Set of String) List of managed AP locations
+- `network_device_id` (String) Network Device ID
 - `site` (String) Full Site Hierarchy where device has to be assigned
 
 ### Optional

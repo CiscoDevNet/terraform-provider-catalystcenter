@@ -21,6 +21,8 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -68,6 +70,13 @@ func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resour
 			},
 			"device_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Controller Name").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"network_device_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Network Device ID").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -159,7 +168,7 @@ func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resour
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.DeviceName.ValueString()))
+	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -237,6 +246,12 @@ func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resour
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	params := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	res, err := r.client.Delete(state.getPathDelete() + params)
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+		return
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 

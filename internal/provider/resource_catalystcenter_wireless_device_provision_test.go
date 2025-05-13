@@ -34,6 +34,7 @@ func TestAccCcWirelessDeviceProvision(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "device_name", "WLC_01"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "network_device_id", "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "site", "Global/Area1"))
 
 	var steps []resource.TestStep
@@ -63,6 +64,7 @@ func TestAccCcWirelessDeviceProvision(t *testing.T) {
 func testAccCcWirelessDeviceProvisionConfig_minimum() string {
 	config := `resource "catalystcenter_wireless_device_provision" "test" {` + "\n"
 	config += `	device_name = "WLC_01"` + "\n"
+	config += `	network_device_id = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"` + "\n"
 	config += `	site = "Global/Area1"` + "\n"
 	config += `	managed_ap_locations = ["Global/Area1"]` + "\n"
 	config += `}` + "\n"
@@ -75,6 +77,7 @@ func testAccCcWirelessDeviceProvisionConfig_minimum() string {
 func testAccCcWirelessDeviceProvisionConfig_all() string {
 	config := `resource "catalystcenter_wireless_device_provision" "test" {` + "\n"
 	config += `	device_name = "WLC_01"` + "\n"
+	config += `	network_device_id = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"` + "\n"
 	config += `	site = "Global/Area1"` + "\n"
 	config += `	managed_ap_locations = ["Global/Area1"]` + "\n"
 	config += `}` + "\n"

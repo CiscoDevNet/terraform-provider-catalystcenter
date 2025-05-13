@@ -1,11 +1,11 @@
 ---
 name: Wireless Device Provision
 rest_endpoint: /dna/intent/api/v1/wireless/provision
+delete_rest_endpoint: /dna/intent/api/v1/sda/provisionDevices
 res_description: 'This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device.
   When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices'
 no_data_source: true
 no_read: true
-no_delete: true
 no_import: true
 put_no_id: true
 id_from_attribute: true
@@ -15,11 +15,18 @@ attributes:
   - model_name: deviceName
     requires_replace: true
     data_path: '0'
-    id: true
+    #id: true
     mandatory: true
     description: Controller Name
     type: String
     example: WLC_01
+  - tf_name: network_device_id
+    id: true
+    delete_query_param: true
+    delete_query_param_name: networkDeviceId
+    description: Network Device ID
+    type: String
+    example: e2e6ae2f-d526-459f-bfdf-3281d74b6dea
   - model_name: site
     requires_replace: true
     data_path: '0'
