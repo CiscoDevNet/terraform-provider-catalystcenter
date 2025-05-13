@@ -34,6 +34,7 @@ import (
 type WirelessDeviceProvision struct {
 	Id                 types.String                               `tfsdk:"id"`
 	DeviceName         types.String                               `tfsdk:"device_name"`
+	NetworkDeviceId    types.String                               `tfsdk:"network_device_id"`
 	Site               types.String                               `tfsdk:"site"`
 	ManagedApLocations types.Set                                  `tfsdk:"managed_ap_locations"`
 	DynamicInterfaces  []WirelessDeviceProvisionDynamicInterfaces `tfsdk:"dynamic_interfaces"`
@@ -59,6 +60,10 @@ func (data WirelessDeviceProvision) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 
+func (data WirelessDeviceProvision) getPathDelete() string {
+	return "/dna/intent/api/v1/sda/provisionDevices"
+}
+
 // End of section. //template:end getPathDelete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
@@ -71,6 +76,9 @@ func (data WirelessDeviceProvision) toBody(ctx context.Context, state WirelessDe
 	_ = put
 	if !data.DeviceName.IsNull() {
 		body, _ = sjson.Set(body, "0.deviceName", data.DeviceName.ValueString())
+	}
+	if !data.NetworkDeviceId.IsNull() {
+		body, _ = sjson.Set(body, "", data.NetworkDeviceId.ValueString())
 	}
 	if !data.Site.IsNull() {
 		body, _ = sjson.Set(body, "0.site", data.Site.ValueString())
@@ -116,6 +124,11 @@ func (data *WirelessDeviceProvision) fromBody(ctx context.Context, res gjson.Res
 		data.DeviceName = types.StringValue(value.String())
 	} else {
 		data.DeviceName = types.StringNull()
+	}
+	if value := res.Get(""); value.Exists() {
+		data.NetworkDeviceId = types.StringValue(value.String())
+	} else {
+		data.NetworkDeviceId = types.StringNull()
 	}
 	if value := res.Get("0.site"); value.Exists() {
 		data.Site = types.StringValue(value.String())
@@ -175,6 +188,11 @@ func (data *WirelessDeviceProvision) updateFromBody(ctx context.Context, res gjs
 		data.DeviceName = types.StringValue(value.String())
 	} else {
 		data.DeviceName = types.StringNull()
+	}
+	if value := res.Get(""); value.Exists() && !data.NetworkDeviceId.IsNull() {
+		data.NetworkDeviceId = types.StringValue(value.String())
+	} else {
+		data.NetworkDeviceId = types.StringNull()
 	}
 	if value := res.Get("0.site"); value.Exists() && !data.Site.IsNull() {
 		data.Site = types.StringValue(value.String())
@@ -246,6 +264,9 @@ func (data *WirelessDeviceProvision) updateFromBody(ctx context.Context, res gjs
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *WirelessDeviceProvision) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.DeviceName.IsNull() {
+		return false
+	}
 	if !data.Site.IsNull() {
 		return false
 	}

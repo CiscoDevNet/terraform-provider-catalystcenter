@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,23 +27,13 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccCcWirelessDeviceProvision(t *testing.T) {
-	if os.Getenv("WIRELESS") == "" {
-		t.Skip("skipping test, set environment variable WIRELESS")
-	}
+func TestAccCcFabricZone(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "device_name", "WLC_01"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "network_device_id", "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "site", "Global/Area1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_zone.test", "authentication_profile_name", "No Authentication"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcWirelessDeviceProvisionConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcWirelessDeviceProvisionConfig_all(),
+		Config: testAccCcFabricZonePrerequisitesConfig + testAccCcFabricZoneConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -58,15 +47,35 @@ func TestAccCcWirelessDeviceProvision(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccCcFabricZonePrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+resource "catalystcenter_fabric_site" "test" {
+  site_id                     = catalystcenter_area.test.id
+  pub_sub_enabled             = false
+  authentication_profile_name = "No Authentication"
+}
+resource "catalystcenter_building" "test" {
+  name        = "Building1"
+  parent_name = "Global/Area1"
+  country     = "United States"
+  address     = "150 W Tasman Dr, San Jose"
+  latitude    = 37.338
+  longitude   = -121.832
+  depends_on = [catalystcenter_fabric_site.test]
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccCcWirelessDeviceProvisionConfig_minimum() string {
-	config := `resource "catalystcenter_wireless_device_provision" "test" {` + "\n"
-	config += `	device_name = "WLC_01"` + "\n"
-	config += `	network_device_id = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"` + "\n"
-	config += `	site = "Global/Area1"` + "\n"
-	config += `	managed_ap_locations = ["Global/Area1"]` + "\n"
+func testAccCcFabricZoneConfig_minimum() string {
+	config := `resource "catalystcenter_fabric_zone" "test" {` + "\n"
+	config += `	site_id = catalystcenter_building.test.id` + "\n"
+	config += `	authentication_profile_name = "No Authentication"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -74,12 +83,10 @@ func testAccCcWirelessDeviceProvisionConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccCcWirelessDeviceProvisionConfig_all() string {
-	config := `resource "catalystcenter_wireless_device_provision" "test" {` + "\n"
-	config += `	device_name = "WLC_01"` + "\n"
-	config += `	network_device_id = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"` + "\n"
-	config += `	site = "Global/Area1"` + "\n"
-	config += `	managed_ap_locations = ["Global/Area1"]` + "\n"
+func testAccCcFabricZoneConfig_all() string {
+	config := `resource "catalystcenter_fabric_zone" "test" {` + "\n"
+	config += `	site_id = catalystcenter_building.test.id` + "\n"
+	config += `	authentication_profile_name = "No Authentication"` + "\n"
 	config += `}` + "\n"
 	return config
 }

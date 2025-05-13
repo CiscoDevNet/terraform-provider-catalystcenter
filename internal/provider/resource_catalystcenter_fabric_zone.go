@@ -25,12 +25,13 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -41,24 +42,25 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &WirelessDeviceProvisionResource{}
+var _ resource.Resource = &FabricZoneResource{}
+var _ resource.ResourceWithImportState = &FabricZoneResource{}
 
-func NewWirelessDeviceProvisionResource() resource.Resource {
-	return &WirelessDeviceProvisionResource{}
+func NewFabricZoneResource() resource.Resource {
+	return &FabricZoneResource{}
 }
 
-type WirelessDeviceProvisionResource struct {
+type FabricZoneResource struct {
 	client *cc.Client
 }
 
-func (r *WirelessDeviceProvisionResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_wireless_device_provision"
+func (r *FabricZoneResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_zone"
 }
 
-func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *FabricZoneResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Fabric Zone.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,75 +70,25 @@ func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resour
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"device_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Controller Name").String,
+			"site_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the network hierarchy").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"network_device_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Network Device ID").String,
+			"authentication_profile_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Authentication profile used for this fabric").AddStringEnumDescription("No Authentication", "Low Impact", "Open Authentication", "Closed Authentication").String,
 				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"site": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Full Site Hierarchy where device has to be assigned").String,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"managed_ap_locations": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of managed AP locations").String,
-				ElementType:         types.StringType,
-				Required:            true,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.RequiresReplace(),
-				},
-			},
-			"dynamic_interfaces": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Dynamic Interface Details. The required attributes depend on the device type").String,
-				Optional:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
-				},
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"interface_ip_address": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface IP Address. Required for AireOS").String,
-							Optional:            true,
-						},
-						"interface_netmask": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface Netmask In CIDR. Required for AireOS").String,
-							Optional:            true,
-						},
-						"interface_gateway": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface Gateway. Required for AireOS").String,
-							Optional:            true,
-						},
-						"lag_or_port_number": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("LAG or Port Number. Required for AireOS").String,
-							Optional:            true,
-						},
-						"vlan_id": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("VLAN ID. Required for both AireOS and EWLC").String,
-							Optional:            true,
-						},
-						"interface_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface Name. Required for both AireOS and EWLC.").String,
-							Optional:            true,
-						},
-					},
+				Validators: []validator.String{
+					stringvalidator.OneOf("No Authentication", "Low Impact", "Open Authentication", "Closed Authentication"),
 				},
 			},
 		},
 	}
 }
 
-func (r *WirelessDeviceProvisionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *FabricZoneResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -147,8 +99,8 @@ func (r *WirelessDeviceProvisionResource) Configure(_ context.Context, req resou
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan WirelessDeviceProvision
+func (r *FabricZoneResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan FabricZone
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -160,15 +112,22 @@ func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resour
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, WirelessDeviceProvision{})
+	body := plan.toBody(ctx, FabricZone{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
+	params = ""
+	params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString())
+	res, err = r.client.Get(plan.getPath() + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.Id = types.StringValue(res.Get("response.0.id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -179,8 +138,8 @@ func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resour
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state WirelessDeviceProvision
+func (r *FabricZoneResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state FabricZone
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -191,6 +150,24 @@ func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
+	params := ""
+	params += "?siteId=" + url.QueryEscape(state.SiteId.ValueString())
+	res, err := r.client.Get(state.getPath() + params)
+	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
+	if state.isNull(ctx, res) {
+		state.fromBody(ctx, res)
+	} else {
+		state.updateFromBody(ctx, res)
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
@@ -200,8 +177,8 @@ func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state WirelessDeviceProvision
+func (r *FabricZoneResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state FabricZone
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -220,7 +197,7 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -235,8 +212,8 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state WirelessDeviceProvision
+func (r *FabricZoneResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state FabricZone
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -246,8 +223,7 @@ func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resour
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	params := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
-	res, err := r.client.Delete(state.getPathDelete() + params)
+	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -261,4 +237,17 @@ func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resour
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *FabricZoneResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 1 || idParts[0] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <site_id>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), idParts[0])...)
+}
+
 // End of section. //template:end import
