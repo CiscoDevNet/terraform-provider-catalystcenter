@@ -9,6 +9,7 @@ description: |-
 
 ## 0.2.7 (unreleased)
 
+- Remove default value from `interface_name` in the `catalystcenter_wireless_profile` resource 
 - Add import to `catalystcenter_assign_templates_to_tag` resource
 - Add `catalystcenter_assign_devices_to_tag` resource and data source
 

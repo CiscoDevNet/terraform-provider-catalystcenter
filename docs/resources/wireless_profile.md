@@ -53,7 +53,6 @@ Optional:
 - `enable_fabric` (Boolean) True if fabric is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time
 - `enable_flex_connect` (Boolean) True if flex connect is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time
 - `interface_name` (String) Interface Name
-  - Default value: `management`
 - `local_to_vlan` (Number) Local To Vlan Id
 - `wlan_profile_name` (String) WLAN Profile Name
 

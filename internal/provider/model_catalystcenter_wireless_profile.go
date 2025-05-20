@@ -136,7 +136,7 @@ func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
 			if cValue := v.Get("interfaceName"); cValue.Exists() {
 				item.InterfaceName = types.StringValue(cValue.String())
 			} else {
-				item.InterfaceName = types.StringValue("management")
+				item.InterfaceName = types.StringNull()
 			}
 			if cValue := v.Get("wlanProfileName"); cValue.Exists() {
 				item.WlanProfileName = types.StringValue(cValue.String())
@@ -208,7 +208,7 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 		}
 		if value := r.Get("interfaceName"); value.Exists() && !data.SsidDetails[i].InterfaceName.IsNull() {
 			data.SsidDetails[i].InterfaceName = types.StringValue(value.String())
-		} else if data.SsidDetails[i].InterfaceName.ValueString() != "management" {
+		} else {
 			data.SsidDetails[i].InterfaceName = types.StringNull()
 		}
 		if value := r.Get("wlanProfileName"); value.Exists() && !data.SsidDetails[i].WlanProfileName.IsNull() {
