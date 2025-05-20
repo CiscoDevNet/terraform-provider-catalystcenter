@@ -44,7 +44,6 @@ attributes:
         type: String
         description: Interface Name
         exclude_test: true
-        default_value: management
         example: management
       - model_name: wlanProfileName
         type: String

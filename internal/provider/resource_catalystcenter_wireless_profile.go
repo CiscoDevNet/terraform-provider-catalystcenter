@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -98,10 +97,8 @@ func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.Schem
 							Optional:            true,
 						},
 						"interface_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface Name").AddDefaultValueDescription("management").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Interface Name").String,
 							Optional:            true,
-							Computed:            true,
-							Default:             stringdefault.StaticString("management"),
 						},
 						"wlan_profile_name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("WLAN Profile Name").String,

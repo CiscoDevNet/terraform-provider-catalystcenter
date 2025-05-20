@@ -21,10 +21,10 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 )
@@ -35,69 +35,46 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &UpdateAuthenticationProfileDataSource{}
-	_ datasource.DataSourceWithConfigure = &UpdateAuthenticationProfileDataSource{}
+	_ datasource.DataSource              = &AssignDevicesToTagDataSource{}
+	_ datasource.DataSourceWithConfigure = &AssignDevicesToTagDataSource{}
 )
 
-func NewUpdateAuthenticationProfileDataSource() datasource.DataSource {
-	return &UpdateAuthenticationProfileDataSource{}
+func NewAssignDevicesToTagDataSource() datasource.DataSource {
+	return &AssignDevicesToTagDataSource{}
 }
 
-type UpdateAuthenticationProfileDataSource struct {
+type AssignDevicesToTagDataSource struct {
 	client *cc.Client
 }
 
-func (d *UpdateAuthenticationProfileDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_update_authentication_profile"
+func (d *AssignDevicesToTagDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_assign_devices_to_tag"
 }
 
-func (d *UpdateAuthenticationProfileDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *AssignDevicesToTagDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Update Authentication Profile.",
+		MarkdownDescription: "This data source can read the Assign Devices to Tag.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
 				Computed:            true,
 			},
-			"authentication_profile_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the authentication profile",
-				Computed:            true,
-			},
-			"fabric_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.",
-				Computed:            true,
-			},
-			"authentication_profile_name": schema.StringAttribute{
-				MarkdownDescription: "The default host authentication template",
+			"tag_id": schema.StringAttribute{
+				MarkdownDescription: "Tag Id to be associated with the device",
 				Required:            true,
 			},
-			"authentication_order": schema.StringAttribute{
-				MarkdownDescription: "First authentication method",
-				Computed:            true,
-			},
-			"dot1x_to_mab_fallback_timeout": schema.Int64Attribute{
-				MarkdownDescription: "802.1x Timeout",
-				Computed:            true,
-			},
-			"wake_on_lan": schema.BoolAttribute{
-				MarkdownDescription: "Wake on LAN",
-				Computed:            true,
-			},
-			"number_of_hosts": schema.StringAttribute{
-				MarkdownDescription: "Number of hosts",
-				Computed:            true,
-			},
-			"is_bpdu_guard_enabled": schema.BoolAttribute{
-				MarkdownDescription: "Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`",
+			"device_ids": schema.SetAttribute{
+				MarkdownDescription: "Device Ids List",
+				ElementType:         types.StringType,
 				Computed:            true,
 			},
 		},
 	}
 }
 
-func (d *UpdateAuthenticationProfileDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *AssignDevicesToTagDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -108,8 +85,8 @@ func (d *UpdateAuthenticationProfileDataSource) Configure(_ context.Context, req
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config UpdateAuthenticationProfile
+func (d *AssignDevicesToTagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config AssignDevicesToTag
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
@@ -121,7 +98,7 @@ func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req da
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "?authenticationProfileName=" + url.QueryEscape(config.AuthenticationProfileName.ValueString())
+	params += "?memberType=networkdevice"
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

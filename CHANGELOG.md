@@ -1,3 +1,10 @@
+## 0.2.7 (unreleased)
+
+- Add import and data source to `catalystcenter_update_authentication_profile` resource
+- Remove default value from `interface_name` in the `catalystcenter_wireless_profile` resource 
+- Add import to `catalystcenter_assign_templates_to_tag` resource
+- Add `catalystcenter_assign_devices_to_tag` resource and data source
+
 ## 0.2.6
 
 - BREAKING CHANGE: Add `network_device_id` attribute to `catalystcenter_wireless_device_provision` resource to fix issue with terraform destroy operation

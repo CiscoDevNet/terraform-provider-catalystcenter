@@ -65,8 +65,8 @@ func testAccDataSourceCcUpdateAuthenticationProfileConfig() string {
 
 	config += `
 		data "catalystcenter_update_authentication_profile" "test" {
-			id = catalystcenter_update_authentication_profile.test.id
 			authentication_profile_name = "Closed Authentication"
+			depends_on = [catalystcenter_update_authentication_profile.test]
 		}
 	`
 	return config

@@ -4,7 +4,8 @@ rest_endpoint: /dna/intent/api/v1/sda/authenticationProfiles
 res_description: Updates an Authentication Profile
 put_create: true
 no_delete: true
-no_import: true
+data_source_no_id: true
+import_no_id: true
 id_from_attribute: true
 put_id_include_path: "0.id"
 skip_minimum_test: true

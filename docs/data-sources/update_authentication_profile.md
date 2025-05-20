@@ -14,7 +14,6 @@ This data source can read the Update Authentication Profile.
 
 ```terraform
 data "catalystcenter_update_authentication_profile" "example" {
-  id                          = "cc0b30bc-94e7-458a-80e2-c7bbecc829f5"
   authentication_profile_name = "Closed Authentication"
 }
 ```
@@ -25,7 +24,6 @@ data "catalystcenter_update_authentication_profile" "example" {
 ### Required
 
 - `authentication_profile_name` (String) The default host authentication template
-- `id` (String) The id of the object
 
 ### Read-Only
 
@@ -33,6 +31,7 @@ data "catalystcenter_update_authentication_profile" "example" {
 - `authentication_profile_id` (String) ID of the authentication profile
 - `dot1x_to_mab_fallback_timeout` (Number) 802.1x Timeout
 - `fabric_id` (String) ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.
+- `id` (String) The id of the object
 - `is_bpdu_guard_enabled` (Boolean) Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`
 - `number_of_hosts` (String) Number of hosts
 - `wake_on_lan` (Boolean) Wake on LAN

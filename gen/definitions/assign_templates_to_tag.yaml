@@ -7,7 +7,7 @@ get_no_id: true
 res_description: 'This resource is responsible for assigning templates to a specified tag during creation
   and removing the template from the tag during destroy operation.'
 post_update: true
-no_import: true
+import_no_id: true
 data_source_no_id: true
 skip_minimum_test: true
 doc_category: Tags
