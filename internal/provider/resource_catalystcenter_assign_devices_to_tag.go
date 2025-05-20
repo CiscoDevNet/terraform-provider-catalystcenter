@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -39,24 +40,25 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &AssignTemplatesToTagResource{}
+var _ resource.Resource = &AssignDevicesToTagResource{}
+var _ resource.ResourceWithImportState = &AssignDevicesToTagResource{}
 
-func NewAssignTemplatesToTagResource() resource.Resource {
-	return &AssignTemplatesToTagResource{}
+func NewAssignDevicesToTagResource() resource.Resource {
+	return &AssignDevicesToTagResource{}
 }
 
-type AssignTemplatesToTagResource struct {
+type AssignDevicesToTagResource struct {
 	client *cc.Client
 }
 
-func (r *AssignTemplatesToTagResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_assign_templates_to_tag"
+func (r *AssignDevicesToTagResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_assign_devices_to_tag"
 }
 
-func (r *AssignTemplatesToTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *AssignDevicesToTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource is responsible for assigning templates to a specified tag during creation and removing the template from the tag during destroy operation.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource is responsible for assigning devices to a specified tag during creation and removing the device from the tag during destroy operation.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -67,14 +69,14 @@ func (r *AssignTemplatesToTagResource) Schema(ctx context.Context, req resource.
 				},
 			},
 			"tag_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Tag Id to be associated with the template").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Tag Id to be associated with the device").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"template_ids": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Template Ids List").String,
+			"device_ids": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Device Ids List").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
@@ -82,7 +84,7 @@ func (r *AssignTemplatesToTagResource) Schema(ctx context.Context, req resource.
 	}
 }
 
-func (r *AssignTemplatesToTagResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *AssignDevicesToTagResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -93,8 +95,8 @@ func (r *AssignTemplatesToTagResource) Configure(_ context.Context, req resource
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *AssignTemplatesToTagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan AssignTemplatesToTag
+func (r *AssignDevicesToTagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan AssignDevicesToTag
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -106,7 +108,7 @@ func (r *AssignTemplatesToTagResource) Create(ctx context.Context, req resource.
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, AssignTemplatesToTag{})
+	body := plan.toBody(ctx, AssignDevicesToTag{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -125,8 +127,8 @@ func (r *AssignTemplatesToTagResource) Create(ctx context.Context, req resource.
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *AssignTemplatesToTagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state AssignTemplatesToTag
+func (r *AssignDevicesToTagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state AssignDevicesToTag
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -138,7 +140,7 @@ func (r *AssignTemplatesToTagResource) Read(ctx context.Context, req resource.Re
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?memberType=template"
+	params += "?memberType=networkdevice"
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -163,8 +165,8 @@ func (r *AssignTemplatesToTagResource) Read(ctx context.Context, req resource.Re
 
 // End of section. //template:end read
 
-func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state AssignTemplatesToTag
+func (r *AssignDevicesToTagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state AssignDevicesToTag
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -181,31 +183,31 @@ func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// Handle removed template IDs
-	stateTemplateIds := make(map[string]struct{})
-	planTemplateIds := make(map[string]struct{})
+	// Handle removed device IDs
+	stateDeviceIds := make(map[string]struct{})
+	planDeviceIds := make(map[string]struct{})
 
-	if !state.TemplateIds.IsNull() {
+	if !state.DeviceIds.IsNull() {
 		var stateValues []string
-		state.TemplateIds.ElementsAs(ctx, &stateValues, false)
+		state.DeviceIds.ElementsAs(ctx, &stateValues, false)
 		for _, id := range stateValues {
-			stateTemplateIds[id] = struct{}{}
+			stateDeviceIds[id] = struct{}{}
 		}
 	}
 
-	if !plan.TemplateIds.IsNull() {
+	if !plan.DeviceIds.IsNull() {
 		var planValues []string
-		plan.TemplateIds.ElementsAs(ctx, &planValues, false)
+		plan.DeviceIds.ElementsAs(ctx, &planValues, false)
 		for _, id := range planValues {
-			planTemplateIds[id] = struct{}{}
+			planDeviceIds[id] = struct{}{}
 		}
 	}
 
-	for id := range stateTemplateIds {
-		if _, exists := planTemplateIds[id]; !exists {
+	for id := range stateDeviceIds {
+		if _, exists := planDeviceIds[id]; !exists {
 			_, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(id))
 			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete template (%s), got error: %s", id, err))
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete device (%s), got error: %s", id, err))
 				return
 			}
 		}
@@ -225,8 +227,10 @@ func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r *AssignTemplatesToTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state AssignTemplatesToTag
+// End of section. //template:end update
+
+func (r *AssignDevicesToTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state AssignDevicesToTag
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -235,27 +239,42 @@ func (r *AssignTemplatesToTagResource) Delete(ctx context.Context, req resource.
 		return
 	}
 
-	// Extract TemplateIds into a slice of strings
-	var templateIds []string
-	diags = state.TemplateIds.ElementsAs(ctx, &templateIds, false)
+	// Extract DeviceIds into a slice of strings
+	var deviceIds []string
+	diags = state.DeviceIds.ElementsAs(ctx, &deviceIds, false)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Iterate over TemplateIds and delete each one
-	for _, templateId := range templateIds {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", templateId))
-		res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(templateId))
+	// Iterate over DeviceIds and delete each one
+	for _, deviceId := range deviceIds {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", deviceId))
+		res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(deviceId))
 		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete template with ID %s (DELETE), got error: %s, %s", templateId, err, res.String()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete device with ID %s (DELETE), got error: %s, %s", deviceId, err, res.String()))
 			return
 		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", templateId))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", deviceId))
 	}
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
 	resp.State.RemoveResource(ctx)
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *AssignDevicesToTagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 1 || idParts[0] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <tag_id>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("tag_id"), idParts[0])...)
+}
+
 // End of section. //template:end import

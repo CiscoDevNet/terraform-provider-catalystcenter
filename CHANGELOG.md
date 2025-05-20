@@ -1,3 +1,7 @@
+## 0.2.7 (unreleased)
+
+- Add `catalystcenter_assign_devices_to_tag` resource and data source
+
 ## 0.2.6
 
 - BREAKING CHANGE: Add `network_device_id` attribute to `catalystcenter_wireless_device_provision` resource to fix issue with terraform destroy operation
