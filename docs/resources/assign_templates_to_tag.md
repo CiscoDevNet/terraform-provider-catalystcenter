@@ -33,3 +33,11 @@ resource "catalystcenter_assign_templates_to_tag" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import catalystcenter_assign_templates_to_tag.example "<tag_id>"
+```
