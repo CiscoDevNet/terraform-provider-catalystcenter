@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.2.7 (unreleased)
+## 0.2.7
 
 - Add import and data source to `catalystcenter_update_authentication_profile` resource
 - Remove default value from `interface_name` in the `catalystcenter_wireless_profile` resource 
