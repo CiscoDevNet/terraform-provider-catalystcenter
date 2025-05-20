@@ -59,7 +59,7 @@ func (d *UpdateAuthenticationProfileDataSource) Schema(ctx context.Context, req 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
+				Computed:            true,
 			},
 			"authentication_profile_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the authentication profile",

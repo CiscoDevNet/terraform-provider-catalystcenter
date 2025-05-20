@@ -94,6 +94,12 @@ func (data UpdateAuthenticationProfile) toBody(ctx context.Context, state Update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *UpdateAuthenticationProfile) fromBody(ctx context.Context, res gjson.Result) {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	if value := res.Get(""); value.Exists() {
+		data.Id = types.StringValue(value.String())
+	} else {
+		data.Id = types.StringNull()
+	}
 	if value := res.Get("response.0.id"); value.Exists() {
 		data.AuthenticationProfileId = types.StringValue(value.String())
 	} else {

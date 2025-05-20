@@ -47,3 +47,11 @@ resource "catalystcenter_update_authentication_profile" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import catalystcenter_update_authentication_profile.example "<authentication_profile_id>,<authentication_profile_name>"
+```
