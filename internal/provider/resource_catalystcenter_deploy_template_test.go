@@ -34,6 +34,7 @@ func TestAccCcDeployTemplate(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "force_push_template", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "copying_config", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "is_composite", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "target_info.0.host_name", "SW01"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "target_info.0.type", "MANAGED_DEVICE_HOSTNAME"))
@@ -104,6 +105,7 @@ func testAccCcDeployTemplateConfig_all() string {
 	config := `resource "catalystcenter_deploy_template" "test" {` + "\n"
 	config += `	template_id = catalystcenter_template_version.example.id` + "\n"
 	config += `	force_push_template = false` + "\n"
+	config += `	copying_config = true` + "\n"
 	config += `	is_composite = false` + "\n"
 	config += `	target_info = [{` + "\n"
 	config += `	  host_name = "SW01"` + "\n"

@@ -1,3 +1,7 @@
+## 0.2.8 (unreleased)
+
+- Add `copying_config` attribute to `catalystcenter_deploy_template` resource
+
 ## 0.2.7
 
 - Add import and data source to `catalystcenter_update_authentication_profile` resource
