@@ -63,7 +63,7 @@ func (d *FabricL3VirtualNetworkDataSource) Schema(ctx context.Context, req datas
 				Computed:            true,
 			},
 			"virtual_network_name": schema.StringAttribute{
-				MarkdownDescription: "Name of the layer 3 virtual network.",
+				MarkdownDescription: "Name of the layer 3 virtual network. If `INFRA_VN` or `DEFAULT_VN` is used, those layer 3 virtual networks will be updated instead of created.",
 				Required:            true,
 			},
 			"fabric_ids": schema.SetAttribute{

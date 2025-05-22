@@ -1,5 +1,6 @@
 ## 0.2.8 (unreleased)
 
+- Add support for `INFRA_VN` and `DEFAULT_VN` under `catalystcenter_fabric_l3_virtual_network` resource
 - Add `copying_config` attribute to `catalystcenter_deploy_template` resource
 
 ## 0.2.7

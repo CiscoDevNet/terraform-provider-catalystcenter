@@ -50,11 +50,15 @@ func (data FabricL3VirtualNetwork) getPath() string {
 
 // End of section. //template:end getPathDelete
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data FabricL3VirtualNetwork) toBody(ctx context.Context, state FabricL3VirtualNetwork) string {
 	body := ""
 	put := false
-	if state.Id.ValueString() != "" {
+
+	// Use the Id from the "data" parameter (plan) if it is set
+	if data.Id.ValueString() != "" {
+		put = true
+		body, _ = sjson.Set(body, "0.id", data.Id.ValueString())
+	} else if state.Id.ValueString() != "" {
 		put = true
 		body, _ = sjson.Set(body, "0.id", state.Id.ValueString())
 	}
@@ -72,8 +76,6 @@ func (data FabricL3VirtualNetwork) toBody(ctx context.Context, state FabricL3Vir
 	}
 	return body
 }
-
-// End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *FabricL3VirtualNetwork) fromBody(ctx context.Context, res gjson.Result) {

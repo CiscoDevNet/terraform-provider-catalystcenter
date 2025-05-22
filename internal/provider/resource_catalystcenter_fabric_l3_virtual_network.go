@@ -69,7 +69,7 @@ func (r *FabricL3VirtualNetworkResource) Schema(ctx context.Context, req resourc
 				},
 			},
 			"virtual_network_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the layer 3 virtual network.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the layer 3 virtual network. If `INFRA_VN` or `DEFAULT_VN` is used, those layer 3 virtual networks will be updated instead of created.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -113,32 +113,61 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Create object
-	body := plan.toBody(ctx, FabricL3VirtualNetwork{})
+	// Check if VirtualNetworkName is "INFRA_VN" or "DEFAULT_VN"
+	if plan.VirtualNetworkName.ValueString() == "INFRA_VN" || plan.VirtualNetworkName.ValueString() == "DEFAULT_VN" {
+		// Perform GET request to retrieve the ID
+		params := "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
+		res, err := r.client.Get(plan.getPath() + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
 
-	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
-	}
+		// Extract the ID from the GET response
+		id := res.Get("response.0.id").String()
+		if id == "" {
+			resp.Diagnostics.AddError("Invalid Response", "The GET request did not return a valid ID.")
+			return
+		}
 
-	var fabricIds []string
-	plan.FabricIds.ElementsAs(ctx, &fabricIds, false)
-	params = ""
-	params += "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
-	if len(fabricIds) > 0 {
-		params += "&fabricIds=" + url.QueryEscape(fabricIds[0])
+		plan.Id = types.StringValue(id)
+		tflog.Debug(ctx, fmt.Sprintf("Updated plan.Id: %s", plan.Id.ValueString()))
+
+		// Perform PUT request with the retrieved ID
+		body := plan.toBody(ctx, FabricL3VirtualNetwork{})
+		res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+	} else {
+		// Create object
+		body := plan.toBody(ctx, FabricL3VirtualNetwork{})
+
+		params := ""
+		res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
+
+		var fabricIds []string
+		plan.FabricIds.ElementsAs(ctx, &fabricIds, false)
+		params = ""
+		params += "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
+		if len(fabricIds) > 0 {
+			params += "&fabricIds=" + url.QueryEscape(fabricIds[0])
+		}
+		if !plan.AnchoredSiteId.IsNull() && plan.AnchoredSiteId.ValueString() != "" {
+			params += "&anchoredSiteId=" + url.QueryEscape(plan.AnchoredSiteId.ValueString())
+		}
+		res, err = r.client.Get(plan.getPath() + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+		plan.Id = types.StringValue(res.Get("response.0.id").String())
 	}
-	if !plan.AnchoredSiteId.IsNull() && plan.AnchoredSiteId.ValueString() != "" {
-		params += "&anchoredSiteId=" + url.QueryEscape(plan.AnchoredSiteId.ValueString())
-	}
-	res, err = r.client.Get(plan.getPath() + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-	plan.Id = types.StringValue(res.Get("response.0.id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
