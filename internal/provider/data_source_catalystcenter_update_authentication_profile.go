@@ -23,10 +23,14 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -67,6 +71,7 @@ func (d *UpdateAuthenticationProfileDataSource) Schema(ctx context.Context, req 
 			},
 			"fabric_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.",
+				Optional:            true,
 				Computed:            true,
 			},
 			"authentication_profile_name": schema.StringAttribute{
@@ -93,7 +98,47 @@ func (d *UpdateAuthenticationProfileDataSource) Schema(ctx context.Context, req 
 				MarkdownDescription: "Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`",
 				Computed:            true,
 			},
+			"pre_auth_acl_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Enable/disable Pre-Authentication ACL",
+				Computed:            true,
+			},
+			"pre_auth_acl_implicit_action": schema.StringAttribute{
+				MarkdownDescription: "Implicit behaviour unless overridden (defaults to `DENY`)",
+				Computed:            true,
+			},
+			"pre_auth_acl_description": schema.StringAttribute{
+				MarkdownDescription: "Description of the Pre-Authentication ACL",
+				Computed:            true,
+			},
+			"pre_auth_acl_access_contracts": schema.SetNestedAttribute{
+				MarkdownDescription: "Access contract list schema. Omitting this property or setting it to null, will reset the property to its default value.",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"action": schema.StringAttribute{
+							MarkdownDescription: "Contract behaviour",
+							Computed:            true,
+						},
+						"protocol": schema.StringAttribute{
+							MarkdownDescription: "Protocol for the access contract - UDP - TCP - TCP_UDP",
+							Computed:            true,
+						},
+						"port": schema.StringAttribute{
+							MarkdownDescription: "Port for the access contract. The port can only be used once in the Access Contract list. - domain - bootpc - bootps",
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
+	}
+}
+func (d *UpdateAuthenticationProfileDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.ExactlyOneOf(
+			path.MatchRoot("id"),
+			path.MatchRoot("fabric_id"),
+		),
 	}
 }
 
@@ -119,6 +164,28 @@ func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req da
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
+	if config.Id.IsNull() && !config.FabricId.IsNull() {
+		res, err := d.client.Get(config.getPath())
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
+			return
+		}
+		if value := res.Get("response"); len(value.Array()) > 0 {
+			value.ForEach(func(k, v gjson.Result) bool {
+				if config.FabricId.ValueString() == v.Get("fabricId").String() {
+					config.Id = types.StringValue(v.Get("id").String())
+					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with fabricId '%v', id: %v", config.Id.String(), config.FabricId.ValueString(), config.Id.String()))
+					return false
+				}
+				return true
+			})
+		}
+
+		if config.Id.IsNull() {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with fabricId: %s", config.FabricId.ValueString()))
+			return
+		}
+	}
 
 	params := ""
 	params += "?authenticationProfileName=" + url.QueryEscape(config.AuthenticationProfileName.ValueString())

@@ -61,7 +61,7 @@ func (r *UpdateAuthenticationProfileResource) Metadata(ctx context.Context, req 
 func (r *UpdateAuthenticationProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Updates an Authentication Profile").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Updates an Authentication Profile. The No Authentication profile cannot be updated.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -117,6 +117,44 @@ func (r *UpdateAuthenticationProfileResource) Schema(ctx context.Context, req re
 			"is_bpdu_guard_enabled": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`").String,
 				Optional:            true,
+			},
+			"pre_auth_acl_enabled": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable Pre-Authentication ACL").String,
+				Optional:            true,
+			},
+			"pre_auth_acl_implicit_action": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Implicit behaviour unless overridden (defaults to `DENY`)").AddStringEnumDescription("PERMIT", "DENY").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("PERMIT", "DENY"),
+				},
+			},
+			"pre_auth_acl_description": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Description of the Pre-Authentication ACL").String,
+				Optional:            true,
+			},
+			"pre_auth_acl_access_contracts": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Access contract list schema. Omitting this property or setting it to null, will reset the property to its default value.").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"action": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Contract behaviour").AddStringEnumDescription("PERMIT", "DENY").String,
+							Required:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("PERMIT", "DENY"),
+							},
+						},
+						"protocol": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Protocol for the access contract - UDP - TCP - TCP_UDP").String,
+							Required:            true,
+						},
+						"port": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Port for the access contract. The port can only be used once in the Access Contract list. - domain - bootpc - bootps").String,
+							Required:            true,
+						},
+					},
+				},
 			},
 		},
 	}

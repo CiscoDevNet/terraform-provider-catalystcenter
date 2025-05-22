@@ -1,7 +1,7 @@
 ---
 name: Update Authentication Profile
 rest_endpoint: /dna/intent/api/v1/sda/authenticationProfiles
-res_description: Updates an Authentication Profile
+res_description: Updates an Authentication Profile. The No Authentication profile cannot be updated.
 put_create: true
 no_delete: true
 data_source_no_id: true
@@ -22,6 +22,7 @@ attributes:
     example: cc0b30bc-94e7-458a-80e2-c7bbecc829f5
   - model_name: fabricId
     response_data_path: response.0.fabricId
+    data_source_query: true
     data_path: "0"
     type: String
     description: ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.
@@ -81,3 +82,56 @@ attributes:
     type: Bool
     description: 'Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`'
     exclude_test: true
+  - model_name: enabled
+    tf_name: pre_auth_acl_enabled
+    data_path: preAuthAcl
+    response_data_path: response.0.preAuthAcl.enabled
+    type: Bool
+    description: Enable/disable Pre-Authentication ACL
+    exclude_test: true
+  - model_name: implicitAction
+    tf_name: pre_auth_acl_implicit_action
+    data_path: preAuthAcl
+    response_data_path: response.0.preAuthAcl.implicitAction
+    type: String
+    enum_values:
+      - PERMIT
+      - DENY
+    description: Implicit behaviour unless overridden (defaults to `DENY`)
+    exclude_test: true
+  - name: description
+    tf_name: pre_auth_acl_description
+    data_path: preAuthAcl
+    response_data_path: response.0.preAuthAcl.description
+    type: String
+    description: Description of the Pre-Authentication ACL
+    exclude_test: true
+  - model_name: accessContracts
+    tf_name: pre_auth_acl_access_contracts
+    data_path: preAuthAcl
+    response_data_path: response.0.preAuthAcl.accessContracts
+    type: Set
+    description: Access contract list schema. Omitting this property or setting it to null, will reset the property to its default value.
+    exclude_test: true
+    attributes:
+      - model_name: action
+        type: String
+        mandatory: true
+        enum_values:
+          - PERMIT
+          - DENY
+        description: Contract behaviour
+      - model_name: protocol
+        type: String
+        mandatory: true
+        description: Protocol for the access contract
+          - UDP
+          - TCP
+          - TCP_UDP
+      - model_name: port
+        type: String
+        mandatory: true
+        description: Port for the access contract. The port can only be used once in the Access Contract list.
+          - domain
+          - bootpc
+          - bootps
