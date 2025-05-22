@@ -24,7 +24,7 @@ resource "catalystcenter_fabric_l3_virtual_network" "example" {
 
 ### Required
 
-- `virtual_network_name` (String) Name of the layer 3 virtual network.
+- `virtual_network_name` (String) Name of the layer 3 virtual network. If `INFRA_VN` or `DEFAULT_VN` is used, those layer 3 virtual networks will be updated instead of created.
 
 ### Optional
 

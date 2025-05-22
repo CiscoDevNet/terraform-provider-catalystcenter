@@ -61,12 +61,9 @@ func (d *UpdateAuthenticationProfileDataSource) Schema(ctx context.Context, req 
 				MarkdownDescription: "The id of the object",
 				Computed:            true,
 			},
-			"authentication_profile_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the authentication profile",
-				Computed:            true,
-			},
 			"fabric_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.",
+				Optional:            true,
 				Computed:            true,
 			},
 			"authentication_profile_name": schema.StringAttribute{
@@ -93,6 +90,38 @@ func (d *UpdateAuthenticationProfileDataSource) Schema(ctx context.Context, req 
 				MarkdownDescription: "Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`",
 				Computed:            true,
 			},
+			"pre_auth_acl_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Enable/disable Pre-Authentication ACL",
+				Computed:            true,
+			},
+			"pre_auth_acl_implicit_action": schema.StringAttribute{
+				MarkdownDescription: "Implicit behaviour unless overridden (defaults to `DENY`)",
+				Computed:            true,
+			},
+			"pre_auth_acl_description": schema.StringAttribute{
+				MarkdownDescription: "Description of the Pre-Authentication ACL",
+				Computed:            true,
+			},
+			"pre_auth_acl_access_contracts": schema.SetNestedAttribute{
+				MarkdownDescription: "Access contract list schema. Omitting this property or setting it to null, will reset the property to its default value.",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"action": schema.StringAttribute{
+							MarkdownDescription: "Contract behaviour",
+							Computed:            true,
+						},
+						"protocol": schema.StringAttribute{
+							MarkdownDescription: "Protocol for the access contract - UDP - TCP - TCP_UDP",
+							Computed:            true,
+						},
+						"port": schema.StringAttribute{
+							MarkdownDescription: "Port for the access contract. The port can only be used once in the Access Contract list. - domain - bootpc - bootps",
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -107,7 +136,6 @@ func (d *UpdateAuthenticationProfileDataSource) Configure(_ context.Context, req
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config UpdateAuthenticationProfile
 
@@ -122,6 +150,13 @@ func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req da
 
 	params := ""
 	params += "?authenticationProfileName=" + url.QueryEscape(config.AuthenticationProfileName.ValueString())
+
+	if !config.FabricId.IsUnknown() && !config.FabricId.IsNull() {
+		params += "&fabricId=" + url.QueryEscape(config.FabricId.ValueString())
+	} else {
+		params += "&isGlobalAuthenticationProfile=true"
+	}
+
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
@@ -135,5 +170,3 @@ func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req da
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read

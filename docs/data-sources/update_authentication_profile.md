@@ -14,7 +14,8 @@ This data source can read the Update Authentication Profile.
 
 ```terraform
 data "catalystcenter_update_authentication_profile" "example" {
-  authentication_profile_name = "Closed Authentication"
+  fabric_id                   = "ae8a501f-2cdb-4d87-b535-1e568a091de1"
+  authentication_profile_name = "Open Authentication"
 }
 ```
 
@@ -25,13 +26,28 @@ data "catalystcenter_update_authentication_profile" "example" {
 
 - `authentication_profile_name` (String) The default host authentication template
 
+### Optional
+
+- `fabric_id` (String) ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.
+
 ### Read-Only
 
 - `authentication_order` (String) First authentication method
-- `authentication_profile_id` (String) ID of the authentication profile
 - `dot1x_to_mab_fallback_timeout` (Number) 802.1x Timeout
-- `fabric_id` (String) ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.
 - `id` (String) The id of the object
 - `is_bpdu_guard_enabled` (Boolean) Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`
 - `number_of_hosts` (String) Number of hosts
+- `pre_auth_acl_access_contracts` (Attributes Set) Access contract list schema. Omitting this property or setting it to null, will reset the property to its default value. (see [below for nested schema](#nestedatt--pre_auth_acl_access_contracts))
+- `pre_auth_acl_description` (String) Description of the Pre-Authentication ACL
+- `pre_auth_acl_enabled` (Boolean) Enable/disable Pre-Authentication ACL
+- `pre_auth_acl_implicit_action` (String) Implicit behaviour unless overridden (defaults to `DENY`)
 - `wake_on_lan` (Boolean) Wake on LAN
+
+<a id="nestedatt--pre_auth_acl_access_contracts"></a>
+### Nested Schema for `pre_auth_acl_access_contracts`
+
+Read-Only:
+
+- `action` (String) Contract behaviour
+- `port` (String) Port for the access contract. The port can only be used once in the Access Contract list. - domain - bootpc - bootps
+- `protocol` (String) Protocol for the access contract - UDP - TCP - TCP_UDP

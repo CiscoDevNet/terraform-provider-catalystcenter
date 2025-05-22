@@ -30,15 +30,24 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type UpdateAuthenticationProfile struct {
-	Id                        types.String `tfsdk:"id"`
-	AuthenticationProfileId   types.String `tfsdk:"authentication_profile_id"`
-	FabricId                  types.String `tfsdk:"fabric_id"`
-	AuthenticationProfileName types.String `tfsdk:"authentication_profile_name"`
-	AuthenticationOrder       types.String `tfsdk:"authentication_order"`
-	Dot1xToMabFallbackTimeout types.Int64  `tfsdk:"dot1x_to_mab_fallback_timeout"`
-	WakeOnLan                 types.Bool   `tfsdk:"wake_on_lan"`
-	NumberOfHosts             types.String `tfsdk:"number_of_hosts"`
-	IsBpduGuardEnabled        types.Bool   `tfsdk:"is_bpdu_guard_enabled"`
+	Id                        types.String                                           `tfsdk:"id"`
+	FabricId                  types.String                                           `tfsdk:"fabric_id"`
+	AuthenticationProfileName types.String                                           `tfsdk:"authentication_profile_name"`
+	AuthenticationOrder       types.String                                           `tfsdk:"authentication_order"`
+	Dot1xToMabFallbackTimeout types.Int64                                            `tfsdk:"dot1x_to_mab_fallback_timeout"`
+	WakeOnLan                 types.Bool                                             `tfsdk:"wake_on_lan"`
+	NumberOfHosts             types.String                                           `tfsdk:"number_of_hosts"`
+	IsBpduGuardEnabled        types.Bool                                             `tfsdk:"is_bpdu_guard_enabled"`
+	PreAuthAclEnabled         types.Bool                                             `tfsdk:"pre_auth_acl_enabled"`
+	PreAuthAclImplicitAction  types.String                                           `tfsdk:"pre_auth_acl_implicit_action"`
+	PreAuthAclDescription     types.String                                           `tfsdk:"pre_auth_acl_description"`
+	PreAuthAclAccessContracts []UpdateAuthenticationProfilePreAuthAclAccessContracts `tfsdk:"pre_auth_acl_access_contracts"`
+}
+
+type UpdateAuthenticationProfilePreAuthAclAccessContracts struct {
+	Action   types.String `tfsdk:"action"`
+	Protocol types.String `tfsdk:"protocol"`
+	Port     types.String `tfsdk:"port"`
 }
 
 // End of section. //template:end types
@@ -54,18 +63,14 @@ func (data UpdateAuthenticationProfile) getPath() string {
 
 // End of section. //template:end getPathDelete
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data UpdateAuthenticationProfile) toBody(ctx context.Context, state UpdateAuthenticationProfile) string {
 	body := ""
 	put := false
-	if state.Id.ValueString() != "" {
+	if !data.Id.IsNull() {
 		put = true
-		body, _ = sjson.Set(body, "0.id", state.Id.ValueString())
+		body, _ = sjson.Set(body, "0.id", data.Id.ValueString())
 	}
 	_ = put
-	if !data.AuthenticationProfileId.IsNull() {
-		body, _ = sjson.Set(body, "0.id", data.AuthenticationProfileId.ValueString())
-	}
 	if !data.FabricId.IsNull() {
 		body, _ = sjson.Set(body, "0.fabricId", data.FabricId.ValueString())
 	}
@@ -87,23 +92,41 @@ func (data UpdateAuthenticationProfile) toBody(ctx context.Context, state Update
 	if !data.IsBpduGuardEnabled.IsNull() {
 		body, _ = sjson.Set(body, "0.isBpduGuardEnabled", data.IsBpduGuardEnabled.ValueBool())
 	}
+	if !data.PreAuthAclEnabled.IsNull() {
+		body, _ = sjson.Set(body, "0.preAuthAcl.enabled", data.PreAuthAclEnabled.ValueBool())
+	}
+	if !data.PreAuthAclImplicitAction.IsNull() {
+		body, _ = sjson.Set(body, "0.preAuthAcl.implicitAction", data.PreAuthAclImplicitAction.ValueString())
+	}
+	if !data.PreAuthAclDescription.IsNull() {
+		body, _ = sjson.Set(body, "0.preAuthAcl.", data.PreAuthAclDescription.ValueString())
+	}
+	if len(data.PreAuthAclAccessContracts) > 0 {
+		body, _ = sjson.Set(body, "0.preAuthAcl.accessContracts", []interface{}{})
+		for _, item := range data.PreAuthAclAccessContracts {
+			itemBody := ""
+			if !item.Action.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "action", item.Action.ValueString())
+			}
+			if !item.Protocol.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "protocol", item.Protocol.ValueString())
+			}
+			if !item.Port.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "port", item.Port.ValueString())
+			}
+			body, _ = sjson.SetRaw(body, "0.preAuthAcl.accessContracts.-1", itemBody)
+		}
+	}
 	return body
 }
-
-// End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *UpdateAuthenticationProfile) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get(""); value.Exists() {
+	if value := res.Get("response.0.id"); value.Exists() {
 		data.Id = types.StringValue(value.String())
 	} else {
 		data.Id = types.StringNull()
-	}
-	if value := res.Get("response.0.id"); value.Exists() {
-		data.AuthenticationProfileId = types.StringValue(value.String())
-	} else {
-		data.AuthenticationProfileId = types.StringNull()
 	}
 	if value := res.Get("response.0.fabricId"); value.Exists() {
 		data.FabricId = types.StringValue(value.String())
@@ -140,17 +163,50 @@ func (data *UpdateAuthenticationProfile) fromBody(ctx context.Context, res gjson
 	} else {
 		data.IsBpduGuardEnabled = types.BoolNull()
 	}
+	if value := res.Get("response.0.preAuthAcl.enabled"); value.Exists() {
+		data.PreAuthAclEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.PreAuthAclEnabled = types.BoolNull()
+	}
+	if value := res.Get("response.0.preAuthAcl.implicitAction"); value.Exists() {
+		data.PreAuthAclImplicitAction = types.StringValue(value.String())
+	} else {
+		data.PreAuthAclImplicitAction = types.StringNull()
+	}
+	if value := res.Get("response.0.preAuthAcl.description"); value.Exists() {
+		data.PreAuthAclDescription = types.StringValue(value.String())
+	} else {
+		data.PreAuthAclDescription = types.StringNull()
+	}
+	if value := res.Get("response.0.preAuthAcl.accessContracts"); value.Exists() && len(value.Array()) > 0 {
+		data.PreAuthAclAccessContracts = make([]UpdateAuthenticationProfilePreAuthAclAccessContracts, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := UpdateAuthenticationProfilePreAuthAclAccessContracts{}
+			if cValue := v.Get("action"); cValue.Exists() {
+				item.Action = types.StringValue(cValue.String())
+			} else {
+				item.Action = types.StringNull()
+			}
+			if cValue := v.Get("protocol"); cValue.Exists() {
+				item.Protocol = types.StringValue(cValue.String())
+			} else {
+				item.Protocol = types.StringNull()
+			}
+			if cValue := v.Get("port"); cValue.Exists() {
+				item.Port = types.StringValue(cValue.String())
+			} else {
+				item.Port = types.StringNull()
+			}
+			data.PreAuthAclAccessContracts = append(data.PreAuthAclAccessContracts, item)
+			return true
+		})
+	}
 }
 
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *UpdateAuthenticationProfile) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.id"); value.Exists() && !data.AuthenticationProfileId.IsNull() {
-		data.AuthenticationProfileId = types.StringValue(value.String())
-	} else {
-		data.AuthenticationProfileId = types.StringNull()
-	}
 	if value := res.Get("response.0.fabricId"); value.Exists() && !data.FabricId.IsNull() {
 		data.FabricId = types.StringValue(value.String())
 	} else {
@@ -186,15 +242,66 @@ func (data *UpdateAuthenticationProfile) updateFromBody(ctx context.Context, res
 	} else {
 		data.IsBpduGuardEnabled = types.BoolNull()
 	}
+	if value := res.Get("response.0.preAuthAcl.enabled"); value.Exists() && !data.PreAuthAclEnabled.IsNull() {
+		data.PreAuthAclEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.PreAuthAclEnabled = types.BoolNull()
+	}
+	if value := res.Get("response.0.preAuthAcl.implicitAction"); value.Exists() && !data.PreAuthAclImplicitAction.IsNull() {
+		data.PreAuthAclImplicitAction = types.StringValue(value.String())
+	} else {
+		data.PreAuthAclImplicitAction = types.StringNull()
+	}
+	if value := res.Get("response.0.preAuthAcl.description"); value.Exists() && !data.PreAuthAclDescription.IsNull() {
+		data.PreAuthAclDescription = types.StringValue(value.String())
+	} else {
+		data.PreAuthAclDescription = types.StringNull()
+	}
+	for i := range data.PreAuthAclAccessContracts {
+		keys := [...]string{"action", "protocol", "port"}
+		keyValues := [...]string{data.PreAuthAclAccessContracts[i].Action.ValueString(), data.PreAuthAclAccessContracts[i].Protocol.ValueString(), data.PreAuthAclAccessContracts[i].Port.ValueString()}
+
+		var r gjson.Result
+		res.Get("response.0.preAuthAcl.accessContracts").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("action"); value.Exists() && !data.PreAuthAclAccessContracts[i].Action.IsNull() {
+			data.PreAuthAclAccessContracts[i].Action = types.StringValue(value.String())
+		} else {
+			data.PreAuthAclAccessContracts[i].Action = types.StringNull()
+		}
+		if value := r.Get("protocol"); value.Exists() && !data.PreAuthAclAccessContracts[i].Protocol.IsNull() {
+			data.PreAuthAclAccessContracts[i].Protocol = types.StringValue(value.String())
+		} else {
+			data.PreAuthAclAccessContracts[i].Protocol = types.StringNull()
+		}
+		if value := r.Get("port"); value.Exists() && !data.PreAuthAclAccessContracts[i].Port.IsNull() {
+			data.PreAuthAclAccessContracts[i].Port = types.StringValue(value.String())
+		} else {
+			data.PreAuthAclAccessContracts[i].Port = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *UpdateAuthenticationProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.FabricId.IsNull() {
-		return false
-	}
 	if !data.AuthenticationOrder.IsNull() {
 		return false
 	}
@@ -208,6 +315,18 @@ func (data *UpdateAuthenticationProfile) isNull(ctx context.Context, res gjson.R
 		return false
 	}
 	if !data.IsBpduGuardEnabled.IsNull() {
+		return false
+	}
+	if !data.PreAuthAclEnabled.IsNull() {
+		return false
+	}
+	if !data.PreAuthAclImplicitAction.IsNull() {
+		return false
+	}
+	if !data.PreAuthAclDescription.IsNull() {
+		return false
+	}
+	if len(data.PreAuthAclAccessContracts) > 0 {
 		return false
 	}
 	return true

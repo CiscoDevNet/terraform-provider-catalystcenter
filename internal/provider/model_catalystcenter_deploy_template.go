@@ -35,6 +35,7 @@ type DeployTemplate struct {
 	TemplateId                   types.String                                 `tfsdk:"template_id"`
 	Redeploy                     types.Bool                                   `tfsdk:"redeploy"`
 	ForcePushTemplate            types.Bool                                   `tfsdk:"force_push_template"`
+	CopyingConfig                types.Bool                                   `tfsdk:"copying_config"`
 	IsComposite                  types.Bool                                   `tfsdk:"is_composite"`
 	MainTemplateId               types.String                                 `tfsdk:"main_template_id"`
 	MemberTemplateDeploymentInfo []DeployTemplateMemberTemplateDeploymentInfo `tfsdk:"member_template_deployment_info"`
@@ -109,6 +110,9 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 	}
 	if !data.ForcePushTemplate.IsNull() {
 		body, _ = sjson.Set(body, "forcePushTemplate", data.ForcePushTemplate.ValueBool())
+	}
+	if !data.CopyingConfig.IsNull() {
+		body, _ = sjson.Set(body, "copyingConfig", data.CopyingConfig.ValueBool())
 	}
 	if !data.IsComposite.IsNull() {
 		body, _ = sjson.Set(body, "isComposite", data.IsComposite.ValueBool())
@@ -239,6 +243,11 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
 	} else {
 		data.ForcePushTemplate = types.BoolNull()
+	}
+	if value := res.Get("copyingConfig"); value.Exists() {
+		data.CopyingConfig = types.BoolValue(value.Bool())
+	} else {
+		data.CopyingConfig = types.BoolNull()
 	}
 	if value := res.Get("isComposite"); value.Exists() {
 		data.IsComposite = types.BoolValue(value.Bool())
@@ -415,6 +424,11 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
 	} else {
 		data.ForcePushTemplate = types.BoolNull()
+	}
+	if value := res.Get("copyingConfig"); value.Exists() && !data.CopyingConfig.IsNull() {
+		data.CopyingConfig = types.BoolValue(value.Bool())
+	} else {
+		data.CopyingConfig = types.BoolNull()
 	}
 	if value := res.Get("isComposite"); value.Exists() && !data.IsComposite.IsNull() {
 		data.IsComposite = types.BoolValue(value.Bool())
@@ -661,6 +675,9 @@ func (data *DeployTemplate) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.ForcePushTemplate.IsNull() {
+		return false
+	}
+	if !data.CopyingConfig.IsNull() {
 		return false
 	}
 	if !data.IsComposite.IsNull() {

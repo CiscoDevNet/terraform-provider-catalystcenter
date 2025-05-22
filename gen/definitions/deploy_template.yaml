@@ -26,6 +26,10 @@ attributes:
     type: Bool
     description: Force Push Template
     example: false
+  - model_name: copyingConfig
+    type: Bool
+    description: Copy config from running into startup
+    example: true
   - model_name: isComposite
     type: Bool
     description: Composite template flag
@@ -51,7 +55,7 @@ attributes:
         description: Composite template flag
       - model_name: copyingConfig
         type: Bool
-        description: Copying Config
+        description: Copy config from running into startup
       - model_name: mainTemplateId
         type: String
         description: Template ID

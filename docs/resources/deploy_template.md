@@ -16,6 +16,7 @@ This resource can manage a Deploy Template.
 resource "catalystcenter_deploy_template" "example" {
   template_id         = "12345678-1234-1234-1234-123456789012"
   force_push_template = false
+  copying_config      = true
   is_composite        = false
   target_info = [
     {
@@ -37,6 +38,7 @@ resource "catalystcenter_deploy_template" "example" {
 
 ### Optional
 
+- `copying_config` (Boolean) Copy config from running into startup
 - `force_push_template` (Boolean) Force Push Template
 - `is_composite` (Boolean) Composite template flag
 - `main_template_id` (String) Composite Template ID
@@ -85,7 +87,7 @@ Required:
 
 Optional:
 
-- `copying_config` (Boolean) Copying Config
+- `copying_config` (Boolean) Copy config from running into startup
 - `force_push_template` (Boolean) Force Push Template
 - `is_composite` (Boolean) Composite template flag
 - `main_template_id` (String) Template ID

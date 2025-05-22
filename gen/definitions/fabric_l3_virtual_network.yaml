@@ -18,7 +18,7 @@ attributes:
     response_data_path: response.0.virtualNetworkName
     type: String
     mandatory: true
-    description: Name of the layer 3 virtual network.
+    description: Name of the layer 3 virtual network. If `INFRA_VN` or `DEFAULT_VN` is used, those layer 3 virtual networks will be updated instead of created.
     example: MyL3VN
   - model_name: fabricIds
     data_path: "0"

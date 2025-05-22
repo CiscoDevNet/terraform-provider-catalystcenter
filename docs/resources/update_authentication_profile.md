@@ -3,19 +3,19 @@
 page_title: "catalystcenter_update_authentication_profile Resource - terraform-provider-catalystcenter"
 subcategory: "SDA"
 description: |-
-  Updates an Authentication Profile
+  Updates an Authentication Profile. The No Authentication profile cannot be updated.
 ---
 
 # catalystcenter_update_authentication_profile (Resource)
 
-Updates an Authentication Profile
+Updates an Authentication Profile. The No Authentication profile cannot be updated.
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_update_authentication_profile" "example" {
-  authentication_profile_id     = "cc0b30bc-94e7-458a-80e2-c7bbecc829f5"
-  authentication_profile_name   = "Closed Authentication"
+  fabric_id                     = "ae8a501f-2cdb-4d87-b535-1e568a091de1"
+  authentication_profile_name   = "Open Authentication"
   authentication_order          = "mac"
   dot1x_to_mab_fallback_timeout = 10
   wake_on_lan                   = true
@@ -30,7 +30,6 @@ resource "catalystcenter_update_authentication_profile" "example" {
 
 - `authentication_order` (String) First authentication method
   - Choices: `dot1x`, `mac`
-- `authentication_profile_id` (String) ID of the authentication profile
 - `authentication_profile_name` (String) The default host authentication template
   - Choices: `Open Authentication`, `Closed Authentication`, `Low Impact`
 - `dot1x_to_mab_fallback_timeout` (Number) 802.1x Timeout
@@ -43,15 +42,30 @@ resource "catalystcenter_update_authentication_profile" "example" {
 
 - `fabric_id` (String) ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.
 - `is_bpdu_guard_enabled` (Boolean) Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`
+- `pre_auth_acl_access_contracts` (Attributes Set) Access contract list schema. Omitting this property or setting it to null, will reset the property to its default value. (see [below for nested schema](#nestedatt--pre_auth_acl_access_contracts))
+- `pre_auth_acl_description` (String) Description of the Pre-Authentication ACL
+- `pre_auth_acl_enabled` (Boolean) Enable/disable Pre-Authentication ACL
+- `pre_auth_acl_implicit_action` (String) Implicit behaviour unless overridden (defaults to `DENY`)
+  - Choices: `PERMIT`, `DENY`
 
 ### Read-Only
 
 - `id` (String) The id of the object
+
+<a id="nestedatt--pre_auth_acl_access_contracts"></a>
+### Nested Schema for `pre_auth_acl_access_contracts`
+
+Required:
+
+- `action` (String) Contract behaviour
+  - Choices: `PERMIT`, `DENY`
+- `port` (String) Port for the access contract. The port can only be used once in the Access Contract list. - domain - bootpc - bootps
+- `protocol` (String) Protocol for the access contract - UDP - TCP - TCP_UDP
 
 ## Import
 
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_update_authentication_profile.example "<authentication_profile_id>,<authentication_profile_name>"
+terraform import catalystcenter_update_authentication_profile.example "<fabric_id>,<authentication_profile_name>"
 ```

@@ -85,6 +85,10 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				MarkdownDescription: helpers.NewAttributeDescription("Force Push Template").String,
 				Optional:            true,
 			},
+			"copying_config": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Copy config from running into startup").String,
+				Optional:            true,
+			},
 			"is_composite": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Composite template flag").String,
 				Optional:            true,
@@ -111,7 +115,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 							Optional:            true,
 						},
 						"copying_config": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Copying Config").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Copy config from running into startup").String,
 							Optional:            true,
 						},
 						"main_template_id": schema.StringAttribute{
