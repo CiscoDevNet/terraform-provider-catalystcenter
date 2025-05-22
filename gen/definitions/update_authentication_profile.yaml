@@ -95,7 +95,7 @@ attributes:
       - DENY
     description: Implicit behaviour unless overridden (defaults to `DENY`)
     exclude_test: true
-  - name: description
+  - model_name: description
     tf_name: pre_auth_acl_description
     data_path: 0.preAuthAcl
     response_data_path: response.0.preAuthAcl.description
