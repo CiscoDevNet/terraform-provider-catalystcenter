@@ -71,13 +71,6 @@ func (r *UpdateAuthenticationProfileResource) Schema(ctx context.Context, req re
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"authentication_profile_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of the authentication profile").String,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"fabric_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.").String,
 				Optional:            true,
@@ -170,7 +163,6 @@ func (r *UpdateAuthenticationProfileResource) Configure(_ context.Context, req r
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *UpdateAuthenticationProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan UpdateAuthenticationProfile
 
@@ -181,18 +173,33 @@ func (r *UpdateAuthenticationProfileResource) Create(ctx context.Context, req re
 		return
 	}
 
+	// Retrieve authenticationProfileId
+	params := ""
+	params += "?authenticationProfileName=" + url.QueryEscape(plan.AuthenticationProfileName.ValueString())
+
+	if !plan.FabricId.IsUnknown() && !plan.FabricId.IsNull() {
+		params += "&fabricId=" + url.QueryEscape(plan.FabricId.ValueString())
+	}
+
+	res, err := r.client.Get(plan.getPath() + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	plan.Id = types.StringValue(res.Get("response.0.id").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
 	body := plan.toBody(ctx, UpdateAuthenticationProfile{})
 
-	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+	params = ""
+	res, err = r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.AuthenticationProfileId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -200,9 +207,6 @@ func (r *UpdateAuthenticationProfileResource) Create(ctx context.Context, req re
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end create
-
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *UpdateAuthenticationProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state UpdateAuthenticationProfile
 
@@ -217,6 +221,13 @@ func (r *UpdateAuthenticationProfileResource) Read(ctx context.Context, req reso
 
 	params := ""
 	params += "?authenticationProfileName=" + url.QueryEscape(state.AuthenticationProfileName.ValueString())
+
+	if !state.FabricId.IsUnknown() && !state.FabricId.IsNull() {
+		params += "&fabricId=" + url.QueryEscape(state.FabricId.ValueString())
+	} else {
+		params += "&isGlobalAuthenticationProfile=true"
+	}
+
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -238,8 +249,6 @@ func (r *UpdateAuthenticationProfileResource) Read(ctx context.Context, req reso
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *UpdateAuthenticationProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -296,20 +305,19 @@ func (r *UpdateAuthenticationProfileResource) Delete(ctx context.Context, req re
 
 // End of section. //template:end delete
 
-// Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *UpdateAuthenticationProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
-	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+	if len(idParts) == 1 {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("authentication_profile_name"), idParts[0])...)
+	} else if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <authentication_profile_id>,<authentication_profile_name>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <fabric_id>,<authentication_profile_name>, or <authentication_profile_name>. Got: %q", req.ID),
 		)
 		return
+	} else {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_id"), idParts[0])...)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("authentication_profile_name"), idParts[1])...)
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("authentication_profile_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("authentication_profile_name"), idParts[1])...)
 }
-
-// End of section. //template:end import

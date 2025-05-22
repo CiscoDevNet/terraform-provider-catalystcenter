@@ -14,8 +14,8 @@ Updates an Authentication Profile. The No Authentication profile cannot be updat
 
 ```terraform
 resource "catalystcenter_update_authentication_profile" "example" {
-  authentication_profile_id     = "cc0b30bc-94e7-458a-80e2-c7bbecc829f5"
-  authentication_profile_name   = "Closed Authentication"
+  fabric_id                     = "ae8a501f-2cdb-4d87-b535-1e568a091de1"
+  authentication_profile_name   = "Open Authentication"
   authentication_order          = "mac"
   dot1x_to_mab_fallback_timeout = 10
   wake_on_lan                   = true
@@ -30,7 +30,6 @@ resource "catalystcenter_update_authentication_profile" "example" {
 
 - `authentication_order` (String) First authentication method
   - Choices: `dot1x`, `mac`
-- `authentication_profile_id` (String) ID of the authentication profile
 - `authentication_profile_name` (String) The default host authentication template
   - Choices: `Open Authentication`, `Closed Authentication`, `Low Impact`
 - `dot1x_to_mab_fallback_timeout` (Number) 802.1x Timeout
@@ -68,5 +67,5 @@ Required:
 Import is supported using the following syntax:
 
 ```shell
-terraform import catalystcenter_update_authentication_profile.example "<authentication_profile_id>,<authentication_profile_name>"
+terraform import catalystcenter_update_authentication_profile.example "<fabric_id>,<authentication_profile_name>"
 ```

@@ -29,8 +29,7 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcUpdateAuthenticationProfile(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_update_authentication_profile.test", "authentication_profile_id", "cc0b30bc-94e7-458a-80e2-c7bbecc829f5"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_update_authentication_profile.test", "authentication_profile_name", "Closed Authentication"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_update_authentication_profile.test", "authentication_profile_name", "Open Authentication"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_update_authentication_profile.test", "authentication_order", "mac"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_update_authentication_profile.test", "dot1x_to_mab_fallback_timeout", "10"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_update_authentication_profile.test", "wake_on_lan", "true"))
@@ -40,7 +39,7 @@ func TestAccDataSourceCcUpdateAuthenticationProfile(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcUpdateAuthenticationProfileConfig(),
+				Config: testAccDataSourceCcUpdateAuthenticationProfilePrerequisitesConfig + testAccDataSourceCcUpdateAuthenticationProfileConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -50,13 +49,38 @@ func TestAccDataSourceCcUpdateAuthenticationProfile(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceCcUpdateAuthenticationProfilePrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+resource "catalystcenter_fabric_site" "test" {
+  site_id                     = catalystcenter_area.test.id
+  authentication_profile_name = "Open Authentication"
+  pub_sub_enabled             = false
+  depends_on                  = [catalystcenter_aaa_settings.test]
+}
+resource "catalystcenter_aaa_settings" "test" {
+  site_id                       = catalystcenter_area.test.id
+  network_aaa_server_type       = "ISE"
+  network_aaa_protocol          = "RADIUS"
+  network_aaa_pan               = "198.18.133.27"
+  network_aaa_primary_server_ip = "198.18.133.27"
+  client_aaa_server_type        = "ISE"
+  client_aaa_protocol           = "RADIUS"
+  client_aaa_pan                = "198.18.133.27"
+  client_aaa_primary_server_ip  = "198.18.133.27"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcUpdateAuthenticationProfileConfig() string {
 	config := `resource "catalystcenter_update_authentication_profile" "test" {` + "\n"
-	config += `	authentication_profile_id = "cc0b30bc-94e7-458a-80e2-c7bbecc829f5"` + "\n"
-	config += `	authentication_profile_name = "Closed Authentication"` + "\n"
+	config += `	fabric_id = catalystcenter_fabric_site.test.id` + "\n"
+	config += `	authentication_profile_name = "Open Authentication"` + "\n"
 	config += `	authentication_order = "mac"` + "\n"
 	config += `	dot1x_to_mab_fallback_timeout = 10` + "\n"
 	config += `	wake_on_lan = true` + "\n"
@@ -65,7 +89,8 @@ func testAccDataSourceCcUpdateAuthenticationProfileConfig() string {
 
 	config += `
 		data "catalystcenter_update_authentication_profile" "test" {
-			authentication_profile_name = "Closed Authentication"
+			fabric_id = catalystcenter_fabric_site.test.id
+			authentication_profile_name = "Open Authentication"
 			depends_on = [catalystcenter_update_authentication_profile.test]
 		}
 	`

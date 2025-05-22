@@ -2,31 +2,27 @@
 name: Update Authentication Profile
 rest_endpoint: /dna/intent/api/v1/sda/authenticationProfiles
 res_description: Updates an Authentication Profile. The No Authentication profile cannot be updated.
+# Manual updates in Create, Read and Import function in resource and Read function in data source and toBody function in model
 put_create: true
 no_delete: true
 data_source_no_id: true
 import_no_id: true
-id_from_attribute: true
+id_from_query_path: response.0
+id_from_query_path_attribute: id
 put_id_include_path: "0.id"
 skip_minimum_test: true
 mutex: true
 doc_category: SDA
 attributes:
-  - model_name: id
-    tf_name: authentication_profile_id
-    data_path: "0"
-    response_data_path: response.0.id
-    type: String
-    id: true
-    description: ID of the authentication profile
-    example: cc0b30bc-94e7-458a-80e2-c7bbecc829f5
   - model_name: fabricId
     response_data_path: response.0.fabricId
-    data_source_query: true
     data_path: "0"
+    data_source_query: true
+    query_param: true
     type: String
     description: ID of the fabric this authentication profile is assigned to. To update a global authentication profile, either remove this property or set its value to null.
-    exclude_test: true
+    example: ae8a501f-2cdb-4d87-b535-1e568a091de1
+    test_value: catalystcenter_fabric_site.test.id
   - model_name: authenticationProfileName
     data_path: "0"
     response_data_path: response.0.authenticationProfileName
@@ -38,7 +34,7 @@ attributes:
       - Open Authentication
       - Closed Authentication
       - Low Impact
-    example: Closed Authentication
+    example: Open Authentication
   - model_name: authenticationOrder
     data_path: "0"
     response_data_path: response.0.authenticationOrder
@@ -84,14 +80,14 @@ attributes:
     exclude_test: true
   - model_name: enabled
     tf_name: pre_auth_acl_enabled
-    data_path: preAuthAcl
+    data_path: 0.preAuthAcl
     response_data_path: response.0.preAuthAcl.enabled
     type: Bool
     description: Enable/disable Pre-Authentication ACL
     exclude_test: true
   - model_name: implicitAction
     tf_name: pre_auth_acl_implicit_action
-    data_path: preAuthAcl
+    data_path: 0.preAuthAcl
     response_data_path: response.0.preAuthAcl.implicitAction
     type: String
     enum_values:
@@ -101,14 +97,14 @@ attributes:
     exclude_test: true
   - name: description
     tf_name: pre_auth_acl_description
-    data_path: preAuthAcl
+    data_path: 0.preAuthAcl
     response_data_path: response.0.preAuthAcl.description
     type: String
     description: Description of the Pre-Authentication ACL
     exclude_test: true
   - model_name: accessContracts
     tf_name: pre_auth_acl_access_contracts
-    data_path: preAuthAcl
+    data_path: 0.preAuthAcl
     response_data_path: response.0.preAuthAcl.accessContracts
     type: Set
     description: Access contract list schema. Omitting this property or setting it to null, will reset the property to its default value.
@@ -135,3 +131,25 @@ attributes:
           - domain
           - bootpc
           - bootps
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    authentication_profile_name = "Open Authentication"
+    pub_sub_enabled             = false
+    depends_on                  = [catalystcenter_aaa_settings.test]
+  }
+  resource "catalystcenter_aaa_settings" "test" {
+    site_id                       = catalystcenter_area.test.id
+    network_aaa_server_type       = "ISE"
+    network_aaa_protocol          = "RADIUS"
+    network_aaa_pan               = "198.18.133.27"
+    network_aaa_primary_server_ip = "198.18.133.27"
+    client_aaa_server_type        = "ISE"
+    client_aaa_protocol           = "RADIUS"
+    client_aaa_pan                = "198.18.133.27"
+    client_aaa_primary_server_ip  = "198.18.133.27"
+  }

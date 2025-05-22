@@ -14,7 +14,8 @@ This data source can read the Update Authentication Profile.
 
 ```terraform
 data "catalystcenter_update_authentication_profile" "example" {
-  authentication_profile_name = "Closed Authentication"
+  fabric_id                   = "ae8a501f-2cdb-4d87-b535-1e568a091de1"
+  authentication_profile_name = "Open Authentication"
 }
 ```
 
@@ -32,7 +33,6 @@ data "catalystcenter_update_authentication_profile" "example" {
 ### Read-Only
 
 - `authentication_order` (String) First authentication method
-- `authentication_profile_id` (String) ID of the authentication profile
 - `dot1x_to_mab_fallback_timeout` (Number) 802.1x Timeout
 - `id` (String) The id of the object
 - `is_bpdu_guard_enabled` (Boolean) Enable/disable BPDU Guard. Only applicable when authenticationProfileName is set to `Closed Authentication`

@@ -23,14 +23,10 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
-	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -63,10 +59,6 @@ func (d *UpdateAuthenticationProfileDataSource) Schema(ctx context.Context, req 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Computed:            true,
-			},
-			"authentication_profile_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the authentication profile",
 				Computed:            true,
 			},
 			"fabric_id": schema.StringAttribute{
@@ -133,14 +125,6 @@ func (d *UpdateAuthenticationProfileDataSource) Schema(ctx context.Context, req 
 		},
 	}
 }
-func (d *UpdateAuthenticationProfileDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
-	return []datasource.ConfigValidator{
-		datasourcevalidator.ExactlyOneOf(
-			path.MatchRoot("id"),
-			path.MatchRoot("fabric_id"),
-		),
-	}
-}
 
 func (d *UpdateAuthenticationProfileDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
@@ -152,7 +136,6 @@ func (d *UpdateAuthenticationProfileDataSource) Configure(_ context.Context, req
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config UpdateAuthenticationProfile
 
@@ -164,31 +147,16 @@ func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req da
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.FabricId.IsNull() {
-		res, err := d.client.Get(config.getPath())
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
-			return
-		}
-		if value := res.Get("response"); len(value.Array()) > 0 {
-			value.ForEach(func(k, v gjson.Result) bool {
-				if config.FabricId.ValueString() == v.Get("fabricId").String() {
-					config.Id = types.StringValue(v.Get("id").String())
-					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with fabricId '%v', id: %v", config.Id.String(), config.FabricId.ValueString(), config.Id.String()))
-					return false
-				}
-				return true
-			})
-		}
-
-		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with fabricId: %s", config.FabricId.ValueString()))
-			return
-		}
-	}
 
 	params := ""
 	params += "?authenticationProfileName=" + url.QueryEscape(config.AuthenticationProfileName.ValueString())
+
+	if !config.FabricId.IsUnknown() && !config.FabricId.IsNull() {
+		params += "&fabricId=" + url.QueryEscape(config.FabricId.ValueString())
+	} else {
+		params += "&isGlobalAuthenticationProfile=true"
+	}
+
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
@@ -202,5 +170,3 @@ func (d *UpdateAuthenticationProfileDataSource) Read(ctx context.Context, req da
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read

@@ -83,7 +83,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- else if eq .Type "Map"}}
 				ElementType:         types.StringType,
 				{{- end}}
-				{{- if or .Reference .QueryParam}}
+				{{- if and (or .Reference .QueryParam) (not .DataSourceQuery)}}
 				Required:            true,
 				{{- else}}
 				{{- if .DataSourceQuery}}
@@ -155,7 +155,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 	}
 }
 
-{{- if $dataSourceQuery}}
+{{- if and $dataSourceQuery (not .DataSourceNoId)}}
 func (d *{{camelCase .Name}}DataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
     return []datasource.ConfigValidator{
         datasourcevalidator.ExactlyOneOf(

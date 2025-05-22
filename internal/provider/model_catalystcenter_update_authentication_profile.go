@@ -31,7 +31,6 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type UpdateAuthenticationProfile struct {
 	Id                        types.String                                           `tfsdk:"id"`
-	AuthenticationProfileId   types.String                                           `tfsdk:"authentication_profile_id"`
 	FabricId                  types.String                                           `tfsdk:"fabric_id"`
 	AuthenticationProfileName types.String                                           `tfsdk:"authentication_profile_name"`
 	AuthenticationOrder       types.String                                           `tfsdk:"authentication_order"`
@@ -64,18 +63,14 @@ func (data UpdateAuthenticationProfile) getPath() string {
 
 // End of section. //template:end getPathDelete
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data UpdateAuthenticationProfile) toBody(ctx context.Context, state UpdateAuthenticationProfile) string {
 	body := ""
 	put := false
-	if state.Id.ValueString() != "" {
+	if !data.Id.IsNull() {
 		put = true
-		body, _ = sjson.Set(body, "0.id", state.Id.ValueString())
+		body, _ = sjson.Set(body, "0.id", data.Id.ValueString())
 	}
 	_ = put
-	if !data.AuthenticationProfileId.IsNull() {
-		body, _ = sjson.Set(body, "0.id", data.AuthenticationProfileId.ValueString())
-	}
 	if !data.FabricId.IsNull() {
 		body, _ = sjson.Set(body, "0.fabricId", data.FabricId.ValueString())
 	}
@@ -98,16 +93,16 @@ func (data UpdateAuthenticationProfile) toBody(ctx context.Context, state Update
 		body, _ = sjson.Set(body, "0.isBpduGuardEnabled", data.IsBpduGuardEnabled.ValueBool())
 	}
 	if !data.PreAuthAclEnabled.IsNull() {
-		body, _ = sjson.Set(body, "preAuthAcl.enabled", data.PreAuthAclEnabled.ValueBool())
+		body, _ = sjson.Set(body, "0.preAuthAcl.enabled", data.PreAuthAclEnabled.ValueBool())
 	}
 	if !data.PreAuthAclImplicitAction.IsNull() {
-		body, _ = sjson.Set(body, "preAuthAcl.implicitAction", data.PreAuthAclImplicitAction.ValueString())
+		body, _ = sjson.Set(body, "0.preAuthAcl.implicitAction", data.PreAuthAclImplicitAction.ValueString())
 	}
 	if !data.PreAuthAclDescription.IsNull() {
-		body, _ = sjson.Set(body, "preAuthAcl.", data.PreAuthAclDescription.ValueString())
+		body, _ = sjson.Set(body, "0.preAuthAcl.", data.PreAuthAclDescription.ValueString())
 	}
 	if len(data.PreAuthAclAccessContracts) > 0 {
-		body, _ = sjson.Set(body, "preAuthAcl.accessContracts", []interface{}{})
+		body, _ = sjson.Set(body, "0.preAuthAcl.accessContracts", []interface{}{})
 		for _, item := range data.PreAuthAclAccessContracts {
 			itemBody := ""
 			if !item.Action.IsNull() {
@@ -119,26 +114,19 @@ func (data UpdateAuthenticationProfile) toBody(ctx context.Context, state Update
 			if !item.Port.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "port", item.Port.ValueString())
 			}
-			body, _ = sjson.SetRaw(body, "preAuthAcl.accessContracts.-1", itemBody)
+			body, _ = sjson.SetRaw(body, "0.preAuthAcl.accessContracts.-1", itemBody)
 		}
 	}
 	return body
 }
 
-// End of section. //template:end toBody
-
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *UpdateAuthenticationProfile) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get(""); value.Exists() {
+	if value := res.Get("response.0.id"); value.Exists() {
 		data.Id = types.StringValue(value.String())
 	} else {
 		data.Id = types.StringNull()
-	}
-	if value := res.Get("response.0.id"); value.Exists() {
-		data.AuthenticationProfileId = types.StringValue(value.String())
-	} else {
-		data.AuthenticationProfileId = types.StringNull()
 	}
 	if value := res.Get("response.0.fabricId"); value.Exists() {
 		data.FabricId = types.StringValue(value.String())
@@ -219,11 +207,6 @@ func (data *UpdateAuthenticationProfile) fromBody(ctx context.Context, res gjson
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *UpdateAuthenticationProfile) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.id"); value.Exists() && !data.AuthenticationProfileId.IsNull() {
-		data.AuthenticationProfileId = types.StringValue(value.String())
-	} else {
-		data.AuthenticationProfileId = types.StringNull()
-	}
 	if value := res.Get("response.0.fabricId"); value.Exists() && !data.FabricId.IsNull() {
 		data.FabricId = types.StringValue(value.String())
 	} else {
@@ -319,9 +302,6 @@ func (data *UpdateAuthenticationProfile) updateFromBody(ctx context.Context, res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *UpdateAuthenticationProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.FabricId.IsNull() {
-		return false
-	}
 	if !data.AuthenticationOrder.IsNull() {
 		return false
 	}

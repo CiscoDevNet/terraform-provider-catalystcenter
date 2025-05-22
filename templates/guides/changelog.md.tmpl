@@ -9,6 +9,7 @@ description: |-
 
 ## 0.2.8 (unreleased)
 
+- Remove `authentication_profile_id` attribute from `catalystcenter_update_authentication_profile` and allow modifications to global authentication profiles
 - Add support for `INFRA_VN` and `DEFAULT_VN` under `catalystcenter_fabric_l3_virtual_network` resource
 - Add `copying_config` attribute to `catalystcenter_deploy_template` resource
 
