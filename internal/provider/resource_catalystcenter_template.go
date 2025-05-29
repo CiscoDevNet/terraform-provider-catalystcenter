@@ -319,7 +319,7 @@ func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, r
 	params += "/" + url.QueryEscape(state.Id.ValueString())
 	params += "?unCommitted=true"
 	res, err := r.client.Get("/dna/intent/api/v1/template-programmer/template" + params)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {

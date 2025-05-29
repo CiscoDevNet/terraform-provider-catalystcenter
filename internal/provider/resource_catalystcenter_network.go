@@ -244,7 +244,7 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 	params := ""
 	params += "/" + url.QueryEscape(state.Id.ValueString())
 	res, err := r.client.Get("/api/v1/commonsetting/global" + params)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {

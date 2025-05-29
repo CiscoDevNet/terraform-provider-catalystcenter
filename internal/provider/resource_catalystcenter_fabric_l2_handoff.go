@@ -180,7 +180,7 @@ func (r *FabricL2HandoffResource) Read(ctx context.Context, req resource.ReadReq
 	params := ""
 	params += "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(state.FabricId.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {

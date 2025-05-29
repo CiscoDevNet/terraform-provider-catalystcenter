@@ -1,3 +1,8 @@
+## 0.2.9 (unreleased)
+
+- Add `406 StatusCode` for handling manually deleted objects 
+- Fix issue with list order of `ssid_details` attribure in `catalystcenter_wireless_profile` resource
+
 ## 0.2.8
 
 - Remove `authentication_profile_id` attribute from `catalystcenter_update_authentication_profile` and allow modifications to global authentication profiles

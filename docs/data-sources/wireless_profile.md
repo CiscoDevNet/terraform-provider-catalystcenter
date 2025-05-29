@@ -27,7 +27,7 @@ data "catalystcenter_wireless_profile" "example" {
 
 ### Read-Only
 
-- `ssid_details` (Attributes List) SSID Details (see [below for nested schema](#nestedatt--ssid_details))
+- `ssid_details` (Attributes Set) SSID Details (see [below for nested schema](#nestedatt--ssid_details))
 - `wireless_profile_name` (String) Wireless Network Profile Name
 
 <a id="nestedatt--ssid_details"></a>
