@@ -16,7 +16,7 @@ attributes:
     description: Wireless Network Profile Name
     example: Wireless_Profile_1
   - model_name: ssidDetails
-    type: List
+    type: Set
     description: SSID Details
     attributes:
       - model_name: ssidName

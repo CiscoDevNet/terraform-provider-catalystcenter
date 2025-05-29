@@ -34,7 +34,7 @@ resource "catalystcenter_wireless_profile" "example" {
 
 ### Optional
 
-- `ssid_details` (Attributes List) SSID Details (see [below for nested schema](#nestedatt--ssid_details))
+- `ssid_details` (Attributes Set) SSID Details (see [below for nested schema](#nestedatt--ssid_details))
 
 ### Read-Only
 

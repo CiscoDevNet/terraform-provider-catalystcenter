@@ -64,7 +64,7 @@ func (d *WirelessProfileDataSource) Schema(ctx context.Context, req datasource.S
 				MarkdownDescription: "Wireless Network Profile Name",
 				Computed:            true,
 			},
-			"ssid_details": schema.ListNestedAttribute{
+			"ssid_details": schema.SetNestedAttribute{
 				MarkdownDescription: "SSID Details",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
