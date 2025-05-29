@@ -157,7 +157,7 @@ func (r *CredentialsHTTPSReadResource) Read(ctx context.Context, req resource.Re
 
 	params := ""
 	res, err := r.client.Get(state.getPath() + params)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406")) {
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {

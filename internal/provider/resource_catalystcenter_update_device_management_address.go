@@ -139,7 +139,7 @@ func (r *UpdateDeviceManagementAddressResource) Read(ctx context.Context, req re
 	params := ""
 	params += "/" + url.QueryEscape(state.Id.ValueString())
 	res, err := r.client.Get("/dna/intent/api/v1/network-device" + params)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406")) {
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
