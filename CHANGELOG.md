@@ -1,4 +1,4 @@
-## 0.2.9 (unreleased)
+## 0.2.9
 
 - Modify `catalystcenter_pnp_device` resource and skip error if device already exists and add to terraform state
 - Add 400 406 and 500 status codes for handling manually deleted objects 
