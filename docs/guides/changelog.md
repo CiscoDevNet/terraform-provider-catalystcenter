@@ -11,7 +11,7 @@ description: |-
 
 - Modify `catalystcenter_pnp_device` resource and skip error if device already exists and add to terraform state
 - Add 400 406 and 500 status codes for handling manually deleted objects 
-- Fix issue with list order of `ssid_details` attribure in `catalystcenter_wireless_profile` resource
+- Fix issue with list order of `ssid_details` attribute in `catalystcenter_wireless_profile` resource
 
 ## 0.2.8
 
