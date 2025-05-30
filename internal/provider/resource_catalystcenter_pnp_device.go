@@ -117,9 +117,9 @@ func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateReque
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
-		// if the error code is NCOB01019, it means the device already exists, so we can skip the error and update pnp device instead
+		// if the error code is NCOB01019, it means the device already exists, so we can skip the error and add resource to state
 		if errorCode == "NCOB01019" {
-			// Retrieve authenticationProfileId
+			// Retrieve Id from the GET response
 			params := ""
 			params += "?serialNumber=" + url.QueryEscape(plan.SerialNumber.ValueString())
 			res, err := r.client.Get(plan.getPath() + params)
@@ -129,7 +129,7 @@ func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateReque
 			}
 			// Set ID from GET response
 			plan.Id = types.StringValue(res.Get("0.id").String())
-			// Finish early since device already exists
+			// Save to state
 			diags := resp.State.Set(ctx, &plan)
 			resp.Diagnostics.Append(diags...)
 			return
