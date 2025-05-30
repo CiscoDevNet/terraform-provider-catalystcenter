@@ -1,6 +1,6 @@
 ## 0.2.9 (unreleased)
 
-- Add 400 and 406 status codes for handling manually deleted objects 
+- Add 400 406 and 500 status codes for handling manually deleted objects 
 - Fix issue with list order of `ssid_details` attribure in `catalystcenter_wireless_profile` resource
 
 ## 0.2.8
