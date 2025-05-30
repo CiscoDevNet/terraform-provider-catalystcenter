@@ -141,7 +141,7 @@ func (r *AssignDeviceToSiteResource) Read(ctx context.Context, req resource.Read
 	params := ""
 	params += "?siteId=" + url.QueryEscape(state.SiteId.ValueString())
 	res, err := r.client.Get("/dna/intent/api/v1/networkDevices/assignedToSite" + params)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 400")) {
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {

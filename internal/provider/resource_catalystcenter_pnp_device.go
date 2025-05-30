@@ -98,7 +98,6 @@ func (r *PnPDeviceResource) Configure(_ context.Context, req resource.ConfigureR
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan PnPDevice
 
@@ -117,8 +116,27 @@ func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateReque
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+		errorCode := res.Get("response.errorCode").String()
+		// if the error code is NCOB01019, it means the device already exists, so we can skip the error and update pnp device instead
+		if errorCode == "NCOB01019" {
+			// Retrieve authenticationProfileId
+			params := ""
+			params += "?serialNumber=" + url.QueryEscape(plan.SerialNumber.ValueString())
+			res, err := r.client.Get(plan.getPath() + params)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+				return
+			}
+			// Set ID from GET response
+			plan.Id = types.StringValue(res.Get("0.id").String())
+			// Finish early since device already exists
+			diags := resp.State.Set(ctx, &plan)
+			resp.Diagnostics.Append(diags...)
+			return
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
 
@@ -127,8 +145,6 @@ func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateReque
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -146,7 +162,7 @@ func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, 
 	params := ""
 	params += "?serialNumber=" + url.QueryEscape(state.SerialNumber.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 400")) {
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
