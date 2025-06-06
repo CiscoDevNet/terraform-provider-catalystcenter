@@ -1,0 +1,1 @@
+terraform import catalystcenter_network_profile_for_sites_assignments.example "<network_profile_id>"
