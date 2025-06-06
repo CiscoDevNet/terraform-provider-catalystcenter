@@ -1,0 +1,41 @@
+---
+name: Network Profile for Sites Assignments
+rest_endpoint: /dna/intent/api/v1/networkProfilesForSites/%v/siteAssignments
+get_no_id: true
+post_update: true
+data_source_no_id: true
+import_no_id: true
+skip_minimum_test: true
+res_description: Manages Network Profile for Site Assignments
+doc_category: Network Profiles
+attributes:
+  - model_name: networkProfileId
+    type: String
+    response_data_path: response
+    reference: true
+    id: true
+    description: Network-Profile Id to be associated
+    example: ff19242d-9989-434c-beee-92b16b6b30a3
+    test_value: catalystcenter_network_profile.example.id
+  - model_name: items
+    type: Set
+    mandatory: true
+    response_data_path: response
+    description: List of sites where the network profile is assigned
+    attributes:
+      - model_name: id
+        type: String
+        mandatory: true
+        id: true
+        description: Site Id
+        example: bf6cfb4e-750e-434a-b18b-e84c807ea327
+        test_value: catalystcenter_area.test.id
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_network_profile" "example" {
+    name = "Profile1"
+    type = "switching"
+  }

@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.2.10 (unreleased)
+
+- Add `catalystcenter_network_profile_for_sites_assignments` resource and data source
+
 ## 0.2.9
 
 - Modify `catalystcenter_pnp_device` resource and skip error if device already exists and add to terraform state
