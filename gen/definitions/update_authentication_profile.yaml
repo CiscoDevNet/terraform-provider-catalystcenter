@@ -146,10 +146,10 @@ test_prerequisites: |
     site_id                       = catalystcenter_area.test.id
     network_aaa_server_type       = "ISE"
     network_aaa_protocol          = "RADIUS"
-    network_aaa_pan               = "198.18.133.27"
-    network_aaa_primary_server_ip = "198.18.133.27"
+    network_aaa_pan               = "10.62.190.86"
+    network_aaa_primary_server_ip = "10.62.190.86"
     client_aaa_server_type        = "ISE"
     client_aaa_protocol           = "RADIUS"
-    client_aaa_pan                = "198.18.133.27"
-    client_aaa_primary_server_ip  = "198.18.133.27"
+    client_aaa_pan                = "10.62.190.86"
+    client_aaa_primary_server_ip  = "10.62.190.86"
   }

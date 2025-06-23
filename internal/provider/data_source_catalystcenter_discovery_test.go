@@ -39,7 +39,7 @@ func TestAccDataSourceCcDiscovery(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcDiscoveryConfig(),
+				Config: testAccDataSourceCcDiscoveryPrerequisitesConfig + testAccDataSourceCcDiscoveryConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -49,12 +49,22 @@ func TestAccDataSourceCcDiscovery(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceCcDiscoveryPrerequisitesConfig = `
+resource "catalystcenter_credentials_cli" "test" {
+  description = "My CLI credentials"
+  username    = "user1"
+  password    = "password1"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcDiscoveryConfig() string {
 	config := `resource "catalystcenter_discovery" "test" {` + "\n"
 	config += `	discovery_type = "Range"` + "\n"
+	config += `	global_credential_id_list = [catalystcenter_credentials_cli.test.id]` + "\n"
 	config += `	ip_address_list = "192.168.0.1-192.168.0.99"` + "\n"
 	config += `	name = "testing terraform provider"` + "\n"
 	config += `	netconf_port = "830"` + "\n"
