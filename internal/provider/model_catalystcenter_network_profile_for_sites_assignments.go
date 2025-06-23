@@ -80,11 +80,7 @@ func (data NetworkProfileForSitesAssignments) toBody(ctx context.Context, state 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *NetworkProfileForSitesAssignments) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get(""); value.Exists() {
-		data.Id = types.StringValue(value.String())
-	} else {
-		data.Id = types.StringNull()
-	}
+	data.Id = types.StringValue(fmt.Sprint(data.NetworkProfileId.ValueString()))
 	if value := res.Get("response"); value.Exists() && len(value.Array()) > 0 {
 		data.Items = make([]NetworkProfileForSitesAssignmentsItems, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
