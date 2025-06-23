@@ -37,7 +37,7 @@ func TestAccCcDiscovery(t *testing.T) {
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcDiscoveryConfig_all(),
+		Config: testAccCcDiscoveryPrerequisitesConfig + testAccCcDiscoveryConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -51,6 +51,15 @@ func TestAccCcDiscovery(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccCcDiscoveryPrerequisitesConfig = `
+resource "catalystcenter_credentials_cli" "test" {
+  description = "My CLI credentials"
+  username    = "user1"
+  password    = "password1"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
@@ -69,6 +78,7 @@ func testAccCcDiscoveryConfig_minimum() string {
 func testAccCcDiscoveryConfig_all() string {
 	config := `resource "catalystcenter_discovery" "test" {` + "\n"
 	config += `	discovery_type = "Range"` + "\n"
+	config += `	global_credential_id_list = [catalystcenter_credentials_cli.test.id]` + "\n"
 	config += `	ip_address_list = "192.168.0.1-192.168.0.99"` + "\n"
 	config += `	name = "testing terraform provider"` + "\n"
 	config += `	netconf_port = "830"` + "\n"

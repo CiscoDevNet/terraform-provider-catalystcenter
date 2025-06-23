@@ -45,7 +45,8 @@ attributes:
     type: Set
     element_type: String
     description: A list of IDs, which must include SNMP credential and CLI credential.
-    exclude_test: true
+    test_value: '[catalystcenter_credentials_cli.test.id]'
+    exclude_example: true
     requires_replace: true
   - model_name: httpReadCredential
     type: String
@@ -205,3 +206,9 @@ attributes:
     exclude_test: true
     exclude_example: true
     requires_replace: true
+test_prerequisites: |
+  resource "catalystcenter_credentials_cli" "test" {
+    description = "My CLI credentials"
+    username    = "user1"
+    password    = "password1"
+  }
