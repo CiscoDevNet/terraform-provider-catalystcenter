@@ -333,6 +333,9 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 	if len(toDelete.PortAssignments) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.PortAssignments)))
 		for _, v := range toDelete.PortAssignments {
+			if v.Id.IsNull() {
+				continue // Skip if id is null
+			}
 			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
