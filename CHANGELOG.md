@@ -1,5 +1,6 @@
 ## 0.2.10 (unreleased)
 
+- Add `catalystcenter_network_profile_for_sites_assignments` resource and data source
 - Fix issue with `id` not computed with import in `catalystcenter_xxx_settings` resources, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/232)
 
 ## 0.2.9
