@@ -24,7 +24,7 @@ attributes:
     response_data_path: response.ntp.servers
     type: Set
     element_type: String
-    description: NTP servers to facilitate system clock synchronization for your network. Max:2
+    description: NTP servers to facilitate system clock synchronization for your network
     example: "10.0.0.1"
 test_prerequisites: |
   resource "catalystcenter_area" "test" {

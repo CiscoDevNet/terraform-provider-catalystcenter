@@ -75,7 +75,7 @@ func (r *NTPSettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				},
 			},
 			"servers": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("NTP servers to facilitate system clock synchronization for your network. Max:2").String,
+				MarkdownDescription: helpers.NewAttributeDescription("NTP servers to facilitate system clock synchronization for your network").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},

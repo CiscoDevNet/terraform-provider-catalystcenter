@@ -28,4 +28,4 @@ data "catalystcenter_ntp_settings" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
-- `servers` (Set of String) NTP servers to facilitate system clock synchronization for your network. Max:2
+- `servers` (Set of String) NTP servers to facilitate system clock synchronization for your network

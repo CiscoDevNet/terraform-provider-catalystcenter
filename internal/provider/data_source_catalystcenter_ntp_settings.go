@@ -66,7 +66,7 @@ func (d *NTPSettingsDataSource) Schema(ctx context.Context, req datasource.Schem
 				Required:            true,
 			},
 			"servers": schema.SetAttribute{
-				MarkdownDescription: "NTP servers to facilitate system clock synchronization for your network. Max:2",
+				MarkdownDescription: "NTP servers to facilitate system clock synchronization for your network",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},

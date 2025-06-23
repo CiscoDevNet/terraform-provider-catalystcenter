@@ -28,7 +28,7 @@ resource "catalystcenter_ntp_settings" "example" {
 
 ### Optional
 
-- `servers` (Set of String) NTP servers to facilitate system clock synchronization for your network. Max:2
+- `servers` (Set of String) NTP servers to facilitate system clock synchronization for your network
 
 ### Read-Only
 
