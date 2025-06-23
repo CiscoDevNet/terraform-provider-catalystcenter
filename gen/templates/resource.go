@@ -111,9 +111,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				Computed:            true,
 				{{- end}}
 				{{- if len .EnumValues}}
+				{{- if eq .Type "Int64" }}
+                Validators: []validator.Int64{
+                    int64validator.OneOf({{range .EnumValues}}{{.}}, {{end}}),
+                },
+				{{- else }}
 				Validators: []validator.String{
 					stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 				},
+				{{- end }}
 				{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
 				Validators: []validator.String{
 					{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
