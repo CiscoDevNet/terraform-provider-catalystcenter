@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -90,11 +91,7 @@ func (data FabricL3HandoffSDATransit) toBody(ctx context.Context, state FabricL3
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *FabricL3HandoffSDATransit) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get(""); value.Exists() {
-		data.Id = types.StringValue(value.String())
-	} else {
-		data.Id = types.StringNull()
-	}
+	data.Id = types.StringValue(fmt.Sprint(data.NetworkDeviceId.ValueString()))
 	if value := res.Get("response.0.networkDeviceId"); value.Exists() {
 		data.NetworkDeviceId = types.StringValue(value.String())
 	} else {

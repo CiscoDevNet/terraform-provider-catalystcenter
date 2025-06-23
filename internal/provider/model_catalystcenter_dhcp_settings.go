@@ -72,11 +72,7 @@ func (data DHCPSettings) toBody(ctx context.Context, state DHCPSettings) string 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *DHCPSettings) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get(""); value.Exists() {
-		data.Id = types.StringValue(value.String())
-	} else {
-		data.Id = types.StringNull()
-	}
+	data.Id = types.StringValue(fmt.Sprint(data.SiteId.ValueString()))
 	if value := res.Get("response.dhcp.servers"); value.Exists() && len(value.Array()) > 0 {
 		data.Servers = helpers.GetStringSet(value.Array())
 	} else {

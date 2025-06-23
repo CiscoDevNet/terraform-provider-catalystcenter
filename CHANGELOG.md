@@ -1,3 +1,7 @@
+## 0.2.10 (unreleased)
+
+- Fix issue with `id` not computed with import in `catalystcenter_xxx_settings` resources, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/232)
+
 ## 0.2.9
 
 - Modify `catalystcenter_pnp_device` resource and skip error if device already exists and add to terraform state

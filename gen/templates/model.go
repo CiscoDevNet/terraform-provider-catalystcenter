@@ -314,11 +314,16 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 	{{- end}}
 	{{- if .DataSourceNoId}}
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	{{- if hasId .Attributes}}
+		{{- $id := getId .Attributes}}
+	data.Id = types.StringValue(fmt.Sprint(data.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
+	{{- else }}
 	if value := res.Get("{{if .IdFromQueryPath}}{{if eq .IdFromQueryPath "." }}{{else}}{{.IdFromQueryPath}}.{{end}}{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}{{end}}"); value.Exists() {
 		data.Id = types.StringValue(value.String())
 	} else {
 		data.Id = types.StringNull()
 	}
+	{{- end}}
 	{{- end}}
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
