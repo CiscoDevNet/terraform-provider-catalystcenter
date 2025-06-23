@@ -379,6 +379,9 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 	if len(toDelete.L3Handoffs) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.L3Handoffs)))
 		for _, v := range toDelete.L3Handoffs {
+			if v.Id.IsNull() {
+				continue // Skip if id is null
+			}
 			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()

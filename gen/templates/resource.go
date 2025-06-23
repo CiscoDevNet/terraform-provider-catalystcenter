@@ -776,6 +776,9 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	if len(toDelete.{{toGoName $items}}) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.{{toGoName $items}})))
 		for _, v := range toDelete.{{toGoName $items}} {
+			if v.Id.IsNull() {
+				continue // Skip if id is null
+			}
 			res, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(v.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 			if err != nil {
 			{{- if .DeviceUnreachabilityWarning}}
