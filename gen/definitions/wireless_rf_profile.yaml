@@ -34,7 +34,7 @@ attributes:
   response_data_path: response.enableRadioTypeB
   mandatory: true
   description: Enable or disable the 2.4 GHz radio band in the RF Profile.
-  example: false
+  example: true
 - model_name: enableRadioType6GHz
   type: Bool
   response_data_path: response.enableRadioType6GHz
@@ -49,16 +49,14 @@ attributes:
   enum_values: [HIGH, TYPICAL, LOW, CUSTOM]
   example: CUSTOM
   response_data_path: response.radioTypeAProperties.parentProfile
-  exclude_test: true
 - model_name: radioChannels
   tf_name: radio_type_a_radio_channels
   data_path: radioTypeAProperties
   type: String
   description: DCA channels for the 5 GHz radio band, passed in comma-separated format
     without spaces.
-  example: "36,40,44,48,52,56,60,64,144,149,153,157,161,165,169,173"
+  example: "36,40,44,48,124,128,157,161"
   response_data_path: response.radioTypeAProperties.radioChannels
-  exclude_test: true
 - model_name: dataRates
   tf_name: radio_type_a_data_rates
   data_path: radioTypeAProperties
@@ -67,16 +65,14 @@ attributes:
     without spaces.
   example: "6,9,12,18,24,36,48,54"
   response_data_path: response.radioTypeAProperties.dataRates
-  exclude_test: true
 - model_name: mandatoryDataRates
   tf_name: radio_type_a_mandatory_data_rates
   data_path: radioTypeAProperties
   type: String
   description: Mandatory data rates for the 5 GHz radio band, passed in comma-separated
     format, must be a subset of dataRates with a maximum of 2 values.
-  example: "12,24"
+  example: "6"
   response_data_path: response.radioTypeAProperties.mandatoryDataRates
-  exclude_test: true
 - model_name: powerThresholdV1
   tf_name: radio_type_a_power_threshold_v1
   data_path: radioTypeAProperties
@@ -86,7 +82,6 @@ attributes:
   description: Power threshold for the 5 GHz radio band.
   example: -60
   response_data_path: response.radioTypeAProperties.powerThresholdV1
-  exclude_test: true
 - model_name: rxSopThreshold
   tf_name: radio_type_a_rx_sop_threshold
   data_path: radioTypeAProperties
@@ -95,7 +90,6 @@ attributes:
   enum_values: [HIGH, MEDIUM, LOW, AUTO, CUSTOM]
   example: CUSTOM
   response_data_path: response.radioTypeAProperties.rxSopThreshold
-  exclude_test: true
 - model_name: minPowerLevel
   tf_name: radio_type_a_min_power_level
   data_path: radioTypeAProperties
@@ -105,7 +99,6 @@ attributes:
   description: Minimum power level for the 5 GHz radio band.
   example: 8
   response_data_path: response.radioTypeAProperties.minPowerLevel
-  exclude_test: true
 - model_name: maxPowerLevel
   tf_name: radio_type_a_max_power_level
   data_path: radioTypeAProperties
@@ -115,7 +108,6 @@ attributes:
   description: Maximum power level for the 5 GHz radio band.
   example: 20
   response_data_path: response.radioTypeAProperties.maxPowerLevel
-  exclude_test: true
 - model_name: channelWidth
   tf_name: radio_type_a_channel_width
   data_path: radioTypeAProperties
@@ -124,7 +116,6 @@ attributes:
   enum_values: ["20", "40", "80", "160", "best"]
   example: "20"
   response_data_path: response.radioTypeAProperties.channelWidth
-  exclude_test: true
 - model_name: preamblePuncture
   tf_name: radio_type_a_preamble_puncture
   data_path: radioTypeAProperties
@@ -151,7 +142,6 @@ attributes:
   description: Custom RX-SOP threshold for the 5 GHz radio band.
   example: -70
   response_data_path: response.radioTypeAProperties.customRxSopThreshold
-  exclude_test: true
 - model_name: maxRadioClients
   tf_name: radio_type_a_max_radio_clients
   data_path: radioTypeAProperties
@@ -282,18 +272,16 @@ attributes:
   type: String
   description: Parent profile for the 2.4 GHz radio band.
   enum_values: [HIGH, TYPICAL, LOW, CUSTOM]
-  example: CUSTOM
+  example: HIGH
   response_data_path: response.radioTypeBProperties.parentProfile
-  exclude_test: true
 - model_name: radioChannels
   tf_name: radio_type_b_radio_channels
   data_path: radioTypeBProperties
   type: String
   description: DCA channels for the 2.4 GHz radio band, passed in comma-separated
     format without spaces.
-  example: "1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+  example: "1,6,11"
   response_data_path: response.radioTypeBProperties.radioChannels
-  exclude_test: true
 - model_name: dataRates
   tf_name: radio_type_b_data_rates
   data_path: radioTypeBProperties
@@ -302,7 +290,6 @@ attributes:
     without spaces.
   example: "1,2,5.5,6,9,11,12,18,24,36,48,54"
   response_data_path: response.radioTypeBProperties.dataRates
-  exclude_test: true
 - model_name: mandatoryDataRates
   tf_name: radio_type_b_mandatory_data_rates
   data_path: radioTypeBProperties
@@ -311,7 +298,6 @@ attributes:
     format, must be a subset of dataRates with a maximum of 2 values.
   example: "1,2"
   response_data_path: response.radioTypeBProperties.mandatoryDataRates
-  exclude_test: true
 - model_name: powerThresholdV1
   tf_name: radio_type_b_power_threshold_v1
   data_path: radioTypeBProperties
@@ -321,7 +307,6 @@ attributes:
   description: Power threshold for the 2.4 GHz radio band.
   example: -60
   response_data_path: response.radioTypeBProperties.powerThresholdV1
-  exclude_test: true
 - model_name: rxSopThreshold
   tf_name: radio_type_b_rx_sop_threshold
   data_path: radioTypeBProperties
@@ -330,7 +315,6 @@ attributes:
   enum_values: [HIGH, MEDIUM, LOW, AUTO, CUSTOM]
   example: CUSTOM
   response_data_path: response.radioTypeBProperties.rxSopThreshold
-  exclude_test: true
 - model_name: minPowerLevel
   tf_name: radio_type_b_min_power_level
   data_path: radioTypeBProperties
@@ -340,7 +324,6 @@ attributes:
   description: Minimum power level for the 2.4 GHz radio band.
   example: 8
   response_data_path: response.radioTypeBProperties.minPowerLevel
-  exclude_test: true
 - model_name: maxPowerLevel
   tf_name: radio_type_b_max_power_level
   data_path: radioTypeBProperties
@@ -350,7 +333,6 @@ attributes:
   description: Maximum power level for the 2.4 GHz radio band.
   example: 20
   response_data_path: response.radioTypeBProperties.maxPowerLevel
-  exclude_test: true
 - model_name: customRxSopThreshold
   tf_name: radio_type_b_custom_rx_sop_threshold
   data_path: radioTypeBProperties
@@ -360,7 +342,6 @@ attributes:
   description: Custom RX-SOP threshold for the 2.4 GHz radio band.
   example: -70
   response_data_path: response.radioTypeBProperties.customRxSopThreshold
-  exclude_test: true
 - model_name: maxRadioClients
   tf_name: radio_type_b_max_radio_clients
   data_path: radioTypeBProperties
