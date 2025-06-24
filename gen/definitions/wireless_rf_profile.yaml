@@ -34,7 +34,7 @@ attributes:
   response_data_path: response.enableRadioTypeB
   mandatory: true
   description: Enable or disable the 2.4 GHz radio band in the RF Profile.
-  example: true
+  example: false
 - model_name: enableRadioType6GHz
   type: Bool
   response_data_path: response.enableRadioType6GHz
@@ -49,6 +49,7 @@ attributes:
   enum_values: [HIGH, TYPICAL, LOW, CUSTOM]
   example: CUSTOM
   response_data_path: response.radioTypeAProperties.parentProfile
+  exclude_test: true
 - model_name: radioChannels
   tf_name: radio_type_a_radio_channels
   data_path: radioTypeAProperties
@@ -57,6 +58,7 @@ attributes:
     without spaces.
   example: "36,40,44,48,52,56,60,64,144,149,153,157,161,165,169,173"
   response_data_path: response.radioTypeAProperties.radioChannels
+  exclude_test: true
 - model_name: dataRates
   tf_name: radio_type_a_data_rates
   data_path: radioTypeAProperties
@@ -65,6 +67,7 @@ attributes:
     without spaces.
   example: "6,9,12,18,24,36,48,54"
   response_data_path: response.radioTypeAProperties.dataRates
+  exclude_test: true
 - model_name: mandatoryDataRates
   tf_name: radio_type_a_mandatory_data_rates
   data_path: radioTypeAProperties
@@ -73,6 +76,7 @@ attributes:
     format, must be a subset of dataRates with a maximum of 2 values.
   example: "12,24"
   response_data_path: response.radioTypeAProperties.mandatoryDataRates
+  exclude_test: true
 - model_name: powerThresholdV1
   tf_name: radio_type_a_power_threshold_v1
   data_path: radioTypeAProperties
@@ -82,6 +86,7 @@ attributes:
   description: Power threshold for the 5 GHz radio band.
   example: -60
   response_data_path: response.radioTypeAProperties.powerThresholdV1
+  exclude_test: true
 - model_name: rxSopThreshold
   tf_name: radio_type_a_rx_sop_threshold
   data_path: radioTypeAProperties
@@ -90,6 +95,7 @@ attributes:
   enum_values: [HIGH, MEDIUM, LOW, AUTO, CUSTOM]
   example: CUSTOM
   response_data_path: response.radioTypeAProperties.rxSopThreshold
+  exclude_test: true
 - model_name: minPowerLevel
   tf_name: radio_type_a_min_power_level
   data_path: radioTypeAProperties
@@ -99,6 +105,7 @@ attributes:
   description: Minimum power level for the 5 GHz radio band.
   example: 8
   response_data_path: response.radioTypeAProperties.minPowerLevel
+  exclude_test: true
 - model_name: maxPowerLevel
   tf_name: radio_type_a_max_power_level
   data_path: radioTypeAProperties
@@ -108,6 +115,7 @@ attributes:
   description: Maximum power level for the 5 GHz radio band.
   example: 20
   response_data_path: response.radioTypeAProperties.maxPowerLevel
+  exclude_test: true
 - model_name: channelWidth
   tf_name: radio_type_a_channel_width
   data_path: radioTypeAProperties
@@ -116,6 +124,7 @@ attributes:
   enum_values: ["20", "40", "80", "160", "best"]
   example: "20"
   response_data_path: response.radioTypeAProperties.channelWidth
+  exclude_test: true
 - model_name: preamblePuncture
   tf_name: radio_type_a_preamble_puncture
   data_path: radioTypeAProperties
@@ -123,6 +132,7 @@ attributes:
   description: Enable or disable preamble puncturing for the 5 GHz radio band.
   example: false
   response_data_path: response.radioTypeAProperties.preamblePuncture
+  exclude_test: true
 - model_name: zeroWaitDfsEnable
   tf_name: radio_type_a_zero_wait_dfs_enable
   data_path: radioTypeAProperties
@@ -131,6 +141,7 @@ attributes:
     version 17.9.1 and above.
   example: false
   response_data_path: response.radioTypeAProperties.zeroWaitDfsEnable
+  exclude_test: true
 - model_name: customRxSopThreshold
   tf_name: radio_type_a_custom_rx_sop_threshold
   data_path: radioTypeAProperties
@@ -140,6 +151,7 @@ attributes:
   description: Custom RX-SOP threshold for the 5 GHz radio band.
   example: -70
   response_data_path: response.radioTypeAProperties.customRxSopThreshold
+  exclude_test: true
 - model_name: maxRadioClients
   tf_name: radio_type_a_max_radio_clients
   data_path: radioTypeAProperties
@@ -149,6 +161,7 @@ attributes:
   description: Client limit for the 5 GHz radio band.
   example: 200
   response_data_path: response.radioTypeAProperties.maxRadioClients
+  exclude_test: true
 - model_name: clientAware
   tf_name: radio_type_a_fra_properties_client_aware
   data_path: radioTypeAProperties.fraPropertiesA
@@ -156,6 +169,7 @@ attributes:
   description: Client awareness for the 5 GHz radio band.
   example: false
   response_data_path: response.radioTypeAProperties.fraPropertiesA.clientAware
+  exclude_test: true
 - model_name: clientSelect
   tf_name: radio_type_a_fra_properties_client_select
   data_path: radioTypeAProperties.fraPropertiesA
@@ -165,6 +179,7 @@ attributes:
   description: Client selection percentage for the 5 GHz radio band.
   example: 50
   response_data_path: response.radioTypeAProperties.fraPropertiesA.clientSelect
+  exclude_test: true
 - model_name: clientReset
   tf_name: radio_type_a_fra_properties_client_reset
   data_path: radioTypeAProperties.fraPropertiesA
@@ -174,6 +189,7 @@ attributes:
   description: Client reset percentage for the 5 GHz radio band.
   example: 5
   response_data_path: response.radioTypeAProperties.fraPropertiesA.clientReset
+  exclude_test: true
 - model_name: chdClientLevel
   tf_name: radio_type_a_coverage_hole_detection_properties_chd_client_level
   data_path: radioTypeAProperties.coverageHoleDetectionProperties
@@ -183,6 +199,7 @@ attributes:
   description: Coverage Hole Detection client level for the 5 GHz radio band.
   example: 10
   response_data_path: response.radioTypeAProperties.coverageHoleDetectionProperties.chdClientLevel
+  exclude_test: true
 - model_name: chdDataRssiThreshold
   tf_name: radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold
   data_path: radioTypeAProperties.coverageHoleDetectionProperties
@@ -192,6 +209,7 @@ attributes:
   description: Coverage Hole Detection data RSSI threshold for the 5 GHz radio band.
   example: -70
   response_data_path: response.radioTypeAProperties.coverageHoleDetectionProperties.chdDataRssiThreshold
+  exclude_test: true
 - model_name: chdVoiceRssiThreshold
   tf_name: radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold
   data_path: radioTypeAProperties.coverageHoleDetectionProperties
@@ -201,6 +219,7 @@ attributes:
   description: Coverage Hole Detection voice RSSI threshold for the 5 GHz radio band.
   example: -65
   response_data_path: response.radioTypeAProperties.coverageHoleDetectionProperties.chdVoiceRssiThreshold
+  exclude_test: true
 - model_name: chdExceptionLevel
   tf_name: radio_type_a_coverage_hole_detection_properties_chd_exception_level
   data_path: radioTypeAProperties.coverageHoleDetectionProperties
@@ -210,6 +229,7 @@ attributes:
   description: Coverage Hole Detection exception level (%) for the 5 GHz radio band.
   example: 20
   response_data_path: response.radioTypeAProperties.coverageHoleDetectionProperties.chdExceptionLevel
+  exclude_test: true
 - model_name: dot11axNonSrgObssPacketDetect
   tf_name: radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect
   data_path: radioTypeAProperties.spatialReuseProperties
@@ -217,6 +237,7 @@ attributes:
   description: Dot11ax Non-SRG OBSS PD for the 5 GHz radio band.
   example: false
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect
+  exclude_test: true
 - model_name: dot11axNonSrgObssPacketDetectMaxThreshold
   tf_name: radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold
   data_path: radioTypeAProperties.spatialReuseProperties
@@ -226,6 +247,7 @@ attributes:
   description: Dot11ax Non-SRG OBSS PD max threshold for the 5 GHz radio band.
   example: -70
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetect
   tf_name: radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect
   data_path: radioTypeAProperties.spatialReuseProperties
@@ -233,6 +255,7 @@ attributes:
   description: Dot11ax SRG OBSS PD for the 5 GHz radio band.
   example: false
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetectMinThreshold
   tf_name: radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold
   data_path: radioTypeAProperties.spatialReuseProperties
@@ -242,6 +265,7 @@ attributes:
   description: Dot11ax SRG OBSS PD min threshold for the 5 GHz radio band.
   example: -70
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetectMaxThreshold
   tf_name: radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold
   data_path: radioTypeAProperties.spatialReuseProperties
@@ -251,6 +275,7 @@ attributes:
   description: Dot11ax SRG OBSS PD max threshold for the 5 GHz radio band.
   example: -70
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold
+  exclude_test: true
 - model_name: parentProfile
   tf_name: radio_type_b_parent_profile
   data_path: radioTypeBProperties
@@ -259,6 +284,7 @@ attributes:
   enum_values: [HIGH, TYPICAL, LOW, CUSTOM]
   example: CUSTOM
   response_data_path: response.radioTypeBProperties.parentProfile
+  exclude_test: true
 - model_name: radioChannels
   tf_name: radio_type_b_radio_channels
   data_path: radioTypeBProperties
@@ -267,6 +293,7 @@ attributes:
     format without spaces.
   example: "1,2,3,4,5,6,7,8,9,10,11,12,13,14"
   response_data_path: response.radioTypeBProperties.radioChannels
+  exclude_test: true
 - model_name: dataRates
   tf_name: radio_type_b_data_rates
   data_path: radioTypeBProperties
@@ -275,6 +302,7 @@ attributes:
     without spaces.
   example: "1,2,5.5,6,9,11,12,18,24,36,48,54"
   response_data_path: response.radioTypeBProperties.dataRates
+  exclude_test: true
 - model_name: mandatoryDataRates
   tf_name: radio_type_b_mandatory_data_rates
   data_path: radioTypeBProperties
@@ -283,6 +311,7 @@ attributes:
     format, must be a subset of dataRates with a maximum of 2 values.
   example: "1,2"
   response_data_path: response.radioTypeBProperties.mandatoryDataRates
+  exclude_test: true
 - model_name: powerThresholdV1
   tf_name: radio_type_b_power_threshold_v1
   data_path: radioTypeBProperties
@@ -292,6 +321,7 @@ attributes:
   description: Power threshold for the 2.4 GHz radio band.
   example: -60
   response_data_path: response.radioTypeBProperties.powerThresholdV1
+  exclude_test: true
 - model_name: rxSopThreshold
   tf_name: radio_type_b_rx_sop_threshold
   data_path: radioTypeBProperties
@@ -300,6 +330,7 @@ attributes:
   enum_values: [HIGH, MEDIUM, LOW, AUTO, CUSTOM]
   example: CUSTOM
   response_data_path: response.radioTypeBProperties.rxSopThreshold
+  exclude_test: true
 - model_name: minPowerLevel
   tf_name: radio_type_b_min_power_level
   data_path: radioTypeBProperties
@@ -309,6 +340,7 @@ attributes:
   description: Minimum power level for the 2.4 GHz radio band.
   example: 8
   response_data_path: response.radioTypeBProperties.minPowerLevel
+  exclude_test: true
 - model_name: maxPowerLevel
   tf_name: radio_type_b_max_power_level
   data_path: radioTypeBProperties
@@ -318,6 +350,7 @@ attributes:
   description: Maximum power level for the 2.4 GHz radio band.
   example: 20
   response_data_path: response.radioTypeBProperties.maxPowerLevel
+  exclude_test: true
 - model_name: customRxSopThreshold
   tf_name: radio_type_b_custom_rx_sop_threshold
   data_path: radioTypeBProperties
@@ -327,6 +360,7 @@ attributes:
   description: Custom RX-SOP threshold for the 2.4 GHz radio band.
   example: -70
   response_data_path: response.radioTypeBProperties.customRxSopThreshold
+  exclude_test: true
 - model_name: maxRadioClients
   tf_name: radio_type_b_max_radio_clients
   data_path: radioTypeBProperties
@@ -336,6 +370,7 @@ attributes:
   description: Client limit for the 2.4 GHz radio band.
   example: 200
   response_data_path: response.radioTypeBProperties.maxRadioClients
+  exclude_test: true
 - model_name: chdClientLevel
   tf_name: radio_type_b_coverage_hole_detection_properties_chd_client_level
   data_path: radioTypeBProperties.coverageHoleDetectionProperties
@@ -345,6 +380,7 @@ attributes:
   description: Coverage Hole Detection client level for the 2.4 GHz radio band.
   example: 10
   response_data_path: response.radioTypeBProperties.coverageHoleDetectionProperties.chdClientLevel
+  exclude_test: true
 - model_name: chdDataRssiThreshold
   tf_name: radio_type_b_coverage_hole_detection_properties_chd_data_rssi_threshold
   data_path: radioTypeBProperties.coverageHoleDetectionProperties
@@ -354,6 +390,7 @@ attributes:
   description: Coverage Hole Detection data RSSI threshold for the 2.4 GHz radio band.
   example: -70
   response_data_path: response.radioTypeBProperties.coverageHoleDetectionProperties.chdDataRssiThreshold
+  exclude_test: true
 - model_name: chdVoiceRssiThreshold
   tf_name: radio_type_b_coverage_hole_detection_properties_chd_voice_rssi_threshold
   data_path: radioTypeBProperties.coverageHoleDetectionProperties
@@ -364,6 +401,7 @@ attributes:
     band.
   example: -65
   response_data_path: response.radioTypeBProperties.coverageHoleDetectionProperties.chdVoiceRssiThreshold
+  exclude_test: true
 - model_name: chdExceptionLevel
   tf_name: radio_type_b_coverage_hole_detection_properties_chd_exception_level
   data_path: radioTypeBProperties.coverageHoleDetectionProperties
@@ -373,6 +411,7 @@ attributes:
   description: Coverage Hole Detection exception level (%) for the 2.4 GHz radio band.
   example: 20
   response_data_path: response.radioTypeBProperties.coverageHoleDetectionProperties.chdExceptionLevel
+  exclude_test: true
 - model_name: dot11axNonSrgObssPacketDetect
   tf_name: radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect
   data_path: radioTypeBProperties.spatialReuseProperties
@@ -380,6 +419,7 @@ attributes:
   description: Dot11ax Non-SRG OBSS PD for the 2.4 GHz radio band.
   example: false
   response_data_path: response.radioTypeBProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect
+  exclude_test: true
 - model_name: dot11axNonSrgObssPacketDetectMaxThreshold
   tf_name: radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold
   data_path: radioTypeBProperties.spatialReuseProperties
@@ -389,6 +429,7 @@ attributes:
   description: Dot11ax Non-SRG OBSS PD max threshold for the 2.4 GHz radio band.
   example: -70
   response_data_path: response.radioTypeBProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetect
   tf_name: radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect
   data_path: radioTypeBProperties.spatialReuseProperties
@@ -396,6 +437,7 @@ attributes:
   description: Dot11ax SRG OBSS PD for the 2.4 GHz radio band.
   example: false
   response_data_path: response.radioTypeBProperties.spatialReuseProperties.dot11axSrgObssPacketDetect
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetectMinThreshold
   tf_name: radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold
   data_path: radioTypeBProperties.spatialReuseProperties
@@ -405,6 +447,7 @@ attributes:
   description: Dot11ax SRG OBSS PD min threshold for the 2.4 GHz radio band.
   example: -70
   response_data_path: response.radioTypeBProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetectMaxThreshold
   tf_name: radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold
   data_path: radioTypeBProperties.spatialReuseProperties
@@ -414,6 +457,7 @@ attributes:
   description: Dot11ax SRG OBSS PD max threshold for the 2.4 GHz radio band.
   example: -70
   response_data_path: response.radioTypeBProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold
+  exclude_test: true
 - model_name: parentProfile
   tf_name: radio_type_c_parent_profile
   data_path: radioType6GHzProperties
@@ -422,6 +466,7 @@ attributes:
   enum_values: [CUSTOM]
   example: CUSTOM
   response_data_path: response.radioType6GHzProperties.parentProfile
+  exclude_test: true
 - model_name: radioChannels
   tf_name: radio_type_c_radio_channels
   data_path: radioType6GHzProperties
@@ -430,6 +475,7 @@ attributes:
     without spaces.
   example: "1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97,101,105,109,113,117,121,125,129,133,137,141,145,149,153,157,161,165,169,173,177,181,185,189,193,197,201,205,209,213,217,221,225,229,233"
   response_data_path: response.radioType6GHzProperties.radioChannels
+  exclude_test: true
 - model_name: dataRates
   tf_name: radio_type_c_data_rates
   data_path: radioType6GHzProperties
@@ -438,6 +484,7 @@ attributes:
     spaces.
   example: "6,9,12,18,24,36,48,54"
   response_data_path: response.radioType6GHzProperties.dataRates
+  exclude_test: true
 - model_name: mandatoryDataRates
   tf_name: radio_type_c_mandatory_data_rates
   data_path: radioType6GHzProperties
@@ -446,6 +493,7 @@ attributes:
     format without spaces. Must be a subset of dataRates with a maximum of 2 values.
   example: "6,9"
   response_data_path: response.radioType6GHzProperties.mandatoryDataRates
+  exclude_test: true
 - model_name: powerThresholdV1
   tf_name: radio_type_c_power_threshold_v1
   data_path: radioType6GHzProperties
@@ -455,6 +503,7 @@ attributes:
   description: Power threshold of the 6 GHz radio band.
   example: -60
   response_data_path: response.radioType6GHzProperties.powerThresholdV1
+  exclude_test: true
 - model_name: rxSopThreshold
   tf_name: radio_type_c_rx_sop_threshold
   data_path: radioType6GHzProperties
@@ -463,6 +512,7 @@ attributes:
   enum_values: [HIGH, MEDIUM, LOW, AUTO, CUSTOM]
   example: CUSTOM
   response_data_path: response.radioType6GHzProperties.rxSopThreshold
+  exclude_test: true
 - model_name: minPowerLevel
   tf_name: radio_type_c_min_power_level
   data_path: radioType6GHzProperties
@@ -472,6 +522,7 @@ attributes:
   description: Minimum power level of the 6 GHz radio band.
   example: 8
   response_data_path: response.radioType6GHzProperties.minPowerLevel
+  exclude_test: true
 - model_name: maxPowerLevel
   tf_name: radio_type_c_max_power_level
   data_path: radioType6GHzProperties
@@ -481,6 +532,7 @@ attributes:
   description: Maximum power level of the 6 GHz radio band.
   example: 20
   response_data_path: response.radioType6GHzProperties.maxPowerLevel
+  exclude_test: true
 - model_name: enableStandardPowerService
   tf_name: radio_type_c_enable_standard_power_service
   data_path: radioType6GHzProperties
@@ -488,6 +540,7 @@ attributes:
   description: True if Standard Power Service is enabled, else False.
   example: true
   response_data_path: response.radioType6GHzProperties.enableStandardPowerService
+  exclude_test: true
 - model_name: ofdmaDownLink
   tf_name: radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_down_link
   data_path: radioType6GHzProperties.multiBssidProperties.dot11axParameters
@@ -495,6 +548,7 @@ attributes:
   description: OFDMA Downlink for 802.11ax parameters in the 6 GHz radio band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11axParameters.ofdmaDownLink
+  exclude_test: true
 - model_name: ofdmaUpLink
   tf_name: radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_up_link
   data_path: radioType6GHzProperties.multiBssidProperties.dot11axParameters
@@ -502,6 +556,7 @@ attributes:
   description: OFDMA Uplink for 802.11ax parameters in the 6 GHz radio band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11axParameters.ofdmaUpLink
+  exclude_test: true
 - model_name: muMimoUpLink
   tf_name: radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_up_link
   data_path: radioType6GHzProperties.multiBssidProperties.dot11axParameters
@@ -509,6 +564,7 @@ attributes:
   description: MU-MIMO Uplink for 802.11ax parameters in the 6 GHz radio band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11axParameters.muMimoUpLink
+  exclude_test: true
 - model_name: muMimoDownLink
   tf_name: radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_down_link
   data_path: radioType6GHzProperties.multiBssidProperties.dot11axParameters
@@ -516,6 +572,7 @@ attributes:
   description: MU-MIMO Downlink for 802.11ax parameters in the 6 GHz radio band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11axParameters.muMimoDownLink
+  exclude_test: true
 - model_name: ofdmaDownLink
   tf_name: radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_down_link
   data_path: radioType6GHzProperties.multiBssidProperties.dot11beParameters
@@ -523,6 +580,7 @@ attributes:
   description: OFDMA dma down link for 802.11be parameters in the 6 GHz radio band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11beParameters.ofdmaDownLink
+  exclude_test: true
 - model_name: ofdmaUpLink
   tf_name: radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_up_link
   data_path: radioType6GHzProperties.multiBssidProperties.dot11beParameters
@@ -530,6 +588,7 @@ attributes:
   description: OFDMA dma up link for 802.11be parameters in the 6 GHz radio band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11beParameters.ofdmaUpLink
+  exclude_test: true
 - model_name: muMimoUpLink
   tf_name: radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_up_link
   data_path: radioType6GHzProperties.multiBssidProperties.dot11beParameters
@@ -537,6 +596,7 @@ attributes:
   description: OFDMA mu mimo up link for 802.11be parameters in the 6 GHz radio band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11beParameters.muMimoUpLink
+  exclude_test: true
 - model_name: muMimoDownLink
   tf_name: radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_down_link
   data_path: radioType6GHzProperties.multiBssidProperties.dot11beParameters
@@ -545,6 +605,7 @@ attributes:
     band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11beParameters.muMimoDownLink
+  exclude_test: true
 - model_name: ofdmaMultiRu
   tf_name: radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_multi_ru
   data_path: radioType6GHzProperties.multiBssidProperties.dot11beParameters
@@ -552,6 +613,7 @@ attributes:
   description: OFDMA Multi-RU for 802.11be parameters in the 6 GHz radio band.
   example: true
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.dot11beParameters.ofdmaMultiRu
+  exclude_test: true
 - model_name: targetWakeTime
   tf_name: radio_type_c_multi_bssid_properties_target_wake_time
   data_path: radioType6GHzProperties.multiBssidProperties
@@ -559,6 +621,7 @@ attributes:
   description: Target Wake Time for the 6 GHz radio band.
   example: false
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.targetWakeTime
+  exclude_test: true
 - model_name: twtBroadcastSupport
   tf_name: radio_type_c_multi_bssid_properties_twt_broadcast_support
   data_path: radioType6GHzProperties.multiBssidProperties
@@ -566,6 +629,7 @@ attributes:
   description: TWT Broadcast Support for the 6 GHz radio band.
   example: false
   response_data_path: response.radioType6GHzProperties.multiBssidProperties.twtBroadcastSupport
+  exclude_test: true
 - model_name: preamblePuncture
   tf_name: radio_type_c_preamble_puncture
   data_path: radioType6GHzProperties
@@ -574,6 +638,7 @@ attributes:
     applicable to wireless IOS devices supporting 17.15 and higher.
   example: false
   response_data_path: response.radioType6GHzProperties.preamblePuncture
+  exclude_test: true
 - model_name: minDbsWidth
   tf_name: radio_type_c_min_dbs_width
   data_path: radioType6GHzProperties
@@ -582,6 +647,7 @@ attributes:
   enum_values: [20, 40, 80, 160, 320]
   example: 20
   response_data_path: response.radioType6GHzProperties.minDbsWidth
+  exclude_test: true
 - model_name: maxDbsWidth
   tf_name: radio_type_c_max_dbs_width
   data_path: radioType6GHzProperties
@@ -590,6 +656,7 @@ attributes:
   enum_values: [20, 40, 80, 160, 320]
   example: 160
   response_data_path: response.radioType6GHzProperties.maxDbsWidth
+  exclude_test: true
 - model_name: maxRadioClients
   tf_name: radio_type_c_max_radio_clients
   data_path: radioType6GHzProperties
@@ -599,6 +666,7 @@ attributes:
   description: Client limit for the 6 GHz radio band.
   example: 200
   response_data_path: response.radioType6GHzProperties.maxRadioClients
+  exclude_test: true
 - model_name: customRxSopThreshold
   tf_name: radio_type_c_custom_rx_sop_threshold
   data_path: radioType6GHzProperties
@@ -608,6 +676,7 @@ attributes:
   description: Custom RX-SOP threshold for the 6 GHz radio band.
   example: -70
   response_data_path: response.radioType6GHzProperties.customRxSopThreshold
+  exclude_test: true
 - model_name: pscEnforcingEnabled
   tf_name: radio_type_c_psc_enforcing_enabled
   data_path: radioType6GHzProperties
@@ -615,6 +684,7 @@ attributes:
   description: Enable or disable PSC enforcement for the 6 GHz radio band.
   example: false
   response_data_path: response.radioType6GHzProperties.pscEnforcingEnabled
+  exclude_test: true
 - model_name: discoveryFrames6GHz
   tf_name: radio_type_c_discovery_frames_6ghz
   data_path: radioType6GHzProperties
@@ -623,6 +693,7 @@ attributes:
   enum_values: ["None", "Broadcast Probe Response", "FILS Discovery"]
   example: "Broadcast Probe Response"
   response_data_path: response.radioType6GHzProperties.discoveryFrames6GHz
+  exclude_test: true
 - model_name: broadcastProbeResponseInterval
   tf_name: radio_type_c_broadcast_probe_response_interval
   data_path: radioType6GHzProperties
@@ -632,6 +703,7 @@ attributes:
   description: Broadcast Probe Response Interval for the 6 GHz radio band.
   example: 10
   response_data_path: response.radioType6GHzProperties.broadcastProbeResponseInterval
+  exclude_test: true
 - model_name: clientResetCount
   tf_name: radio_type_c_fra_properties_client_reset_count
   data_path: radioType6GHzProperties.fraPropertiesC
@@ -641,6 +713,7 @@ attributes:
   description: Client Reset Count for the 6 GHz radio band.
   example: 2
   response_data_path: response.radioType6GHzProperties.fraPropertiesC.clientResetCount
+  exclude_test: true
 - model_name: clientUtilizationThreshold
   tf_name: radio_type_c_fra_properties_client_utilization_threshold
   data_path: radioType6GHzProperties.fraPropertiesC
@@ -650,6 +723,7 @@ attributes:
   description: Client Utilization Threshold for the 6 GHz radio band.
   example: 80
   response_data_path: response.radioType6GHzProperties.fraPropertiesC.clientUtilizationThreshold
+  exclude_test: true
 - model_name: chdClientLevel
   tf_name: radio_type_c_coverage_hole_detection_properties_chd_client_level
   data_path: radioType6GHzProperties.coverageHoleDetectionProperties
@@ -659,6 +733,7 @@ attributes:
   description: Coverage Hole Detection client level for the 6 GHz radio band.
   example: 10
   response_data_path: response.radioType6GHzProperties.coverageHoleDetectionProperties.chdClientLevel
+  exclude_test: true
 - model_name: chdDataRssiThreshold
   tf_name: radio_type_c_coverage_hole_detection_properties_chd_data_rssi_threshold
   data_path: radioType6GHzProperties.coverageHoleDetectionProperties
@@ -668,6 +743,7 @@ attributes:
   description: Coverage Hole Detection data RSSI threshold for the 6 GHz radio band.
   example: -70
   response_data_path: response.radioType6GHzProperties.coverageHoleDetectionProperties.chdDataRssiThreshold
+  exclude_test: true
 - model_name: chdVoiceRssiThreshold
   tf_name: radio_type_c_coverage_hole_detection_properties_chd_voice_rssi_threshold
   data_path: radioType6GHzProperties.coverageHoleDetectionProperties
@@ -677,6 +753,7 @@ attributes:
   description: Coverage Hole Detection voice RSSI threshold for the 6 GHz radio band.
   example: -65
   response_data_path: response.radioType6GHzProperties.coverageHoleDetectionProperties.chdVoiceRssiThreshold
+  exclude_test: true
 - model_name: chdExceptionLevel
   tf_name: radio_type_c_coverage_hole_detection_properties_chd_exception_level
   data_path: radioType6GHzProperties.coverageHoleDetectionProperties
@@ -686,6 +763,7 @@ attributes:
   description: Coverage Hole Detection exception level (%) for the 6 GHz radio band.
   example: 20
   response_data_path: response.radioType6GHzProperties.coverageHoleDetectionProperties.chdExceptionLevel
+  exclude_test: true
 - model_name: dot11axNonSrgObssPacketDetect
   tf_name: radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect
   data_path: radioType6GHzProperties.spatialReuseProperties
@@ -693,6 +771,7 @@ attributes:
   description: Dot11ax Non-SRG OBSS PD for the 6 GHz radio band.
   example: false
   response_data_path: response.radioType6GHzProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect
+  exclude_test: true
 - model_name: dot11axNonSrgObssPacketDetectMaxThreshold
   tf_name: radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold
   data_path: radioType6GHzProperties.spatialReuseProperties
@@ -702,6 +781,7 @@ attributes:
   description: Dot11ax Non-SRG OBSS PD Max Threshold for the 6 GHz radio band.
   example: -70
   response_data_path: response.radioType6GHzProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetect
   tf_name: radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect
   data_path: radioType6GHzProperties.spatialReuseProperties
@@ -709,6 +789,7 @@ attributes:
   description: Dot11ax SRG OBSS PD for the 6 GHz radio band.
   example: false
   response_data_path: response.radioType6GHzProperties.spatialReuseProperties.dot11axSrgObssPacketDetect
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetectMinThreshold
   tf_name: radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold
   data_path: radioType6GHzProperties.spatialReuseProperties
@@ -718,6 +799,7 @@ attributes:
   description: Dot11ax SRG OBSS PD Min Threshold for the 6 GHz radio band.
   example: -70
   response_data_path: response.radioType6GHzProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold
+  exclude_test: true
 - model_name: dot11axSrgObssPacketDetectMaxThreshold
   tf_name: radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold
   data_path: radioType6GHzProperties.spatialReuseProperties
@@ -727,3 +809,4 @@ attributes:
   description: Dot11ax SRG OBSS PD Max Threshold for the 6 GHz radio band.
   example: -70
   response_data_path: response.radioType6GHzProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold
+  exclude_test: true
