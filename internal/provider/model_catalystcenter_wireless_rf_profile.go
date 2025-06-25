@@ -30,95 +30,95 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type WirelessRFProfile struct {
-	Id                                                                         types.String `tfsdk:"id"`
-	RfProfileName                                                              types.String `tfsdk:"rf_profile_name"`
-	DefaultRfProfile                                                           types.Bool   `tfsdk:"default_rf_profile"`
-	EnableRadioTypeA                                                           types.Bool   `tfsdk:"enable_radio_type_a"`
-	EnableRadioTypeB                                                           types.Bool   `tfsdk:"enable_radio_type_b"`
-	EnableRadioType6GHz                                                        types.Bool   `tfsdk:"enable_radio_type6_g_hz"`
-	RadioTypeAParentProfile                                                    types.String `tfsdk:"radio_type_a_parent_profile"`
-	RadioTypeARadioChannels                                                    types.String `tfsdk:"radio_type_a_radio_channels"`
-	RadioTypeADataRates                                                        types.String `tfsdk:"radio_type_a_data_rates"`
-	RadioTypeAMandatoryDataRates                                               types.String `tfsdk:"radio_type_a_mandatory_data_rates"`
-	RadioTypeAPowerThresholdV1                                                 types.Int64  `tfsdk:"radio_type_a_power_threshold_v1"`
-	RadioTypeARxSopThreshold                                                   types.String `tfsdk:"radio_type_a_rx_sop_threshold"`
-	RadioTypeAMinPowerLevel                                                    types.Int64  `tfsdk:"radio_type_a_min_power_level"`
-	RadioTypeAMaxPowerLevel                                                    types.Int64  `tfsdk:"radio_type_a_max_power_level"`
-	RadioTypeAChannelWidth                                                     types.String `tfsdk:"radio_type_a_channel_width"`
-	RadioTypeAPreamblePuncture                                                 types.Bool   `tfsdk:"radio_type_a_preamble_puncture"`
-	RadioTypeAZeroWaitDfsEnable                                                types.Bool   `tfsdk:"radio_type_a_zero_wait_dfs_enable"`
-	RadioTypeACustomRxSopThreshold                                             types.Int64  `tfsdk:"radio_type_a_custom_rx_sop_threshold"`
-	RadioTypeAMaxRadioClients                                                  types.Int64  `tfsdk:"radio_type_a_max_radio_clients"`
-	RadioTypeAFraPropertiesClientAware                                         types.Bool   `tfsdk:"radio_type_a_fra_properties_client_aware"`
-	RadioTypeAFraPropertiesClientSelect                                        types.Int64  `tfsdk:"radio_type_a_fra_properties_client_select"`
-	RadioTypeAFraPropertiesClientReset                                         types.Int64  `tfsdk:"radio_type_a_fra_properties_client_reset"`
-	RadioTypeACoverageHoleDetectionPropertiesChdClientLevel                    types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_client_level"`
-	RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold              types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold"`
-	RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold             types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold"`
-	RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel                 types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_exception_level"`
-	RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect             types.Bool   `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect"`
-	RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold types.Int64  `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold"`
-	RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect                types.Bool   `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect"`
-	RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold    types.Int64  `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold"`
-	RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold    types.Int64  `tfsdk:"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold"`
-	RadioTypeBParentProfile                                                    types.String `tfsdk:"radio_type_b_parent_profile"`
-	RadioTypeBRadioChannels                                                    types.String `tfsdk:"radio_type_b_radio_channels"`
-	RadioTypeBDataRates                                                        types.String `tfsdk:"radio_type_b_data_rates"`
-	RadioTypeBMandatoryDataRates                                               types.String `tfsdk:"radio_type_b_mandatory_data_rates"`
-	RadioTypeBPowerThresholdV1                                                 types.Int64  `tfsdk:"radio_type_b_power_threshold_v1"`
-	RadioTypeBRxSopThreshold                                                   types.String `tfsdk:"radio_type_b_rx_sop_threshold"`
-	RadioTypeBMinPowerLevel                                                    types.Int64  `tfsdk:"radio_type_b_min_power_level"`
-	RadioTypeBMaxPowerLevel                                                    types.Int64  `tfsdk:"radio_type_b_max_power_level"`
-	RadioTypeBCustomRxSopThreshold                                             types.Int64  `tfsdk:"radio_type_b_custom_rx_sop_threshold"`
-	RadioTypeBMaxRadioClients                                                  types.Int64  `tfsdk:"radio_type_b_max_radio_clients"`
-	RadioTypeBCoverageHoleDetectionPropertiesChdClientLevel                    types.Int64  `tfsdk:"radio_type_b_coverage_hole_detection_properties_chd_client_level"`
-	RadioTypeBCoverageHoleDetectionPropertiesChdDataRssiThreshold              types.Int64  `tfsdk:"radio_type_b_coverage_hole_detection_properties_chd_data_rssi_threshold"`
-	RadioTypeBCoverageHoleDetectionPropertiesChdVoiceRssiThreshold             types.Int64  `tfsdk:"radio_type_b_coverage_hole_detection_properties_chd_voice_rssi_threshold"`
-	RadioTypeBCoverageHoleDetectionPropertiesChdExceptionLevel                 types.Int64  `tfsdk:"radio_type_b_coverage_hole_detection_properties_chd_exception_level"`
-	RadioTypeBSpatialReusePropertiesDot11axNonSrgObssPacketDetect              types.Bool   `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect"`
-	RadioTypeBSpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold  types.Int64  `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold"`
-	RadioTypeBSpatialReusePropertiesDot11axSrgObssPacketDetect                 types.Bool   `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect"`
-	RadioTypeBSpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold     types.Int64  `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold"`
-	RadioTypeBSpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold     types.Int64  `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold"`
-	RadioTypeCParentProfile                                                    types.String `tfsdk:"radio_type_c_parent_profile"`
-	RadioTypeCRadioChannels                                                    types.String `tfsdk:"radio_type_c_radio_channels"`
-	RadioTypeCDataRates                                                        types.String `tfsdk:"radio_type_c_data_rates"`
-	RadioTypeCMandatoryDataRates                                               types.String `tfsdk:"radio_type_c_mandatory_data_rates"`
-	RadioTypeCPowerThresholdV1                                                 types.Int64  `tfsdk:"radio_type_c_power_threshold_v1"`
-	RadioTypeCRxSopThreshold                                                   types.String `tfsdk:"radio_type_c_rx_sop_threshold"`
-	RadioTypeCMinPowerLevel                                                    types.Int64  `tfsdk:"radio_type_c_min_power_level"`
-	RadioTypeCMaxPowerLevel                                                    types.Int64  `tfsdk:"radio_type_c_max_power_level"`
-	RadioTypeCEnableStandardPowerService                                       types.Bool   `tfsdk:"radio_type_c_enable_standard_power_service"`
-	RadioTypeCMultiBssidPropertiesDot11axParametersOfdmaDownLink               types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_down_link"`
-	RadioTypeCMultiBssidPropertiesDot11axParametersOfdmaUpLink                 types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_up_link"`
-	RadioTypeCMultiBssidPropertiesDot11axParametersMuMimoUpLink                types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_up_link"`
-	RadioTypeCMultiBssidPropertiesDot11axParametersMuMimoDownLink              types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_down_link"`
-	RadioTypeCMultiBssidPropertiesDot11beParametersOfdmaDownLink               types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_down_link"`
-	RadioTypeCMultiBssidPropertiesDot11beParametersOfdmaUpLink                 types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_up_link"`
-	RadioTypeCMultiBssidPropertiesDot11beParametersMuMimoUpLink                types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_up_link"`
-	RadioTypeCMultiBssidPropertiesDot11beParametersMuMimoDownLink              types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_down_link"`
-	RadioTypeCMultiBssidPropertiesDot11beParametersOfdmaMultiRu                types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_multi_ru"`
-	RadioTypeCMultiBssidPropertiesTargetWakeTime                               types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_target_wake_time"`
-	RadioTypeCMultiBssidPropertiesTwtBroadcastSupport                          types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_twt_broadcast_support"`
-	RadioTypeCPreamblePuncture                                                 types.Bool   `tfsdk:"radio_type_c_preamble_puncture"`
-	RadioTypeCMinDbsWidth                                                      types.Int64  `tfsdk:"radio_type_c_min_dbs_width"`
-	RadioTypeCMaxDbsWidth                                                      types.Int64  `tfsdk:"radio_type_c_max_dbs_width"`
-	RadioTypeCMaxRadioClients                                                  types.Int64  `tfsdk:"radio_type_c_max_radio_clients"`
-	RadioTypeCCustomRxSopThreshold                                             types.Int64  `tfsdk:"radio_type_c_custom_rx_sop_threshold"`
-	RadioTypeCPscEnforcingEnabled                                              types.Bool   `tfsdk:"radio_type_c_psc_enforcing_enabled"`
-	RadioTypeCDiscoveryFrames6ghz                                              types.String `tfsdk:"radio_type_c_discovery_frames_6ghz"`
-	RadioTypeCBroadcastProbeResponseInterval                                   types.Int64  `tfsdk:"radio_type_c_broadcast_probe_response_interval"`
-	RadioTypeCFraPropertiesClientResetCount                                    types.Int64  `tfsdk:"radio_type_c_fra_properties_client_reset_count"`
-	RadioTypeCFraPropertiesClientUtilizationThreshold                          types.Int64  `tfsdk:"radio_type_c_fra_properties_client_utilization_threshold"`
-	RadioTypeCCoverageHoleDetectionPropertiesChdClientLevel                    types.Int64  `tfsdk:"radio_type_c_coverage_hole_detection_properties_chd_client_level"`
-	RadioTypeCCoverageHoleDetectionPropertiesChdDataRssiThreshold              types.Int64  `tfsdk:"radio_type_c_coverage_hole_detection_properties_chd_data_rssi_threshold"`
-	RadioTypeCCoverageHoleDetectionPropertiesChdVoiceRssiThreshold             types.Int64  `tfsdk:"radio_type_c_coverage_hole_detection_properties_chd_voice_rssi_threshold"`
-	RadioTypeCCoverageHoleDetectionPropertiesChdExceptionLevel                 types.Int64  `tfsdk:"radio_type_c_coverage_hole_detection_properties_chd_exception_level"`
-	RadioTypeCSpatialReusePropertiesDot11axNonSrgObssPacketDetect              types.Bool   `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect"`
-	RadioTypeCSpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold  types.Int64  `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold"`
-	RadioTypeCSpatialReusePropertiesDot11axSrgObssPacketDetect                 types.Bool   `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect"`
-	RadioTypeCSpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold     types.Int64  `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold"`
-	RadioTypeCSpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold     types.Int64  `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold"`
+	Id                                                                        types.String `tfsdk:"id"`
+	RfProfileName                                                             types.String `tfsdk:"rf_profile_name"`
+	DefaultRfProfile                                                          types.Bool   `tfsdk:"default_rf_profile"`
+	EnableRadioTypeA                                                          types.Bool   `tfsdk:"enable_radio_type_a"`
+	EnableRadioTypeB                                                          types.Bool   `tfsdk:"enable_radio_type_b"`
+	EnableRadioType6GHz                                                       types.Bool   `tfsdk:"enable_radio_type6_g_hz"`
+	RadioTypeAParentProfile                                                   types.String `tfsdk:"radio_type_a_parent_profile"`
+	RadioTypeARadioChannels                                                   types.String `tfsdk:"radio_type_a_radio_channels"`
+	RadioTypeADataRates                                                       types.String `tfsdk:"radio_type_a_data_rates"`
+	RadioTypeAMandatoryDataRates                                              types.String `tfsdk:"radio_type_a_mandatory_data_rates"`
+	RadioTypeAPowerThresholdV1                                                types.Int64  `tfsdk:"radio_type_a_power_threshold_v1"`
+	RadioTypeARxSopThreshold                                                  types.String `tfsdk:"radio_type_a_rx_sop_threshold"`
+	RadioTypeAMinPowerLevel                                                   types.Int64  `tfsdk:"radio_type_a_min_power_level"`
+	RadioTypeAMaxPowerLevel                                                   types.Int64  `tfsdk:"radio_type_a_max_power_level"`
+	RadioTypeAChannelWidth                                                    types.String `tfsdk:"radio_type_a_channel_width"`
+	RadioTypeAPreamblePuncture                                                types.Bool   `tfsdk:"radio_type_a_preamble_puncture"`
+	RadioTypeAZeroWaitDfsEnable                                               types.Bool   `tfsdk:"radio_type_a_zero_wait_dfs_enable"`
+	RadioTypeACustomRxSopThreshold                                            types.Int64  `tfsdk:"radio_type_a_custom_rx_sop_threshold"`
+	RadioTypeAMaxRadioClients                                                 types.Int64  `tfsdk:"radio_type_a_max_radio_clients"`
+	RadioTypeAFraPropertiesClientAware                                        types.Bool   `tfsdk:"radio_type_a_fra_properties_client_aware"`
+	RadioTypeAFraPropertiesClientSelect                                       types.Int64  `tfsdk:"radio_type_a_fra_properties_client_select"`
+	RadioTypeAFraPropertiesClientReset                                        types.Int64  `tfsdk:"radio_type_a_fra_properties_client_reset"`
+	RadioTypeACoverageHoleDetectionPropertiesChdClientLevel                   types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_client_level"`
+	RadioTypeACoverageHoleDetectionPropertiesChdDataRssiThreshold             types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold"`
+	RadioTypeACoverageHoleDetectionPropertiesChdVoiceRssiThreshold            types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold"`
+	RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel                types.Int64  `tfsdk:"radio_type_a_coverage_hole_detection_properties_chd_exception_level"`
+	RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect             types.Bool   `tfsdk:"radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect"`
+	RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold types.Int64  `tfsdk:"radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold"`
+	RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect                types.Bool   `tfsdk:"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect"`
+	RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold    types.Int64  `tfsdk:"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold"`
+	RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold    types.Int64  `tfsdk:"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold"`
+	RadioTypeBParentProfile                                                   types.String `tfsdk:"radio_type_b_parent_profile"`
+	RadioTypeBRadioChannels                                                   types.String `tfsdk:"radio_type_b_radio_channels"`
+	RadioTypeBDataRates                                                       types.String `tfsdk:"radio_type_b_data_rates"`
+	RadioTypeBMandatoryDataRates                                              types.String `tfsdk:"radio_type_b_mandatory_data_rates"`
+	RadioTypeBPowerThresholdV1                                                types.Int64  `tfsdk:"radio_type_b_power_threshold_v1"`
+	RadioTypeBRxSopThreshold                                                  types.String `tfsdk:"radio_type_b_rx_sop_threshold"`
+	RadioTypeBMinPowerLevel                                                   types.Int64  `tfsdk:"radio_type_b_min_power_level"`
+	RadioTypeBMaxPowerLevel                                                   types.Int64  `tfsdk:"radio_type_b_max_power_level"`
+	RadioTypeBCustomRxSopThreshold                                            types.Int64  `tfsdk:"radio_type_b_custom_rx_sop_threshold"`
+	RadioTypeBMaxRadioClients                                                 types.Int64  `tfsdk:"radio_type_b_max_radio_clients"`
+	RadioTypeBCoverageHoleDetectionPropertiesChdClientLevel                   types.Int64  `tfsdk:"radio_type_b_coverage_hole_detection_properties_chd_client_level"`
+	RadioTypeBCoverageHoleDetectionPropertiesChdDataRssiThreshold             types.Int64  `tfsdk:"radio_type_b_coverage_hole_detection_properties_chd_data_rssi_threshold"`
+	RadioTypeBCoverageHoleDetectionPropertiesChdVoiceRssiThreshold            types.Int64  `tfsdk:"radio_type_b_coverage_hole_detection_properties_chd_voice_rssi_threshold"`
+	RadioTypeBCoverageHoleDetectionPropertiesChdExceptionLevel                types.Int64  `tfsdk:"radio_type_b_coverage_hole_detection_properties_chd_exception_level"`
+	RadioTypeBSpatialReusePropertiesDot11axNonSrgObssPacketDetect             types.Bool   `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect"`
+	RadioTypeBSpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold types.Int64  `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold"`
+	RadioTypeBSpatialReusePropertiesDot11axSrgObssPacketDetect                types.Bool   `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect"`
+	RadioTypeBSpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold    types.Int64  `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold"`
+	RadioTypeBSpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold    types.Int64  `tfsdk:"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold"`
+	RadioTypeCParentProfile                                                   types.String `tfsdk:"radio_type_c_parent_profile"`
+	RadioTypeCRadioChannels                                                   types.String `tfsdk:"radio_type_c_radio_channels"`
+	RadioTypeCDataRates                                                       types.String `tfsdk:"radio_type_c_data_rates"`
+	RadioTypeCMandatoryDataRates                                              types.String `tfsdk:"radio_type_c_mandatory_data_rates"`
+	RadioTypeCPowerThresholdV1                                                types.Int64  `tfsdk:"radio_type_c_power_threshold_v1"`
+	RadioTypeCRxSopThreshold                                                  types.String `tfsdk:"radio_type_c_rx_sop_threshold"`
+	RadioTypeCMinPowerLevel                                                   types.Int64  `tfsdk:"radio_type_c_min_power_level"`
+	RadioTypeCMaxPowerLevel                                                   types.Int64  `tfsdk:"radio_type_c_max_power_level"`
+	RadioTypeCEnableStandardPowerService                                      types.Bool   `tfsdk:"radio_type_c_enable_standard_power_service"`
+	RadioTypeCMultiBssidPropertiesDot11axParametersOfdmaDownLink              types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_down_link"`
+	RadioTypeCMultiBssidPropertiesDot11axParametersOfdmaUpLink                types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_up_link"`
+	RadioTypeCMultiBssidPropertiesDot11axParametersMuMimoUpLink               types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_up_link"`
+	RadioTypeCMultiBssidPropertiesDot11axParametersMuMimoDownLink             types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_down_link"`
+	RadioTypeCMultiBssidPropertiesDot11beParametersOfdmaDownLink              types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_down_link"`
+	RadioTypeCMultiBssidPropertiesDot11beParametersOfdmaUpLink                types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_up_link"`
+	RadioTypeCMultiBssidPropertiesDot11beParametersMuMimoUpLink               types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_up_link"`
+	RadioTypeCMultiBssidPropertiesDot11beParametersMuMimoDownLink             types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_down_link"`
+	RadioTypeCMultiBssidPropertiesDot11beParametersOfdmaMultiRu               types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_multi_ru"`
+	RadioTypeCMultiBssidPropertiesTargetWakeTime                              types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_target_wake_time"`
+	RadioTypeCMultiBssidPropertiesTwtBroadcastSupport                         types.Bool   `tfsdk:"radio_type_c_multi_bssid_properties_twt_broadcast_support"`
+	RadioTypeCPreamblePuncture                                                types.Bool   `tfsdk:"radio_type_c_preamble_puncture"`
+	RadioTypeCMinDbsWidth                                                     types.Int64  `tfsdk:"radio_type_c_min_dbs_width"`
+	RadioTypeCMaxDbsWidth                                                     types.Int64  `tfsdk:"radio_type_c_max_dbs_width"`
+	RadioTypeCMaxRadioClients                                                 types.Int64  `tfsdk:"radio_type_c_max_radio_clients"`
+	RadioTypeCCustomRxSopThreshold                                            types.Int64  `tfsdk:"radio_type_c_custom_rx_sop_threshold"`
+	RadioTypeCPscEnforcingEnabled                                             types.Bool   `tfsdk:"radio_type_c_psc_enforcing_enabled"`
+	RadioTypeCDiscoveryFrames6ghz                                             types.String `tfsdk:"radio_type_c_discovery_frames_6ghz"`
+	RadioTypeCBroadcastProbeResponseInterval                                  types.Int64  `tfsdk:"radio_type_c_broadcast_probe_response_interval"`
+	RadioTypeCFraPropertiesClientResetCount                                   types.Int64  `tfsdk:"radio_type_c_fra_properties_client_reset_count"`
+	RadioTypeCFraPropertiesClientUtilizationThreshold                         types.Int64  `tfsdk:"radio_type_c_fra_properties_client_utilization_threshold"`
+	RadioTypeCCoverageHoleDetectionPropertiesChdClientLevel                   types.Int64  `tfsdk:"radio_type_c_coverage_hole_detection_properties_chd_client_level"`
+	RadioTypeCCoverageHoleDetectionPropertiesChdDataRssiThreshold             types.Int64  `tfsdk:"radio_type_c_coverage_hole_detection_properties_chd_data_rssi_threshold"`
+	RadioTypeCCoverageHoleDetectionPropertiesChdVoiceRssiThreshold            types.Int64  `tfsdk:"radio_type_c_coverage_hole_detection_properties_chd_voice_rssi_threshold"`
+	RadioTypeCCoverageHoleDetectionPropertiesChdExceptionLevel                types.Int64  `tfsdk:"radio_type_c_coverage_hole_detection_properties_chd_exception_level"`
+	RadioTypeCSpatialReusePropertiesDot11axNonSrgObssPacketDetect             types.Bool   `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect"`
+	RadioTypeCSpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold types.Int64  `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold"`
+	RadioTypeCSpatialReusePropertiesDot11axSrgObssPacketDetect                types.Bool   `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect"`
+	RadioTypeCSpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold    types.Int64  `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold"`
+	RadioTypeCSpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold    types.Int64  `tfsdk:"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold"`
 }
 
 // End of section. //template:end types
@@ -217,20 +217,20 @@ func (data WirelessRFProfile) toBody(ctx context.Context, state WirelessRFProfil
 	if !data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeAProperties.coverageHoleDetectionProperties.chdExceptionLevel", data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel.ValueInt64())
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
-		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect", data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect.ValueBool())
+	if !data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect", data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect.ValueBool())
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
-		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold", data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.ValueInt64())
+	if !data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold", data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.ValueInt64())
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
-		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect", data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect.ValueBool())
+	if !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect", data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect.ValueBool())
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
-		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold", data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.ValueInt64())
+	if !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold", data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.ValueInt64())
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
-		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold", data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.ValueInt64())
+	if !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
+		body, _ = sjson.Set(body, "radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold", data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.ValueInt64())
 	}
 	if !data.RadioTypeBParentProfile.IsNull() {
 		body, _ = sjson.Set(body, "radioTypeBProperties.parentProfile", data.RadioTypeBParentProfile.ValueString())
@@ -545,29 +545,29 @@ func (data *WirelessRFProfile) fromBody(ctx context.Context, res gjson.Result) {
 		data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel = types.Int64Null()
 	}
 	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect"); value.Exists() {
-		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolValue(value.Bool())
+		data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolValue(value.Bool())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolNull()
+		data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolNull()
 	}
 	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold"); value.Exists() {
-		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
+		data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Null()
+		data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Null()
 	}
 	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect"); value.Exists() {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect = types.BoolValue(value.Bool())
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect = types.BoolValue(value.Bool())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect = types.BoolNull()
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect = types.BoolNull()
 	}
 	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold"); value.Exists() {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Value(value.Int())
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Null()
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Null()
 	}
 	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold"); value.Exists() {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Null()
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Null()
 	}
 	if value := res.Get("response.radioTypeBProperties.parentProfile"); value.Exists() {
 		data.RadioTypeBParentProfile = types.StringValue(value.String())
@@ -990,30 +990,30 @@ func (data *WirelessRFProfile) updateFromBody(ctx context.Context, res gjson.Res
 	} else {
 		data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel = types.Int64Null()
 	}
-	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
-		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolValue(value.Bool())
+	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect"); value.Exists() && !data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
+		data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolValue(value.Bool())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolNull()
+		data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect = types.BoolNull()
 	}
-	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
-		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
+	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold"); value.Exists() && !data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
+		data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Null()
+		data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold = types.Int64Null()
 	}
-	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect = types.BoolValue(value.Bool())
+	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect"); value.Exists() && !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect = types.BoolValue(value.Bool())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect = types.BoolNull()
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect = types.BoolNull()
 	}
-	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Value(value.Int())
+	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold"); value.Exists() && !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Null()
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold = types.Int64Null()
 	}
-	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold"); value.Exists() && !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
+	if value := res.Get("response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMaxThreshold"); value.Exists() && !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Value(value.Int())
 	} else {
-		data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Null()
+		data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold = types.Int64Null()
 	}
 	if value := res.Get("response.radioTypeBProperties.parentProfile"); value.Exists() && !data.RadioTypeBParentProfile.IsNull() {
 		data.RadioTypeBParentProfile = types.StringValue(value.String())
@@ -1383,19 +1383,19 @@ func (data *WirelessRFProfile) isNull(ctx context.Context, res gjson.Result) boo
 	if !data.RadioTypeACoverageHoleDetectionPropertiesChdExceptionLevel.IsNull() {
 		return false
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
+	if !data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetect.IsNull() {
 		return false
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
+	if !data.RadioTypeASpatialReusePropertiesDot11axNonSrgObssPacketDetectMaxThreshold.IsNull() {
 		return false
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
+	if !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetect.IsNull() {
 		return false
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
+	if !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMinThreshold.IsNull() {
 		return false
 	}
-	if !data.RadioTypeASpartialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
+	if !data.RadioTypeASpatialReusePropertiesDot11axSrgObssPacketDetectMaxThreshold.IsNull() {
 		return false
 	}
 	if !data.RadioTypeBParentProfile.IsNull() {

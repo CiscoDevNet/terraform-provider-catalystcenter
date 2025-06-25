@@ -213,29 +213,29 @@ func (r *WirelessRFProfileResource) Schema(ctx context.Context, req resource.Sch
 					int64validator.Between(0, 100),
 				},
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect": schema.BoolAttribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Dot11ax Non-SRG OBSS PD for the 5 GHz radio band.").String,
 				Optional:            true,
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Dot11ax Non-SRG OBSS PD max threshold for the 5 GHz radio band.").AddIntegerRangeDescription(-82, -62).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(-82, -62),
 				},
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect": schema.BoolAttribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Dot11ax SRG OBSS PD for the 5 GHz radio band.").String,
 				Optional:            true,
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold": schema.Int64Attribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Dot11ax SRG OBSS PD min threshold for the 5 GHz radio band.").AddIntegerRangeDescription(-82, -62).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(-82, -62),
 				},
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Dot11ax SRG OBSS PD max threshold for the 5 GHz radio band.").AddIntegerRangeDescription(-82, -62).String,
 				Optional:            true,
 				Validators: []validator.Int64{

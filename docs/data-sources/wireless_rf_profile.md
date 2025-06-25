@@ -51,11 +51,11 @@ data "catalystcenter_wireless_rf_profile" "example" {
 - `radio_type_a_preamble_puncture` (Boolean) Enable or disable preamble puncturing for the 5 GHz radio band.
 - `radio_type_a_radio_channels` (String) DCA channels for the 5 GHz radio band, passed in comma-separated format without spaces.
 - `radio_type_a_rx_sop_threshold` (String) RX-SOP threshold for the 5 GHz radio band.
-- `radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect` (Boolean) Dot11ax Non-SRG OBSS PD for the 5 GHz radio band.
-- `radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold` (Number) Dot11ax Non-SRG OBSS PD max threshold for the 5 GHz radio band.
-- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect` (Boolean) Dot11ax SRG OBSS PD for the 5 GHz radio band.
-- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold` (Number) Dot11ax SRG OBSS PD max threshold for the 5 GHz radio band.
-- `radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold` (Number) Dot11ax SRG OBSS PD min threshold for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect` (Boolean) Dot11ax Non-SRG OBSS PD for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold` (Number) Dot11ax Non-SRG OBSS PD max threshold for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect` (Boolean) Dot11ax SRG OBSS PD for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold` (Number) Dot11ax SRG OBSS PD max threshold for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold` (Number) Dot11ax SRG OBSS PD min threshold for the 5 GHz radio band.
 - `radio_type_a_zero_wait_dfs_enable` (Boolean) Enable Zero Wait DFS for IOS-XE-based Wireless Controllers running version 17.9.1 and above.
 - `radio_type_b_coverage_hole_detection_properties_chd_client_level` (Number) Coverage Hole Detection client level for the 2.4 GHz radio band.
 - `radio_type_b_coverage_hole_detection_properties_chd_data_rssi_threshold` (Number) Coverage Hole Detection data RSSI threshold for the 2.4 GHz radio band.

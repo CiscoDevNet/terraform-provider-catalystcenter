@@ -221,7 +221,7 @@ attributes:
   response_data_path: response.radioTypeAProperties.coverageHoleDetectionProperties.chdExceptionLevel
   exclude_test: true
 - model_name: dot11axNonSrgObssPacketDetect
-  tf_name: radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect
+  tf_name: radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect
   data_path: radioTypeAProperties.spatialReuseProperties
   type: Bool
   description: Dot11ax Non-SRG OBSS PD for the 5 GHz radio band.
@@ -229,7 +229,7 @@ attributes:
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetect
   exclude_test: true
 - model_name: dot11axNonSrgObssPacketDetectMaxThreshold
-  tf_name: radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold
+  tf_name: radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold
   data_path: radioTypeAProperties.spatialReuseProperties
   type: Int64
   min_int: -82
@@ -239,7 +239,7 @@ attributes:
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axNonSrgObssPacketDetectMaxThreshold
   exclude_test: true
 - model_name: dot11axSrgObssPacketDetect
-  tf_name: radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect
+  tf_name: radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect
   data_path: radioTypeAProperties.spatialReuseProperties
   type: Bool
   description: Dot11ax SRG OBSS PD for the 5 GHz radio band.
@@ -247,7 +247,7 @@ attributes:
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetect
   exclude_test: true
 - model_name: dot11axSrgObssPacketDetectMinThreshold
-  tf_name: radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold
+  tf_name: radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold
   data_path: radioTypeAProperties.spatialReuseProperties
   type: Int64
   min_int: -82
@@ -257,7 +257,7 @@ attributes:
   response_data_path: response.radioTypeAProperties.spatialReuseProperties.dot11axSrgObssPacketDetectMinThreshold
   exclude_test: true
 - model_name: dot11axSrgObssPacketDetectMaxThreshold
-  tf_name: radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold
+  tf_name: radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold
   data_path: radioTypeAProperties.spatialReuseProperties
   type: Int64
   min_int: -82

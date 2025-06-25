@@ -161,23 +161,23 @@ func (d *WirelessRFProfileDataSource) Schema(ctx context.Context, req datasource
 				MarkdownDescription: "Coverage Hole Detection exception level (%) for the 5 GHz radio band.",
 				Computed:            true,
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect": schema.BoolAttribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect": schema.BoolAttribute{
 				MarkdownDescription: "Dot11ax Non-SRG OBSS PD for the 5 GHz radio band.",
 				Computed:            true,
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
 				MarkdownDescription: "Dot11ax Non-SRG OBSS PD max threshold for the 5 GHz radio band.",
 				Computed:            true,
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect": schema.BoolAttribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect": schema.BoolAttribute{
 				MarkdownDescription: "Dot11ax SRG OBSS PD for the 5 GHz radio band.",
 				Computed:            true,
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold": schema.Int64Attribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold": schema.Int64Attribute{
 				MarkdownDescription: "Dot11ax SRG OBSS PD min threshold for the 5 GHz radio band.",
 				Computed:            true,
 			},
-			"radio_type_a_spartial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
 				MarkdownDescription: "Dot11ax SRG OBSS PD max threshold for the 5 GHz radio band.",
 				Computed:            true,
 			},
