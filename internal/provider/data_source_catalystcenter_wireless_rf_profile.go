@@ -441,7 +441,7 @@ func (d *WirelessRFProfileDataSource) Read(ctx context.Context, req datasource.R
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "/" + url.QueryEscape(config.Id.ValueString())
+	params += "?rfProfileName=" + url.QueryEscape(config.RfProfileName.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
