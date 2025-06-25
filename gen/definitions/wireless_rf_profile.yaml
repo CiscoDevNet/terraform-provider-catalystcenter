@@ -5,7 +5,7 @@ id_from_query_path_attribute: id
 data_source_no_id: true
 skip_minimum_test: true
 put_id: true
-# get_requires_id: true
+import_no_id: true
 res_description: This resource manages a Wireless RF Profile.
 doc_category: Wireless
 attributes:

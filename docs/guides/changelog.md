@@ -9,6 +9,7 @@ description: |-
 
 ## 0.2.10 (unreleased)
 
+- BREAKING CHANGE: Modified `catalystcenter_wireless_rf_profile` resource and data_source to use the `/dna/intent/api/v1/wirelessSettings/rfProfiles` API endpoint instead of `/dna/intent/api/v1/wireless/rf-profile`
 - Fix issue with inconsistent state in `catalystcenter_fabric_port_assignments` if static port assignment is cleared out-of-band, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/234)
 - Add `catalystcenter_network_profile_for_sites_assignments` resource and data source
 - Fix issue with `id` not computed with import in `catalystcenter_xxx_settings` resources, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/232)
