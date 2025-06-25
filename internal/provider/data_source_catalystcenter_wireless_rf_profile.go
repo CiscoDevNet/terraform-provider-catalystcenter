@@ -59,134 +59,358 @@ func (d *WirelessRFProfileDataSource) Schema(ctx context.Context, req datasource
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "RF Profile Name",
 				Computed:            true,
 			},
+			"rf_profile_name": schema.StringAttribute{
+				MarkdownDescription: "RF Profile Name",
+				Required:            true,
+			},
 			"default_rf_profile": schema.BoolAttribute{
-				MarkdownDescription: "is Default Rf Profile",
+				MarkdownDescription: "Specifies if the RF Profile is the default. Only one RF Profile can be marked as default at a time.",
 				Computed:            true,
 			},
 			"enable_radio_type_a": schema.BoolAttribute{
-				MarkdownDescription: "Enable Radio Type A",
+				MarkdownDescription: "Enable or disable the 5 GHz radio band in the RF Profile.",
 				Computed:            true,
 			},
 			"enable_radio_type_b": schema.BoolAttribute{
-				MarkdownDescription: "Enable Radio Type B",
+				MarkdownDescription: "Enable or disable the 2.4 GHz radio band in the RF Profile.",
 				Computed:            true,
 			},
-			"enable_radio_type_c": schema.BoolAttribute{
-				MarkdownDescription: "Enable Radio Type C (6GHz)",
-				Computed:            true,
-			},
-			"channel_width": schema.StringAttribute{
-				MarkdownDescription: "Channel Width",
-				Computed:            true,
-			},
-			"enable_custom": schema.BoolAttribute{
-				MarkdownDescription: "Enable Custom",
-				Computed:            true,
-			},
-			"enable_brown_field": schema.BoolAttribute{
-				MarkdownDescription: "Enable Brown Field",
+			"enable_radio_type6_g_hz": schema.BoolAttribute{
+				MarkdownDescription: "Enable or disable the 6 GHz radio band in the RF Profile.",
 				Computed:            true,
 			},
 			"radio_type_a_parent_profile": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeA Properties - Parent Profile",
+				MarkdownDescription: "Parent profile for the 5 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_a_radio_channels": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeA Properties - Radio Channels",
+				MarkdownDescription: "DCA channels for the 5 GHz radio band, passed in comma-separated format without spaces.",
 				Computed:            true,
 			},
 			"radio_type_a_data_rates": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeA Properties - Data Rates",
+				MarkdownDescription: "Data rates for the 5 GHz radio band, passed in comma-separated format without spaces.",
 				Computed:            true,
 			},
 			"radio_type_a_mandatory_data_rates": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeA Properties - Mandatory Data Rates",
+				MarkdownDescription: "Mandatory data rates for the 5 GHz radio band, passed in comma-separated format, must be a subset of dataRates with a maximum of 2 values.",
 				Computed:            true,
 			},
 			"radio_type_a_power_threshold_v1": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeA Properties - Power Threshold V1",
+				MarkdownDescription: "Power threshold for the 5 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_a_rx_sop_threshold": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeA Properties - Rx Sop Threshold",
+				MarkdownDescription: "RX-SOP threshold for the 5 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_a_min_power_level": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeA Properties - Min Power Level",
+				MarkdownDescription: "Minimum power level for the 5 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_a_max_power_level": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeA Properties - Max Power Level",
+				MarkdownDescription: "Maximum power level for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_channel_width": schema.StringAttribute{
+				MarkdownDescription: "Channel width for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_preamble_puncture": schema.BoolAttribute{
+				MarkdownDescription: "Enable or disable preamble puncturing for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_zero_wait_dfs_enable": schema.BoolAttribute{
+				MarkdownDescription: "Enable Zero Wait DFS for IOS-XE-based Wireless Controllers running version 17.9.1 and above.",
+				Computed:            true,
+			},
+			"radio_type_a_custom_rx_sop_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Custom RX-SOP threshold for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_max_radio_clients": schema.Int64Attribute{
+				MarkdownDescription: "Client limit for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_fra_properties_client_aware": schema.BoolAttribute{
+				MarkdownDescription: "Client awareness for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_fra_properties_client_select": schema.Int64Attribute{
+				MarkdownDescription: "Client selection percentage for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_fra_properties_client_reset": schema.Int64Attribute{
+				MarkdownDescription: "Client reset percentage for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_coverage_hole_detection_properties_chd_client_level": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection client level for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection data RSSI threshold for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection voice RSSI threshold for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_coverage_hole_detection_properties_chd_exception_level": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection exception level (%) for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect": schema.BoolAttribute{
+				MarkdownDescription: "Dot11ax Non-SRG OBSS PD for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax Non-SRG OBSS PD max threshold for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect": schema.BoolAttribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD min threshold for the 5 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD max threshold for the 5 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_b_parent_profile": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeB Properties - Parent Profile",
+				MarkdownDescription: "Parent profile for the 2.4 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_b_radio_channels": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeB Properties - Radio Channels",
+				MarkdownDescription: "DCA channels for the 2.4 GHz radio band, passed in comma-separated format without spaces.",
 				Computed:            true,
 			},
 			"radio_type_b_data_rates": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeB Properties - Data Rates",
+				MarkdownDescription: "Data rates for the 2.4 GHz radio band, passed in comma-separated format without spaces.",
 				Computed:            true,
 			},
 			"radio_type_b_mandatory_data_rates": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeB Properties - Mandatory Data Rates",
+				MarkdownDescription: "Mandatory data rates for the 2.4 GHz radio band, passed in comma-separated format, must be a subset of dataRates with a maximum of 2 values.",
 				Computed:            true,
 			},
 			"radio_type_b_power_threshold_v1": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeB Properties - Power Threshold V1",
+				MarkdownDescription: "Power threshold for the 2.4 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_b_rx_sop_threshold": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeB Properties - Rx Sop Threshold",
+				MarkdownDescription: "RX-SOP threshold for the 2.4 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_b_min_power_level": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeB Properties - Min Power Level",
+				MarkdownDescription: "Minimum power level for the 2.4 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_b_max_power_level": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeB Properties - Max Power Level",
+				MarkdownDescription: "Maximum power level for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_custom_rx_sop_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Custom RX-SOP threshold for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_max_radio_clients": schema.Int64Attribute{
+				MarkdownDescription: "Client limit for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_coverage_hole_detection_properties_chd_client_level": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection client level for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_coverage_hole_detection_properties_chd_data_rssi_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection data RSSI threshold for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_coverage_hole_detection_properties_chd_voice_rssi_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection voice RSSI threshold for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_coverage_hole_detection_properties_chd_exception_level": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection exception level (%) for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect": schema.BoolAttribute{
+				MarkdownDescription: "Dot11ax Non-SRG OBSS PD for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax Non-SRG OBSS PD max threshold for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect": schema.BoolAttribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD min threshold for the 2.4 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD max threshold for the 2.4 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_c_parent_profile": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeC Properties - Parent Profile",
+				MarkdownDescription: "Parent profile for the 6 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_c_radio_channels": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeC Properties - Radio Channels",
+				MarkdownDescription: "DCA channels of 6 GHz radio band, passed in comma-separated format without spaces.",
 				Computed:            true,
 			},
 			"radio_type_c_data_rates": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeC Properties - Data Rates",
+				MarkdownDescription: "Data rates of 6 GHz radio band, passed in comma-separated format without spaces.",
 				Computed:            true,
 			},
 			"radio_type_c_mandatory_data_rates": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeC Properties - Mandatory Data Rates",
+				MarkdownDescription: "Mandatory data rates of 6 GHz radio band, passed in comma-separated format without spaces. Must be a subset of dataRates with a maximum of 2 values.",
 				Computed:            true,
 			},
 			"radio_type_c_power_threshold_v1": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeC Properties - Power Threshold V1",
+				MarkdownDescription: "Power threshold of the 6 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_c_rx_sop_threshold": schema.StringAttribute{
-				MarkdownDescription: "Radio TypeC Properties - Rx Sop Threshold",
+				MarkdownDescription: "RX-SOP threshold of the 6 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_c_min_power_level": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeC Properties - Min Power Level",
+				MarkdownDescription: "Minimum power level of the 6 GHz radio band.",
 				Computed:            true,
 			},
 			"radio_type_c_max_power_level": schema.Int64Attribute{
-				MarkdownDescription: "Radio TypeC Properties - Max Power Level",
+				MarkdownDescription: "Maximum power level of the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_enable_standard_power_service": schema.BoolAttribute{
+				MarkdownDescription: "True if Standard Power Service is enabled, else False.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_down_link": schema.BoolAttribute{
+				MarkdownDescription: "OFDMA Downlink for 802.11ax parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_up_link": schema.BoolAttribute{
+				MarkdownDescription: "OFDMA Uplink for 802.11ax parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_up_link": schema.BoolAttribute{
+				MarkdownDescription: "MU-MIMO Uplink for 802.11ax parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_down_link": schema.BoolAttribute{
+				MarkdownDescription: "MU-MIMO Downlink for 802.11ax parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_down_link": schema.BoolAttribute{
+				MarkdownDescription: "OFDMA dma down link for 802.11be parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_up_link": schema.BoolAttribute{
+				MarkdownDescription: "OFDMA dma up link for 802.11be parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_up_link": schema.BoolAttribute{
+				MarkdownDescription: "OFDMA mu mimo up link for 802.11be parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_down_link": schema.BoolAttribute{
+				MarkdownDescription: "OFDMA mu mimo down link for 802.11be parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_multi_ru": schema.BoolAttribute{
+				MarkdownDescription: "OFDMA Multi-RU for 802.11be parameters in the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_target_wake_time": schema.BoolAttribute{
+				MarkdownDescription: "Target Wake Time for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_multi_bssid_properties_twt_broadcast_support": schema.BoolAttribute{
+				MarkdownDescription: "TWT Broadcast Support for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_preamble_puncture": schema.BoolAttribute{
+				MarkdownDescription: "Enable or Disable Preamble Puncturing. This WiFi 7 configuration is applicable to wireless IOS devices supporting 17.15 and higher.",
+				Computed:            true,
+			},
+			"radio_type_c_min_dbs_width": schema.Int64Attribute{
+				MarkdownDescription: "Minimum DBS Width for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_max_dbs_width": schema.Int64Attribute{
+				MarkdownDescription: "Maximum DBS Width for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_max_radio_clients": schema.Int64Attribute{
+				MarkdownDescription: "Client limit for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_custom_rx_sop_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Custom RX-SOP threshold for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_psc_enforcing_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Enable or disable PSC enforcement for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_discovery_frames_6ghz": schema.StringAttribute{
+				MarkdownDescription: "Discovery Frames for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_broadcast_probe_response_interval": schema.Int64Attribute{
+				MarkdownDescription: "Broadcast Probe Response Interval for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_fra_properties_client_reset_count": schema.Int64Attribute{
+				MarkdownDescription: "Client Reset Count for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_fra_properties_client_utilization_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Client Utilization Threshold for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_coverage_hole_detection_properties_chd_client_level": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection client level for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_coverage_hole_detection_properties_chd_data_rssi_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection data RSSI threshold for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_coverage_hole_detection_properties_chd_voice_rssi_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection voice RSSI threshold for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_coverage_hole_detection_properties_chd_exception_level": schema.Int64Attribute{
+				MarkdownDescription: "Coverage Hole Detection exception level (%) for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect": schema.BoolAttribute{
+				MarkdownDescription: "Dot11ax Non-SRG OBSS PD for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax Non-SRG OBSS PD Max Threshold for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect": schema.BoolAttribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD Min Threshold for the 6 GHz radio band.",
+				Computed:            true,
+			},
+			"radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold": schema.Int64Attribute{
+				MarkdownDescription: "Dot11ax SRG OBSS PD Max Threshold for the 6 GHz radio band.",
 				Computed:            true,
 			},
 		},
@@ -217,7 +441,7 @@ func (d *WirelessRFProfileDataSource) Read(ctx context.Context, req datasource.R
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "?rf-profile-name=" + url.QueryEscape(config.Id.ValueString())
+	params += "?rfProfileName=" + url.QueryEscape(config.RfProfileName.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

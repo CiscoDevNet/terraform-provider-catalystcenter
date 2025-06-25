@@ -14,7 +14,7 @@ This data source can read the Wireless RF Profile.
 
 ```terraform
 data "catalystcenter_wireless_rf_profile" "example" {
-  id = "RF_Profile_1"
+  rf_profile_name = "RF_Profile_1"
 }
 ```
 
@@ -23,39 +23,95 @@ data "catalystcenter_wireless_rf_profile" "example" {
 
 ### Required
 
-- `id` (String) The id of the object
+- `rf_profile_name` (String) RF Profile Name
 
 ### Read-Only
 
-- `channel_width` (String) Channel Width
-- `default_rf_profile` (Boolean) is Default Rf Profile
-- `enable_brown_field` (Boolean) Enable Brown Field
-- `enable_custom` (Boolean) Enable Custom
-- `enable_radio_type_a` (Boolean) Enable Radio Type A
-- `enable_radio_type_b` (Boolean) Enable Radio Type B
-- `enable_radio_type_c` (Boolean) Enable Radio Type C (6GHz)
-- `name` (String) RF Profile Name
-- `radio_type_a_data_rates` (String) Radio TypeA Properties - Data Rates
-- `radio_type_a_mandatory_data_rates` (String) Radio TypeA Properties - Mandatory Data Rates
-- `radio_type_a_max_power_level` (Number) Radio TypeA Properties - Max Power Level
-- `radio_type_a_min_power_level` (Number) Radio TypeA Properties - Min Power Level
-- `radio_type_a_parent_profile` (String) Radio TypeA Properties - Parent Profile
-- `radio_type_a_power_threshold_v1` (Number) Radio TypeA Properties - Power Threshold V1
-- `radio_type_a_radio_channels` (String) Radio TypeA Properties - Radio Channels
-- `radio_type_a_rx_sop_threshold` (String) Radio TypeA Properties - Rx Sop Threshold
-- `radio_type_b_data_rates` (String) Radio TypeB Properties - Data Rates
-- `radio_type_b_mandatory_data_rates` (String) Radio TypeB Properties - Mandatory Data Rates
-- `radio_type_b_max_power_level` (Number) Radio TypeB Properties - Max Power Level
-- `radio_type_b_min_power_level` (Number) Radio TypeB Properties - Min Power Level
-- `radio_type_b_parent_profile` (String) Radio TypeB Properties - Parent Profile
-- `radio_type_b_power_threshold_v1` (Number) Radio TypeB Properties - Power Threshold V1
-- `radio_type_b_radio_channels` (String) Radio TypeB Properties - Radio Channels
-- `radio_type_b_rx_sop_threshold` (String) Radio TypeB Properties - Rx Sop Threshold
-- `radio_type_c_data_rates` (String) Radio TypeC Properties - Data Rates
-- `radio_type_c_mandatory_data_rates` (String) Radio TypeC Properties - Mandatory Data Rates
-- `radio_type_c_max_power_level` (Number) Radio TypeC Properties - Max Power Level
-- `radio_type_c_min_power_level` (Number) Radio TypeC Properties - Min Power Level
-- `radio_type_c_parent_profile` (String) Radio TypeC Properties - Parent Profile
-- `radio_type_c_power_threshold_v1` (Number) Radio TypeC Properties - Power Threshold V1
-- `radio_type_c_radio_channels` (String) Radio TypeC Properties - Radio Channels
-- `radio_type_c_rx_sop_threshold` (String) Radio TypeC Properties - Rx Sop Threshold
+- `default_rf_profile` (Boolean) Specifies if the RF Profile is the default. Only one RF Profile can be marked as default at a time.
+- `enable_radio_type6_g_hz` (Boolean) Enable or disable the 6 GHz radio band in the RF Profile.
+- `enable_radio_type_a` (Boolean) Enable or disable the 5 GHz radio band in the RF Profile.
+- `enable_radio_type_b` (Boolean) Enable or disable the 2.4 GHz radio band in the RF Profile.
+- `id` (String) The id of the object
+- `radio_type_a_channel_width` (String) Channel width for the 5 GHz radio band.
+- `radio_type_a_coverage_hole_detection_properties_chd_client_level` (Number) Coverage Hole Detection client level for the 5 GHz radio band.
+- `radio_type_a_coverage_hole_detection_properties_chd_data_rssi_threshold` (Number) Coverage Hole Detection data RSSI threshold for the 5 GHz radio band.
+- `radio_type_a_coverage_hole_detection_properties_chd_exception_level` (Number) Coverage Hole Detection exception level (%) for the 5 GHz radio band.
+- `radio_type_a_coverage_hole_detection_properties_chd_voice_rssi_threshold` (Number) Coverage Hole Detection voice RSSI threshold for the 5 GHz radio band.
+- `radio_type_a_custom_rx_sop_threshold` (Number) Custom RX-SOP threshold for the 5 GHz radio band.
+- `radio_type_a_data_rates` (String) Data rates for the 5 GHz radio band, passed in comma-separated format without spaces.
+- `radio_type_a_fra_properties_client_aware` (Boolean) Client awareness for the 5 GHz radio band.
+- `radio_type_a_fra_properties_client_reset` (Number) Client reset percentage for the 5 GHz radio band.
+- `radio_type_a_fra_properties_client_select` (Number) Client selection percentage for the 5 GHz radio band.
+- `radio_type_a_mandatory_data_rates` (String) Mandatory data rates for the 5 GHz radio band, passed in comma-separated format, must be a subset of dataRates with a maximum of 2 values.
+- `radio_type_a_max_power_level` (Number) Maximum power level for the 5 GHz radio band.
+- `radio_type_a_max_radio_clients` (Number) Client limit for the 5 GHz radio band.
+- `radio_type_a_min_power_level` (Number) Minimum power level for the 5 GHz radio band.
+- `radio_type_a_parent_profile` (String) Parent profile for the 5 GHz radio band.
+- `radio_type_a_power_threshold_v1` (Number) Power threshold for the 5 GHz radio band.
+- `radio_type_a_preamble_puncture` (Boolean) Enable or disable preamble puncturing for the 5 GHz radio band.
+- `radio_type_a_radio_channels` (String) DCA channels for the 5 GHz radio band, passed in comma-separated format without spaces.
+- `radio_type_a_rx_sop_threshold` (String) RX-SOP threshold for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect` (Boolean) Dot11ax Non-SRG OBSS PD for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold` (Number) Dot11ax Non-SRG OBSS PD max threshold for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect` (Boolean) Dot11ax SRG OBSS PD for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold` (Number) Dot11ax SRG OBSS PD max threshold for the 5 GHz radio band.
+- `radio_type_a_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold` (Number) Dot11ax SRG OBSS PD min threshold for the 5 GHz radio band.
+- `radio_type_a_zero_wait_dfs_enable` (Boolean) Enable Zero Wait DFS for IOS-XE-based Wireless Controllers running version 17.9.1 and above.
+- `radio_type_b_coverage_hole_detection_properties_chd_client_level` (Number) Coverage Hole Detection client level for the 2.4 GHz radio band.
+- `radio_type_b_coverage_hole_detection_properties_chd_data_rssi_threshold` (Number) Coverage Hole Detection data RSSI threshold for the 2.4 GHz radio band.
+- `radio_type_b_coverage_hole_detection_properties_chd_exception_level` (Number) Coverage Hole Detection exception level (%) for the 2.4 GHz radio band.
+- `radio_type_b_coverage_hole_detection_properties_chd_voice_rssi_threshold` (Number) Coverage Hole Detection voice RSSI threshold for the 2.4 GHz radio band.
+- `radio_type_b_custom_rx_sop_threshold` (Number) Custom RX-SOP threshold for the 2.4 GHz radio band.
+- `radio_type_b_data_rates` (String) Data rates for the 2.4 GHz radio band, passed in comma-separated format without spaces.
+- `radio_type_b_mandatory_data_rates` (String) Mandatory data rates for the 2.4 GHz radio band, passed in comma-separated format, must be a subset of dataRates with a maximum of 2 values.
+- `radio_type_b_max_power_level` (Number) Maximum power level for the 2.4 GHz radio band.
+- `radio_type_b_max_radio_clients` (Number) Client limit for the 2.4 GHz radio band.
+- `radio_type_b_min_power_level` (Number) Minimum power level for the 2.4 GHz radio band.
+- `radio_type_b_parent_profile` (String) Parent profile for the 2.4 GHz radio band.
+- `radio_type_b_power_threshold_v1` (Number) Power threshold for the 2.4 GHz radio band.
+- `radio_type_b_radio_channels` (String) DCA channels for the 2.4 GHz radio band, passed in comma-separated format without spaces.
+- `radio_type_b_rx_sop_threshold` (String) RX-SOP threshold for the 2.4 GHz radio band.
+- `radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect` (Boolean) Dot11ax Non-SRG OBSS PD for the 2.4 GHz radio band.
+- `radio_type_b_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold` (Number) Dot11ax Non-SRG OBSS PD max threshold for the 2.4 GHz radio band.
+- `radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect` (Boolean) Dot11ax SRG OBSS PD for the 2.4 GHz radio band.
+- `radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold` (Number) Dot11ax SRG OBSS PD max threshold for the 2.4 GHz radio band.
+- `radio_type_b_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold` (Number) Dot11ax SRG OBSS PD min threshold for the 2.4 GHz radio band.
+- `radio_type_c_broadcast_probe_response_interval` (Number) Broadcast Probe Response Interval for the 6 GHz radio band.
+- `radio_type_c_coverage_hole_detection_properties_chd_client_level` (Number) Coverage Hole Detection client level for the 6 GHz radio band.
+- `radio_type_c_coverage_hole_detection_properties_chd_data_rssi_threshold` (Number) Coverage Hole Detection data RSSI threshold for the 6 GHz radio band.
+- `radio_type_c_coverage_hole_detection_properties_chd_exception_level` (Number) Coverage Hole Detection exception level (%) for the 6 GHz radio band.
+- `radio_type_c_coverage_hole_detection_properties_chd_voice_rssi_threshold` (Number) Coverage Hole Detection voice RSSI threshold for the 6 GHz radio band.
+- `radio_type_c_custom_rx_sop_threshold` (Number) Custom RX-SOP threshold for the 6 GHz radio band.
+- `radio_type_c_data_rates` (String) Data rates of 6 GHz radio band, passed in comma-separated format without spaces.
+- `radio_type_c_discovery_frames_6ghz` (String) Discovery Frames for the 6 GHz radio band.
+- `radio_type_c_enable_standard_power_service` (Boolean) True if Standard Power Service is enabled, else False.
+- `radio_type_c_fra_properties_client_reset_count` (Number) Client Reset Count for the 6 GHz radio band.
+- `radio_type_c_fra_properties_client_utilization_threshold` (Number) Client Utilization Threshold for the 6 GHz radio band.
+- `radio_type_c_mandatory_data_rates` (String) Mandatory data rates of 6 GHz radio band, passed in comma-separated format without spaces. Must be a subset of dataRates with a maximum of 2 values.
+- `radio_type_c_max_dbs_width` (Number) Maximum DBS Width for the 6 GHz radio band.
+- `radio_type_c_max_power_level` (Number) Maximum power level of the 6 GHz radio band.
+- `radio_type_c_max_radio_clients` (Number) Client limit for the 6 GHz radio band.
+- `radio_type_c_min_dbs_width` (Number) Minimum DBS Width for the 6 GHz radio band.
+- `radio_type_c_min_power_level` (Number) Minimum power level of the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_down_link` (Boolean) MU-MIMO Downlink for 802.11ax parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11ax_parameters_mu_mimo_up_link` (Boolean) MU-MIMO Uplink for 802.11ax parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_down_link` (Boolean) OFDMA Downlink for 802.11ax parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11ax_parameters_ofdma_up_link` (Boolean) OFDMA Uplink for 802.11ax parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_down_link` (Boolean) OFDMA mu mimo down link for 802.11be parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11be_parameters_mu_mimo_up_link` (Boolean) OFDMA mu mimo up link for 802.11be parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_down_link` (Boolean) OFDMA dma down link for 802.11be parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_multi_ru` (Boolean) OFDMA Multi-RU for 802.11be parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_dot11be_parameters_ofdma_up_link` (Boolean) OFDMA dma up link for 802.11be parameters in the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_target_wake_time` (Boolean) Target Wake Time for the 6 GHz radio band.
+- `radio_type_c_multi_bssid_properties_twt_broadcast_support` (Boolean) TWT Broadcast Support for the 6 GHz radio band.
+- `radio_type_c_parent_profile` (String) Parent profile for the 6 GHz radio band.
+- `radio_type_c_power_threshold_v1` (Number) Power threshold of the 6 GHz radio band.
+- `radio_type_c_preamble_puncture` (Boolean) Enable or Disable Preamble Puncturing. This WiFi 7 configuration is applicable to wireless IOS devices supporting 17.15 and higher.
+- `radio_type_c_psc_enforcing_enabled` (Boolean) Enable or disable PSC enforcement for the 6 GHz radio band.
+- `radio_type_c_radio_channels` (String) DCA channels of 6 GHz radio band, passed in comma-separated format without spaces.
+- `radio_type_c_rx_sop_threshold` (String) RX-SOP threshold of the 6 GHz radio band.
+- `radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect` (Boolean) Dot11ax Non-SRG OBSS PD for the 6 GHz radio band.
+- `radio_type_c_spatial_reuse_properties_dot11ax_non_srg_obss_packet_detect_max_threshold` (Number) Dot11ax Non-SRG OBSS PD Max Threshold for the 6 GHz radio band.
+- `radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect` (Boolean) Dot11ax SRG OBSS PD for the 6 GHz radio band.
+- `radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_max_threshold` (Number) Dot11ax SRG OBSS PD Max Threshold for the 6 GHz radio band.
+- `radio_type_c_spatial_reuse_properties_dot11ax_srg_obss_packet_detect_min_threshold` (Number) Dot11ax SRG OBSS PD Min Threshold for the 6 GHz radio band.
