@@ -220,7 +220,6 @@ func (r *PnPDeviceResource) Update(ctx context.Context, req resource.UpdateReque
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *PnPDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state PnPDevice
 
@@ -233,7 +232,7 @@ func (r *PnPDeviceResource) Delete(ctx context.Context, req resource.DeleteReque
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") && !strings.Contains(err.Error(), "StatusCode 400") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
 	}
@@ -242,8 +241,6 @@ func (r *PnPDeviceResource) Delete(ctx context.Context, req resource.DeleteReque
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *PnPDeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
