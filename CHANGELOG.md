@@ -1,4 +1,4 @@
-## 0.2.10 (unreleased)
+## 0.2.10
 
 - Add enhancement to `catalystcenter_pnp_device` resource, to skip error during DELETE operation, if pnp device was provisioned
 - BREAKING CHANGE: Modified `catalystcenter_wireless_rf_profile` resource and data_source to use the `/dna/intent/api/v1/wirelessSettings/rfProfiles` API endpoint instead of `/dna/intent/api/v1/wireless/rf-profile`
