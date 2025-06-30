@@ -1,0 +1,79 @@
+---
+name: Sites
+rest_endpoint: /dna/intent/api/v1/sites
+# manually managed data source
+ds_description:
+  "This data source fetches all sites defined on the Catalyst Center.
+  Sites represent the logical and physical hierarchy of your network environment, including areas, buildings, and floors. You can optionally specify the `type` attribute to filter the results and retrieve only sites of a specific type—such as `area`, `building` or `floor`.
+  To retrieve detailed information about a specific site, use the data source `data.catalystcenter_site`."
+get_no_id: true
+no_resource: true
+no_data_source: true
+doc_category: Sites
+attributes:
+  - model_name: type
+    tf_name: type
+    type: String
+    description: Site type
+    enum_values: [area, building, floor]
+    computed: true
+  - model_name: response
+    tf_name: sites
+    type: List
+    attributes:
+      - model_name: id
+        type: String
+        example: e0ba1a00-b69b-45aa-8c13-4cdfb59afe65
+      - model_name: name
+        type: String
+        example: Poland
+      - model_name: nameHierarchy
+        type: String
+        example: Global/Poland
+      - model_name: type
+        type: String
+        example: area
+      - model_name: parentId
+        type: String
+        description: Parent Id
+        exclude_example: true
+      - model_name: latitude
+        type: String
+        description: Building latitude
+        exclude_example: true
+      - model_name: longitude
+        type: String
+        description: Building longitude
+        exclude_example: true
+      - model_name: address
+        type: String
+        description: Building address
+        exclude_example: true
+      - model_name: country
+        type: String
+        description: Country name for the building
+        exclude_example: true
+      - model_name: floorNumber
+        type: Int64
+        description: Floor number
+        exclude_example: true
+      - model_name: rfModel
+        type: String
+        description: Floor RF model
+        exclude_example: true
+      - model_name: width
+        type: Float64
+        description: Floor width
+        exclude_example: true
+      - model_name: length
+        type: Float64
+        description: Floor length
+        exclude_example: true
+      - model_name: height
+        type: Float64
+        description: Floor height
+        exclude_example: true
+      - model_name: unitsOfMeasure
+        type: String
+        description: Floor unit of measure
+        exclude_example: true

@@ -54,7 +54,7 @@ func (d *SiteDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 func (d *SiteDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source fetches sites",
+		MarkdownDescription: "This data source fetches site based on name hierarchy",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

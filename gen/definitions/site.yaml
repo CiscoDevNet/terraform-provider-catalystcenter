@@ -1,7 +1,7 @@
 ---
 name: Site
 rest_endpoint: /dna/intent/api/v1/sites
-ds_description: This data source fetches sites
+ds_description: This data source fetches site based on name hierarchy
 data_source_no_id: true
 id_from_query_path: response.0
 no_resource: true
