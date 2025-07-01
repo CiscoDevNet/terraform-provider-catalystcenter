@@ -3,12 +3,12 @@
 page_title: "catalystcenter_site Data Source - terraform-provider-catalystcenter"
 subcategory: "Sites"
 description: |-
-  This data source fetches sites
+  This data source fetches site based on name hierarchy
 ---
 
 # catalystcenter_site (Data Source)
 
-This data source fetches sites
+This data source fetches site based on name hierarchy
 
 ## Example Usage
 

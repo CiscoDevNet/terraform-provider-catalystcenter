@@ -1,3 +1,7 @@
+## 0.2.11 (unreleased)
+
+- Add `catalystcenter_sites` data source to retrieve list of all sites
+
 ## 0.2.10
 
 - Add enhancement to `catalystcenter_pnp_device` resource, to skip error during DELETE operation, if pnp device was provisioned
