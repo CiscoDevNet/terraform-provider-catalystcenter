@@ -9,6 +9,7 @@ post_update: true
 no_import: true
 delete_no_id: true
 no_data_source: true
+mutex: true
 test_tags: [INVENTORY]
 doc_category: Sites
 attributes:
