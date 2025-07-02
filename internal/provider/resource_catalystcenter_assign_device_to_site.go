@@ -110,7 +110,7 @@ func (r *AssignDeviceToSiteResource) Create(ctx context.Context, req resource.Cr
 	body := plan.toBody(ctx, AssignDeviceToSite{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
@@ -222,7 +222,7 @@ func (r *AssignDeviceToSiteResource) Update(ctx context.Context, req resource.Up
 		}
 		body, _ = sjson.Set(body, "siteId", plan.SiteId.ValueString())
 
-		res, err := r.client.Post(plan.getPath(), body)
+		res, err := r.client.Post(plan.getPath(), body, cc.UseMutex)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 			return
@@ -237,9 +237,9 @@ func (r *AssignDeviceToSiteResource) Update(ctx context.Context, req resource.Up
 			body, _ = sjson.Set(body, fmt.Sprintf("deviceIds.%d", i), id)
 		}
 
-		res, err := r.client.Post(plan.getPathDelete(), body)
+		res, err := r.client.Post(plan.getPathDelete(), body, cc.UseMutex)
 		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST2), got error: %s, %s", err, res.String()))
 			return
 		}
 		tflog.Debug(ctx, fmt.Sprintf("Device removed: %s", removed))
@@ -265,7 +265,7 @@ func (r *AssignDeviceToSiteResource) Delete(ctx context.Context, req resource.De
 
 	body := state.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Post(state.getPathDelete()+params, body)
+	res, err := r.client.Post(state.getPathDelete()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
