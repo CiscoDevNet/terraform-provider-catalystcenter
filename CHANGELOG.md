@@ -1,4 +1,4 @@
-## 0.2.11 (unreleased)
+## 0.2.11
 
 - Add mutex to `catalystcenter_assign_device_to_site` resource to prevent multiple concurrent operations
 - Add `catalystcenter_sites` data source to retrieve list of all sites
