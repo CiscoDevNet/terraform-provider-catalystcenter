@@ -35,6 +35,8 @@ import (
 	"github.com/netascode/go-catalystcenter"
 )
 
+var globalAllowExistingOnCreate bool
+
 // CcProvider defines the provider implementation.
 type CcProvider struct {
 	// version is set to the provider version on release, "dev" when the
@@ -51,6 +53,7 @@ type CcProviderModel struct {
 	Insecure types.Bool   `tfsdk:"insecure"`
 	Retries  types.Int64  `tfsdk:"retries"`
 	MaxTimeout types.Int64 `tfsdk:"max_timeout"`
+	AllowExistingOnCreate types.Bool   `tfsdk:"allow_existing_on_create"`
 }
 
 // CcProviderData describes the data maintained by the provider.
@@ -97,6 +100,10 @@ func (p *CcProvider) Schema(ctx context.Context, req provider.SchemaRequest, res
 				Validators: []validator.Int64{
 					int64validator.Between(0, 3600),
 				},
+			},
+			"allow_existing_on_create": schema.BoolAttribute{
+				MarkdownDescription: "**Experimental (use at your own risk).** Allow existing objects in CatalystCenter to be managed. If `true`, a POST request that attempts to create an already existing resource will trigger an update instead of failing. This behavior is not guaranteed and may not work for all resources. This can also be set as the CC_ALLOW_EXISTING_ON_CREATE environment variable. Defaults to `false`.",
+				Optional:            true,
 			},
 		},
 	}
@@ -209,6 +216,29 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 	} else {
 		insecure = config.Insecure.ValueBool()
 	}
+
+	var allow_existing_on_create bool
+	if config.AllowExistingOnCreate.IsUnknown() {
+		// Cannot connect to client with an unknown value
+		resp.Diagnostics.AddWarning(
+			"Unable to create client",
+			"Cannot use unknown value as allow_existing_on_create",
+		)
+		return
+	}
+
+	if config.AllowExistingOnCreate.IsNull() {
+		allow_existing_on_createStr := os.Getenv("CC_ALLOW_EXISTING_ON_CREATE")
+		if allow_existing_on_createStr == "" {
+			allow_existing_on_create = false
+		} else {
+			allow_existing_on_create, _ = strconv.ParseBool(allow_existing_on_createStr)
+		}
+	} else {
+		allow_existing_on_create = config.AllowExistingOnCreate.ValueBool()
+	}
+
+	globalAllowExistingOnCreate = allow_existing_on_create
 
 	var retries int64
 	if config.Retries.IsUnknown() {

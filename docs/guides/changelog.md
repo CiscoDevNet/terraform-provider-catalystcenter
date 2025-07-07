@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.3.0 (unreleased)
+
+- Add `allow_existing_on_create` attribute to the provider definition to allow existing objects in CatalystCenter to be managed. This is en experimental feature (use at your own risk)
+
 ## 0.2.11
 
 - Add mutex to `catalystcenter_assign_device_to_site` resource to prevent multiple concurrent operations

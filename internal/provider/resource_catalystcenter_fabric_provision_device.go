@@ -119,14 +119,18 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
-		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
-			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
-			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+		if !globalAllowExistingOnCreate {
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+				return
+			}
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-			return
+			tflog.Debug(ctx, fmt.Sprintf("Placeholder for updating existing resource"))
 		}
 	}
 	params = ""
@@ -138,7 +142,11 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 	}
 	plan.Id = types.StringValue(res.Get("response.0.id").String())
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	if !globalAllowExistingOnCreate {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
+	}
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)

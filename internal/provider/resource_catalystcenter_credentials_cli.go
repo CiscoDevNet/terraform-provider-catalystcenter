@@ -120,8 +120,12 @@ func (r *CredentialsCLIResource) Create(ctx context.Context, req resource.Create
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+		if !globalAllowExistingOnCreate {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		} else {
+			tflog.Debug(ctx, fmt.Sprintf("Placeholder for updating existing resource"))
+		}
 	}
 	params = ""
 	res, err = r.client.Get(plan.getPath() + params)
@@ -131,7 +135,11 @@ func (r *CredentialsCLIResource) Create(ctx context.Context, req resource.Create
 	}
 	plan.Id = types.StringValue(res.Get("response.cliCredential.#(description==\"" + plan.Description.ValueString() + "\").id").String())
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	if !globalAllowExistingOnCreate {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
+	}
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
