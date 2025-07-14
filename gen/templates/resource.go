@@ -462,7 +462,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
 	{{- end}}
 	if err != nil {
-		if !globalAllowExistingOnCreate {
+		{{- if not .GlobalAllowExistingOnCreate}}
 		{{- if .DeviceUnreachabilityWarning}}
 			errorCode := res.Get("response.errorCode").String()
 			if errorCode == "NCDP10000" {
@@ -477,9 +477,10 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
 			return
 		{{- end}}
-		} else {
+		{{- else}}
 			{{- if .IdPath}}
 			plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
+			tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 			res, err := r.client.Put(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 			if err != nil {
 			{{- if .DeviceUnreachabilityWarning}}
@@ -497,14 +498,11 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 				return
 			{{- end}}
 			}
-			resp.Diagnostics.AddWarning("Allow Existing On Create Warning", fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
-			{{- else}}
-				tflog.Debug(ctx, fmt.Sprintf("Placeholder for updating existing resource"))
 			{{- end}}
-		}
+		{{- end}}
 	}
 	{{- /* Check if id can be resolved directly from response */}}
-	{{- if .IdPath}}
+	{{- if and .IdPath (not .GlobalAllowExistingOnCreate)}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
 	{{- /* Check if we need an extra query to resolve the id */}}
 	{{- else if and .IdFromQueryPath (not .IdFromAttribute)}}
@@ -572,11 +570,16 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	plan.fromBodyUnknowns(ctx, res)
 	{{- end}}
 	
-	if !globalAllowExistingOnCreate {
+	{{- if not .GlobalAllowExistingOnCreate}}
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
-	} else {
+	{{- else}}
+	if globalAllowExistingOnCreate {
+		resp.Diagnostics.AddWarning("Allow Existing On Create Warning", fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	}
+	{{- end}}
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
