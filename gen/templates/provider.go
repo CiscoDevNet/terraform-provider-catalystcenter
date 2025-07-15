@@ -281,6 +281,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 	return []func() datasource.DataSource{
 		NewNetworkDevicesDataSource, // manually maintained
 		NewSitesDataSource, // manually maintained
+		NewIPPoolsDataSource, // manually maintained
 		{{- range .}}
 		{{- if not .NoDataSource}}
 		New{{camelCase .Name}}DataSource,
