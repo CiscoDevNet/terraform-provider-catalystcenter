@@ -1,3 +1,7 @@
+## 0.2.12 (unreleased)
+
+- Add `catalystcenter_ip_pools` data source to retrieve list of all global pools
+
 ## 0.2.11
 
 - Add mutex to `catalystcenter_assign_device_to_site` resource to prevent multiple concurrent operations

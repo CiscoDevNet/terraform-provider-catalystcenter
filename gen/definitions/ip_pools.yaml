@@ -1,0 +1,56 @@
+---
+name: IP Pools
+rest_endpoint: /dna/intent/api/v1/ipam/globalIpAddressPools
+# manually managed data source
+ds_description:
+  "This data source fetches all global ip pools defined on the Catalyst Center.
+  To retrieve detailed information about a specific site, use the data source `data.catalystcenter_ip_pool`."
+get_no_id: true
+no_resource: true
+no_data_source: true
+doc_category: Pools
+attributes:
+  - model_name: response
+    tf_name: pools
+    type: List
+    attributes:
+      - model_name: id
+        type: String
+        exclude_example: true
+      - model_name: name
+        type: String
+        description: The name of the IP pool
+        exclude_example: true
+      - model_name: poolType
+        type: String
+        enum_values: [generic, tunnel]
+        default_value: generic
+        description: Pool type
+        exclude_example: true
+      - model_name: gatewayIpAddress
+        response_data_path: addressSpace.gatewayIpAddress
+        type: String
+        description: The gateway for the IP pool
+        exclude_example: true
+      - model_name: subnet
+        response_data_path: addressSpace.subnet
+        type: String
+        description: Subnet
+        exclude_example: true
+      - model_name: prefixLength
+        response_data_path: addressSpace.prefixLength
+        type: String
+        description: Prefix length
+        exclude_example: true
+      - model_name: dhcpServers
+        type: Set
+        element_type: String
+        description: List of DHCP Server IPs
+        response_data_path: addressSpace.dhcpServers
+        exclude_example: true
+      - model_name: dnsServers
+        type: Set
+        element_type: String
+        description: List of DNS Server IPs
+        response_data_path: addressSpace.dnsServers
+        exclude_example: true
