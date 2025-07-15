@@ -218,7 +218,7 @@ func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource
 				return
 			}
 		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Fabric Device Re-Provisioning finished successfully", plan.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device Re-Provisioning finished successfully", plan.Id.ValueString()))
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))

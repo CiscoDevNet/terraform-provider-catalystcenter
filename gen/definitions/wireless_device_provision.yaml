@@ -1,6 +1,7 @@
 ---
 name: Wireless Device Provision
 rest_endpoint: /dna/intent/api/v1/wireless/provision
+put_rest_endpoint: /dna/intent/api/v1/wirelessControllers/%v/provision
 delete_rest_endpoint: /dna/intent/api/v1/sda/provisionDevices
 res_description: 'This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device.
   When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices'
@@ -43,6 +44,11 @@ attributes:
     type: Set
     element_type: String
     example: Global/Area1
+  - tf_name: reprovision
+    description: Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply
+    type: Bool
+    example: false
+    exclude_test: true
   - model_name: dynamicInterfaces
     type: List
     description: Dynamic Interface Details. The required attributes depend on the device type

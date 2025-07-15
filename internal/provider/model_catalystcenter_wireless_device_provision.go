@@ -20,6 +20,8 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"fmt"
+	"net/url"
 	"strconv"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -37,6 +39,7 @@ type WirelessDeviceProvision struct {
 	NetworkDeviceId    types.String                               `tfsdk:"network_device_id"`
 	Site               types.String                               `tfsdk:"site"`
 	ManagedApLocations types.Set                                  `tfsdk:"managed_ap_locations"`
+	Reprovision        types.Bool                                 `tfsdk:"reprovision"`
 	DynamicInterfaces  []WirelessDeviceProvisionDynamicInterfaces `tfsdk:"dynamic_interfaces"`
 }
 
@@ -66,6 +69,10 @@ func (data WirelessDeviceProvision) getPathDelete() string {
 
 // End of section. //template:end getPathDelete
 
+func (data WirelessDeviceProvision) getPathUpdate() string {
+	return fmt.Sprintf("/dna/intent/api/v1/wirelessControllers/%v/provision", url.QueryEscape(data.NetworkDeviceId.ValueString()))
+}
+
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data WirelessDeviceProvision) toBody(ctx context.Context, state WirelessDeviceProvision) string {
 	body := ""
@@ -87,6 +94,9 @@ func (data WirelessDeviceProvision) toBody(ctx context.Context, state WirelessDe
 		var values []string
 		data.ManagedApLocations.ElementsAs(ctx, &values, false)
 		body, _ = sjson.Set(body, "0.managedAPLocations", values)
+	}
+	if !data.Reprovision.IsNull() {
+		body, _ = sjson.Set(body, "", data.Reprovision.ValueBool())
 	}
 	if len(data.DynamicInterfaces) > 0 {
 		body, _ = sjson.Set(body, "0.dynamicInterfaces", []interface{}{})
@@ -139,6 +149,11 @@ func (data *WirelessDeviceProvision) fromBody(ctx context.Context, res gjson.Res
 		data.ManagedApLocations = helpers.GetStringSet(value.Array())
 	} else {
 		data.ManagedApLocations = types.SetNull(types.StringType)
+	}
+	if value := res.Get(""); value.Exists() {
+		data.Reprovision = types.BoolValue(value.Bool())
+	} else {
+		data.Reprovision = types.BoolNull()
 	}
 	if value := res.Get("0.dynamicInterfaces"); value.Exists() && len(value.Array()) > 0 {
 		data.DynamicInterfaces = make([]WirelessDeviceProvisionDynamicInterfaces, 0)
@@ -203,6 +218,11 @@ func (data *WirelessDeviceProvision) updateFromBody(ctx context.Context, res gjs
 		data.ManagedApLocations = helpers.GetStringSet(value.Array())
 	} else {
 		data.ManagedApLocations = types.SetNull(types.StringType)
+	}
+	if value := res.Get(""); value.Exists() && !data.Reprovision.IsNull() {
+		data.Reprovision = types.BoolValue(value.Bool())
+	} else {
+		data.Reprovision = types.BoolNull()
 	}
 	for i := range data.DynamicInterfaces {
 		keys := [...]string{"interfaceIPAddress", "interfaceNetmaskInCIDR", "interfaceGateway", "lagOrPortNumber", "vlanId", "interfaceName"}
@@ -271,6 +291,9 @@ func (data *WirelessDeviceProvision) isNull(ctx context.Context, res gjson.Resul
 		return false
 	}
 	if !data.ManagedApLocations.IsNull() {
+		return false
+	}
+	if !data.Reprovision.IsNull() {
 		return false
 	}
 	if len(data.DynamicInterfaces) > 0 {
