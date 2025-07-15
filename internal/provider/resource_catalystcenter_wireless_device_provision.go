@@ -97,6 +97,10 @@ func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resour
 					setplanmodifier.RequiresReplace(),
 				},
 			},
+			"reprovision": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply").String,
+				Optional:            true,
+			},
 			"dynamic_interfaces": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Dynamic Interface Details. The required attributes depend on the device type").String,
 				Optional:            true,
@@ -178,7 +182,6 @@ func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resour
 
 // End of section. //template:end create
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state WirelessDeviceProvision
 
@@ -191,15 +194,14 @@ func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
+	state.Reprovision = types.BoolValue(false) // Reset reprovision flag to false on read
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end read
-
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state WirelessDeviceProvision
 
@@ -217,13 +219,23 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
-
-	body := plan.toBody(ctx, state)
-	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-		return
+	if plan.Reprovision.ValueBool() {
+		body := "{}" // Empty body for reprovisioning
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Re-Provisioning", plan.Id.ValueString()))
+		params := ""
+		res, err := r.client.Post(plan.getPathUpdate()+params, body)
+		if err != nil {
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
+				return
+			}
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device Re-Provisioning finished successfully", plan.Id.ValueString()))
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -231,8 +243,6 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

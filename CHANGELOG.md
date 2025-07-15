@@ -1,5 +1,6 @@
 ## 0.2.12 (unreleased)
 
+- Add `reprovision` attribute to `catalystcenter_wireless_device_provision`
 - Add `catalystcenter_ip_pools` data source to retrieve list of all global pools
 
 ## 0.2.11
