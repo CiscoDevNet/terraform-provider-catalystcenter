@@ -4,7 +4,6 @@ rest_endpoint: /dna/intent/api/v1/site
 get_rest_endpoint: /dna/intent/api/v2/site
 id_path: siteId
 id_query_param: id
-global_allow_existing_on_create: true
 doc_category: Sites
 attributes:
   - model_name: type

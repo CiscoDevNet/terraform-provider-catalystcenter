@@ -112,11 +112,20 @@ func (r *DHCPSettingsResource) Create(ctx context.Context, req resource.CreateRe
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
-		return
+		if !globalAllowExistingOnCreate {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		} else {
+			tflog.Debug(ctx, fmt.Sprintf("Placeholder for updating existing resource"))
+		}
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+
+	if !globalAllowExistingOnCreate {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
+	}
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
