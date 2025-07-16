@@ -38,6 +38,8 @@ resource "catalystcenter_assign_templates_to_tag" "example" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 terraform import catalystcenter_assign_templates_to_tag.example "<tag_id>"
 ```
