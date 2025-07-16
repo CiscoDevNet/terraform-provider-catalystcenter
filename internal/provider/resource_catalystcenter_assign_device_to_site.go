@@ -267,8 +267,13 @@ func (r *AssignDeviceToSiteResource) Delete(ctx context.Context, req resource.De
 	params := ""
 	res, err := r.client.Post(state.getPathDelete()+params, body, cc.UseMutex)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
-		return
+		errorDetail := res.Get("response.detail").String()
+		if strings.HasPrefix(errorDetail, "NCIM80106") {
+			// This error means that the device was provisioned, and cannot be moved, so we need to ignore it.
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+			return
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))

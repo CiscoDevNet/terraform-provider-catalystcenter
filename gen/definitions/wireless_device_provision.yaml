@@ -1,79 +1,79 @@
 ---
 name: Wireless Device Provision
-rest_endpoint: /dna/intent/api/v1/wireless/provision
-put_rest_endpoint: /dna/intent/api/v1/wirelessControllers/%v/provision
+rest_endpoint: /dna/intent/api/v1/wirelessControllers/%v/provision
 delete_rest_endpoint: /dna/intent/api/v1/sda/provisionDevices
-res_description: 'This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device.
-  When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices'
+res_description: 'This resource is used to provision a wireless device. To reprovision a device, set the `reprovision` attribute to `true`. The resource will then trigger reprovisioning on every Terraform apply.'
 no_data_source: true
 no_read: true
-no_delete: true
 no_import: true
 put_no_id: true
 id_from_attribute: true
 doc_category: Wireless
 test_tags: [WIRELESS]
 attributes:
-  - model_name: deviceName
-    requires_replace: true
-    data_path: '0'
-    #id: true
-    mandatory: true
-    description: Controller Name
-    type: String
-    example: WLC_01
   - tf_name: network_device_id
     id: true
+    reference: true
     delete_query_param: true
     delete_query_param_name: networkDeviceId
     description: Network Device ID
     type: String
     example: e2e6ae2f-d526-459f-bfdf-3281d74b6dea
-  - model_name: site
-    requires_replace: true
-    data_path: '0'
-    mandatory: true
-    description: Full Site Hierarchy where device has to be assigned
+  - model_name: apRebootPercentage
+    description: AP Reboot Percentage
+    data_path: rollingApUpgrade
+    type: Int64
+    exclude_test: true
+  - model_name: enableRollingApUpgrade
+    description: True if Rolling AP Upgrade is enabled, else False
+    data_path: rollingApUpgrade
+    type: Bool
+    exclude_test: true
+  - model_name: skipApProvision
+    description: True if Skip AP Provision is enabled, else False
+    type: Bool
+    exclude_test: true
+  - model_name: apAuthorizationListName
+    description: AP Authorization List Name
     type: String
-    example: Global/Area1
-  - model_name: managedAPLocations
-    tf_name: managed_ap_locations
-    data_path: '0'
-    mandatory: true
-    description: List of managed AP locations
-    type: Set
-    element_type: String
-    example: Global/Area1
+    exclude_test: true
+  - model_name: authorizeMeshAndNonMeshAccessPoints
+    description: True if Mesh and Non-Mesh Access Points are authorized, else False
+    type: Bool
+    exclude_test: true
   - tf_name: reprovision
     description: Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply
     type: Bool
     example: false
     exclude_test: true
-  - model_name: dynamicInterfaces
+  - model_name: interfaces
     type: List
     description: Dynamic Interface Details. The required attributes depend on the device type
-    requires_replace: true
-    data_path: '0'
     exclude_test: true
     attributes:
+      - model_name: interfaceName
+        type: String
+        mandatory: true
+        description: Interface Name
+      - model_name: vlanId
+        type: Int64
+        min_int: 1
+        max_int: 4094
+        mandatory: true
+        description: VLAN ID
       - model_name: interfaceIPAddress
         tf_name: interface_ip_address
         type: String
-        description: Interface IP Address. Required for AireOS
+        description: Interface IP Address
       - model_name: interfaceNetmaskInCIDR
         tf_name: interface_netmask
         type: Int64
-        description: Interface Netmask In CIDR. Required for AireOS
+        min_int: 1
+        max_int: 30
+        description: Interface Netmask In CIDR
       - model_name: interfaceGateway
         type: String
-        description: Interface Gateway. Required for AireOS
+        description: Interface Gateway
       - model_name: lagOrPortNumber
-        type: String
-        description: LAG or Port Number. Required for AireOS
-      - model_name: vlanId
         type: Int64
-        description: VLAN ID. Required for both AireOS and EWLC
-      - model_name: interfaceName
-        type: String
-        description: Interface Name. Required for both AireOS and EWLC.
-       
+        description: LAG or Port Number
