@@ -1,5 +1,7 @@
 ## 0.2.12 (unreleased)
 
+- BREAKING CHANGE: Modified `catalystcenter_wireless_device_provision` resource to use the `/dna/intent/api/v1/wirelessControllers/%v/provision` API endpoint instead of `/dna/intent/api/v1/wireless/provision`
+- Add `assign_managed_ap_locations` resource
 - Add `reprovision` attribute to `catalystcenter_wireless_device_provision`
 - Add `catalystcenter_ip_pools` data source to retrieve list of all global pools
 

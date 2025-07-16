@@ -33,9 +33,7 @@ func TestAccCcWirelessDeviceProvision(t *testing.T) {
 		t.Skip("skipping test, set environment variable WIRELESS")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "device_name", "WLC_01"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "network_device_id", "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_wireless_device_provision.test", "site", "Global/Area1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -63,10 +61,7 @@ func TestAccCcWirelessDeviceProvision(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcWirelessDeviceProvisionConfig_minimum() string {
 	config := `resource "catalystcenter_wireless_device_provision" "test" {` + "\n"
-	config += `	device_name = "WLC_01"` + "\n"
 	config += `	network_device_id = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"` + "\n"
-	config += `	site = "Global/Area1"` + "\n"
-	config += `	managed_ap_locations = ["Global/Area1"]` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -76,10 +71,7 @@ func testAccCcWirelessDeviceProvisionConfig_minimum() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcWirelessDeviceProvisionConfig_all() string {
 	config := `resource "catalystcenter_wireless_device_provision" "test" {` + "\n"
-	config += `	device_name = "WLC_01"` + "\n"
 	config += `	network_device_id = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"` + "\n"
-	config += `	site = "Global/Area1"` + "\n"
-	config += `	managed_ap_locations = ["Global/Area1"]` + "\n"
 	config += `}` + "\n"
 	return config
 }

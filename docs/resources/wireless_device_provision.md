@@ -3,21 +3,18 @@
 page_title: "catalystcenter_wireless_device_provision Resource - terraform-provider-catalystcenter"
 subcategory: "Wireless"
 description: |-
-  This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices
+  This resource is used to provision a wireless device. To reprovision a device, set the reprovision attribute to true. The resource will then trigger reprovisioning on every Terraform apply.
 ---
 
 # catalystcenter_wireless_device_provision (Resource)
 
-This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices
+This resource is used to provision a wireless device. To reprovision a device, set the `reprovision` attribute to `true`. The resource will then trigger reprovisioning on every Terraform apply.
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_wireless_device_provision" "example" {
-  device_name          = "WLC_01"
-  network_device_id    = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"
-  site                 = "Global/Area1"
-  managed_ap_locations = ["Global/Area1"]
+  network_device_id = "e2e6ae2f-d526-459f-bfdf-3281d74b6dea"
 }
 ```
 
@@ -26,28 +23,35 @@ resource "catalystcenter_wireless_device_provision" "example" {
 
 ### Required
 
-- `device_name` (String) Controller Name
-- `managed_ap_locations` (Set of String) List of managed AP locations
 - `network_device_id` (String) Network Device ID
-- `site` (String) Full Site Hierarchy where device has to be assigned
 
 ### Optional
 
-- `dynamic_interfaces` (Attributes List) Dynamic Interface Details. The required attributes depend on the device type (see [below for nested schema](#nestedatt--dynamic_interfaces))
+- `ap_authorization_list_name` (String) AP Authorization List Name
+- `ap_reboot_percentage` (Number) AP Reboot Percentage
+- `authorize_mesh_and_non_mesh_access_points` (Boolean) True if Mesh and Non-Mesh Access Points are authorized, else False
+- `enable_rolling_ap_upgrade` (Boolean) True if Rolling AP Upgrade is enabled, else False
+- `interfaces` (Attributes List) Dynamic Interface Details. The required attributes depend on the device type (see [below for nested schema](#nestedatt--interfaces))
 - `reprovision` (Boolean) Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply
+- `skip_ap_provision` (Boolean) True if Skip AP Provision is enabled, else False
 
 ### Read-Only
 
 - `id` (String) The id of the object
 
-<a id="nestedatt--dynamic_interfaces"></a>
-### Nested Schema for `dynamic_interfaces`
+<a id="nestedatt--interfaces"></a>
+### Nested Schema for `interfaces`
+
+Required:
+
+- `interface_name` (String) Interface Name
+- `vlan_id` (Number) VLAN ID
+  - Range: `1`-`4094`
 
 Optional:
 
-- `interface_gateway` (String) Interface Gateway. Required for AireOS
-- `interface_ip_address` (String) Interface IP Address. Required for AireOS
-- `interface_name` (String) Interface Name. Required for both AireOS and EWLC.
-- `interface_netmask` (Number) Interface Netmask In CIDR. Required for AireOS
-- `lag_or_port_number` (String) LAG or Port Number. Required for AireOS
-- `vlan_id` (Number) VLAN ID. Required for both AireOS and EWLC
+- `interface_gateway` (String) Interface Gateway
+- `interface_ip_address` (String) Interface IP Address
+- `interface_netmask` (Number) Interface Netmask In CIDR
+  - Range: `1`-`30`
+- `lag_or_port_number` (Number) LAG or Port Number
