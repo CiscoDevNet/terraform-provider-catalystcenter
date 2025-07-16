@@ -7,6 +7,7 @@ res_description: 'This resource is used to provision a wireless device. Every ti
   When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices'
 no_data_source: true
 no_read: true
+no_delete: true
 no_import: true
 put_no_id: true
 id_from_attribute: true
@@ -37,7 +38,6 @@ attributes:
     example: Global/Area1
   - model_name: managedAPLocations
     tf_name: managed_ap_locations
-    requires_replace: true
     data_path: '0'
     mandatory: true
     description: List of managed AP locations

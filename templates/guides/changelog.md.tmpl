@@ -9,6 +9,7 @@ description: |-
 
 ## 0.2.12 (unreleased)
 
+- Add `assign_managed_ap_locations` resource
 - Add `reprovision` attribute to `catalystcenter_wireless_device_provision`
 - Add `catalystcenter_ip_pools` data source to retrieve list of all global pools
 
