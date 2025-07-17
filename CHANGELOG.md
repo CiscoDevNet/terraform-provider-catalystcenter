@@ -1,3 +1,7 @@
+## 0.2.13 (unreleased)
+
+- Fix destroy operation for `catalystcenter_fabric_l3_virtual_network` when using `INFRA_VN` or `DEFAULT_VN`
+
 ## 0.2.12
 
 - BREAKING CHANGE: Modified `catalystcenter_wireless_device_provision` resource to use the `/dna/intent/api/v1/wirelessControllers/%v/provision` API endpoint instead of `/dna/intent/api/v1/wireless/provision`

@@ -8,7 +8,7 @@ ds_description:
 get_no_id: true
 no_resource: true
 no_data_source: true
-doc_category: Pools
+doc_category: Network Settings
 attributes:
   - model_name: response
     tf_name: pools
