@@ -2,8 +2,8 @@
 name: Virtual Network To Fabric Site
 rest_endpoint: /dna/intent/api/v1/business/sda/virtual-network
 no_update: true
-no_import: true
-no_data_source: true
+import_no_id: true
+data_source_no_id: true
 skip_minimum_test: true
 res_description: Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.
 doc_category: SDA
@@ -11,13 +11,13 @@ attributes:
   - model_name: virtualNetworkName
     type: String
     mandatory: true
-    data_source_query: true
+    query_param: true
     description: Virtual Network Name, that is created at Global level
     example: SDA_VN1
     test_value: catalystcenter_fabric_virtual_network.test.id
   - model_name: siteNameHierarchy
     mandatory: true
-    data_source_query: true
+    query_param: true
     type: String
     description: Path of SDA Fabric Site, e.g. `Global/Area1
     example: "Global/Area1"

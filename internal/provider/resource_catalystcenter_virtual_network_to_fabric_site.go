@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -40,6 +41,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &VirtualNetworkToFabricSiteResource{}
+var _ resource.ResourceWithImportState = &VirtualNetworkToFabricSiteResource{}
 
 func NewVirtualNetworkToFabricSiteResource() resource.Resource {
 	return &VirtualNetworkToFabricSiteResource{}
@@ -207,4 +209,18 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *VirtualNetworkToFabricSiteResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <virtual_network_name>,<site_name_hierarchy>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("virtual_network_name"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_name_hierarchy"), idParts[1])...)
+}
+
 // End of section. //template:end import
