@@ -7,6 +7,12 @@ description: |-
 
 # Changelog
 
+## 0.2.14 (unreleased)
+
+- Add data source and import support to `catalystcenter_virtual_network_to_fabric_site`
+- Fix create and destroy operation for `catalystcenter_fabric_virtual_network` when using `INFRA_VN` or `DEFAULT_VN`
+- Add `catalystcenter_virtual_network_to_fabric_site` data source and import
+
 ## 0.2.13
 
 - Fix destroy operation for `catalystcenter_fabric_l3_virtual_network` when using `INFRA_VN` or `DEFAULT_VN`

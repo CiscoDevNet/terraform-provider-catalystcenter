@@ -105,7 +105,6 @@ func (r *FabricVirtualNetworkResource) Configure(_ context.Context, req resource
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricVirtualNetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FabricVirtualNetwork
 
@@ -118,14 +117,17 @@ func (r *FabricVirtualNetworkResource) Create(ctx context.Context, req resource.
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Create object
-	body := plan.toBody(ctx, FabricVirtualNetwork{})
+	// Check if VirtualNetworkName is "INFRA_VN" or "DEFAULT_VN"
+	if plan.VirtualNetworkName.ValueString() != "INFRA_VN" && plan.VirtualNetworkName.ValueString() != "DEFAULT_VN" {
+		// Create object
+		body := plan.toBody(ctx, FabricVirtualNetwork{})
 
-	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+		params := ""
+		res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.VirtualNetworkName.ValueString()))
 
@@ -134,8 +136,6 @@ func (r *FabricVirtualNetworkResource) Create(ctx context.Context, req resource.
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricVirtualNetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -211,7 +211,6 @@ func (r *FabricVirtualNetworkResource) Update(ctx context.Context, req resource.
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricVirtualNetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state FabricVirtualNetwork
 
@@ -223,18 +222,19 @@ func (r *FabricVirtualNetworkResource) Delete(ctx context.Context, req resource.
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath()+"?virtualNetworkName="+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
-		return
+
+	if state.VirtualNetworkName.ValueString() != "INFRA_VN" && state.VirtualNetworkName.ValueString() != "DEFAULT_VN" {
+		res, err := r.client.Delete(state.getPath()+"?virtualNetworkName="+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
+		if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+			return
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *FabricVirtualNetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
