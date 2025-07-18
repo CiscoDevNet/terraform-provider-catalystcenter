@@ -1,4 +1,4 @@
-## 0.2.13 (unreleased)
+## 0.2.13
 
 - Fix destroy operation for `catalystcenter_fabric_l3_virtual_network` when using `INFRA_VN` or `DEFAULT_VN`
 
