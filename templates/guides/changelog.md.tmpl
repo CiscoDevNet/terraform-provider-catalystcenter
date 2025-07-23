@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.2.15 (unreleased)
+
+- Fix idempotency issue with `catalystcenter_telemetry_settings`
+
 ## 0.2.14
 
 - Add data source and import support to `catalystcenter_virtual_network_to_fabric_site`

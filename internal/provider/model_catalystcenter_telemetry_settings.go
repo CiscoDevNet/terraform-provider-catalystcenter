@@ -146,7 +146,7 @@ func (data *TelemetrySettings) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.NetflowCollector = types.StringNull()
 	}
-	if value := res.Get("response.applicationVisibility.collector.addres"); value.Exists() {
+	if value := res.Get("response.applicationVisibility.collector.address"); value.Exists() {
 		data.NetflowCollectorIpAddress = types.StringValue(value.String())
 	} else {
 		data.NetflowCollectorIpAddress = types.StringNull()
@@ -202,7 +202,7 @@ func (data *TelemetrySettings) updateFromBody(ctx context.Context, res gjson.Res
 	} else {
 		data.NetflowCollector = types.StringNull()
 	}
-	if value := res.Get("response.applicationVisibility.collector.addres"); value.Exists() && !data.NetflowCollectorIpAddress.IsNull() {
+	if value := res.Get("response.applicationVisibility.collector.address"); value.Exists() && !data.NetflowCollectorIpAddress.IsNull() {
 		data.NetflowCollectorIpAddress = types.StringValue(value.String())
 	} else {
 		data.NetflowCollectorIpAddress = types.StringNull()
