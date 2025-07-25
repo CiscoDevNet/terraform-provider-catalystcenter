@@ -19,6 +19,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider"
@@ -54,8 +55,18 @@ var (
 )
 
 func main() {
+
+	var debug bool
+	flag.BoolVar(&debug, "debug", false, "Enable debug mode")
+	flag.Parse()
+
 	opts := providerserver.ServeOpts{
 		Address: "registry.terraform.io/CiscoDevNet/catalystcenter",
+	}
+
+	if debug {
+		log.Println("[DEBUG] Provider starting in debug mode...")
+		opts.Debug = true
 	}
 
 	err := providerserver.Serve(context.Background(), provider.New(version), opts)

@@ -15,7 +15,8 @@ Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.
 ```terraform
 resource "catalystcenter_virtual_network_to_fabric_site" "example" {
   virtual_network_name = "SDA_VN1"
-  site_name_hierarchy  = "Global/Area1"
+  virtual_network_id   = "c782eff3-b743-4da2-a6ea-a27582a71287"
+  fabric_site_id       = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
 }
 ```
 
@@ -24,19 +25,10 @@ resource "catalystcenter_virtual_network_to_fabric_site" "example" {
 
 ### Required
 
-- `site_name_hierarchy` (String) Path of SDA Fabric Site, e.g. `Global/Area1
-- `virtual_network_name` (String) Virtual Network Name, that is created at Global level
+- `fabric_site_id` (String) ID of the fabric this Layer 3 Virtual Network is to be assigned to.
+- `virtual_network_id` (String) ID of the Virtual Network
+- `virtual_network_name` (String) Virtual Network Name
 
 ### Read-Only
 
 - `id` (String) The id of the object
-
-## Import
-
-Import is supported using the following syntax:
-
-The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
-
-```shell
-terraform import catalystcenter_virtual_network_to_fabric_site.example "<virtual_network_name>,<site_name_hierarchy>"
-```

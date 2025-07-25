@@ -1,27 +1,46 @@
 ---
 name: Virtual Network To Fabric Site
-rest_endpoint: /dna/intent/api/v1/business/sda/virtual-network
+rest_endpoint: /dna/intent/api/v1/sda/layer3VirtualNetworks
 no_update: true
-import_no_id: true
-data_source_no_id: true
+put_create: true
+id_from_query_path: response.0
+id_from_query_path_attribute: fabricIds.0
+no_data_source: true
+no_import: true
 skip_minimum_test: true
 res_description: Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.
 doc_category: SDA
 attributes:
   - model_name: virtualNetworkName
     type: String
+    requires_replace: true
     mandatory: true
     query_param: true
-    description: Virtual Network Name, that is created at Global level
+    data_path: "0"
+    response_data_path: response.0.virtualNetworkName
+    description: Virtual Network Name
     example: SDA_VN1
-    test_value: catalystcenter_fabric_virtual_network.test.id
-  - model_name: siteNameHierarchy
-    mandatory: true
-    query_param: true
+    test_value: catalystcenter_fabric_l3_virtual_network.test.virtual_network_name
+  - model_name: id
+    tf_name: virtual_network_id
+    requires_replace: true
+    response_data_path: response.0.id
+    data_path: "0"
     type: String
-    description: Path of SDA Fabric Site, e.g. `Global/Area1
-    example: "Global/Area1"
-    test_value: '"${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"'
+    mandatory: true
+    description: ID of the Virtual Network
+    example: c782eff3-b743-4da2-a6ea-a27582a71287
+    test_value: catalystcenter_fabric_l3_virtual_network.test.id
+  - model_name: fabricIds
+    tf_name: fabric_site_id
+    data_path: "0"
+    mandatory: true
+    response_data_path: response.0.fabricIds
+    description: ID of the fabric this Layer 3 Virtual Network is to be assigned to.
+    type: String
+    write_only: true
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_fabric_site.test.id
 test_prerequisites: |
   resource "catalystcenter_area" "test" {
     name        = "Area1"
@@ -29,16 +48,15 @@ test_prerequisites: |
   }
   resource "catalystcenter_fabric_site" "test" {
     site_id                     = catalystcenter_area.test.id
-    authentication_profile_name = "No Authentication"
     pub_sub_enabled             = false
-
-    depends_on = [catalystcenter_area.test]
+    authentication_profile_name = "No Authentication"
   }
-  resource "catalystcenter_fabric_virtual_network" "test" {
-    virtual_network_name = "SDA_VN1"
-    is_guest             = false
-    sg_names             = ["Employees"]
+  resource "catalystcenter_fabric_l3_virtual_network" "test" {
+    virtual_network_name = "MyL3VN"
 
-    depends_on = [catalystcenter_fabric_site.test]
+    lifecycle {
+      ignore_changes = [
+        fabric_ids
+      ]
+    }
   }
-
