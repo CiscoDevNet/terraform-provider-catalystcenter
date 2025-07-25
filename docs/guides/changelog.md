@@ -9,6 +9,7 @@ description: |-
 
 ## 0.2.15 (unreleased)
 
+- Add a debug flag to enable starting a provider in debug mode
 - Fix idempotency issue with `catalystcenter_telemetry_settings`
 
 ## 0.2.14
