@@ -32,14 +32,15 @@ import (
 type VirtualNetworkToFabricSite struct {
 	Id                 types.String `tfsdk:"id"`
 	VirtualNetworkName types.String `tfsdk:"virtual_network_name"`
-	SiteNameHierarchy  types.String `tfsdk:"site_name_hierarchy"`
+	VirtualNetworkId   types.String `tfsdk:"virtual_network_id"`
+	FabricSiteId       types.String `tfsdk:"fabric_site_id"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data VirtualNetworkToFabricSite) getPath() string {
-	return "/dna/intent/api/v1/business/sda/virtual-network"
+	return "/dna/intent/api/v1/sda/layer3VirtualNetworks"
 }
 
 // End of section. //template:end getPath
@@ -48,8 +49,7 @@ func (data VirtualNetworkToFabricSite) getPath() string {
 
 // End of section. //template:end getPathDelete
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data VirtualNetworkToFabricSite) toBody(ctx context.Context, state VirtualNetworkToFabricSite) string {
+func (data VirtualNetworkToFabricSite) toBody(ctx context.Context, state VirtualNetworkToFabricSite, fabricIds []string) string {
 	body := ""
 	put := false
 	if state.Id.ValueString() != "" {
@@ -57,33 +57,28 @@ func (data VirtualNetworkToFabricSite) toBody(ctx context.Context, state Virtual
 	}
 	_ = put
 	if !data.VirtualNetworkName.IsNull() {
-		body, _ = sjson.Set(body, "virtualNetworkName", data.VirtualNetworkName.ValueString())
+		body, _ = sjson.Set(body, "0.virtualNetworkName", data.VirtualNetworkName.ValueString())
 	}
-	if !data.SiteNameHierarchy.IsNull() {
-		body, _ = sjson.Set(body, "siteNameHierarchy", data.SiteNameHierarchy.ValueString())
+	if !data.VirtualNetworkId.IsNull() {
+		body, _ = sjson.Set(body, "0.id", data.VirtualNetworkId.ValueString())
+	}
+	if len(fabricIds) > 0 {
+		body, _ = sjson.Set(body, "0.fabricIds", fabricIds)
 	}
 	return body
 }
 
-// End of section. //template:end toBody
-
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *VirtualNetworkToFabricSite) fromBody(ctx context.Context, res gjson.Result) {
-	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get(""); value.Exists() {
-		data.Id = types.StringValue(value.String())
-	} else {
-		data.Id = types.StringNull()
-	}
-	if value := res.Get("virtualNetworkName"); value.Exists() {
+	if value := res.Get("response.0.virtualNetworkName"); value.Exists() {
 		data.VirtualNetworkName = types.StringValue(value.String())
 	} else {
 		data.VirtualNetworkName = types.StringNull()
 	}
-	if value := res.Get("siteNameHierarchy"); value.Exists() {
-		data.SiteNameHierarchy = types.StringValue(value.String())
+	if value := res.Get("response.0.id"); value.Exists() {
+		data.VirtualNetworkId = types.StringValue(value.String())
 	} else {
-		data.SiteNameHierarchy = types.StringNull()
+		data.VirtualNetworkId = types.StringNull()
 	}
 }
 
@@ -91,15 +86,15 @@ func (data *VirtualNetworkToFabricSite) fromBody(ctx context.Context, res gjson.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *VirtualNetworkToFabricSite) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("virtualNetworkName"); value.Exists() && !data.VirtualNetworkName.IsNull() {
+	if value := res.Get("response.0.virtualNetworkName"); value.Exists() && !data.VirtualNetworkName.IsNull() {
 		data.VirtualNetworkName = types.StringValue(value.String())
 	} else {
 		data.VirtualNetworkName = types.StringNull()
 	}
-	if value := res.Get("siteNameHierarchy"); value.Exists() && !data.SiteNameHierarchy.IsNull() {
-		data.SiteNameHierarchy = types.StringValue(value.String())
+	if value := res.Get("response.0.id"); value.Exists() && !data.VirtualNetworkId.IsNull() {
+		data.VirtualNetworkId = types.StringValue(value.String())
 	} else {
-		data.SiteNameHierarchy = types.StringNull()
+		data.VirtualNetworkId = types.StringNull()
 	}
 }
 
@@ -107,6 +102,12 @@ func (data *VirtualNetworkToFabricSite) updateFromBody(ctx context.Context, res 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *VirtualNetworkToFabricSite) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.VirtualNetworkId.IsNull() {
+		return false
+	}
+	if !data.FabricSiteId.IsNull() {
+		return false
+	}
 	return true
 }
 

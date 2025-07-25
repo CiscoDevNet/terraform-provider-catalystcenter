@@ -25,7 +25,6 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -41,7 +40,6 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &VirtualNetworkToFabricSiteResource{}
-var _ resource.ResourceWithImportState = &VirtualNetworkToFabricSiteResource{}
 
 func NewVirtualNetworkToFabricSiteResource() resource.Resource {
 	return &VirtualNetworkToFabricSiteResource{}
@@ -69,11 +67,21 @@ func (r *VirtualNetworkToFabricSiteResource) Schema(ctx context.Context, req res
 				},
 			},
 			"virtual_network_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Virtual Network Name, that is created at Global level").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Virtual Network Name").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
-			"site_name_hierarchy": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Path of SDA Fabric Site, e.g. `Global/Area1").String,
+			"virtual_network_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the Virtual Network").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"fabric_site_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric this Layer 3 Virtual Network is to be assigned to.").String,
 				Required:            true,
 			},
 		},
@@ -100,25 +108,55 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
-
-	// Create object
-	body := plan.toBody(ctx, VirtualNetworkToFabricSite{})
-
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	params += "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
+	res, err := r.client.Get(plan.getPath() + params)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
 
-	plan.Id = basetypes.NewStringValue(plan.VirtualNetworkName.ValueString() + "-" + plan.SiteNameHierarchy.ValueString())
+	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+
+	// Extract existing fabricIds list
+	existingFabricIds := []string{}
+	for _, id := range res.Get("response.0.fabricIds").Array() {
+		existingFabricIds = append(existingFabricIds, id.String())
+	}
+
+	// Append the new FabricSiteId if it’s not already in the list
+	alreadyExists := false
+	for _, id := range existingFabricIds {
+		if id == plan.FabricSiteId.ValueString() {
+			alreadyExists = true
+			break
+		}
+	}
+
+	if !alreadyExists {
+		existingFabricIds = append(existingFabricIds, plan.FabricSiteId.ValueString())
+	}
+
+	// Create object
+	body := plan.toBody(ctx, VirtualNetworkToFabricSite{}, existingFabricIds)
+
+	params = ""
+	res, err = r.client.Put(plan.getPath()+params, body)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+		return
+	}
+
+	compositeId := plan.FabricSiteId.ValueString() + "--" + plan.VirtualNetworkName.ValueString()
+	plan.Id = basetypes.NewStringPointerValue(&compositeId)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
 
+// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state VirtualNetworkToFabricSite
 
@@ -132,10 +170,9 @@ func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resou
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?siteNameHierarchy=" + url.QueryEscape(state.SiteNameHierarchy.ValueString())
-	params += "&virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
+	params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
@@ -155,6 +192,8 @@ func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resou
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *VirtualNetworkToFabricSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -194,12 +233,38 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+
 	params := ""
-	params += "?siteNameHierarchy=" + url.QueryEscape(state.SiteNameHierarchy.ValueString())
-	params += "&virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
-	res, err := r.client.Delete(state.getPath() + params)
+	params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
+	res, err := r.client.Get(state.getPath() + params)
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	existingFabricIds := []string{}
+	for _, id := range res.Get("response.0.fabricIds").Array() {
+		existingFabricIds = append(existingFabricIds, id.String())
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("Existing fabric IDs before removal: %v", existingFabricIds))
+
+	// Extract existing fabricIds list
+	newFabricIds := []string{}
+	for _, id := range existingFabricIds {
+		if id != state.FabricSiteId.ValueString() {
+			newFabricIds = append(newFabricIds, id)
+		}
+	}
+
+	body := state.toBody(ctx, VirtualNetworkToFabricSite{}, newFabricIds)
+
+	res, err = r.client.Put(state.getPath(), body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
 	}
 
@@ -209,18 +274,4 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *VirtualNetworkToFabricSiteResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
-
-	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <virtual_network_name>,<site_name_hierarchy>. Got: %q", req.ID),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("virtual_network_name"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_name_hierarchy"), idParts[1])...)
-}
-
 // End of section. //template:end import
