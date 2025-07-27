@@ -7,6 +7,7 @@ id_from_query_path: response.0
 id_from_query_path_attribute: fabricIds.0
 no_data_source: true
 no_import: true
+mutex: true
 skip_minimum_test: true
 res_description: Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.
 doc_category: SDA
