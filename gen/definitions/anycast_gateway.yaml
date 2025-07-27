@@ -33,7 +33,7 @@ attributes:
     mandatory: true
     description: Name of the layer 3 virtual network associated with the anycast gateway. the virtual network must have already been added to the site before creating an anycast gateway with it
     example: SDA_VN1
-    test_value: catalystcenter_virtual_network_to_fabric_site.test.virtual_network_name
+    test_value: catalystcenter_fabric_l3_virtual_network.test.virtual_network_name
   - model_name: ipPoolName
     requires_replace: true
     query_param: true
@@ -177,13 +177,7 @@ test_prerequisites: |
     pub_sub_enabled             = false
     authentication_profile_name = "No Authentication"
   }
-  resource "catalystcenter_fabric_virtual_network" "test" {
+  resource "catalystcenter_fabric_l3_virtual_network" "test" {
     virtual_network_name = "SDA_VN1"
-    is_guest             = false
-    sg_names             = ["Employees"]
-  }
-  resource "catalystcenter_virtual_network_to_fabric_site" "test" {
-    virtual_network_name = catalystcenter_fabric_virtual_network.test.id
-    site_name_hierarchy  = "Global/Area1"
-    depends_on = [catalystcenter_fabric_site.test]
+    fabric_ids           = [catalystcenter_fabric_site.test.id]
   }

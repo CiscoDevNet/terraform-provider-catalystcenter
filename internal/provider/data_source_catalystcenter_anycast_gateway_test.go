@@ -77,16 +77,11 @@ resource "catalystcenter_fabric_site" "test" {
   pub_sub_enabled             = false
   authentication_profile_name = "No Authentication"
 }
-resource "catalystcenter_fabric_virtual_network" "test" {
+resource "catalystcenter_fabric_l3_virtual_network" "test" {
   virtual_network_name = "SDA_VN1"
-  is_guest             = false
-  sg_names             = ["Employees"]
+  fabric_ids           = [catalystcenter_fabric_site.test.id]
 }
-resource "catalystcenter_virtual_network_to_fabric_site" "test" {
-  virtual_network_name = catalystcenter_fabric_virtual_network.test.id
-  site_name_hierarchy  = "Global/Area1"
-  depends_on = [catalystcenter_fabric_site.test]
-}
+
 `
 
 // End of section. //template:end testPrerequisites
@@ -95,7 +90,7 @@ resource "catalystcenter_virtual_network_to_fabric_site" "test" {
 func testAccDataSourceCcAnycastGatewayConfig() string {
 	config := `resource "catalystcenter_anycast_gateway" "test" {` + "\n"
 	config += `	fabric_id = catalystcenter_fabric_site.test.id` + "\n"
-	config += `	virtual_network_name = catalystcenter_virtual_network_to_fabric_site.test.virtual_network_name` + "\n"
+	config += `	virtual_network_name = catalystcenter_fabric_l3_virtual_network.test.virtual_network_name` + "\n"
 	config += `	ip_pool_name = catalystcenter_ip_pool_reservation.test.name` + "\n"
 	config += `	tcp_mss_adjustment = 1400` + "\n"
 	config += `	vlan_name = "VLAN401"` + "\n"
@@ -112,7 +107,7 @@ func testAccDataSourceCcAnycastGatewayConfig() string {
 	config += `
 		data "catalystcenter_anycast_gateway" "test" {
 			fabric_id = catalystcenter_fabric_site.test.id
-			virtual_network_name = catalystcenter_virtual_network_to_fabric_site.test.virtual_network_name
+			virtual_network_name = catalystcenter_fabric_l3_virtual_network.test.virtual_network_name
 			ip_pool_name = catalystcenter_ip_pool_reservation.test.name
 			depends_on = [catalystcenter_anycast_gateway.test]
 		}
