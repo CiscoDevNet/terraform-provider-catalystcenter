@@ -141,7 +141,7 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 	body := plan.toBody(ctx, VirtualNetworkToFabricSite{}, existingFabricIds)
 
 	params = ""
-	res, err = r.client.Put(plan.getPath()+params, body)
+	res, err = r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
@@ -236,7 +236,7 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 
 	params := ""
 	params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.client.Get(state.getPath()+params, cc.UseMutex)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -262,7 +262,7 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 
 	body := state.toBody(ctx, VirtualNetworkToFabricSite{}, newFabricIds)
 
-	res, err = r.client.Put(state.getPath(), body)
+	res, err = r.client.Put(state.getPath(), body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
