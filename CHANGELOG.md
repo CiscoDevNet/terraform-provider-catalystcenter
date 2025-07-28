@@ -1,4 +1,4 @@
-## 0.2.16 (unreleased)
+## 0.2.16
 
 - Add `catalystcenter_fabric_sites` data source to retrieve list of all fabric sites
 
