@@ -1,4 +1,4 @@
-## 0.2.15 (unreleased)
+## 0.2.15
 
 - BREAKING CHANGE: Modified `catalystcenter_virtual_network_to_fabric_site` to use the `/dna/intent/api/v1/sda/layer3VirtualNetworks` API endpoint instead of `/dna/intent/api/v1/business/sda/virtual-network` and remove data_source and import
 - Add a debug flag to enable starting a provider in debug mode
