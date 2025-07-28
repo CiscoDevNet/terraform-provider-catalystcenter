@@ -54,10 +54,6 @@ func (d *FabricSitesDataSource) Schema(ctx context.Context, req datasource.Schem
 		MarkdownDescription: "This data source fetches all fabric sites defined on the Catalyst Center. To retrieve detailed information about a specific site, use the data source `data.catalystcenter_fabric_site`.",
 
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				MarkdownDescription: "The id of the object",
-				Computed:            true,
-			},
 			"sites": schema.ListNestedAttribute{
 				MarkdownDescription: "",
 				Computed:            true,

@@ -28,9 +28,7 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin types
 type FabricSites struct {
-	Id    types.String       `tfsdk:"id"`
 	Sites []FabricSitesSites `tfsdk:"sites"`
 }
 
@@ -40,8 +38,6 @@ type FabricSitesSites struct {
 	AuthenticationProfileName types.String `tfsdk:"authentication_profile_name"`
 	IsPubSubEnabled           types.Bool   `tfsdk:"is_pub_sub_enabled"`
 }
-
-// End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data FabricSites) getPath() string {

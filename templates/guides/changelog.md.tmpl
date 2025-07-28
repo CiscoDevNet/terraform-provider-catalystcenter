@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.2.16 (unreleased)
+
+- Add `catalystcenter_fabric_sites` data source to retrieve list of all fabric sites
+
 ## 0.2.15
 
 - BREAKING CHANGE: Modified `catalystcenter_virtual_network_to_fabric_site` to use the `/dna/intent/api/v1/sda/layer3VirtualNetworks` API endpoint instead of `/dna/intent/api/v1/business/sda/virtual-network` and remove data_source and import
