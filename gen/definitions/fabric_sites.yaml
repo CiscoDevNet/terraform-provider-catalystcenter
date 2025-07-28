@@ -1,0 +1,42 @@
+---
+name: Fabric Sites
+rest_endpoint: /dna/intent/api/v1/sda/fabricSites
+# manually managed data source
+ds_description:
+  "This data source fetches all fabric sites defined on the Catalyst Center.
+  To retrieve detailed information about a specific site, use the data source `data.catalystcenter_fabric_site`."
+get_no_id: true
+no_resource: true
+no_data_source: true
+doc_category: SDA
+attributes:
+  - model_name: response
+    tf_name: sites
+    type: List
+    attributes:
+      - model_name: id
+        type: String
+        description: ID of the fabric site
+        example: e0ba1a00-b69b-45aa-8c13-4cdfb59afe65
+      - model_name: siteId
+        type: String
+        description: ID of the network hierarchy associated with the fabric site
+        example: 151995f8-6d51-4dc2-beeb-d6bc761a18e2
+      - model_name: authenticationProfileName
+        type: String
+        description: Authentication profile used for this fabric
+        example: No Authentication
+      - model_name: isPubSubEnabled
+        type: Bool
+        description: Specifies whether this fabric site will use pub/sub for control nodes
+        example: true
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = true
+    authentication_profile_name = "No Authentication"
+  }  
