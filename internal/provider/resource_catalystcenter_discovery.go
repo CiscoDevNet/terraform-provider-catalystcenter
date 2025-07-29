@@ -325,12 +325,8 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
-		if !globalAllowExistingOnCreate {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-			return
-		} else {
-			tflog.Debug(ctx, fmt.Sprintf("Placeholder for updating existing resource"))
-		}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+		return
 	}
 	params = ""
 	res, err = r.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
@@ -339,12 +335,7 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.#(name==\"" + plan.Name.ValueString() + "\").id").String())
-
-	if !globalAllowExistingOnCreate {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
-	} else {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
-	}
+	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)

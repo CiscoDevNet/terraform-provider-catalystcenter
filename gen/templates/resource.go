@@ -462,6 +462,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
 	{{- end}}
 	if err != nil {
+	{{- if .AllowExistingOnCreate}}	
 		if !globalAllowExistingOnCreate {
 		{{- if .DeviceUnreachabilityWarning}}
 			errorCode := res.Get("response.errorCode").String()
@@ -473,35 +474,18 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
 				return
 			}
+		}
+		
 		{{- else}}
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
 			return
 		{{- end}}
-		} else {
-			{{- if .IdPath}}
-			plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())
-			res, err := r.client.Put(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
-			if err != nil {
-			{{- if .DeviceUnreachabilityWarning}}
-				errorCode := res.Get("response.errorCode").String()
-				if errorCode == "NCDP10000" {
-					// Log a warning and continue execution when device is unreachable
-					failureReason := res.Get("response.failureReason").String()
-					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-				} else {
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
-					return
-				}
-			{{- else}}
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
-				return
-			{{- end}}
-			}
-			resp.Diagnostics.AddWarning("Allow Existing On Create Warning", fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
-			{{- else}}
-				tflog.Debug(ctx, fmt.Sprintf("Placeholder for updating existing resource"))
-			{{- end}}
-		}
+	}
+		
+	{{- else}}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+		return
+	{{- end}}
 	}
 	{{- /* Check if id can be resolved directly from response */}}
 	{{- if .IdPath}}
@@ -572,11 +556,23 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	plan.fromBodyUnknowns(ctx, res)
 	{{- end}}
 	
+
+
+	{{- if .AllowExistingOnCreate}}
 	if !globalAllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
+		body = plan.toBody(ctx, {{camelCase .Name}}{Id: plan.Id})
+		res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
 	}
+	{{- else}}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	{{- end}}
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)

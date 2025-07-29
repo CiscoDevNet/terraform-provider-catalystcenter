@@ -112,21 +112,18 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 		if !globalAllowExistingOnCreate {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 			return
-		} else {
-			plan.Id = types.StringValue(res.Get("siteId").String())
-			res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body)
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-				return
-			}
-			resp.Diagnostics.AddWarning("Allow Existing On Create Warning", fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
 		}
 	}
 	plan.Id = types.StringValue(res.Get("siteId").String())
-
 	if !globalAllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
+		body = plan.toBody(ctx, Area{Id: plan.Id})
+		res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
 	}
 

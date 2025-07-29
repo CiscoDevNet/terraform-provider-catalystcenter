@@ -10,6 +10,7 @@ get_no_id: true
 no_resource: true
 no_data_source: true
 doc_category: Sites
+allow_existing_on_create: true
 attributes:
   - model_name: type
     tf_name: type
