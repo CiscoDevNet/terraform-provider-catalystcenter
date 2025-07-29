@@ -261,6 +261,7 @@ func (r *AuthenticationPolicyServerResource) Create(ctx context.Context, req res
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.#(ipAddress==\"" + plan.IpAddress.ValueString() + "\").instanceUuid").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

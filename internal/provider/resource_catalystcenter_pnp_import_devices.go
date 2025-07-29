@@ -125,6 +125,7 @@ func (r *PnPImportDevicesResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

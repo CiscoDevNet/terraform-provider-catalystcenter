@@ -205,6 +205,7 @@ func (r *LANAutomationResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.taskId").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

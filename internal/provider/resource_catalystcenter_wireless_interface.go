@@ -125,6 +125,7 @@ func (r *WirelessInterfaceResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.0.id").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

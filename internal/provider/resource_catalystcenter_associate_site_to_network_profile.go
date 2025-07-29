@@ -116,6 +116,7 @@ func (r *AssociateSiteToNetworkProfileResource) Create(ctx context.Context, req 
 		return
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkProfileId.ValueString()))
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

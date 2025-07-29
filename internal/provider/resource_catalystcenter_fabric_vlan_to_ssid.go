@@ -139,6 +139,7 @@ func (r *FabricVLANToSSIDResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.FabricId.ValueString()))
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

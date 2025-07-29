@@ -571,6 +571,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
 	}
 	{{- else}}
+	
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	{{- end}}
 

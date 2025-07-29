@@ -117,6 +117,7 @@ func (r *AssignDevicesToTagResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.TagId.ValueString()))
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

@@ -222,6 +222,7 @@ func (r *AnycastGatewayResource) Create(ctx context.Context, req resource.Create
 	}
 	plan.Id = types.StringValue(res.Get("response.0.id").String())
 	plan.fromBodyUnknowns(ctx, res)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

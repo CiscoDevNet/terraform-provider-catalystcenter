@@ -154,6 +154,7 @@ func (r *WirelessProfileResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.#(wirelessProfileName==\"" + plan.WirelessProfileName.ValueString() + "\").id").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

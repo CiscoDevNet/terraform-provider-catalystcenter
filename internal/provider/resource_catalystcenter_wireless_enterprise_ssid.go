@@ -280,6 +280,7 @@ func (r *WirelessEnterpriseSSIDResource) Create(ctx context.Context, req resourc
 		return
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.Name.ValueString()))
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

@@ -122,6 +122,7 @@ func (r *CredentialsSNMPv2WriteResource) Create(ctx context.Context, req resourc
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.snmpV2cWrite.#(description==\"" + plan.Description.ValueString() + "\").id").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

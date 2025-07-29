@@ -464,6 +464,7 @@ func (r *WirelessSSIDResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.#(ssid==\"" + plan.Ssid.ValueString() + "\").id").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

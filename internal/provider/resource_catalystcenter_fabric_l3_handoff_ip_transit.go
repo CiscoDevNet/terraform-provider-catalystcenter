@@ -200,6 +200,7 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.#(vlanId==\"" + strconv.FormatInt(plan.VlanId.ValueInt64(), 10) + "\").id").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
