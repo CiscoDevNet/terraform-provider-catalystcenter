@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.2.17 (unreleased)
+
+- Fix issue with `pre_auth_acl_description` in `catalystcenter_update_authentication_profile` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/258)
+
 ## 0.2.16
 
 - Add `catalystcenter_fabric_sites` data source to retrieve list of all fabric sites
