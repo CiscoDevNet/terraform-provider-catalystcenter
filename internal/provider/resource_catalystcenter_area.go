@@ -110,7 +110,7 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		if !globalAllowExistingOnCreate {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. AllowExistingOnCreate in ON, so proceed to update existing resource", "POST", err, res.String()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 			return
@@ -126,7 +126,7 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 			return
 		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, but allow_existing_on_create is set to true, so the existing resource was updated instead of created", plan.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 	}
 
 	diags = resp.State.Set(ctx, &plan)
