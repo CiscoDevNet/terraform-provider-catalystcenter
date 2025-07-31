@@ -121,7 +121,7 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
-		if !globalAllowExistingOnCreate {
+		if globalAllowExistingOnCreate {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
@@ -139,7 +139,7 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
 		body = plan.toBody(ctx, FabricSite{Id: plan.Id})
-		res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
+		res, err = r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 			return
