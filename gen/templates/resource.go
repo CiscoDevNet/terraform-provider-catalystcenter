@@ -462,31 +462,40 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
 	{{- end}}
 	if err != nil {
-	{{- if .AllowExistingOnCreate}}	
-		if !globalAllowExistingOnCreate {
-		{{- if .DeviceUnreachabilityWarning}}
-			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
-				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
-				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-			} else {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
-				return
-			}
+	{{- if .DeviceUnreachabilityWarning}}
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCDP10000" {
+			// Log a warning and continue execution when device is unreachable
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			{{- if .AllowExistingOnCreate}}	
+				if !globalAllowExistingOnCreate {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. AllowExistingOnCreate in ON, so proceed to update existing resource", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+				} else{
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+					return
+				}
+			{{- else}}
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+			return
+			{{- end}}
 		}
-		
-		{{- else}}
+	{{- else}}
+		{{- if .AllowExistingOnCreate}}	
+				if !globalAllowExistingOnCreate {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. AllowExistingOnCreate in ON, so proceed to update existing resource", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+				} else{
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+					return
+				}
+			{{- else}}
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
 			return
 		{{- end}}
-	}
-		
-	{{- else}}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
-		return
 	{{- end}}
 	}
+
 	{{- /* Check if id can be resolved directly from response */}}
 	{{- if .IdPath}}
 	plan.Id = types.StringValue(res.Get("{{.IdPath}}").String())

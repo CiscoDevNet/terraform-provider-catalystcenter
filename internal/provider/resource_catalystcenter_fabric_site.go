@@ -122,6 +122,8 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		if !globalAllowExistingOnCreate {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. AllowExistingOnCreate in ON, so proceed to update existing resource", "POST", err, res.String()))
+		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 			return
 		}

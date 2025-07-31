@@ -146,8 +146,15 @@ func (r *FabricL3HandoffSDATransitResource) Create(ctx context.Context, req reso
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCDP10000" {
+			// Log a warning and continue execution when device is unreachable
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
 
