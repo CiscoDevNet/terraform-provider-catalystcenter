@@ -99,7 +99,7 @@ func (data UpdateAuthenticationProfile) toBody(ctx context.Context, state Update
 		body, _ = sjson.Set(body, "0.preAuthAcl.implicitAction", data.PreAuthAclImplicitAction.ValueString())
 	}
 	if !data.PreAuthAclDescription.IsNull() {
-		body, _ = sjson.Set(body, "0.preAuthAcl.", data.PreAuthAclDescription.ValueString())
+		body, _ = sjson.Set(body, "0.preAuthAcl.description", data.PreAuthAclDescription.ValueString())
 	}
 	if len(data.PreAuthAclAccessContracts) > 0 {
 		body, _ = sjson.Set(body, "0.preAuthAcl.accessContracts", []interface{}{})

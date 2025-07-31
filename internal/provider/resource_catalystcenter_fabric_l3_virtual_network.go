@@ -265,12 +265,25 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	params := ""
-	params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
-	res, err := r.client.Delete(state.getPath()+params, cc.UseMutex)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
-		return
+
+	if state.VirtualNetworkName.ValueString() != "INFRA_VN" && state.VirtualNetworkName.ValueString() != "DEFAULT_VN" {
+		params := ""
+		params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
+		res, err := r.client.Delete(state.getPath()+params, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+			return
+		}
+	} else {
+		// For INFRA_VN and DEFAULT_VN, we do not delete them, we just remove fabric site associations
+		// Perform PUT request with empty fabricIds
+		state.FabricIds = types.SetNull(types.StringType)
+		body := state.toBody(ctx, FabricL3VirtualNetwork{})
+		res, err := r.client.Put(state.getPath(), body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+			return
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))

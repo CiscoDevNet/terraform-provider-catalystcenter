@@ -68,6 +68,8 @@ resource "catalystcenter_anycast_gateway" "example" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 terraform import catalystcenter_anycast_gateway.example "<fabric_id>,<virtual_network_name>,<ip_pool_name>"
 ```

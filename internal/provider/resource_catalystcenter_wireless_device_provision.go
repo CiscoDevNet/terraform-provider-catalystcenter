@@ -25,12 +25,12 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -58,7 +58,7 @@ func (r *WirelessDeviceProvisionResource) Metadata(ctx context.Context, req reso
 func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource is used to provision a wireless device. Every time this resource is created or re-created, the Catalyst Center considers provisioning new wireless device. When this resource is destroyed or updated or refreshed, no actions are done either on CatalystCenter or on devices").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource is used to provision a wireless device. To reprovision a device, set the `reprovision` attribute to `true`. The resource will then trigger reprovisioning on every Terraform apply.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,13 +68,6 @@ func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resour
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"device_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Controller Name").String,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"network_device_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Network Device ID").String,
 				Required:            true,
@@ -82,51 +75,63 @@ func (r *WirelessDeviceProvisionResource) Schema(ctx context.Context, req resour
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"site": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Full Site Hierarchy where device has to be assigned").String,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+			"ap_reboot_percentage": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("AP Reboot Percentage").String,
+				Optional:            true,
 			},
-			"managed_ap_locations": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of managed AP locations").String,
-				ElementType:         types.StringType,
-				Required:            true,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.RequiresReplace(),
-				},
+			"enable_rolling_ap_upgrade": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("True if Rolling AP Upgrade is enabled, else False").String,
+				Optional:            true,
 			},
-			"dynamic_interfaces": schema.ListNestedAttribute{
+			"skip_ap_provision": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("True if Skip AP Provision is enabled, else False").String,
+				Optional:            true,
+			},
+			"ap_authorization_list_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("AP Authorization List Name").String,
+				Optional:            true,
+			},
+			"authorize_mesh_and_non_mesh_access_points": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("True if Mesh and Non-Mesh Access Points are authorized, else False").String,
+				Optional:            true,
+			},
+			"reprovision": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply").String,
+				Optional:            true,
+			},
+			"interfaces": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Dynamic Interface Details. The required attributes depend on the device type").String,
 				Optional:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
-				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"interface_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Interface Name").String,
+							Required:            true,
+						},
+						"vlan_id": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("VLAN ID").AddIntegerRangeDescription(1, 4094).String,
+							Required:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(1, 4094),
+							},
+						},
 						"interface_ip_address": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface IP Address. Required for AireOS").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Interface IP Address").String,
 							Optional:            true,
 						},
 						"interface_netmask": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface Netmask In CIDR. Required for AireOS").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Interface Netmask In CIDR").AddIntegerRangeDescription(1, 30).String,
 							Optional:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(1, 30),
+							},
 						},
 						"interface_gateway": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface Gateway. Required for AireOS").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Interface Gateway").String,
 							Optional:            true,
 						},
-						"lag_or_port_number": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("LAG or Port Number. Required for AireOS").String,
-							Optional:            true,
-						},
-						"vlan_id": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("VLAN ID. Required for both AireOS and EWLC").String,
-							Optional:            true,
-						},
-						"interface_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Interface Name. Required for both AireOS and EWLC.").String,
+						"lag_or_port_number": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("LAG or Port Number").String,
 							Optional:            true,
 						},
 					},
@@ -146,7 +151,6 @@ func (r *WirelessDeviceProvisionResource) Configure(_ context.Context, req resou
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan WirelessDeviceProvision
 
@@ -162,6 +166,12 @@ func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resour
 	// Create object
 	body := plan.toBody(ctx, WirelessDeviceProvision{})
 
+	if body == "" {
+		body = "{}"
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("%v: BODYBODY", body))
+
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
@@ -176,9 +186,6 @@ func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resour
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end create
-
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state WirelessDeviceProvision
 
@@ -191,15 +198,14 @@ func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
+	state.Reprovision = types.BoolValue(false) // Reset reprovision flag to false on read
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end read
-
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state WirelessDeviceProvision
 
@@ -217,13 +223,23 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
-
-	body := plan.toBody(ctx, state)
-	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-		return
+	if plan.Reprovision.ValueBool() {
+		body := "{}" // Empty body for reprovisioning
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Re-Provisioning", plan.Id.ValueString()))
+		params := ""
+		res, err := r.client.Post(plan.getPathUpdate()+params, body)
+		if err != nil {
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
+				return
+			}
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device Re-Provisioning finished successfully", plan.Id.ValueString()))
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -231,8 +247,6 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

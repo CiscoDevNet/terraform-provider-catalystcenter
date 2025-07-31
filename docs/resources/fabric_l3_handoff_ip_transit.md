@@ -56,6 +56,8 @@ resource "catalystcenter_fabric_l3_handoff_ip_transit" "example" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 terraform import catalystcenter_fabric_l3_handoff_ip_transit.example "<network_device_id>,<fabric_id>,<id>"
 ```

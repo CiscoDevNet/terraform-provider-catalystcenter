@@ -20,9 +20,10 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"fmt"
+	"net/url"
 	"strconv"
 
-	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -32,28 +33,31 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type WirelessDeviceProvision struct {
-	Id                 types.String                               `tfsdk:"id"`
-	DeviceName         types.String                               `tfsdk:"device_name"`
-	NetworkDeviceId    types.String                               `tfsdk:"network_device_id"`
-	Site               types.String                               `tfsdk:"site"`
-	ManagedApLocations types.Set                                  `tfsdk:"managed_ap_locations"`
-	DynamicInterfaces  []WirelessDeviceProvisionDynamicInterfaces `tfsdk:"dynamic_interfaces"`
+	Id                                  types.String                        `tfsdk:"id"`
+	NetworkDeviceId                     types.String                        `tfsdk:"network_device_id"`
+	ApRebootPercentage                  types.Int64                         `tfsdk:"ap_reboot_percentage"`
+	EnableRollingApUpgrade              types.Bool                          `tfsdk:"enable_rolling_ap_upgrade"`
+	SkipApProvision                     types.Bool                          `tfsdk:"skip_ap_provision"`
+	ApAuthorizationListName             types.String                        `tfsdk:"ap_authorization_list_name"`
+	AuthorizeMeshAndNonMeshAccessPoints types.Bool                          `tfsdk:"authorize_mesh_and_non_mesh_access_points"`
+	Reprovision                         types.Bool                          `tfsdk:"reprovision"`
+	Interfaces                          []WirelessDeviceProvisionInterfaces `tfsdk:"interfaces"`
 }
 
-type WirelessDeviceProvisionDynamicInterfaces struct {
+type WirelessDeviceProvisionInterfaces struct {
+	InterfaceName      types.String `tfsdk:"interface_name"`
+	VlanId             types.Int64  `tfsdk:"vlan_id"`
 	InterfaceIpAddress types.String `tfsdk:"interface_ip_address"`
 	InterfaceNetmask   types.Int64  `tfsdk:"interface_netmask"`
 	InterfaceGateway   types.String `tfsdk:"interface_gateway"`
-	LagOrPortNumber    types.String `tfsdk:"lag_or_port_number"`
-	VlanId             types.Int64  `tfsdk:"vlan_id"`
-	InterfaceName      types.String `tfsdk:"interface_name"`
+	LagOrPortNumber    types.Int64  `tfsdk:"lag_or_port_number"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data WirelessDeviceProvision) getPath() string {
-	return "/dna/intent/api/v1/wireless/provision"
+	return fmt.Sprintf("/dna/intent/api/v1/wirelessControllers/%v/provision", url.QueryEscape(data.NetworkDeviceId.ValueString()))
 }
 
 // End of section. //template:end getPath
@@ -66,6 +70,10 @@ func (data WirelessDeviceProvision) getPathDelete() string {
 
 // End of section. //template:end getPathDelete
 
+func (data WirelessDeviceProvision) getPathUpdate() string {
+	return fmt.Sprintf("/dna/intent/api/v1/wirelessControllers/%v/provision", url.QueryEscape(data.NetworkDeviceId.ValueString()))
+}
+
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data WirelessDeviceProvision) toBody(ctx context.Context, state WirelessDeviceProvision) string {
 	body := ""
@@ -74,24 +82,34 @@ func (data WirelessDeviceProvision) toBody(ctx context.Context, state WirelessDe
 		put = true
 	}
 	_ = put
-	if !data.DeviceName.IsNull() {
-		body, _ = sjson.Set(body, "0.deviceName", data.DeviceName.ValueString())
+	if !data.ApRebootPercentage.IsNull() {
+		body, _ = sjson.Set(body, "rollingApUpgrade.apRebootPercentage", data.ApRebootPercentage.ValueInt64())
 	}
-	if !data.NetworkDeviceId.IsNull() {
-		body, _ = sjson.Set(body, "", data.NetworkDeviceId.ValueString())
+	if !data.EnableRollingApUpgrade.IsNull() {
+		body, _ = sjson.Set(body, "rollingApUpgrade.enableRollingApUpgrade", data.EnableRollingApUpgrade.ValueBool())
 	}
-	if !data.Site.IsNull() {
-		body, _ = sjson.Set(body, "0.site", data.Site.ValueString())
+	if !data.SkipApProvision.IsNull() {
+		body, _ = sjson.Set(body, "skipApProvision", data.SkipApProvision.ValueBool())
 	}
-	if !data.ManagedApLocations.IsNull() {
-		var values []string
-		data.ManagedApLocations.ElementsAs(ctx, &values, false)
-		body, _ = sjson.Set(body, "0.managedAPLocations", values)
+	if !data.ApAuthorizationListName.IsNull() {
+		body, _ = sjson.Set(body, "apAuthorizationListName", data.ApAuthorizationListName.ValueString())
 	}
-	if len(data.DynamicInterfaces) > 0 {
-		body, _ = sjson.Set(body, "0.dynamicInterfaces", []interface{}{})
-		for _, item := range data.DynamicInterfaces {
+	if !data.AuthorizeMeshAndNonMeshAccessPoints.IsNull() {
+		body, _ = sjson.Set(body, "authorizeMeshAndNonMeshAccessPoints", data.AuthorizeMeshAndNonMeshAccessPoints.ValueBool())
+	}
+	if !data.Reprovision.IsNull() {
+		body, _ = sjson.Set(body, "", data.Reprovision.ValueBool())
+	}
+	if len(data.Interfaces) > 0 {
+		body, _ = sjson.Set(body, "interfaces", []interface{}{})
+		for _, item := range data.Interfaces {
 			itemBody := ""
+			if !item.InterfaceName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "interfaceName", item.InterfaceName.ValueString())
+			}
+			if !item.VlanId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "vlanId", item.VlanId.ValueInt64())
+			}
 			if !item.InterfaceIpAddress.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "interfaceIPAddress", item.InterfaceIpAddress.ValueString())
 			}
@@ -102,15 +120,9 @@ func (data WirelessDeviceProvision) toBody(ctx context.Context, state WirelessDe
 				itemBody, _ = sjson.Set(itemBody, "interfaceGateway", item.InterfaceGateway.ValueString())
 			}
 			if !item.LagOrPortNumber.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "lagOrPortNumber", item.LagOrPortNumber.ValueString())
+				itemBody, _ = sjson.Set(itemBody, "lagOrPortNumber", item.LagOrPortNumber.ValueInt64())
 			}
-			if !item.VlanId.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "vlanId", item.VlanId.ValueInt64())
-			}
-			if !item.InterfaceName.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "interfaceName", item.InterfaceName.ValueString())
-			}
-			body, _ = sjson.SetRaw(body, "0.dynamicInterfaces.-1", itemBody)
+			body, _ = sjson.SetRaw(body, "interfaces.-1", itemBody)
 		}
 	}
 	return body
@@ -120,30 +132,50 @@ func (data WirelessDeviceProvision) toBody(ctx context.Context, state WirelessDe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *WirelessDeviceProvision) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("0.deviceName"); value.Exists() {
-		data.DeviceName = types.StringValue(value.String())
+	if value := res.Get("rollingApUpgrade.apRebootPercentage"); value.Exists() {
+		data.ApRebootPercentage = types.Int64Value(value.Int())
 	} else {
-		data.DeviceName = types.StringNull()
+		data.ApRebootPercentage = types.Int64Null()
+	}
+	if value := res.Get("rollingApUpgrade.enableRollingApUpgrade"); value.Exists() {
+		data.EnableRollingApUpgrade = types.BoolValue(value.Bool())
+	} else {
+		data.EnableRollingApUpgrade = types.BoolNull()
+	}
+	if value := res.Get("skipApProvision"); value.Exists() {
+		data.SkipApProvision = types.BoolValue(value.Bool())
+	} else {
+		data.SkipApProvision = types.BoolNull()
+	}
+	if value := res.Get("apAuthorizationListName"); value.Exists() {
+		data.ApAuthorizationListName = types.StringValue(value.String())
+	} else {
+		data.ApAuthorizationListName = types.StringNull()
+	}
+	if value := res.Get("authorizeMeshAndNonMeshAccessPoints"); value.Exists() {
+		data.AuthorizeMeshAndNonMeshAccessPoints = types.BoolValue(value.Bool())
+	} else {
+		data.AuthorizeMeshAndNonMeshAccessPoints = types.BoolNull()
 	}
 	if value := res.Get(""); value.Exists() {
-		data.NetworkDeviceId = types.StringValue(value.String())
+		data.Reprovision = types.BoolValue(value.Bool())
 	} else {
-		data.NetworkDeviceId = types.StringNull()
+		data.Reprovision = types.BoolNull()
 	}
-	if value := res.Get("0.site"); value.Exists() {
-		data.Site = types.StringValue(value.String())
-	} else {
-		data.Site = types.StringNull()
-	}
-	if value := res.Get("0.managedAPLocations"); value.Exists() && len(value.Array()) > 0 {
-		data.ManagedApLocations = helpers.GetStringSet(value.Array())
-	} else {
-		data.ManagedApLocations = types.SetNull(types.StringType)
-	}
-	if value := res.Get("0.dynamicInterfaces"); value.Exists() && len(value.Array()) > 0 {
-		data.DynamicInterfaces = make([]WirelessDeviceProvisionDynamicInterfaces, 0)
+	if value := res.Get("interfaces"); value.Exists() && len(value.Array()) > 0 {
+		data.Interfaces = make([]WirelessDeviceProvisionInterfaces, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := WirelessDeviceProvisionDynamicInterfaces{}
+			item := WirelessDeviceProvisionInterfaces{}
+			if cValue := v.Get("interfaceName"); cValue.Exists() {
+				item.InterfaceName = types.StringValue(cValue.String())
+			} else {
+				item.InterfaceName = types.StringNull()
+			}
+			if cValue := v.Get("vlanId"); cValue.Exists() {
+				item.VlanId = types.Int64Value(cValue.Int())
+			} else {
+				item.VlanId = types.Int64Null()
+			}
 			if cValue := v.Get("interfaceIPAddress"); cValue.Exists() {
 				item.InterfaceIpAddress = types.StringValue(cValue.String())
 			} else {
@@ -160,21 +192,11 @@ func (data *WirelessDeviceProvision) fromBody(ctx context.Context, res gjson.Res
 				item.InterfaceGateway = types.StringNull()
 			}
 			if cValue := v.Get("lagOrPortNumber"); cValue.Exists() {
-				item.LagOrPortNumber = types.StringValue(cValue.String())
+				item.LagOrPortNumber = types.Int64Value(cValue.Int())
 			} else {
-				item.LagOrPortNumber = types.StringNull()
+				item.LagOrPortNumber = types.Int64Null()
 			}
-			if cValue := v.Get("vlanId"); cValue.Exists() {
-				item.VlanId = types.Int64Value(cValue.Int())
-			} else {
-				item.VlanId = types.Int64Null()
-			}
-			if cValue := v.Get("interfaceName"); cValue.Exists() {
-				item.InterfaceName = types.StringValue(cValue.String())
-			} else {
-				item.InterfaceName = types.StringNull()
-			}
-			data.DynamicInterfaces = append(data.DynamicInterfaces, item)
+			data.Interfaces = append(data.Interfaces, item)
 			return true
 		})
 	}
@@ -184,32 +206,42 @@ func (data *WirelessDeviceProvision) fromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *WirelessDeviceProvision) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("0.deviceName"); value.Exists() && !data.DeviceName.IsNull() {
-		data.DeviceName = types.StringValue(value.String())
+	if value := res.Get("rollingApUpgrade.apRebootPercentage"); value.Exists() && !data.ApRebootPercentage.IsNull() {
+		data.ApRebootPercentage = types.Int64Value(value.Int())
 	} else {
-		data.DeviceName = types.StringNull()
+		data.ApRebootPercentage = types.Int64Null()
 	}
-	if value := res.Get(""); value.Exists() && !data.NetworkDeviceId.IsNull() {
-		data.NetworkDeviceId = types.StringValue(value.String())
+	if value := res.Get("rollingApUpgrade.enableRollingApUpgrade"); value.Exists() && !data.EnableRollingApUpgrade.IsNull() {
+		data.EnableRollingApUpgrade = types.BoolValue(value.Bool())
 	} else {
-		data.NetworkDeviceId = types.StringNull()
+		data.EnableRollingApUpgrade = types.BoolNull()
 	}
-	if value := res.Get("0.site"); value.Exists() && !data.Site.IsNull() {
-		data.Site = types.StringValue(value.String())
+	if value := res.Get("skipApProvision"); value.Exists() && !data.SkipApProvision.IsNull() {
+		data.SkipApProvision = types.BoolValue(value.Bool())
 	} else {
-		data.Site = types.StringNull()
+		data.SkipApProvision = types.BoolNull()
 	}
-	if value := res.Get("0.managedAPLocations"); value.Exists() && !data.ManagedApLocations.IsNull() {
-		data.ManagedApLocations = helpers.GetStringSet(value.Array())
+	if value := res.Get("apAuthorizationListName"); value.Exists() && !data.ApAuthorizationListName.IsNull() {
+		data.ApAuthorizationListName = types.StringValue(value.String())
 	} else {
-		data.ManagedApLocations = types.SetNull(types.StringType)
+		data.ApAuthorizationListName = types.StringNull()
 	}
-	for i := range data.DynamicInterfaces {
-		keys := [...]string{"interfaceIPAddress", "interfaceNetmaskInCIDR", "interfaceGateway", "lagOrPortNumber", "vlanId", "interfaceName"}
-		keyValues := [...]string{data.DynamicInterfaces[i].InterfaceIpAddress.ValueString(), strconv.FormatInt(data.DynamicInterfaces[i].InterfaceNetmask.ValueInt64(), 10), data.DynamicInterfaces[i].InterfaceGateway.ValueString(), data.DynamicInterfaces[i].LagOrPortNumber.ValueString(), strconv.FormatInt(data.DynamicInterfaces[i].VlanId.ValueInt64(), 10), data.DynamicInterfaces[i].InterfaceName.ValueString()}
+	if value := res.Get("authorizeMeshAndNonMeshAccessPoints"); value.Exists() && !data.AuthorizeMeshAndNonMeshAccessPoints.IsNull() {
+		data.AuthorizeMeshAndNonMeshAccessPoints = types.BoolValue(value.Bool())
+	} else {
+		data.AuthorizeMeshAndNonMeshAccessPoints = types.BoolNull()
+	}
+	if value := res.Get(""); value.Exists() && !data.Reprovision.IsNull() {
+		data.Reprovision = types.BoolValue(value.Bool())
+	} else {
+		data.Reprovision = types.BoolNull()
+	}
+	for i := range data.Interfaces {
+		keys := [...]string{"interfaceName", "vlanId", "interfaceIPAddress", "interfaceNetmaskInCIDR", "interfaceGateway", "lagOrPortNumber"}
+		keyValues := [...]string{data.Interfaces[i].InterfaceName.ValueString(), strconv.FormatInt(data.Interfaces[i].VlanId.ValueInt64(), 10), data.Interfaces[i].InterfaceIpAddress.ValueString(), strconv.FormatInt(data.Interfaces[i].InterfaceNetmask.ValueInt64(), 10), data.Interfaces[i].InterfaceGateway.ValueString(), strconv.FormatInt(data.Interfaces[i].LagOrPortNumber.ValueInt64(), 10)}
 
 		var r gjson.Result
-		res.Get("0.dynamicInterfaces").ForEach(
+		res.Get("interfaces").ForEach(
 			func(_, v gjson.Result) bool {
 				found := false
 				for ik := range keys {
@@ -227,35 +259,35 @@ func (data *WirelessDeviceProvision) updateFromBody(ctx context.Context, res gjs
 				return true
 			},
 		)
-		if value := r.Get("interfaceIPAddress"); value.Exists() && !data.DynamicInterfaces[i].InterfaceIpAddress.IsNull() {
-			data.DynamicInterfaces[i].InterfaceIpAddress = types.StringValue(value.String())
+		if value := r.Get("interfaceName"); value.Exists() && !data.Interfaces[i].InterfaceName.IsNull() {
+			data.Interfaces[i].InterfaceName = types.StringValue(value.String())
 		} else {
-			data.DynamicInterfaces[i].InterfaceIpAddress = types.StringNull()
+			data.Interfaces[i].InterfaceName = types.StringNull()
 		}
-		if value := r.Get("interfaceNetmaskInCIDR"); value.Exists() && !data.DynamicInterfaces[i].InterfaceNetmask.IsNull() {
-			data.DynamicInterfaces[i].InterfaceNetmask = types.Int64Value(value.Int())
+		if value := r.Get("vlanId"); value.Exists() && !data.Interfaces[i].VlanId.IsNull() {
+			data.Interfaces[i].VlanId = types.Int64Value(value.Int())
 		} else {
-			data.DynamicInterfaces[i].InterfaceNetmask = types.Int64Null()
+			data.Interfaces[i].VlanId = types.Int64Null()
 		}
-		if value := r.Get("interfaceGateway"); value.Exists() && !data.DynamicInterfaces[i].InterfaceGateway.IsNull() {
-			data.DynamicInterfaces[i].InterfaceGateway = types.StringValue(value.String())
+		if value := r.Get("interfaceIPAddress"); value.Exists() && !data.Interfaces[i].InterfaceIpAddress.IsNull() {
+			data.Interfaces[i].InterfaceIpAddress = types.StringValue(value.String())
 		} else {
-			data.DynamicInterfaces[i].InterfaceGateway = types.StringNull()
+			data.Interfaces[i].InterfaceIpAddress = types.StringNull()
 		}
-		if value := r.Get("lagOrPortNumber"); value.Exists() && !data.DynamicInterfaces[i].LagOrPortNumber.IsNull() {
-			data.DynamicInterfaces[i].LagOrPortNumber = types.StringValue(value.String())
+		if value := r.Get("interfaceNetmaskInCIDR"); value.Exists() && !data.Interfaces[i].InterfaceNetmask.IsNull() {
+			data.Interfaces[i].InterfaceNetmask = types.Int64Value(value.Int())
 		} else {
-			data.DynamicInterfaces[i].LagOrPortNumber = types.StringNull()
+			data.Interfaces[i].InterfaceNetmask = types.Int64Null()
 		}
-		if value := r.Get("vlanId"); value.Exists() && !data.DynamicInterfaces[i].VlanId.IsNull() {
-			data.DynamicInterfaces[i].VlanId = types.Int64Value(value.Int())
+		if value := r.Get("interfaceGateway"); value.Exists() && !data.Interfaces[i].InterfaceGateway.IsNull() {
+			data.Interfaces[i].InterfaceGateway = types.StringValue(value.String())
 		} else {
-			data.DynamicInterfaces[i].VlanId = types.Int64Null()
+			data.Interfaces[i].InterfaceGateway = types.StringNull()
 		}
-		if value := r.Get("interfaceName"); value.Exists() && !data.DynamicInterfaces[i].InterfaceName.IsNull() {
-			data.DynamicInterfaces[i].InterfaceName = types.StringValue(value.String())
+		if value := r.Get("lagOrPortNumber"); value.Exists() && !data.Interfaces[i].LagOrPortNumber.IsNull() {
+			data.Interfaces[i].LagOrPortNumber = types.Int64Value(value.Int())
 		} else {
-			data.DynamicInterfaces[i].InterfaceName = types.StringNull()
+			data.Interfaces[i].LagOrPortNumber = types.Int64Null()
 		}
 	}
 }
@@ -264,16 +296,25 @@ func (data *WirelessDeviceProvision) updateFromBody(ctx context.Context, res gjs
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *WirelessDeviceProvision) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.DeviceName.IsNull() {
+	if !data.ApRebootPercentage.IsNull() {
 		return false
 	}
-	if !data.Site.IsNull() {
+	if !data.EnableRollingApUpgrade.IsNull() {
 		return false
 	}
-	if !data.ManagedApLocations.IsNull() {
+	if !data.SkipApProvision.IsNull() {
 		return false
 	}
-	if len(data.DynamicInterfaces) > 0 {
+	if !data.ApAuthorizationListName.IsNull() {
+		return false
+	}
+	if !data.AuthorizeMeshAndNonMeshAccessPoints.IsNull() {
+		return false
+	}
+	if !data.Reprovision.IsNull() {
+		return false
+	}
+	if len(data.Interfaces) > 0 {
 		return false
 	}
 	return true

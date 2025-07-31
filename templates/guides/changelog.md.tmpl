@@ -11,6 +11,37 @@ description: |-
 
 - Add `allow_existing_on_create` attribute to the provider definition to allow existing objects in CatalystCenter to be managed. This is en experimental feature (use at your own risk)
 
+## 0.2.17 (unreleased)
+
+- Fix issue with `pre_auth_acl_description` in `catalystcenter_update_authentication_profile` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/258)
+
+## 0.2.16
+
+- Add `catalystcenter_fabric_sites` data source to retrieve list of all fabric sites
+
+## 0.2.15
+
+- BREAKING CHANGE: Modified `catalystcenter_virtual_network_to_fabric_site` to use the `/dna/intent/api/v1/sda/layer3VirtualNetworks` API endpoint instead of `/dna/intent/api/v1/business/sda/virtual-network` and remove data_source and import
+- Add a debug flag to enable starting a provider in debug mode
+- Fix idempotency issue with `catalystcenter_telemetry_settings`
+
+## 0.2.14
+
+- Add data source and import support to `catalystcenter_virtual_network_to_fabric_site`
+- Fix create and destroy operation for `catalystcenter_fabric_virtual_network` when using `INFRA_VN` or `DEFAULT_VN`
+- Add `catalystcenter_virtual_network_to_fabric_site` data source and import
+
+## 0.2.13
+
+- Fix destroy operation for `catalystcenter_fabric_l3_virtual_network` when using `INFRA_VN` or `DEFAULT_VN`
+
+## 0.2.12
+
+- BREAKING CHANGE: Modified `catalystcenter_wireless_device_provision` resource to use the `/dna/intent/api/v1/wirelessControllers/%v/provision` API endpoint instead of `/dna/intent/api/v1/wireless/provision`
+- Add `assign_managed_ap_locations` resource
+- Add `reprovision` attribute to `catalystcenter_wireless_device_provision`
+- Add `catalystcenter_ip_pools` data source to retrieve list of all global pools
+
 ## 0.2.11
 
 - Add mutex to `catalystcenter_assign_device_to_site` resource to prevent multiple concurrent operations

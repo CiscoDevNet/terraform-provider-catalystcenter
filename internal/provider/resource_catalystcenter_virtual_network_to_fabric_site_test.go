@@ -53,17 +53,17 @@ resource "catalystcenter_area" "test" {
 }
 resource "catalystcenter_fabric_site" "test" {
   site_id                     = catalystcenter_area.test.id
-  authentication_profile_name = "No Authentication"
   pub_sub_enabled             = false
-
-  depends_on = [catalystcenter_area.test]
+  authentication_profile_name = "No Authentication"
 }
-resource "catalystcenter_fabric_virtual_network" "test" {
-  virtual_network_name = "SDA_VN1"
-  is_guest             = false
-  sg_names             = ["Employees"]
+resource "catalystcenter_fabric_l3_virtual_network" "test" {
+  virtual_network_name = "MyL3VN"
 
-  depends_on = [catalystcenter_fabric_site.test]
+  lifecycle {
+    ignore_changes = [
+      fabric_ids
+    ]
+  }
 }
 
 `
@@ -73,8 +73,9 @@ resource "catalystcenter_fabric_virtual_network" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcVirtualNetworkToFabricSiteConfig_minimum() string {
 	config := `resource "catalystcenter_virtual_network_to_fabric_site" "test" {` + "\n"
-	config += `	virtual_network_name = catalystcenter_fabric_virtual_network.test.id` + "\n"
-	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
+	config += `	virtual_network_name = catalystcenter_fabric_l3_virtual_network.test.virtual_network_name` + "\n"
+	config += `	virtual_network_id = catalystcenter_fabric_l3_virtual_network.test.id` + "\n"
+	config += `	fabric_site_id = catalystcenter_fabric_site.test.id` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -84,8 +85,9 @@ func testAccCcVirtualNetworkToFabricSiteConfig_minimum() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcVirtualNetworkToFabricSiteConfig_all() string {
 	config := `resource "catalystcenter_virtual_network_to_fabric_site" "test" {` + "\n"
-	config += `	virtual_network_name = catalystcenter_fabric_virtual_network.test.id` + "\n"
-	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
+	config += `	virtual_network_name = catalystcenter_fabric_l3_virtual_network.test.virtual_network_name` + "\n"
+	config += `	virtual_network_id = catalystcenter_fabric_l3_virtual_network.test.id` + "\n"
+	config += `	fabric_site_id = catalystcenter_fabric_site.test.id` + "\n"
 	config += `}` + "\n"
 	return config
 }
