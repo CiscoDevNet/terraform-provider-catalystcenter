@@ -46,6 +46,7 @@ test_tags: list(str(), required=False) # List of test tags, tests are only execu
 test_prerequisites: str(required=False) # HCL code that is included in the acceptance tests to define prerequisites
 max_async_wait_time: int(required=False) # Max wait time for async task in the API, in seconds
 mutex: bool(required=False) # If true, adds a mutex to the resource to prevent multiple concurrent operations (like Create, Update, Delete) on the same resource instance or API endpoint
+allow_existing_on_create: bool(required=False) # If true, creation of resource already existing in target does not fail, but update it to match datamodel instead.
 ---
 attribute:
   model_name: str(required=False) # Name of the attribute in the model (payload)

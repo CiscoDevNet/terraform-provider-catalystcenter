@@ -4,6 +4,7 @@ rest_endpoint: /dna/intent/api/v1/site
 get_rest_endpoint: /api/v1/dna-maps-service/domains
 id_path: siteId
 doc_category: Sites
+allow_existing_on_create: true
 attributes:
   - model_name: type
     type: String

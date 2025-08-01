@@ -38,6 +38,7 @@ provider "catalystcenter" {
 
 ### Optional
 
+- `allow_existing_on_create` (Boolean) **Experimental (use at your own risk).** Allow existing objects in Catalyst Center to be managed. If `true`, a POST request that attempts to create an already existing resource will trigger an update instead of failing. This behavior is not guaranteed and may not work for all resources. This can also be set as the CC_ALLOW_EXISTING_ON_CREATE environment variable. Defaults to `false`.
 - `insecure` (Boolean) Allow insecure HTTPS client. This can also be set as the CC_INSECURE environment variable. Defaults to `true`.
 - `max_timeout` (Number) Timeout in seconds for asynchronous tasks. This can also be set as the CC_MAX_TIMEOUT environment variable. Defaults to `180`.
 - `password` (String, Sensitive) Password for the Catalyst Center instance. This can also be set as the CC_PASSWORD environment variable.

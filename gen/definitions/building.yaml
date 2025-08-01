@@ -5,6 +5,7 @@ get_rest_endpoint: /dna/intent/api/v2/site
 id_path: siteId
 id_query_param: id
 doc_category: Sites
+allow_existing_on_create: true
 attributes:
   - model_name: type
     type: String
