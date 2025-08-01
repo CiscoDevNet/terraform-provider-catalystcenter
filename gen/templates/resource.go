@@ -58,6 +58,9 @@ func New{{camelCase .Name}}Resource() resource.Resource {
 
 type {{camelCase .Name}}Resource struct {
 	client *cc.Client
+	{{- if and .AllowExistingOnCreate (not .PutCreate)}}
+	AllowExistingOnCreate bool
+	{{- end}}
 }
 
 func (r *{{camelCase .Name}}Resource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -432,6 +435,9 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	{{- if and .AllowExistingOnCreate (not .PutCreate)}}
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	{{- end}}
 }
 // End of section. //template:end model
 
@@ -469,29 +475,29 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
-			{{- if .AllowExistingOnCreate}}	
-				if globalAllowExistingOnCreate {
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
-				} else{
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
-					return
-				}
+			{{- if and .AllowExistingOnCreate (not .PutCreate)}}	
+			if r.AllowExistingOnCreate  {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+			} else{
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+				return
+			}
 			{{- else}}
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
 			return
 			{{- end}}
 		}
 	{{- else}}
-		{{- if .AllowExistingOnCreate}}	
-				if globalAllowExistingOnCreate {
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
-				} else{
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
-					return
-				}
-			{{- else}}
+		{{- if and .AllowExistingOnCreate (not .PutCreate)}}	
+		if r.AllowExistingOnCreate  {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+		} else{
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
 			return
+		}
+		{{- else}}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+		return
 		{{- end}}
 	{{- end}}
 	}
@@ -567,8 +573,8 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	
 
 
-	{{- if .AllowExistingOnCreate}}
-	if !globalAllowExistingOnCreate {
+	{{- if and .AllowExistingOnCreate (not .PutCreate)}}	
+	if !r.AllowExistingOnCreate  {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
 		body = plan.toBody(ctx, {{camelCase .Name}}{Id: plan.Id})
@@ -577,12 +583,11 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 			return
 		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to update existing resource finished successfully", plan.Id.ValueString()))
 	}
-	{{- else}}
-	
-		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	{{- end}}
+	
+	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)

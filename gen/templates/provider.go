@@ -35,8 +35,6 @@ import (
 	"github.com/netascode/go-catalystcenter"
 )
 
-var globalAllowExistingOnCreate bool
-
 // CcProvider defines the provider implementation.
 type CcProvider struct {
 	// version is set to the provider version on release, "dev" when the
@@ -59,6 +57,7 @@ type CcProviderModel struct {
 // CcProviderData describes the data maintained by the provider.
 type CcProviderData struct {
 	Client *cc.Client
+	AllowExistingOnCreate bool
 }
 
 // Metadata returns the provider type name.
@@ -102,7 +101,7 @@ func (p *CcProvider) Schema(ctx context.Context, req provider.SchemaRequest, res
 				},
 			},
 			"allow_existing_on_create": schema.BoolAttribute{
-				MarkdownDescription: "**Experimental (use at your own risk).** Allow existing objects in CatalystCenter to be managed. If `true`, a POST request that attempts to create an already existing resource will trigger an update instead of failing. This behavior is not guaranteed and may not work for all resources. This can also be set as the CC_ALLOW_EXISTING_ON_CREATE environment variable. Defaults to `false`.",
+				MarkdownDescription: "**Experimental (use at your own risk).** Allow existing objects in Catalyst Center to be managed. If `true`, a POST request that attempts to create an already existing resource will trigger an update instead of failing. This behavior is not guaranteed and may not work for all resources. This can also be set as the CC_ALLOW_EXISTING_ON_CREATE environment variable. Defaults to `false`.",
 				Optional:            true,
 			},
 		},
@@ -238,7 +237,6 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		allow_existing_on_create = config.AllowExistingOnCreate.ValueBool()
 	}
 
-	globalAllowExistingOnCreate = allow_existing_on_create
 
 	var retries int64
 	if config.Retries.IsUnknown() {
@@ -292,7 +290,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		return
 	}
 
-	data := CcProviderData{Client: &c}
+	data := CcProviderData{Client: &c, AllowExistingOnCreate: allow_existing_on_create}
 	resp.DataSourceData = &data
 	resp.ResourceData = &data
 }

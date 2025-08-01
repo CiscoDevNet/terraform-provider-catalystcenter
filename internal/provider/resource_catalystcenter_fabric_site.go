@@ -50,7 +50,8 @@ func NewFabricSiteResource() resource.Resource {
 }
 
 type FabricSiteResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *FabricSiteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -98,6 +99,7 @@ func (r *FabricSiteResource) Configure(_ context.Context, req resource.Configure
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model
@@ -121,7 +123,7 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
-		if globalAllowExistingOnCreate {
+		if r.AllowExistingOnCreate {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
@@ -135,7 +137,7 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.#(siteId==\"" + plan.SiteId.ValueString() + "\").id").String())
-	if !globalAllowExistingOnCreate {
+	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
 		body = plan.toBody(ctx, FabricSite{Id: plan.Id})
@@ -144,8 +146,10 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 			return
 		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to update existing resource finished successfully", plan.Id.ValueString()))
 	}
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
