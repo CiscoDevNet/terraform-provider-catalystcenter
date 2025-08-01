@@ -112,7 +112,7 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		if r.AllowExistingOnCreate {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
+			tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 			return
@@ -123,7 +123,7 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
 		body = plan.toBody(ctx, Area{Id: plan.Id})
-		res, err = r.client.Put(plan.getPath()+params, body)
+		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 			return
