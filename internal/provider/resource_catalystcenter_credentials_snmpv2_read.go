@@ -48,7 +48,8 @@ func NewCredentialsSNMPv2ReadResource() resource.Resource {
 }
 
 type CredentialsSNMPv2ReadResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *CredentialsSNMPv2ReadResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -89,6 +90,7 @@ func (r *CredentialsSNMPv2ReadResource) Configure(_ context.Context, req resourc
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

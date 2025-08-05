@@ -51,7 +51,8 @@ func NewTemplateResource() resource.Resource {
 }
 
 type TemplateResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *TemplateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -258,6 +259,7 @@ func (r *TemplateResource) Configure(_ context.Context, req resource.ConfigureRe
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

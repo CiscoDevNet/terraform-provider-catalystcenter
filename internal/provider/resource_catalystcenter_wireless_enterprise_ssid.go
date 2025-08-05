@@ -50,7 +50,8 @@ func NewWirelessEnterpriseSSIDResource() resource.Resource {
 }
 
 type WirelessEnterpriseSSIDResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *WirelessEnterpriseSSIDResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -253,6 +254,7 @@ func (r *WirelessEnterpriseSSIDResource) Configure(_ context.Context, req resour
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

@@ -47,7 +47,8 @@ func NewFabricVLANToSSIDResource() resource.Resource {
 }
 
 type FabricVLANToSSIDResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *FabricVLANToSSIDResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -112,6 +113,7 @@ func (r *FabricVLANToSSIDResource) Configure(_ context.Context, req resource.Con
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

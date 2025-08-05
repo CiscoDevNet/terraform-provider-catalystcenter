@@ -48,7 +48,8 @@ func NewCredentialsCLIResource() resource.Resource {
 }
 
 type CredentialsCLIResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *CredentialsCLIResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -97,6 +98,7 @@ func (r *CredentialsCLIResource) Configure(_ context.Context, req resource.Confi
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model
