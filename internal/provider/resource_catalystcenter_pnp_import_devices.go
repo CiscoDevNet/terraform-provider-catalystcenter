@@ -44,7 +44,8 @@ func NewPnPImportDevicesResource() resource.Resource {
 }
 
 type PnPImportDevicesResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *PnPImportDevicesResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -98,6 +99,7 @@ func (r *PnPImportDevicesResource) Configure(_ context.Context, req resource.Con
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

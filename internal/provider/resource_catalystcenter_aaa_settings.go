@@ -49,7 +49,8 @@ func NewAAASettingsResource() resource.Resource {
 }
 
 type AAASettingsResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *AAASettingsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -146,6 +147,7 @@ func (r *AAASettingsResource) Configure(_ context.Context, req resource.Configur
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

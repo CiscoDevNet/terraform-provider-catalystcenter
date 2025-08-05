@@ -48,7 +48,8 @@ func NewAreaResource() resource.Resource {
 }
 
 type AreaResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *AreaResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -86,6 +87,7 @@ func (r *AreaResource) Configure(_ context.Context, req resource.ConfigureReques
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model
@@ -109,10 +111,25 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+		if r.AllowExistingOnCreate {
+			tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
 	}
 	plan.Id = types.StringValue(res.Get("siteId").String())
+	if !r.AllowExistingOnCreate {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	} else {
+		body = plan.toBody(ctx, Area{Id: plan.Id})
+		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to update existing resource finished successfully", plan.Id.ValueString()))
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 

@@ -50,7 +50,8 @@ func NewFabricZoneResource() resource.Resource {
 }
 
 type FabricZoneResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *FabricZoneResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -94,6 +95,7 @@ func (r *FabricZoneResource) Configure(_ context.Context, req resource.Configure
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

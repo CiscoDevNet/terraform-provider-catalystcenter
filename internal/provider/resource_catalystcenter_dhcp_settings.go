@@ -47,7 +47,8 @@ func NewDHCPSettingsResource() resource.Resource {
 }
 
 type DHCPSettingsResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *DHCPSettingsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -89,6 +90,7 @@ func (r *DHCPSettingsResource) Configure(_ context.Context, req resource.Configu
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

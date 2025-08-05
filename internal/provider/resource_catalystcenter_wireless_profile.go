@@ -48,7 +48,8 @@ func NewWirelessProfileResource() resource.Resource {
 }
 
 type WirelessProfileResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *WirelessProfileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -121,6 +122,7 @@ func (r *WirelessProfileResource) Configure(_ context.Context, req resource.Conf
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

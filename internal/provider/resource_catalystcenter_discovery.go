@@ -51,7 +51,8 @@ func NewDiscoveryResource() resource.Resource {
 }
 
 type DiscoveryResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *DiscoveryResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -302,6 +303,7 @@ func (r *DiscoveryResource) Configure(_ context.Context, req resource.ConfigureR
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

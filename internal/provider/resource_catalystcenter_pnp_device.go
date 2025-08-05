@@ -48,7 +48,8 @@ func NewPnPDeviceResource() resource.Resource {
 }
 
 type PnPDeviceResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *PnPDeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -94,6 +95,7 @@ func (r *PnPDeviceResource) Configure(_ context.Context, req resource.ConfigureR
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

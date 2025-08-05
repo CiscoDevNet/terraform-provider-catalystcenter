@@ -52,7 +52,8 @@ func NewFabricL3HandoffIPTransitsResource() resource.Resource {
 }
 
 type FabricL3HandoffIPTransitsResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *FabricL3HandoffIPTransitsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -159,6 +160,7 @@ func (r *FabricL3HandoffIPTransitsResource) Configure(_ context.Context, req res
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

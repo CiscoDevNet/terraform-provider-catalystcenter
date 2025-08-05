@@ -46,7 +46,8 @@ func NewUpdateDeviceManagementAddressResource() resource.Resource {
 }
 
 type UpdateDeviceManagementAddressResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *UpdateDeviceManagementAddressResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -87,6 +88,7 @@ func (r *UpdateDeviceManagementAddressResource) Configure(_ context.Context, req
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

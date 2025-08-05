@@ -43,17 +43,19 @@ type CcProvider struct {
 
 // CcProviderModel describes the provider data model.
 type CcProviderModel struct {
-	Username   types.String `tfsdk:"username"`
-	Password   types.String `tfsdk:"password"`
-	URL        types.String `tfsdk:"url"`
-	Insecure   types.Bool   `tfsdk:"insecure"`
-	Retries    types.Int64  `tfsdk:"retries"`
-	MaxTimeout types.Int64  `tfsdk:"max_timeout"`
+	Username              types.String `tfsdk:"username"`
+	Password              types.String `tfsdk:"password"`
+	URL                   types.String `tfsdk:"url"`
+	Insecure              types.Bool   `tfsdk:"insecure"`
+	Retries               types.Int64  `tfsdk:"retries"`
+	MaxTimeout            types.Int64  `tfsdk:"max_timeout"`
+	AllowExistingOnCreate types.Bool   `tfsdk:"allow_existing_on_create"`
 }
 
 // CcProviderData describes the data maintained by the provider.
 type CcProviderData struct {
-	Client *cc.Client
+	Client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 // Metadata returns the provider type name.
@@ -95,6 +97,10 @@ func (p *CcProvider) Schema(ctx context.Context, req provider.SchemaRequest, res
 				Validators: []validator.Int64{
 					int64validator.Between(0, 3600),
 				},
+			},
+			"allow_existing_on_create": schema.BoolAttribute{
+				MarkdownDescription: "**Experimental (use at your own risk).** Allow existing objects in Catalyst Center to be managed. If `true`, a POST request that attempts to create an already existing resource will trigger an update instead of failing. This behavior is not guaranteed and may not work for all resources. This can also be set as the CC_ALLOW_EXISTING_ON_CREATE environment variable. Defaults to `false`.",
+				Optional:            true,
 			},
 		},
 	}
@@ -208,6 +214,27 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		insecure = config.Insecure.ValueBool()
 	}
 
+	var allow_existing_on_create bool
+	if config.AllowExistingOnCreate.IsUnknown() {
+		// Cannot connect to client with an unknown value
+		resp.Diagnostics.AddWarning(
+			"Unable to create client",
+			"Cannot use unknown value as allow_existing_on_create",
+		)
+		return
+	}
+
+	if config.AllowExistingOnCreate.IsNull() {
+		allow_existing_on_createStr := os.Getenv("CC_ALLOW_EXISTING_ON_CREATE")
+		if allow_existing_on_createStr == "" {
+			allow_existing_on_create = false
+		} else {
+			allow_existing_on_create, _ = strconv.ParseBool(allow_existing_on_createStr)
+		}
+	} else {
+		allow_existing_on_create = config.AllowExistingOnCreate.ValueBool()
+	}
+
 	var retries int64
 	if config.Retries.IsUnknown() {
 		// Cannot connect to client with an unknown value
@@ -260,7 +287,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		return
 	}
 
-	data := CcProviderData{Client: &c}
+	data := CcProviderData{Client: &c, AllowExistingOnCreate: allow_existing_on_create}
 	resp.DataSourceData = &data
 	resp.ResourceData = &data
 }

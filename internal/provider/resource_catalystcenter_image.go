@@ -53,7 +53,8 @@ func NewImageResource() resource.Resource {
 }
 
 type ImageResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *ImageResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -127,6 +128,7 @@ func (r *ImageResource) Configure(_ context.Context, req resource.ConfigureReque
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model

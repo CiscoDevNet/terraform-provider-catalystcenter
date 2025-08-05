@@ -51,7 +51,8 @@ func NewIPPoolResource() resource.Resource {
 }
 
 type IPPoolResource struct {
-	client *cc.Client
+	client                *cc.Client
+	AllowExistingOnCreate bool
 }
 
 func (r *IPPoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -125,6 +126,7 @@ func (r *IPPoolResource) Configure(_ context.Context, req resource.ConfigureRequ
 	}
 
 	r.client = req.ProviderData.(*CcProviderData).Client
+	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
 
 // End of section. //template:end model
