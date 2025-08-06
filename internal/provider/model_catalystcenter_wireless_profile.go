@@ -104,12 +104,18 @@ func (data WirelessProfile) toBody(ctx context.Context, state WirelessProfile) s
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("wirelessProfileName"); value.Exists() {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	if value := res.Get("response.0.id"); value.Exists() {
+		data.Id = types.StringValue(value.String())
+	} else {
+		data.Id = types.StringNull()
+	}
+	if value := res.Get("response.0.wirelessProfileName"); value.Exists() {
 		data.WirelessProfileName = types.StringValue(value.String())
 	} else {
 		data.WirelessProfileName = types.StringNull()
 	}
-	if value := res.Get("ssidDetails"); value.Exists() && len(value.Array()) > 0 {
+	if value := res.Get("response.0.ssidDetails"); value.Exists() && len(value.Array()) > 0 {
 		data.SsidDetails = make([]WirelessProfileSsidDetails, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := WirelessProfileSsidDetails{}
@@ -158,7 +164,7 @@ func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("wirelessProfileName"); value.Exists() && !data.WirelessProfileName.IsNull() {
+	if value := res.Get("response.0.wirelessProfileName"); value.Exists() && !data.WirelessProfileName.IsNull() {
 		data.WirelessProfileName = types.StringValue(value.String())
 	} else {
 		data.WirelessProfileName = types.StringNull()
@@ -168,7 +174,7 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 		keyValues := [...]string{data.SsidDetails[i].SsidName.ValueString()}
 
 		var r gjson.Result
-		res.Get("ssidDetails").ForEach(
+		res.Get("response.0.ssidDetails").ForEach(
 			func(_, v gjson.Result) bool {
 				found := false
 				for ik := range keys {
@@ -228,9 +234,6 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *WirelessProfile) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.WirelessProfileName.IsNull() {
-		return false
-	}
 	if len(data.SsidDetails) > 0 {
 		return false
 	}

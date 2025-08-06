@@ -63,5 +63,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import catalystcenter_wireless_profile.example "4b0b7a80-44c0-4bf2-bab5-fc24b4e0a17e"
+terraform import catalystcenter_wireless_profile.example "<wireless_profile_name>"
 ```

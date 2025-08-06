@@ -22,6 +22,7 @@ import (
 	"context"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -104,17 +105,16 @@ func (data *FabricL3VirtualNetwork) fromBody(ctx context.Context, res gjson.Resu
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *FabricL3VirtualNetwork) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.0.virtualNetworkName"); value.Exists() && !data.VirtualNetworkName.IsNull() {
 		data.VirtualNetworkName = types.StringValue(value.String())
 	} else {
 		data.VirtualNetworkName = types.StringNull()
 	}
-	if value := res.Get("response.0.fabricIds"); value.Exists() && !data.FabricIds.IsNull() {
+	if value := res.Get("response.0.fabricIds"); value.Exists() {
 		data.FabricIds = helpers.GetStringSet(value.Array())
 	} else {
-		data.FabricIds = types.SetNull(types.StringType)
+		data.FabricIds, _ = types.SetValue(types.StringType, []attr.Value{})
 	}
 	if value := res.Get("response.0.anchoredSiteId"); value.Exists() && !data.AnchoredSiteId.IsNull() {
 		data.AnchoredSiteId = types.StringValue(value.String())
@@ -122,8 +122,6 @@ func (data *FabricL3VirtualNetwork) updateFromBody(ctx context.Context, res gjso
 		data.AnchoredSiteId = types.StringNull()
 	}
 }
-
-// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *FabricL3VirtualNetwork) isNull(ctx context.Context, res gjson.Result) bool {
