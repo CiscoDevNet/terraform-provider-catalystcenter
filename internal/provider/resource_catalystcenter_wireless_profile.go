@@ -72,9 +72,6 @@ func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.Schem
 			"wireless_profile_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Wireless Network Profile Name").String,
 				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"ssid_details": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SSID Details").String,
@@ -150,12 +147,13 @@ func (r *WirelessProfileResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 	params = ""
+	params += "?wirelessProfileName=" + url.QueryEscape(plan.WirelessProfileName.ValueString())
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(wirelessProfileName==\"" + plan.WirelessProfileName.ValueString() + "\").id").String())
+	plan.Id = types.StringValue(res.Get("response.0.id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -179,6 +177,7 @@ func (r *WirelessProfileResource) Read(ctx context.Context, req resource.ReadReq
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
+	params += "?wirelessProfileName=" + url.QueryEscape(state.WirelessProfileName.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
@@ -187,7 +186,6 @@ func (r *WirelessProfileResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -266,7 +264,16 @@ func (r *WirelessProfileResource) Delete(ctx context.Context, req resource.Delet
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *WirelessProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 1 || idParts[0] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <wireless_profile_name>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("wireless_profile_name"), idParts[0])...)
 }
 
 // End of section. //template:end import

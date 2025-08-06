@@ -21,6 +21,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -58,11 +59,11 @@ func (d *WirelessProfileDataSource) Schema(ctx context.Context, req datasource.S
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Required:            true,
+				Computed:            true,
 			},
 			"wireless_profile_name": schema.StringAttribute{
 				MarkdownDescription: "Wireless Network Profile Name",
-				Computed:            true,
+				Required:            true,
 			},
 			"ssid_details": schema.SetNestedAttribute{
 				MarkdownDescription: "SSID Details",
@@ -128,12 +129,12 @@ func (d *WirelessProfileDataSource) Read(ctx context.Context, req datasource.Rea
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
+	params += "?wirelessProfileName=" + url.QueryEscape(config.WirelessProfileName.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
-	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 

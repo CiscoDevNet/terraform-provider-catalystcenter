@@ -71,7 +71,8 @@ func testAccDataSourceCcWirelessProfileConfig() string {
 
 	config += `
 		data "catalystcenter_wireless_profile" "test" {
-			id = catalystcenter_wireless_profile.test.id
+			wireless_profile_name = "Wireless_Profile_1"
+			depends_on = [catalystcenter_wireless_profile.test]
 		}
 	`
 	return config

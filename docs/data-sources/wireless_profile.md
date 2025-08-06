@@ -14,7 +14,7 @@ This data source can read the Wireless Profile.
 
 ```terraform
 data "catalystcenter_wireless_profile" "example" {
-  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  wireless_profile_name = "Wireless_Profile_1"
 }
 ```
 
@@ -23,12 +23,12 @@ data "catalystcenter_wireless_profile" "example" {
 
 ### Required
 
-- `id` (String) The id of the object
+- `wireless_profile_name` (String) Wireless Network Profile Name
 
 ### Read-Only
 
+- `id` (String) The id of the object
 - `ssid_details` (Attributes Set) SSID Details (see [below for nested schema](#nestedatt--ssid_details))
-- `wireless_profile_name` (String) Wireless Network Profile Name
 
 <a id="nestedatt--ssid_details"></a>
 ### Nested Schema for `ssid_details`

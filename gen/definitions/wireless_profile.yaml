@@ -1,10 +1,11 @@
 ---
 name: Wireless Profile
 rest_endpoint: /intent/api/v1/wirelessProfiles
-id_from_query_path: response
+id_from_query_path: response.0
 id_from_query_path_attribute: id
+data_source_no_id: true
 import_no_id: true
-get_from_all: true
+put_id: true
 res_description:
   'This resource creates a wireless network profile. To associate a wireless network profile with a site, use 
   the `catalystcenter_associate_site_to_network_profile` resource.'
@@ -12,12 +13,15 @@ doc_category: Wireless
 attributes:
   - model_name: wirelessProfileName
     type: String
-    match_id: true
+    query_param: true
+    mandatory: true
     description: Wireless Network Profile Name
+    response_data_path: response.0.wirelessProfileName
     example: Wireless_Profile_1
   - model_name: ssidDetails
     type: Set
     description: SSID Details
+    response_data_path: response.0.ssidDetails
     attributes:
       - model_name: ssidName
         type: String

@@ -9,6 +9,7 @@ description: |-
 
 ## 0.3.0 (unreleased)
 
+- Change data_source and import to use `wireless_profile_name` instead of `id` in `catalystcenter_wireless_profile`
 - Add `allow_existing_on_create` attribute to the provider configuration to allow existing objects in Catalyst Center to be managed. This is en experimental feature (use at your own risk)
 - Fix issue with `pre_auth_acl_description` in `catalystcenter_update_authentication_profile` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/258)
 
