@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.3.0 (unreleased)
+## 0.3.0
 
 - Change data_source and import to use `wireless_profile_name` instead of `id` in `catalystcenter_wireless_profile`
 - Add `allow_existing_on_create` attribute to the provider configuration to allow existing objects in Catalyst Center to be managed. This is en experimental feature (use at your own risk)
