@@ -1,6 +1,6 @@
 ## 0.3.1 (unreleased)
 
-- Allow destroy operation on `catalystcenter_assign_device_to_site` if the device does not exist in the inventory
+- Allow the destroy operation on `catalystcenter_assign_device_to_site` if the device has been removed from the inventory
 
 ## 0.3.0
 
