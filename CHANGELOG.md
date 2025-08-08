@@ -1,3 +1,7 @@
+## 0.3.1 (unreleased)
+
+- Allow the destroy operation on `catalystcenter_assign_device_to_site` if the device has been removed from the inventory
+
 ## 0.3.0
 
 - Change data_source and import to use `wireless_profile_name` instead of `id` in `catalystcenter_wireless_profile`

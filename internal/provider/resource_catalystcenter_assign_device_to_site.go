@@ -270,7 +270,7 @@ func (r *AssignDeviceToSiteResource) Delete(ctx context.Context, req resource.De
 	res, err := r.client.Post(state.getPathDelete()+params, body, cc.UseMutex)
 	if err != nil {
 		errorDetail := res.Get("response.detail").String()
-		if strings.HasPrefix(errorDetail, "NCIM80106") {
+		if strings.HasPrefix(errorDetail, "NCIM80106") || errorDetail == "Input data is invalid" {
 			// This error means that the device was provisioned, and cannot be moved, so we need to ignore it.
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
