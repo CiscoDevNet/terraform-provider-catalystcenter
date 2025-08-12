@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -48,6 +49,7 @@ func NewVirtualNetworkToFabricSiteResource() resource.Resource {
 type VirtualNetworkToFabricSiteResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	MAX_RETRIES           int
 }
 
 func (r *VirtualNetworkToFabricSiteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -96,6 +98,7 @@ func (r *VirtualNetworkToFabricSiteResource) Configure(_ context.Context, req re
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.MAX_RETRIES = 3
 }
 
 // End of section. //template:end model
@@ -110,43 +113,63 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 		return
 	}
 
-	params := ""
-	params += "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
-	res, err := r.client.Get(plan.getPath() + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
+	try := 0
+	for try < r.MAX_RETRIES {
+		params := ""
+		params += "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
+		res, err := r.client.Get(plan.getPath() + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Extract existing fabricIds list
-	existingFabricIds := []string{}
-	for _, id := range res.Get("response.0.fabricIds").Array() {
-		existingFabricIds = append(existingFabricIds, id.String())
-	}
+		// Extract existing fabricIds list
+		existingFabricIds := []string{}
+		for _, id := range res.Get("response.0.fabricIds").Array() {
+			existingFabricIds = append(existingFabricIds, id.String())
+		}
 
-	// Append the new FabricSiteId if it’s not already in the list
-	alreadyExists := false
-	for _, id := range existingFabricIds {
-		if id == plan.FabricSiteId.ValueString() {
-			alreadyExists = true
+		// Append the new FabricSiteId if it’s not already in the list
+		alreadyExists := slices.Contains(existingFabricIds, plan.FabricSiteId.ValueString())
+
+		if !alreadyExists {
+			existingFabricIds = append(existingFabricIds, plan.FabricSiteId.ValueString())
+		}
+
+		// Create object
+		body := plan.toBody(ctx, VirtualNetworkToFabricSite{}, existingFabricIds)
+
+		params = ""
+		res, err = r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
+		params = "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
+		res, err = r.client.Get(plan.getPath() + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+
+		newFabricIds := []string{}
+		for _, id := range res.Get("response.0.fabricIds").Array() {
+			existingFabricIds = append(existingFabricIds, id.String())
+		}
+		slices.Sort(newFabricIds)
+		slices.Sort(existingFabricIds)
+		if slices.Equal(newFabricIds, existingFabricIds) {
 			break
 		}
-	}
-
-	if !alreadyExists {
-		existingFabricIds = append(existingFabricIds, plan.FabricSiteId.ValueString())
-	}
-
-	// Create object
-	body := plan.toBody(ctx, VirtualNetworkToFabricSite{}, existingFabricIds)
-
-	params = ""
-	res, err = r.client.Put(plan.getPath()+params, body, cc.UseMutex)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
-		return
+		if try != r.MAX_RETRIES {
+			tflog.Warn(ctx, fmt.Sprintf("%s: fabric id after PUT not equal to old ones + added one. Retrying for %d time", plan.Id.ValueString(), try))
+			try++
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Fabric id after PUT not equal to old ones + added one. Please try again later, %s", res.String()))
+			return
+		}
 	}
 
 	compositeId := plan.FabricSiteId.ValueString() + "--" + plan.VirtualNetworkName.ValueString()
@@ -236,40 +259,68 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	params := ""
-	params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
-	res, err := r.client.Get(state.getPath()+params, cc.UseMutex)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
+	try := 0
+	for try < r.MAX_RETRIES {
 
-	existingFabricIds := []string{}
-	for _, id := range res.Get("response.0.fabricIds").Array() {
-		existingFabricIds = append(existingFabricIds, id.String())
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Existing fabric IDs before removal: %v", existingFabricIds))
-
-	// Extract existing fabricIds list
-	newFabricIds := []string{}
-	for _, id := range existingFabricIds {
-		if id != state.FabricSiteId.ValueString() {
-			newFabricIds = append(newFabricIds, id)
+		params := ""
+		params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
+		res, err := r.client.Get(state.getPath()+params, cc.UseMutex)
+		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
+			resp.State.RemoveResource(ctx)
+			return
+		} else if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
 		}
+
+		existingFabricIds := []string{}
+		for _, id := range res.Get("response.0.fabricIds").Array() {
+			existingFabricIds = append(existingFabricIds, id.String())
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Existing fabric IDs before removal: %v", existingFabricIds))
+
+		// Extract existing fabricIds list
+		newFabricIds := []string{}
+		for _, id := range existingFabricIds {
+			if id != state.FabricSiteId.ValueString() {
+				newFabricIds = append(newFabricIds, id)
+			}
+		}
+
+		body := state.toBody(ctx, VirtualNetworkToFabricSite{}, newFabricIds)
+
+		res, err = r.client.Put(state.getPath(), body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
+
+		params = "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
+		res, err = r.client.Get(state.getPath()+params, cc.UseMutex)
+		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
+		getFabricIds := []string{}
+		for _, id := range res.Get("response.0.fabricIds").Array() {
+			existingFabricIds = append(existingFabricIds, id.String())
+		}
+		slices.Sort(newFabricIds)
+		slices.Sort(getFabricIds)
+		if slices.Equal(newFabricIds, existingFabricIds) {
+			break
+		}
+		if try != r.MAX_RETRIES {
+			tflog.Warn(ctx, fmt.Sprintf("%s: fabric id after DELETE not equal to old ones + added one. Retrying for %d time", res.String(), try))
+			try++
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Fabric id after PUT not equal to old ones + added one. Please try again later, %s", res.String()))
+			return
+		}
+
 	}
-
-	body := state.toBody(ctx, VirtualNetworkToFabricSite{}, newFabricIds)
-
-	res, err = r.client.Put(state.getPath(), body, cc.UseMutex)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
-		return
-	}
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
 	resp.State.RemoveResource(ctx)
