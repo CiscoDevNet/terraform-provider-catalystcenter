@@ -35,6 +35,7 @@ attributes:
     enum_values: [RADIUS, TACACS]
     description: Server protocol
     example: RADIUS
+    default_value: RADIUS
   - model_name: pan
     data_path: aaaNetwork
     response_data_path: response.aaaNetwork.pan

@@ -122,7 +122,7 @@ func (data *AAASettings) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.aaaNetwork.protocol"); value.Exists() {
 		data.NetworkAaaProtocol = types.StringValue(value.String())
 	} else {
-		data.NetworkAaaProtocol = types.StringNull()
+		data.NetworkAaaProtocol = types.StringValue("RADIUS")
 	}
 	if value := res.Get("response.aaaNetwork.pan"); value.Exists() {
 		data.NetworkAaaPan = types.StringValue(value.String())
@@ -177,7 +177,7 @@ func (data *AAASettings) updateFromBody(ctx context.Context, res gjson.Result) {
 	}
 	if value := res.Get("response.aaaNetwork.protocol"); value.Exists() && !data.NetworkAaaProtocol.IsNull() {
 		data.NetworkAaaProtocol = types.StringValue(value.String())
-	} else {
+	} else if data.NetworkAaaProtocol.ValueString() != "RADIUS" {
 		data.NetworkAaaProtocol = types.StringNull()
 	}
 	if value := res.Get("response.aaaNetwork.pan"); value.Exists() && !data.NetworkAaaPan.IsNull() {
