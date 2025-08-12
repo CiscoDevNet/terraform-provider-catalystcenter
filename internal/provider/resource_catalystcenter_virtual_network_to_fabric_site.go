@@ -49,7 +49,6 @@ func NewVirtualNetworkToFabricSiteResource() resource.Resource {
 type VirtualNetworkToFabricSiteResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
-	MAX_RETRIES           int
 }
 
 func (r *VirtualNetworkToFabricSiteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -98,7 +97,6 @@ func (r *VirtualNetworkToFabricSiteResource) Configure(_ context.Context, req re
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
-	r.MAX_RETRIES = 3
 }
 
 // End of section. //template:end model
@@ -113,8 +111,8 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 		return
 	}
 
-	try := 0
-	for try < r.MAX_RETRIES {
+	MAX_RETRIES := 3
+	for try := 0; try <= MAX_RETRIES; try++ {
 		params := ""
 		params += "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
 		res, err := r.client.Get(plan.getPath() + params)
@@ -163,9 +161,8 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 		if slices.Equal(newFabricIds, existingFabricIds) {
 			break
 		}
-		if try != r.MAX_RETRIES {
+		if try != MAX_RETRIES {
 			tflog.Warn(ctx, fmt.Sprintf("%s: fabric id after PUT not equal to old ones + added one. Retrying for %d time", plan.Id.ValueString(), try))
-			try++
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Fabric id after PUT not equal to old ones + added one. Please try again later, %s", res.String()))
 			return
@@ -259,8 +256,8 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	try := 0
-	for try < r.MAX_RETRIES {
+	MAX_RETRIES := 3
+	for try := 0; try <= MAX_RETRIES; try++ {
 
 		params := ""
 		params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
@@ -312,9 +309,8 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 		if slices.Equal(newFabricIds, existingFabricIds) {
 			break
 		}
-		if try != r.MAX_RETRIES {
+		if try != MAX_RETRIES {
 			tflog.Warn(ctx, fmt.Sprintf("%s: fabric id after DELETE not equal to old ones + added one. Retrying for %d time", res.String(), try))
-			try++
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Fabric id after PUT not equal to old ones + added one. Please try again later, %s", res.String()))
 			return
