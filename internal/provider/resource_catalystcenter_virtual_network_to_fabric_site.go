@@ -162,9 +162,9 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 			break
 		}
 		if try != MAX_RETRIES {
-			tflog.Warn(ctx, fmt.Sprintf("%s: fabric id after PUT not equal to old ones + added one. Retrying for %d time", plan.Id.ValueString(), try))
+			tflog.Warn(ctx, fmt.Sprintf("%s: Assigned fabric ids does not match. Retrying for %d time", plan.Id.ValueString(), try))
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Fabric id after PUT not equal to old ones + added one. Please try again later, %s", res.String()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Assigned fabric ids does not match. Please try again later, %s", res.String()))
 			return
 		}
 	}
@@ -310,9 +310,9 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 			break
 		}
 		if try != MAX_RETRIES {
-			tflog.Warn(ctx, fmt.Sprintf("%s: fabric id after DELETE not equal to old ones + added one. Retrying for %d time", res.String(), try))
+			tflog.Warn(ctx, fmt.Sprintf("%s: Assigned fabric ids does not match. Retrying for %d time", res.String(), try))
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Fabric id after PUT not equal to old ones + added one. Please try again later, %s", res.String()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Assigned fabric ids does not match. Please try again later, %s", res.String()))
 			return
 		}
 
