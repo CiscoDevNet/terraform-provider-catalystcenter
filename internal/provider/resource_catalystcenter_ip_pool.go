@@ -150,8 +150,12 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+		if r.AllowExistingOnCreate {
+			tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
 	}
 	params = ""
 	params += "?limit=1000"
@@ -161,6 +165,18 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.#(ipPoolName==\"" + plan.Name.ValueString() + "\").id").String())
+	if !r.AllowExistingOnCreate {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	} else {
+		params = ""
+		body = plan.toBody(ctx, IPPool{Id: plan.Id})
+		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to update existing resource finished successfully", plan.Id.ValueString()))
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 

@@ -140,6 +140,7 @@ func (r *FabricSiteResource) Create(ctx context.Context, req resource.CreateRequ
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
+		params = ""
 		body = plan.toBody(ctx, FabricSite{Id: plan.Id})
 		res, err = r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 		if err != nil {

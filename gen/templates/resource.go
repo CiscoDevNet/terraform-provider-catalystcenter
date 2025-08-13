@@ -573,6 +573,14 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	if !r.AllowExistingOnCreate  {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
+		params = ""
+		{{- if hasCreateQueryPath .Attributes}}
+		{{- $createQueryPath := getCreateQueryPath .Attributes}}
+		params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
+		{{- end}}
+		{{- if .PutIdQueryParam}}
+		params += "?{{.PutIdQueryParam}}=" + url.QueryEscape(plan.Id.ValueString())
+		{{- end}}
 		body = plan.toBody(ctx, {{camelCase .Name}}{Id: plan.Id})
 		{{- if .PostUpdate}}
 		res, err = r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})

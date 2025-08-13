@@ -8,6 +8,7 @@ put_id_query_param: id
 import_no_id: true
 data_source_no_id: true
 doc_category: Network Settings
+allow_existing_on_create: true
 attributes:
   - model_name: siteId
     type: String

@@ -5,6 +5,7 @@ get_requires_id: true
 id_from_query_path: response
 get_extra_query_params: "?limit=1000"
 doc_category: Network Settings
+allow_existing_on_create: true
 attributes:
   - model_name: ipPoolName
     tf_name: name

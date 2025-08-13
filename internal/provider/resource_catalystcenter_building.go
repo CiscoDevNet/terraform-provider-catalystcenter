@@ -138,6 +138,7 @@ func (r *BuildingResource) Create(ctx context.Context, req resource.CreateReques
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
+		params = ""
 		body = plan.toBody(ctx, Building{Id: plan.Id})
 		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
 		if err != nil {
