@@ -24,6 +24,7 @@ import (
 	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
@@ -168,7 +169,6 @@ func (data *AAASettings) fromBody(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *AAASettings) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.aaaNetwork.serverType"); value.Exists() && !data.NetworkAaaServerType.IsNull() {
 		data.NetworkAaaServerType = types.StringValue(value.String())
@@ -176,7 +176,11 @@ func (data *AAASettings) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.NetworkAaaServerType = types.StringNull()
 	}
 	if value := res.Get("response.aaaNetwork.protocol"); value.Exists() && !data.NetworkAaaProtocol.IsNull() {
-		data.NetworkAaaProtocol = types.StringValue(value.String())
+		if res.Get("response.aaaClient.protocol").Exists() && !data.ClientAaaProtocol.IsNull() && data.NetworkAaaProtocol.ValueString() != value.String() {
+			tflog.Warn(ctx, "Client AAA Protocol does not match Network AAA Protocol. API defect, workaround was used.")
+		} else {
+			data.NetworkAaaProtocol = types.StringValue(value.String())
+		}
 	} else {
 		data.NetworkAaaProtocol = types.StringNull()
 	}
@@ -221,8 +225,6 @@ func (data *AAASettings) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.ClientAaaSecondaryServerIp = types.StringNull()
 	}
 }
-
-// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AAASettings) isNull(ctx context.Context, res gjson.Result) bool {

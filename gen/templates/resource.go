@@ -183,7 +183,9 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- end}}
 							{{- if or (and .Id (not .ComputedRefreshValue)) .Reference .Mandatory }}
 							Required:            true,
-							{{- else if not .Computed}}
+							{{- else if and (not .Computed) (not .ComputedRefreshValue) }}
+							Optional:            true,
+							{{- else if and .Computed (not .ComputedRefreshValue) }}
 							Optional:            true,
 							{{- end}}
 							{{- if or (len .DefaultValue) .Computed}}
@@ -815,7 +817,13 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 		}
 		for _, item := range toReplace.{{toGoName $items}} {
-			item.Id = types.StringNull()
+			{{- range .Attributes}}
+			{{- range .Attributes}}
+			{{- if and .Computed .ExcludeTest }}
+			item.{{toGoName .TfName}} = types.{{.Type}}Null()
+			{{- end}}
+			{{- end}}
+			{{- end}}
 			toReplaceNoId.{{toGoName $items}} = append(toReplaceNoId.{{toGoName $items}}, item)
 		}
 
@@ -988,7 +996,35 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- end}}
 	}
 	{{- else}}
-	{{- if .DeleteNoId}}
+	{{- if and .DeleteIterative .RootList }}
+	{{- if and .RootList .UpdateComputed}}
+	{{- $items := "" }}
+	{{- range .Attributes}}
+	{{- if isNestedListSet .}}
+	{{- $items = .TfName }}
+	{{- end}}
+	{{- end}}
+	for _, v := range state.{{toGoName $items}} {
+		res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(v.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
+		if err != nil {
+		{{- if .DeviceUnreachabilityWarning}}
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
+				return
+			}
+		{{- else}}
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
+			return
+		{{- end}}
+		}
+	}
+	{{- end}}
+	{{- else if .DeleteNoId}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
@@ -1001,6 +1037,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- else}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
+	{{- if not .DeleteIterative }}
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
@@ -1017,6 +1054,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 		return
 	{{- end}}
 	}
+	{{- end}}
 	{{- end}}
 	{{- end}}
 
