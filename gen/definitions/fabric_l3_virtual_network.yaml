@@ -10,6 +10,7 @@ put_id_include_path: "0.id"
 put_no_id: true
 doc_category: SDA
 mutex: true
+allow_existing_on_create: true
 attributes:
   - model_name: virtualNetworkName
     requires_replace: true

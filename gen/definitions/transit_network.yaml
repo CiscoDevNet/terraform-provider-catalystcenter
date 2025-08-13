@@ -9,6 +9,7 @@ put_no_id: true
 put_id_include_path: 0.id
 skip_minimum_test: true
 doc_category: SDA
+allow_existing_on_create: true
 attributes:
   - model_name: name
     type: String

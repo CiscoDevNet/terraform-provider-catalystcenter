@@ -122,6 +122,7 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
+		params = ""
 		body = plan.toBody(ctx, Area{Id: plan.Id})
 		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
 		if err != nil {
