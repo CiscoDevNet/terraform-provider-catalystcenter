@@ -154,7 +154,7 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 
 		newFabricIds := []string{}
 		for _, id := range res.Get("response.0.fabricIds").Array() {
-			existingFabricIds = append(existingFabricIds, id.String())
+			newFabricIds = append(newFabricIds, id.String())
 		}
 		slices.Sort(newFabricIds)
 		slices.Sort(existingFabricIds)
