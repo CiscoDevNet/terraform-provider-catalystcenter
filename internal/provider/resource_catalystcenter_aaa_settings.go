@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -86,13 +85,11 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				},
 			},
 			"network_aaa_protocol": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Server protocol").AddStringEnumDescription("RADIUS", "TACACS").AddDefaultValueDescription("RADIUS").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Server protocol").AddStringEnumDescription("RADIUS", "TACACS").String,
 				Optional:            true,
-				Computed:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("RADIUS", "TACACS"),
 				},
-				Default: stringdefault.StaticString("RADIUS"),
 			},
 			"network_aaa_pan": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Administration Node. Required for ISE").String,

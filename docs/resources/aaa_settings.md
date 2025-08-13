@@ -51,7 +51,6 @@ resource "catalystcenter_aaa_settings" "example" {
 - `network_aaa_primary_server_ip` (String) The server to use as a primary
 - `network_aaa_protocol` (String) Server protocol
   - Choices: `RADIUS`, `TACACS`
-  - Default value: `RADIUS`
 - `network_aaa_secondary_server_ip` (String) The server to use as a secondary
 - `network_aaa_server_type` (String) Type of network AAA server
   - Choices: `AAA`, `ISE`
