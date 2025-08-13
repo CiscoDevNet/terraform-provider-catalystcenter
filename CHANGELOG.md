@@ -1,5 +1,6 @@
 ## 0.3.1 (unreleased)
 
+- Add workaround for API defect in `catalystcenter_aaa_settings`: using `TACACS` incorrectly returns `RADIUS` in API response
 - Allow the destroy operation on `catalystcenter_assign_device_to_site` if the device has been removed from the inventory
 
 ## 0.3.0
