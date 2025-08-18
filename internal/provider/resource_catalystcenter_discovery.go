@@ -163,7 +163,7 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 					setplanmodifier.RequiresReplace(),
 				},
 			},
-			"preferred_ip_method": schema.StringAttribute{
+			"preferred_mgmt_ip_method": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Preferred method for selecting management IP address.").AddStringEnumDescription("None", "UseLoopBack").AddDefaultValueDescription("None").String,
 				Optional:            true,
 				Computed:            true,

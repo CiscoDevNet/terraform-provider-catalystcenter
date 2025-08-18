@@ -113,7 +113,7 @@ func (d *DiscoveryDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"preferred_ip_method": schema.StringAttribute{
+			"preferred_mgmt_ip_method": schema.StringAttribute{
 				MarkdownDescription: "Preferred method for selecting management IP address.",
 				Computed:            true,
 			},

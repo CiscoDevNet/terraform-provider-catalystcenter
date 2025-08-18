@@ -46,7 +46,7 @@ resource "catalystcenter_discovery" "example" {
 - `lldp_level` (Number) LLDP level to which neighbor devices to be discovered.
 - `netconf_port` (String) Port number for netconf as a string. It requires SSH protocol to work.
 - `password_list` (Set of String) Passwords of the devices to be discovered.
-- `preferred_ip_method` (String) Preferred method for selecting management IP address.
+- `preferred_mgmt_ip_method` (String) Preferred method for selecting management IP address.
   - Choices: `None`, `UseLoopBack`
   - Default value: `None`
 - `retry` (Number) Number of times to try establishing SSH/Telnet connection to a device.
