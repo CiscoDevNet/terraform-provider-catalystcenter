@@ -97,7 +97,8 @@ attributes:
     exclude_test: true
     exclude_example: true
     requires_replace: true
-  - model_name: preferredIpMethod
+  - model_name: preferredMgmtIPMethod
+    tf_name: preferred_mgmt_ip_method
     response_data_path: preferredMgmtIPMethod
     type: String
     enum_values: [None, UseLoopBack]

@@ -1,3 +1,7 @@
+## 0.3.2 (unreleased)
+
+- BREAKING CHANGE: Rename `preferred_ip_method` attribute of `catalystcenter_discovery` resource to `preferred_mgmt_ip_method`
+
 ## 0.3.1
 
 - Add workaround for API defect in `catalystcenter_aaa_settings`: using `TACACS` incorrectly returns `RADIUS` in API response

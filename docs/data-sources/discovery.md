@@ -39,7 +39,7 @@ data "catalystcenter_discovery" "example" {
 - `name` (String) A name of the discovery.
 - `netconf_port` (String) Port number for netconf as a string. It requires SSH protocol to work.
 - `password_list` (Set of String) Passwords of the devices to be discovered.
-- `preferred_ip_method` (String) Preferred method for selecting management IP address.
+- `preferred_mgmt_ip_method` (String) Preferred method for selecting management IP address.
 - `protocol_order` (String) A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback.
 - `retry` (Number) Number of times to try establishing SSH/Telnet connection to a device.
 - `snmp_auth_passphrase` (String) Auth passphrase for SNMP.

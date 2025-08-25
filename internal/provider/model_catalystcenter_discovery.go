@@ -44,7 +44,7 @@ type Discovery struct {
 	Name                   types.String `tfsdk:"name"`
 	NetconfPort            types.String `tfsdk:"netconf_port"`
 	PasswordList           types.Set    `tfsdk:"password_list"`
-	PreferredIpMethod      types.String `tfsdk:"preferred_ip_method"`
+	PreferredMgmtIpMethod  types.String `tfsdk:"preferred_mgmt_ip_method"`
 	ProtocolOrder          types.String `tfsdk:"protocol_order"`
 	Retry                  types.Int64  `tfsdk:"retry"`
 	SnmpAuthPassphrase     types.String `tfsdk:"snmp_auth_passphrase"`
@@ -123,8 +123,8 @@ func (data Discovery) toBody(ctx context.Context, state Discovery) string {
 		data.PasswordList.ElementsAs(ctx, &values, false)
 		body, _ = sjson.Set(body, "passwordList", values)
 	}
-	if !data.PreferredIpMethod.IsNull() {
-		body, _ = sjson.Set(body, "preferredIpMethod", data.PreferredIpMethod.ValueString())
+	if !data.PreferredMgmtIpMethod.IsNull() {
+		body, _ = sjson.Set(body, "preferredMgmtIPMethod", data.PreferredMgmtIpMethod.ValueString())
 	}
 	if !data.ProtocolOrder.IsNull() {
 		body, _ = sjson.Set(body, "protocolOrder", data.ProtocolOrder.ValueString())
@@ -241,9 +241,9 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 		data.PasswordList = types.SetNull(types.StringType)
 	}
 	if value := res.Get("preferredMgmtIPMethod"); value.Exists() {
-		data.PreferredIpMethod = types.StringValue(value.String())
+		data.PreferredMgmtIpMethod = types.StringValue(value.String())
 	} else {
-		data.PreferredIpMethod = types.StringValue("None")
+		data.PreferredMgmtIpMethod = types.StringValue("None")
 	}
 	if value := res.Get("protocolOrder"); value.Exists() {
 		data.ProtocolOrder = types.StringValue(value.String())
@@ -366,10 +366,10 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.PasswordList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("preferredMgmtIPMethod"); value.Exists() && !data.PreferredIpMethod.IsNull() {
-		data.PreferredIpMethod = types.StringValue(value.String())
-	} else if data.PreferredIpMethod.ValueString() != "None" {
-		data.PreferredIpMethod = types.StringNull()
+	if value := res.Get("preferredMgmtIPMethod"); value.Exists() && !data.PreferredMgmtIpMethod.IsNull() {
+		data.PreferredMgmtIpMethod = types.StringValue(value.String())
+	} else if data.PreferredMgmtIpMethod.ValueString() != "None" {
+		data.PreferredMgmtIpMethod = types.StringNull()
 	}
 	if value := res.Get("protocolOrder"); value.Exists() && !data.ProtocolOrder.IsNull() {
 		data.ProtocolOrder = types.StringValue(value.String())
@@ -468,7 +468,7 @@ func (data *Discovery) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.PasswordList.IsNull() {
 		return false
 	}
-	if !data.PreferredIpMethod.IsNull() {
+	if !data.PreferredMgmtIpMethod.IsNull() {
 		return false
 	}
 	if !data.ProtocolOrder.IsNull() {
