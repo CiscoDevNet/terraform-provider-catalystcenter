@@ -84,7 +84,7 @@ func (data FabricL3HandoffIPTransits) toBody(ctx context.Context, state FabricL3
 		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.L3Handoffs {
 			itemBody := ""
-			if !item.Id.IsNull() {
+			if item.Id.ValueString() != "" && !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
 			if !item.FabricId.IsNull() {

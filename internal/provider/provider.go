@@ -296,6 +296,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewAAASettingsResource,
 		NewAnycastGatewayResource,
+		NewAnycastGatewaysResource,
 		NewAreaResource,
 		NewAssignCredentialsResource,
 		NewAssignDeviceToSiteResource,
@@ -378,6 +379,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewIPPoolsDataSource,        // manually maintained
 		NewAAASettingsDataSource,
 		NewAnycastGatewayDataSource,
+		NewAnycastGatewaysDataSource,
 		NewAreaDataSource,
 		NewAssignCredentialsDataSource,
 		NewAssignDevicesToTagDataSource,

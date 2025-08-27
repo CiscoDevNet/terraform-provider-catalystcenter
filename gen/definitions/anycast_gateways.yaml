@@ -1,0 +1,164 @@
+---
+name: Anycast Gateways
+rest_endpoint: /dna/intent/api/v1/sda/anycastGateways
+res_description: Manages Anycast Gateways within a single resource, specifying a list of anycast gateways as input
+root_list: true
+delete_iterative: true
+update_computed: true
+id_from_attribute: true
+device_unreachability_warning: true
+skip_minimum_test: true
+doc_category: SDA
+mutex: true
+attributes:
+  - model_name: fabricId
+    mandatory: true
+    id: true
+    requires_replace: true
+    write_only: true
+    query_param: true
+    query_param_name: fabricId
+    description: ID of the fabric to contain this anycast gateway
+    type: String
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_fabric_site.test.id
+  - tf_name: anycast_gateways
+    type: Set
+    response_data_path: response
+    mandatory: true
+    description: List of anycast gateways
+    attributes:
+      - model_name: id
+        type: String
+        computed: true
+        computed_refresh_value: true
+        description: ID of the anycast gateway
+        exclude_test: true
+      - model_name: fabricId
+        type: String
+        mandatory: true
+        description: ID of the fabric to contain this anycast gateway
+        example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+        test_value: catalystcenter_fabric_site.test.id
+      - model_name: virtualNetworkName
+        requires_replace: true
+        type: String
+        mandatory: true
+        description: Name of the layer 3 virtual network associated with the anycast gateway. the virtual network must have already been added to the site before creating an anycast gateway with it
+        example: SDA_VN1
+        test_value: catalystcenter_fabric_l3_virtual_network.test.virtual_network_name
+      - model_name: ipPoolName
+        requires_replace: true
+        id: true
+        type: String
+        mandatory: true
+        description: Name of the IP pool associated with the anycast gateway
+        example: MyRes1
+        test_value: catalystcenter_ip_pool_reservation.test.name
+      - model_name: tcpMssAdjustment
+        type: Int64
+        min_int: 500
+        max_int: 1440
+        description: TCP maximum segment size adjustment
+        example: 1400
+      - model_name: vlanName
+        computed: true
+        type: String
+        description: Name of the VLAN of the anycast gateway
+        example: VLAN401
+      - model_name: vlanId
+        computed: true
+        type: Int64
+        description: ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
+        exclude_test: true
+      - model_name: trafficType
+        type: String
+        enum_values: [DATA, VOICE]
+        mandatory: true
+        description: The type of traffic the anycast gateway serves
+        example: DATA
+      - model_name: poolType
+        type: String
+        enum_values: [EXTENDED_NODE, FABRIC_AP]
+        description: The pool type of the anycast gateway (required for & applicable only to INFRA_VN)
+        exclude_test: true
+      - model_name: securityGroupName
+        type: String
+        description: Name of the associated Security Group (not applicable to INFRA_VN)
+        exclude_test: true
+      - model_name: isCriticalPool
+        requires_replace: true
+        tf_name: critical_pool
+        type: Bool
+        description: Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
+        example: false
+      - model_name: isLayer2FloodingEnabled
+        tf_name: l2_flooding_enabled
+        type: Bool
+        description: Enable/disable layer 2 flooding (not applicable to INFRA_VN)
+        example: false
+      - model_name: isWirelessPool
+        tf_name: wireless_pool
+        type: Bool
+        description: Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
+        example: false
+      - model_name: isIpDirectedBroadcast
+        tf_name: ip_directed_broadcast
+        type: Bool
+        description: Enable/disable IP-directed broadcast (not applicable to INFRA_VN)
+        example: false
+      - model_name: isIntraSubnetRoutingEnabled
+        requires_replace: true
+        tf_name: intra_subnet_routing_enabled
+        type: Bool
+        description: Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
+        example: false
+      - model_name: isMultipleIpToMacAddresses
+        tf_name: multiple_ip_to_mac_addresses
+        type: Bool
+        description: Enable/disable multiple IP-to-MAC Addresses (Wireless Bridged-Network Virtual Machine; not applicable to INFRA_VN)
+        example: false
+      - model_name: isSupplicantBasedExtendedNodeOnboarding
+        tf_name: supplicant_based_extended_node_onboarding
+        type: Bool
+        description: Enable/disable Supplicant-Based Extended Node Onboarding (applicable only to INFRA_VN)
+        exclude_test: true
+      - model_name: isGroupBasedPolicyEnforcementEnabled
+        tf_name: group_based_policy_enforcement_enabled
+        type: Bool
+        description: Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false)
+        exclude_test: true
+      - model_name: autoGenerateVlanName
+        type: Bool
+        mandatory: true
+        write_only: true
+        description: 'This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN'
+        example: false
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_ip_pool" "test" {
+    name             = "MyPool1"
+    ip_subnet        = "172.32.0.0/16"
+  }
+  resource "catalystcenter_ip_pool_reservation" "test" {
+    site_id            = catalystcenter_area.test.id
+    name               = "MyRes1"
+    type               = "Generic"
+    ipv4_global_pool   = catalystcenter_ip_pool.test.ip_subnet
+    ipv4_prefix        = true
+    ipv4_prefix_length = 24
+    ipv4_subnet        = "172.32.1.0"
+    depends_on = [catalystcenter_ip_pool.test]
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+  }
+  resource "catalystcenter_fabric_l3_virtual_network" "test" {
+    virtual_network_name = "SDA_VN1"
+    fabric_ids           = [catalystcenter_fabric_site.test.id]
+  }

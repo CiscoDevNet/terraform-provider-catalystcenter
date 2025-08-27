@@ -1,0 +1,119 @@
+// Copyright © 2023 Cisco Systems, Inc. and its affiliates.
+// All rights reserved.
+//
+// Licensed under the Mozilla Public License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://mozilla.org/MPL/2.0/
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: MPL-2.0
+
+package provider
+
+// Section below is generated&owned by "gen/generator.go". //template:begin imports
+import (
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+)
+
+// End of section. //template:end imports
+
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
+func TestAccDataSourceCcAnycastGateways(t *testing.T) {
+	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.tcp_mss_adjustment", "1400"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.vlan_name", "VLAN401"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.traffic_type", "DATA"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.critical_pool", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.l2_flooding_enabled", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.wireless_pool", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.ip_directed_broadcast", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.intra_subnet_routing_enabled", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.multiple_ip_to_mac_addresses", "false"))
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceCcAnycastGatewaysPrerequisitesConfig + testAccDataSourceCcAnycastGatewaysConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
+		},
+	})
+}
+
+// End of section. //template:end testAccDataSource
+
+// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceCcAnycastGatewaysPrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+resource "catalystcenter_ip_pool" "test" {
+  name             = "MyPool1"
+  ip_subnet        = "172.32.0.0/16"
+}
+resource "catalystcenter_ip_pool_reservation" "test" {
+  site_id            = catalystcenter_area.test.id
+  name               = "MyRes1"
+  type               = "Generic"
+  ipv4_global_pool   = catalystcenter_ip_pool.test.ip_subnet
+  ipv4_prefix        = true
+  ipv4_prefix_length = 24
+  ipv4_subnet        = "172.32.1.0"
+  depends_on = [catalystcenter_ip_pool.test]
+}
+resource "catalystcenter_fabric_site" "test" {
+  site_id                     = catalystcenter_area.test.id
+  pub_sub_enabled             = false
+  authentication_profile_name = "No Authentication"
+}
+resource "catalystcenter_fabric_l3_virtual_network" "test" {
+  virtual_network_name = "SDA_VN1"
+  fabric_ids           = [catalystcenter_fabric_site.test.id]
+}
+
+`
+
+// End of section. //template:end testPrerequisites
+
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
+func testAccDataSourceCcAnycastGatewaysConfig() string {
+	config := `resource "catalystcenter_anycast_gateways" "test" {` + "\n"
+	config += `	fabric_id = catalystcenter_fabric_site.test.id` + "\n"
+	config += `	anycast_gateways = [{` + "\n"
+	config += `	  fabric_id = catalystcenter_fabric_site.test.id` + "\n"
+	config += `	  virtual_network_name = catalystcenter_fabric_l3_virtual_network.test.virtual_network_name` + "\n"
+	config += `	  ip_pool_name = catalystcenter_ip_pool_reservation.test.name` + "\n"
+	config += `	  tcp_mss_adjustment = 1400` + "\n"
+	config += `	  vlan_name = "VLAN401"` + "\n"
+	config += `	  traffic_type = "DATA"` + "\n"
+	config += `	  critical_pool = false` + "\n"
+	config += `	  l2_flooding_enabled = false` + "\n"
+	config += `	  wireless_pool = false` + "\n"
+	config += `	  ip_directed_broadcast = false` + "\n"
+	config += `	  intra_subnet_routing_enabled = false` + "\n"
+	config += `	  multiple_ip_to_mac_addresses = false` + "\n"
+	config += `	  auto_generate_vlan_name = false` + "\n"
+	config += `	}]` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "catalystcenter_anycast_gateways" "test" {
+			id = catalystcenter_anycast_gateways.test.id
+			fabric_id = catalystcenter_fabric_site.test.id
+		}
+	`
+	return config
+}
+
+// End of section. //template:end testAccDataSourceConfig

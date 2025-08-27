@@ -80,7 +80,7 @@ func (data FabricPortAssignments) toBody(ctx context.Context, state FabricPortAs
 		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.PortAssignments {
 			itemBody := ""
-			if !item.Id.IsNull() {
+			if item.Id.ValueString() != "" && !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
 			if !item.FabricId.IsNull() {
