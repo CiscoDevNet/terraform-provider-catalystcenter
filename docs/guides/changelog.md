@@ -9,6 +9,7 @@ description: |-
 
 ## 0.3.2 (unreleased)
 
+- Add `catalystcenter_anycast_gateways` resource and data source
 - BREAKING CHANGE: Rename `preferred_ip_method` attribute of `catalystcenter_discovery` resource to `preferred_mgmt_ip_method`
 
 ## 0.3.1
