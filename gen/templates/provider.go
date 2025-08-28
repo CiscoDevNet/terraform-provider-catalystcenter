@@ -311,6 +311,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewSitesDataSource, // manually maintained
 		NewFabricSitesDataSource, // manually maintained
 		NewIPPoolsDataSource, // manually maintained
+		NewTemplateVersionsDataSource, // manually maintained
 		{{- range .}}
 		{{- if not .NoDataSource}}
 		New{{camelCase .Name}}DataSource,

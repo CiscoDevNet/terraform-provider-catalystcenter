@@ -1,0 +1,56 @@
+---
+name: Template Versions
+# manually managed data source
+rest_endpoint: /dna/intent/api/v1/template-programmer/template/version
+ds_description:
+  "This data source retrieves all versions of a specific template from the Catalyst Center"
+get_no_id: true
+no_resource: true
+no_data_source: true
+data_source_no_id: true
+test_tags: [TEMPLATES]
+doc_category: Templates
+attributes:
+  - model_name: templateId
+    type: String
+    query_param: true
+    data_source_query: true
+    response_data_path: 0.templateId
+    description: UUID of template
+  - model_name: versionsInfo
+    tf_name: template_versions
+    response_data_path: 0.versionsInfo
+    type: List
+    description: List of template versions
+    attributes:
+      - model_name: id
+        type: String
+        example: 72b1b164-7744-4f70-ad44-bd78dad8b1ec
+      - model_name: version
+        type: String
+        example: "1"
+      - model_name: versionComment
+        type: String
+        example: 5438fad09e3629ac8a8526fe5f14ff42
+test_prerequisites: |
+  resource "catalystcenter_project" "test" {
+    name        = "Project1"
+  }
+
+  resource "catalystcenter_template" "test" {
+    project_id  = catalystcenter_project.test.id
+    name        = "Template1"
+    description = "My description"
+    device_types = [
+      {
+        product_family = "Switches and Hubs"
+        product_series = "Cisco Catalyst 9300 Series Switches"
+        product_type   = "Cisco Catalyst 9300 Switch"
+      }
+    ]
+    language         = "JINJA"
+    software_type    = "IOS-XE"
+    software_variant = "XE"
+    software_version = "16.12.1a"
+    template_content = "hostname SW1"
+  }
