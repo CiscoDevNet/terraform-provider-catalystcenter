@@ -21,6 +21,9 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"regexp"
+	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -251,7 +254,6 @@ func (r *DeployTemplateResource) Configure(_ context.Context, req resource.Confi
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DeployTemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan DeployTemplate
 
@@ -273,15 +275,56 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.TemplateId.ValueString()))
+
+	progress := res.Get("response.progress").String()
+
+	re := regexp.MustCompile(`Template Deployemnt Id:\s*([a-f0-9-]+)`)
+	matches := re.FindStringSubmatch(progress)
+
+	if len(matches) > 1 {
+		plan.Id = types.StringValue(matches[1])
+
+		// Check deployment status
+		maxRetries := 30 // e.g., wait up to 5 minutes (30*10s)
+		retry := 0
+
+		statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(plan.Id.ValueString()))
+
+		for {
+			statusRes, err := r.client.Get(statusURL)
+			if err != nil {
+				tflog.Warn(ctx, fmt.Sprintf("Failed to retrieve deployment status for Id %s: %s", plan.Id.ValueString(), err))
+				break
+			}
+
+			status := statusRes.Get("status").String()
+			if status == "SUCCESS" {
+				tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", plan.Id.ValueString()))
+				break
+			} else if status != "INIT" {
+				tflog.Warn(ctx, fmt.Sprintf("Template deployment %s did not succeed, status: %s", plan.Id.ValueString(), status))
+				break
+			}
+
+			// Wait 10 seconds and retry
+			time.Sleep(10 * time.Second)
+			retry++
+			if retry >= maxRetries {
+				tflog.Warn(ctx, fmt.Sprintf("Template deployment %s did not complete within expected time", plan.Id.ValueString()))
+				break
+			}
+		}
+
+	} else {
+		plan.Id = types.StringValue(fmt.Sprint(plan.TemplateId.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("Deployment Id was not found, hence using Template Id as resource Id: %s", plan.TemplateId.ValueString()))
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state DeployTemplate

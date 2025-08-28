@@ -9,6 +9,8 @@ description: |-
 
 ## 0.3.2 (unreleased)
 
+- Add `catalystcenter_template_versions` data source to retrieve a list of all versions of a specified template
+- Modify `catalystcenter_deploy_template` to use `deployment_id` as resource `id`
 - Add `catalystcenter_anycast_gateways` resource and data source
 - BREAKING CHANGE: Rename `preferred_ip_method` attribute of `catalystcenter_discovery` resource to `preferred_mgmt_ip_method`
 
