@@ -1,4 +1,4 @@
-## 0.3.2 (unreleased)
+## 0.3.2
 
 - Add `catalystcenter_template_versions` data source to retrieve a list of all versions of a specified template
 - Modify `catalystcenter_deploy_template` to use `deployment_id` as resource `id`
