@@ -249,7 +249,7 @@ attributes:
     description: The feature that allows the use of Pre-shared Key (PSK) authentication with the SHA256 algorithm is enabled when it is set to true
     exclude_test: true
   - model_name: openSsid
-    type: Bool
+    type: String
     description: Open SSID which is already created in the design and not associated to any other OPEN-SECURED SSID
     exclude_test: true
   - model_name: wlanBandSelectEnable

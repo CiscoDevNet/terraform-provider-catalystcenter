@@ -74,7 +74,7 @@ type WirelessSSID struct {
 	AuthKeyOwe                             types.Bool                     `tfsdk:"auth_key_owe"`
 	AuthKeyEasyPsk                         types.Bool                     `tfsdk:"auth_key_easy_psk"`
 	AuthKeyEasyPskSha256                   types.Bool                     `tfsdk:"auth_key_easy_psk_sha256"`
-	OpenSsid                               types.Bool                     `tfsdk:"open_ssid"`
+	OpenSsid                               types.String                   `tfsdk:"open_ssid"`
 	WlanBandSelect                         types.Bool                     `tfsdk:"wlan_band_select"`
 	Enabled                                types.Bool                     `tfsdk:"enabled"`
 	AuthServers                            types.Set                      `tfsdk:"auth_servers"`
@@ -263,7 +263,7 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 		body, _ = sjson.Set(body, "isAuthKeyPSKSHA256", data.AuthKeyEasyPskSha256.ValueBool())
 	}
 	if !data.OpenSsid.IsNull() {
-		body, _ = sjson.Set(body, "openSsid", data.OpenSsid.ValueBool())
+		body, _ = sjson.Set(body, "openSsid", data.OpenSsid.ValueString())
 	}
 	if !data.WlanBandSelect.IsNull() {
 		body, _ = sjson.Set(body, "wlanBandSelectEnable", data.WlanBandSelect.ValueBool())
@@ -563,9 +563,9 @@ func (data *WirelessSSID) fromBody(ctx context.Context, res gjson.Result) {
 		data.AuthKeyEasyPskSha256 = types.BoolNull()
 	}
 	if value := res.Get("openSsid"); value.Exists() {
-		data.OpenSsid = types.BoolValue(value.Bool())
+		data.OpenSsid = types.StringValue(value.String())
 	} else {
-		data.OpenSsid = types.BoolNull()
+		data.OpenSsid = types.StringNull()
 	}
 	if value := res.Get("wlanBandSelectEnable"); value.Exists() {
 		data.WlanBandSelect = types.BoolValue(value.Bool())
@@ -928,9 +928,9 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 		data.AuthKeyEasyPskSha256 = types.BoolNull()
 	}
 	if value := res.Get("openSsid"); value.Exists() && !data.OpenSsid.IsNull() {
-		data.OpenSsid = types.BoolValue(value.Bool())
+		data.OpenSsid = types.StringValue(value.String())
 	} else {
-		data.OpenSsid = types.BoolNull()
+		data.OpenSsid = types.StringNull()
 	}
 	if value := res.Get("wlanBandSelectEnable"); value.Exists() && !data.WlanBandSelect.IsNull() {
 		data.WlanBandSelect = types.BoolValue(value.Bool())

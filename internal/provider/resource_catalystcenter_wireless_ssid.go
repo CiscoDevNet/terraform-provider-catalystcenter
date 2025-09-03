@@ -288,7 +288,7 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: helpers.NewAttributeDescription("The feature that allows the use of Pre-shared Key (PSK) authentication with the SHA256 algorithm is enabled when it is set to true").String,
 				Optional:            true,
 			},
-			"open_ssid": schema.BoolAttribute{
+			"open_ssid": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Open SSID which is already created in the design and not associated to any other OPEN-SECURED SSID").String,
 				Optional:            true,
 			},
