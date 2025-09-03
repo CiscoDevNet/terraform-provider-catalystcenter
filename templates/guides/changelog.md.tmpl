@@ -9,6 +9,7 @@ description: |-
 
 ## 0.3.3 (unreleased)
 
+- Add `additional_interfaces` and `ap_zones` attributes to `catalystcenter_wireless_profile`
 - `catalystcenter_wireless_ssid` change type of attribute `openSsid` to `string`
 
 ## 0.3.2
