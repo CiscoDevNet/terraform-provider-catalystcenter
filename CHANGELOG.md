@@ -1,3 +1,7 @@
+## 0.3.3 (unreleased)
+
+- `catalystcenter_wireless_ssid` change type of attribute `openSsid` to `string`
+
 ## 0.3.2
 
 - Add `catalystcenter_template_versions` data source to retrieve a list of all versions of a specified template
