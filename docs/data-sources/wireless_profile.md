@@ -38,7 +38,7 @@ data "catalystcenter_wireless_profile" "example" {
 Read-Only:
 
 - `ap_zone_name` (String) AP Zone Name
-- `rf_profile_name` (String) AP Zone Name
+- `rf_profile_name` (String) RF Profile Name
 - `ssids` (Set of String) ssids part of apZone
 
 

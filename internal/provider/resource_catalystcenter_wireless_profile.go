@@ -124,7 +124,7 @@ func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.Schem
 							Optional:            true,
 						},
 						"rf_profile_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("AP Zone Name").String,
+							MarkdownDescription: helpers.NewAttributeDescription("RF Profile Name").String,
 							Optional:            true,
 						},
 						"ssids": schema.SetAttribute{

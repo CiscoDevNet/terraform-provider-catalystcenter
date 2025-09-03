@@ -7,8 +7,4 @@ resource "catalystcenter_wireless_profile" "example" {
       enable_flex_connect = false
     }
   ]
-  ap_zones = [
-    {
-    }
-  ]
 }

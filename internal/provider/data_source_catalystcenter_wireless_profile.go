@@ -117,7 +117,7 @@ func (d *WirelessProfileDataSource) Schema(ctx context.Context, req datasource.S
 							Computed:            true,
 						},
 						"rf_profile_name": schema.StringAttribute{
-							MarkdownDescription: "AP Zone Name",
+							MarkdownDescription: "RF Profile Name",
 							Computed:            true,
 						},
 						"ssids": schema.SetAttribute{

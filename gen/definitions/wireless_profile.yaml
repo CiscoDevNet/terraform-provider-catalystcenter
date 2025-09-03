@@ -64,26 +64,28 @@ attributes:
     description: These additional interfaces will be configured on the device as independent interfaces in addition to the interfaces mapped to SSIDs. Max Limit 4094
     response_data_path: response.0.additionalInterfaces
     exclude_test: true
+    example: Interface_1
   - model_name: apZones
     type: Set
     description: AP Zones
     response_data_path: response.0.apZones
+    exclude_test: true 
     attributes:
       - model_name: apZoneName
         type: String
         description: AP Zone Name
-        example: mySSID1
+        example: AP_Zone_1
         exclude_test: true
       - model_name: rfProfileName
         type: String
-        description: AP Zone Name
-        example: AP_Zone_1
+        description: RF Profile Name
+        example: RF_Profile_1
         exclude_test: true
       - model_name: ssids
         type: Set
         element_type: String
         description: ssids part of apZone
-        example: RF_Profile_1
+        example: mySSID1
         exclude_test: true
 test_prerequisites: |
   resource "catalystcenter_wireless_enterprise_ssid" "test" {

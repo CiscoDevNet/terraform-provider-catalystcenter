@@ -22,10 +22,6 @@ resource "catalystcenter_wireless_profile" "example" {
       enable_flex_connect = false
     }
   ]
-  ap_zones = [
-    {
-    }
-  ]
 }
 ```
 
@@ -52,7 +48,7 @@ resource "catalystcenter_wireless_profile" "example" {
 Optional:
 
 - `ap_zone_name` (String) AP Zone Name
-- `rf_profile_name` (String) AP Zone Name
+- `rf_profile_name` (String) RF Profile Name
 - `ssids` (Set of String) ssids part of apZone
 
 
