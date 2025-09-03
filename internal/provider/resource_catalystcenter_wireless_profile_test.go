@@ -85,6 +85,8 @@ func testAccCcWirelessProfileConfig_all() string {
 	config += `	  enable_fabric = false` + "\n"
 	config += `	  enable_flex_connect = false` + "\n"
 	config += `	}]` + "\n"
+	config += `	ap_zones = [{` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }

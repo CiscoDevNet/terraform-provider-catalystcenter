@@ -109,6 +109,32 @@ func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.Schem
 					},
 				},
 			},
+			"additional_interfaces": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("These additional interfaces will be configured on the device as independent interfaces in addition to the interfaces mapped to SSIDs. Max Limit 4094").String,
+				ElementType:         types.StringType,
+				Optional:            true,
+			},
+			"ap_zones": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("AP Zones").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"ap_zone_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("AP Zone Name").String,
+							Optional:            true,
+						},
+						"rf_profile_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("AP Zone Name").String,
+							Optional:            true,
+						},
+						"ssids": schema.SetAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("ssids part of apZone").String,
+							ElementType:         types.StringType,
+							Optional:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

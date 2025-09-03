@@ -21,6 +21,7 @@ package provider
 import (
 	"context"
 
+	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -30,9 +31,11 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type WirelessProfile struct {
-	Id                  types.String                 `tfsdk:"id"`
-	WirelessProfileName types.String                 `tfsdk:"wireless_profile_name"`
-	SsidDetails         []WirelessProfileSsidDetails `tfsdk:"ssid_details"`
+	Id                   types.String                 `tfsdk:"id"`
+	WirelessProfileName  types.String                 `tfsdk:"wireless_profile_name"`
+	SsidDetails          []WirelessProfileSsidDetails `tfsdk:"ssid_details"`
+	AdditionalInterfaces types.Set                    `tfsdk:"additional_interfaces"`
+	ApZones              []WirelessProfileApZones     `tfsdk:"ap_zones"`
 }
 
 type WirelessProfileSsidDetails struct {
@@ -43,6 +46,12 @@ type WirelessProfileSsidDetails struct {
 	InterfaceName     types.String `tfsdk:"interface_name"`
 	WlanProfileName   types.String `tfsdk:"wlan_profile_name"`
 	Dot11beProfileId  types.String `tfsdk:"dot11be_profile_id"`
+}
+
+type WirelessProfileApZones struct {
+	ApZoneName    types.String `tfsdk:"ap_zone_name"`
+	RfProfileName types.String `tfsdk:"rf_profile_name"`
+	Ssids         types.Set    `tfsdk:"ssids"`
 }
 
 // End of section. //template:end types
@@ -95,6 +104,29 @@ func (data WirelessProfile) toBody(ctx context.Context, state WirelessProfile) s
 				itemBody, _ = sjson.Set(itemBody, "dot11beProfileId", item.Dot11beProfileId.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "ssidDetails.-1", itemBody)
+		}
+	}
+	if !data.AdditionalInterfaces.IsNull() {
+		var values []string
+		data.AdditionalInterfaces.ElementsAs(ctx, &values, false)
+		body, _ = sjson.Set(body, "additionalInterfaces", values)
+	}
+	if len(data.ApZones) > 0 {
+		body, _ = sjson.Set(body, "apZones", []interface{}{})
+		for _, item := range data.ApZones {
+			itemBody := ""
+			if !item.ApZoneName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "apZoneName", item.ApZoneName.ValueString())
+			}
+			if !item.RfProfileName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "rfProfileName", item.RfProfileName.ValueString())
+			}
+			if !item.Ssids.IsNull() {
+				var values []string
+				item.Ssids.ElementsAs(ctx, &values, false)
+				itemBody, _ = sjson.Set(itemBody, "ssids", values)
+			}
+			body, _ = sjson.SetRaw(body, "apZones.-1", itemBody)
 		}
 	}
 	return body
@@ -155,6 +187,34 @@ func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
 				item.Dot11beProfileId = types.StringNull()
 			}
 			data.SsidDetails = append(data.SsidDetails, item)
+			return true
+		})
+	}
+	if value := res.Get("response.0.additionalInterfaces"); value.Exists() && len(value.Array()) > 0 {
+		data.AdditionalInterfaces = helpers.GetStringSet(value.Array())
+	} else {
+		data.AdditionalInterfaces = types.SetNull(types.StringType)
+	}
+	if value := res.Get("response.0.apZones"); value.Exists() && len(value.Array()) > 0 {
+		data.ApZones = make([]WirelessProfileApZones, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := WirelessProfileApZones{}
+			if cValue := v.Get("apZoneName"); cValue.Exists() {
+				item.ApZoneName = types.StringValue(cValue.String())
+			} else {
+				item.ApZoneName = types.StringNull()
+			}
+			if cValue := v.Get("rfProfileName"); cValue.Exists() {
+				item.RfProfileName = types.StringValue(cValue.String())
+			} else {
+				item.RfProfileName = types.StringNull()
+			}
+			if cValue := v.Get("ssids"); cValue.Exists() && len(cValue.Array()) > 0 {
+				item.Ssids = helpers.GetStringSet(cValue.Array())
+			} else {
+				item.Ssids = types.SetNull(types.StringType)
+			}
+			data.ApZones = append(data.ApZones, item)
 			return true
 		})
 	}
@@ -228,6 +288,50 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 			data.SsidDetails[i].Dot11beProfileId = types.StringNull()
 		}
 	}
+	if value := res.Get("response.0.additionalInterfaces"); value.Exists() && !data.AdditionalInterfaces.IsNull() {
+		data.AdditionalInterfaces = helpers.GetStringSet(value.Array())
+	} else {
+		data.AdditionalInterfaces = types.SetNull(types.StringType)
+	}
+	for i := range data.ApZones {
+		keys := [...]string{"apZoneName", "rfProfileName"}
+		keyValues := [...]string{data.ApZones[i].ApZoneName.ValueString(), data.ApZones[i].RfProfileName.ValueString()}
+
+		var r gjson.Result
+		res.Get("response.0.apZones").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("apZoneName"); value.Exists() && !data.ApZones[i].ApZoneName.IsNull() {
+			data.ApZones[i].ApZoneName = types.StringValue(value.String())
+		} else {
+			data.ApZones[i].ApZoneName = types.StringNull()
+		}
+		if value := r.Get("rfProfileName"); value.Exists() && !data.ApZones[i].RfProfileName.IsNull() {
+			data.ApZones[i].RfProfileName = types.StringValue(value.String())
+		} else {
+			data.ApZones[i].RfProfileName = types.StringNull()
+		}
+		if value := r.Get("ssids"); value.Exists() && !data.ApZones[i].Ssids.IsNull() {
+			data.ApZones[i].Ssids = helpers.GetStringSet(value.Array())
+		} else {
+			data.ApZones[i].Ssids = types.SetNull(types.StringType)
+		}
+	}
 }
 
 // End of section. //template:end updateFromBody
@@ -235,6 +339,12 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *WirelessProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	if len(data.SsidDetails) > 0 {
+		return false
+	}
+	if !data.AdditionalInterfaces.IsNull() {
+		return false
+	}
+	if len(data.ApZones) > 0 {
 		return false
 	}
 	return true

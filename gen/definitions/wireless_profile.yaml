@@ -58,6 +58,33 @@ attributes:
         type: String
         description: 802.11be Profile Id. Applicable to IOS controllers with version 17.15 and higher. 802.11be Profiles if passed, should be same across all SSIDs in network profile being configured
         exclude_test: true
+  - model_name: additionalInterfaces
+    type: Set
+    element_type: String
+    description: These additional interfaces will be configured on the device as independent interfaces in addition to the interfaces mapped to SSIDs. Max Limit 4094
+    response_data_path: response.0.additionalInterfaces
+    exclude_test: true
+  - model_name: apZones
+    type: Set
+    description: AP Zones
+    response_data_path: response.0.apZones
+    attributes:
+      - model_name: apZoneName
+        type: String
+        description: AP Zone Name
+        example: mySSID1
+        exclude_test: true
+      - model_name: rfProfileName
+        type: String
+        description: AP Zone Name
+        example: AP_Zone_1
+        exclude_test: true
+      - model_name: ssids
+        type: Set
+        element_type: String
+        description: ssids part of apZone
+        example: RF_Profile_1
+        exclude_test: true
 test_prerequisites: |
   resource "catalystcenter_wireless_enterprise_ssid" "test" {
     name                                  = "mySSID1"

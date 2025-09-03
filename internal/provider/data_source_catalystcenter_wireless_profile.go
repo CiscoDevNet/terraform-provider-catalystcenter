@@ -25,6 +25,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 )
@@ -96,6 +97,32 @@ func (d *WirelessProfileDataSource) Schema(ctx context.Context, req datasource.S
 						},
 						"dot11be_profile_id": schema.StringAttribute{
 							MarkdownDescription: "802.11be Profile Id. Applicable to IOS controllers with version 17.15 and higher. 802.11be Profiles if passed, should be same across all SSIDs in network profile being configured",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"additional_interfaces": schema.SetAttribute{
+				MarkdownDescription: "These additional interfaces will be configured on the device as independent interfaces in addition to the interfaces mapped to SSIDs. Max Limit 4094",
+				ElementType:         types.StringType,
+				Computed:            true,
+			},
+			"ap_zones": schema.SetNestedAttribute{
+				MarkdownDescription: "AP Zones",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"ap_zone_name": schema.StringAttribute{
+							MarkdownDescription: "AP Zone Name",
+							Computed:            true,
+						},
+						"rf_profile_name": schema.StringAttribute{
+							MarkdownDescription: "AP Zone Name",
+							Computed:            true,
+						},
+						"ssids": schema.SetAttribute{
+							MarkdownDescription: "ssids part of apZone",
+							ElementType:         types.StringType,
 							Computed:            true,
 						},
 					},
