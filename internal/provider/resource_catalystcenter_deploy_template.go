@@ -281,40 +281,67 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 	re := regexp.MustCompile(`Template Deployemnt Id:\s*([a-f0-9-]+)`)
 	matches := re.FindStringSubmatch(progress)
 
+	var deploymentSuccess bool = false
+
 	if len(matches) > 1 {
 		plan.Id = types.StringValue(matches[1])
 
 		// Check deployment status
 		maxRetries := 30 // e.g., wait up to 5 minutes (30*10s)
-		retry := 0
 
 		statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(plan.Id.ValueString()))
 
-		for {
+		// define waiting status
+		waitingStatuses := map[string]bool{
+			"INIT": true,
+		}
+
+		for retry := 0; retry < maxRetries; retry++ {
 			statusRes, err := r.client.Get(statusURL)
 			if err != nil {
 				tflog.Warn(ctx, fmt.Sprintf("Failed to retrieve deployment status for Id %s: %s", plan.Id.ValueString(), err))
-				break
+				time.Sleep(10 * time.Second)
+				continue
 			}
 
 			status := statusRes.Get("status").String()
-			if status == "SUCCESS" {
-				tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", plan.Id.ValueString()))
-				break
-			} else if status != "INIT" {
-				tflog.Warn(ctx, fmt.Sprintf("Template deployment %s did not succeed, status: %s", plan.Id.ValueString(), status))
-				break
-			}
+			devices := statusRes.Get("devices").String()
 
-			// Wait 10 seconds and retry
-			time.Sleep(10 * time.Second)
-			retry++
-			if retry >= maxRetries {
-				tflog.Warn(ctx, fmt.Sprintf("Template deployment %s did not complete within expected time", plan.Id.ValueString()))
-				break
+			switch {
+			case status == "SUCCESS":
+				tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", plan.Id.ValueString()))
+				deploymentSuccess = true // Mark success
+				retry = maxRetries       // exit the for loop
+
+			case status == "FAILURE":
+				resp.Diagnostics.AddError(
+					"Template Deployment Failed",
+					fmt.Sprintf("Deployment %s failed with status: %s, on devices: %s", plan.Id.ValueString(), status, devices),
+				)
+				return // stop function with error
+
+			case waitingStatuses[status]:
+				// still waiting, sleep and retry
+				time.Sleep(10 * time.Second)
+				continue
+
+			default:
+				resp.Diagnostics.AddError(
+					"Template Deployment Unknown Status",
+					fmt.Sprintf("Deployment %s ended with unexpected status: %s", plan.Id.ValueString(), status),
+				)
+				return
 			}
 		}
 
+		// if maxRetries reached without success
+		if !deploymentSuccess {
+			resp.Diagnostics.AddError(
+				"Template Deployment Timeout",
+				fmt.Sprintf("Deployment %s did not complete within expected time", plan.Id.ValueString()),
+			)
+			return
+		}
 	} else {
 		plan.Id = types.StringValue(fmt.Sprint(plan.TemplateId.ValueString()))
 		tflog.Debug(ctx, fmt.Sprintf("Deployment Id was not found, hence using Template Id as resource Id: %s", plan.TemplateId.ValueString()))
