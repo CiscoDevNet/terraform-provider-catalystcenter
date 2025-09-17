@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.3.3 (unreleased)
+## 0.3.3
 
 - Change the attribute type of `mappings` in `catalystcenter_fabric_vlan_to_ssid` from `List` to `Set`
 - Fix issue with `catalystcenter_deploy_template` where terraform did not properly report an error when a template failed to deploy
