@@ -29,14 +29,14 @@ data "catalystcenter_fabric_vlan_to_ssid" "example" {
 
 ### Read-Only
 
-- `mappings` (Attributes List) List of VLAN to SSID mappings (see [below for nested schema](#nestedatt--mappings))
+- `mappings` (Attributes Set) List of VLAN to SSID mappings (see [below for nested schema](#nestedatt--mappings))
 
 <a id="nestedatt--mappings"></a>
 ### Nested Schema for `mappings`
 
 Read-Only:
 
-- `ssid_details` (Attributes List) SSID Details (see [below for nested schema](#nestedatt--mappings--ssid_details))
+- `ssid_details` (Attributes Set) SSID Details (see [below for nested schema](#nestedatt--mappings--ssid_details))
 - `vlan_name` (String) VLAN Name
 
 <a id="nestedatt--mappings--ssid_details"></a>

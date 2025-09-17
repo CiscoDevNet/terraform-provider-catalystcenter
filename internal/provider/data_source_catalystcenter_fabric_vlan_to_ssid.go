@@ -64,7 +64,7 @@ func (d *FabricVLANToSSIDDataSource) Schema(ctx context.Context, req datasource.
 				MarkdownDescription: "Fabric ID",
 				Required:            true,
 			},
-			"mappings": schema.ListNestedAttribute{
+			"mappings": schema.SetNestedAttribute{
 				MarkdownDescription: "List of VLAN to SSID mappings",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -73,7 +73,7 @@ func (d *FabricVLANToSSIDDataSource) Schema(ctx context.Context, req datasource.
 							MarkdownDescription: "VLAN Name",
 							Computed:            true,
 						},
-						"ssid_details": schema.ListNestedAttribute{
+						"ssid_details": schema.SetNestedAttribute{
 							MarkdownDescription: "SSID Details",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
