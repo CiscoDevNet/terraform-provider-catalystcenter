@@ -28,7 +28,7 @@ attributes:
     description: Fabric ID
     example: 5e8e3e3e-1b6b-4b6b-8b6b-1b6b4b6b8b6b
   - tf_name: mappings
-    type: List
+    type: Set
     response_data_path: response
     mandatory: true
     description: List of VLAN to SSID mappings
@@ -36,15 +36,15 @@ attributes:
       - model_name: vlanName
         type: String
         description: VLAN Name
-        id: true
         example: VLAN_1
       - model_name: ssidDetails
-        type: List
+        type: Set
         description: SSID Details
         attributes:
           - model_name: name
             type: String
             description: Name of the SSID
+            id: true
             example: mySSID1
           - model_name: securityGroupTag
             type: String

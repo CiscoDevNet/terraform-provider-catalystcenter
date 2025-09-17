@@ -35,7 +35,7 @@ resource "catalystcenter_fabric_vlan_to_ssid" "example" {
 ### Required
 
 - `fabric_id` (String) Fabric ID
-- `mappings` (Attributes List) List of VLAN to SSID mappings (see [below for nested schema](#nestedatt--mappings))
+- `mappings` (Attributes Set) List of VLAN to SSID mappings (see [below for nested schema](#nestedatt--mappings))
 
 ### Read-Only
 
@@ -44,20 +44,20 @@ resource "catalystcenter_fabric_vlan_to_ssid" "example" {
 <a id="nestedatt--mappings"></a>
 ### Nested Schema for `mappings`
 
-Required:
-
-- `vlan_name` (String) VLAN Name
-
 Optional:
 
-- `ssid_details` (Attributes List) SSID Details (see [below for nested schema](#nestedatt--mappings--ssid_details))
+- `ssid_details` (Attributes Set) SSID Details (see [below for nested schema](#nestedatt--mappings--ssid_details))
+- `vlan_name` (String) VLAN Name
 
 <a id="nestedatt--mappings--ssid_details"></a>
 ### Nested Schema for `mappings.ssid_details`
 
-Optional:
+Required:
 
 - `name` (String) Name of the SSID
+
+Optional:
+
 - `security_group_tag` (String) Represents the name of the Security Group. Example: Auditors, BYOD, Developers, etc.
 
 ## Import

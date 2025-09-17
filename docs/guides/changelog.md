@@ -9,6 +9,7 @@ description: |-
 
 ## 0.3.3 (unreleased)
 
+- Change the attribute type of `mappings` in `catalystcenter_fabric_vlan_to_ssid` from `List` to `Set`
 - Fix issue with `catalystcenter_deploy_template` where terraform did not properly report an error when a template failed to deploy
 - Add `additional_interfaces` and `ap_zones` attributes to `catalystcenter_wireless_profile`
 - `catalystcenter_wireless_ssid` change type of attribute `openSsid` to `string`

@@ -75,23 +75,23 @@ func (r *FabricVLANToSSIDResource) Schema(ctx context.Context, req resource.Sche
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"mappings": schema.ListNestedAttribute{
+			"mappings": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of VLAN to SSID mappings").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"vlan_name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("VLAN Name").String,
-							Required:            true,
+							Optional:            true,
 						},
-						"ssid_details": schema.ListNestedAttribute{
+						"ssid_details": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("SSID Details").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"name": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Name of the SSID").String,
-										Optional:            true,
+										Required:            true,
 									},
 									"security_group_tag": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Represents the name of the Security Group. Example: Auditors, BYOD, Developers, etc.").String,

@@ -61,7 +61,6 @@ func testAccCcFabricVLANToSSIDConfig_minimum() string {
 	config := `resource "catalystcenter_fabric_vlan_to_ssid" "test" {` + "\n"
 	config += `	fabric_id = "5e8e3e3e-1b6b-4b6b-8b6b-1b6b4b6b8b6b"` + "\n"
 	config += `	mappings = [{` + "\n"
-	config += `	  vlan_name = "VLAN_1"` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config

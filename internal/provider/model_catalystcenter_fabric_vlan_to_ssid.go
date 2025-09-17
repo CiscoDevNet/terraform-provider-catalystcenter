@@ -168,8 +168,8 @@ func (data *FabricVLANToSSID) updateFromBody(ctx context.Context, res gjson.Resu
 			data.Mappings[i].VlanName = types.StringNull()
 		}
 		for ci := range data.Mappings[i].SsidDetails {
-			keys := [...]string{"name", "securityGroupTag"}
-			keyValues := [...]string{data.Mappings[i].SsidDetails[ci].Name.ValueString(), data.Mappings[i].SsidDetails[ci].SecurityGroupTag.ValueString()}
+			keys := [...]string{"name"}
+			keyValues := [...]string{data.Mappings[i].SsidDetails[ci].Name.ValueString()}
 
 			var cr gjson.Result
 			r.Get("ssidDetails").ForEach(
