@@ -636,6 +636,9 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}
 	params += "/" + url.QueryEscape(state.Id.ValueString())
 	{{- end}}
+	{{- if hasGetQueryParam .Attributes }}
+	params += {{$queryParams}}
+	{{- end }}
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}

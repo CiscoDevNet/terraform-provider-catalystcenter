@@ -61,12 +61,12 @@ func (d *FloorDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				MarkdownDescription: "The id of the object",
 				Required:            true,
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the floor",
+			"parent_id": schema.StringAttribute{
+				MarkdownDescription: "The ID of the parent building",
 				Computed:            true,
 			},
-			"parent_name": schema.StringAttribute{
-				MarkdownDescription: "The path of the parent building, e.g. `Global/Building1`",
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Floor name",
 				Computed:            true,
 			},
 			"floor_number": schema.Int64Attribute{
@@ -88,6 +88,10 @@ func (d *FloorDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 			"height": schema.Float64Attribute{
 				MarkdownDescription: "Height",
 				Computed:            true,
+			},
+			"units_of_measure": schema.StringAttribute{
+				MarkdownDescription: "The unit of measurement",
+				Required:            true,
 			},
 		},
 	}
@@ -118,7 +122,8 @@ func (d *FloorDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 
 	params := ""
 	params += "/" + url.QueryEscape(config.Id.ValueString())
-	res, err := d.client.Get("/api/v1/dna-maps-service/domains" + params)
+	params += "?_unitsOfMeasure=" + url.QueryEscape(config.UnitsOfMeasure.ValueString())
+	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return

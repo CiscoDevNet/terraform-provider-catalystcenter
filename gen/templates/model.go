@@ -852,7 +852,7 @@ for i := range data.{{toGoName .TfName}} {
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) bool {
 	{{- range .Attributes}}
-	{{- if and (not .Value) (not .Id) (not .Reference) (not .QueryParam)}}
+	{{- if and (not .Value) (not .Id) (not .Reference) (not .QueryParam) (not .GetQueryParam) }}
 	{{- if isNestedListSet .}}
 	if len(data.{{toGoName .TfName}}) > 0 {
 		return false

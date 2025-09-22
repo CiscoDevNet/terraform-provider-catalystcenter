@@ -282,6 +282,16 @@ func HasQueryParam(attributes []YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return true if get query parameters included in attributes
+func HasGetQueryParam(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.GetQueryParam {
+			return true
+		}
+	}
+	return false
+}
+
 // Templating helper function to return true if delete query parameters included in attributes
 func HasDeleteQueryParam(attributes []YamlConfigAttribute) bool {
 	for _, attr := range attributes {
@@ -551,7 +561,7 @@ func GenerateQueryParamString(method string, inputSource string, attributes []Ya
 func ImportAttributes(config YamlConfig) []YamlConfigAttribute {
 	r := []YamlConfigAttribute{}
 	for _, attr := range config.Attributes {
-		if attr.Reference || attr.QueryParam || attr.Id {
+		if attr.Reference || attr.QueryParam || attr.GetQueryParam || attr.Id {
 			r = append(r, attr)
 		}
 	}
@@ -583,6 +593,7 @@ var functions = template.FuncMap{
 	"hasId":                    HasId,
 	"hasReference":             HasReference,
 	"hasQueryParam":            HasQueryParam,
+	"hasGetQueryParam":         HasGetQueryParam,
 	"hasDeleteQueryParam":      HasDeleteQueryParam,
 	"generateQueryParamString": GenerateQueryParamString,
 	"getId":                    GetId,

@@ -83,7 +83,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- else if eq .Type "Map"}}
 				ElementType:         types.StringType,
 				{{- end}}
-				{{- if and (or .Reference .QueryParam) (not .DataSourceQuery)}}
+				{{- if and (or .Reference .QueryParam .GetQueryParam) (not .DataSourceQuery)}}
 				Required:            true,
 				{{- else}}
 				{{- if .DataSourceQuery}}
@@ -226,16 +226,20 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	{{- end}}
 
 	params := ""
+	{{- $queryParams := generateQueryParamString "GET" "config" .Attributes }}
+
 	{{- if .IdQueryParam}}
 	params += "?{{.IdQueryParam}}=" + url.QueryEscape(config.Id.ValueString())
 	{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
-		{{- $queryParams := generateQueryParamString "GET" "config" .Attributes }}
-		{{- if $queryParams }}
+	{{- if $queryParams }}
 	params += {{$queryParams}}
-		{{- end}}
+	{{- end}}
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}
 	params += "/" + url.QueryEscape(config.Id.ValueString())
 	{{- end}}
+	{{- if hasGetQueryParam .Attributes }}
+	params += {{$queryParams}}
+	{{- end }}
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
