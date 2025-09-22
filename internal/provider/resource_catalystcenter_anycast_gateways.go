@@ -38,6 +38,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -59,6 +60,27 @@ type AnycastGatewaysResource struct {
 
 func (r *AnycastGatewaysResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_anycast_gateways"
+}
+
+func (r *AnycastGatewaysResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() || !req.Plan.Raw.IsKnown() {
+		return
+	}
+
+	var plan AnycastGateways
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	for i := range plan.AnycastGateways {
+		if plan.AnycastGateways[i].VlanId.IsNull() {
+			plan.AnycastGateways[i].VlanId = types.Int64Unknown()
+		}
+	}
+
+	resp.Diagnostics.Append(resp.Plan.Set(ctx, &plan)...)
+
 }
 
 func (r *AnycastGatewaysResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -212,18 +234,37 @@ func (r *AnycastGatewaysResource) Create(ctx context.Context, req resource.Creat
 
 	// Create object
 	body := plan.toBody(ctx, AnycastGateways{})
+	var planList []AnycastGateways
+	maxElementsPerShard := 20
+	originalList := plan.AnycastGateways
+	for i := 0; i < len(originalList); i += maxElementsPerShard {
+		end := i + maxElementsPerShard
+		if end > len(originalList) {
+			end = len(originalList)
+		}
+		chunk := originalList[i:end]
+		currentPlanForShard := plan
+		currentPlanForShard.AnycastGateways = chunk
+		planList = append(planList, currentPlanForShard)
+
+	}
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-	if err != nil {
-		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
-			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
-			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-			return
+	var err error
+	var res gjson.Result
+	for _, pl := range planList {
+		body = pl.toBody(ctx, AnycastGateways{})
+		res, err = r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+		if err != nil {
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+				break
+			}
 		}
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.FabricId.ValueString()))
@@ -283,6 +324,7 @@ func (r *AnycastGatewaysResource) Read(ctx context.Context, req resource.ReadReq
 
 // End of section. //template:end read
 
+// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state AnycastGateways
 
@@ -317,6 +359,7 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 
 	planMap := make(map[string]AnycastGatewaysAnycastGateways)
 	stateMap := make(map[string]AnycastGatewaysAnycastGateways)
+	indexMap := make(map[string]int)
 
 	// Populate state map
 	for _, v := range state.AnycastGateways {
@@ -324,8 +367,9 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	// Populate plan map
-	for _, v := range plan.AnycastGateways {
+	for i, v := range plan.AnycastGateways {
 		planMap[v.IpPoolName.ValueString()] = v
+		indexMap[v.IpPoolName.ValueString()] = i
 	}
 
 	// Find items to delete (exist in state but not in plan)
@@ -344,6 +388,9 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 				// Update planItem but ensure ID comes from stateItem
 				planItem.Id = stateItem.Id
 				planMap[planKey] = planItem // Store back in planMap
+				if planItem.VlanId.IsNull() {
+					planItem.VlanId = types.Int64Unknown()
+				}
 				// Check if any field marked as requires_replace differs
 				if planItem.VirtualNetworkName != stateItem.VirtualNetworkName {
 					toReplace.AnycastGateways = append(toReplace.AnycastGateways, planItem)
@@ -365,6 +412,10 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 			}
 		} else {
 			// Exists only in plan → New item
+			if planItem.VlanId.IsNull() {
+				planItem.VlanId = types.Int64Unknown()
+				plan.AnycastGateways[indexMap[planKey]].VlanId = types.Int64Unknown()
+			}
 			toCreate.AnycastGateways = append(toCreate.AnycastGateways, planItem)
 		}
 	}
@@ -417,19 +468,36 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 	// CREATE
 	// If there are objects marked for create
 	if len(toCreate.AnycastGateways) > 0 {
+
+		maxElementsPerShard := 20
+		var createList []AnycastGateways
+		for i := 0; i < len(toCreate.AnycastGateways); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(toCreate.AnycastGateways))
+			chunk := toCreate.AnycastGateways[i:end]
+			currentPlanForShard := plan
+			currentPlanForShard.AnycastGateways = chunk
+			createList = append(createList, currentPlanForShard)
+
+		}
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.AnycastGateways)))
-		body := toCreate.toBody(ctx, AnycastGateways{}) // Convert to request body
+		var err error
+		var res gjson.Result
 		params := ""
-		res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-		if err != nil {
-			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
-				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
-				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-			} else {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-				return
+		for _, pl := range createList {
+			body := pl.toBody(ctx, AnycastGateways{}) // Convert to request body
+			tflog.Debug(ctx, fmt.Sprintf("cdss elements: %d, body: %v", len(pl.AnycastGateways), body))
+			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+			if err != nil {
+				errorCode := res.Get("response.errorCode").String()
+				if errorCode == "NCDP10000" {
+					// Log a warning and continue execution when device is unreachable
+					failureReason := res.Get("response.failureReason").String()
+					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+				} else {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+					break
+				}
 			}
 		}
 		params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString())
@@ -446,26 +514,46 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 	// UPDATE
 	// Update objects (objects that have different definition in plan and state)
 	if len(toUpdate.AnycastGateways) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.AnycastGateways)))
-		planIndexMap := make(map[string]int)
-		for i, v := range plan.AnycastGateways {
-			planIndexMap[v.IpPoolName.ValueString()] = i
-		}
-		for _, item := range toUpdate.AnycastGateways {
-			toUpdateKey := item.IpPoolName.ValueString()
-			if updatedItem, exists := planMap[toUpdateKey]; exists {
-				if index, found := planIndexMap[toUpdateKey]; found {
-					plan.AnycastGateways[index] = updatedItem
-				}
-			}
+
+		maxElementsPerShard := 20
+		var updateList []AnycastGateways
+		for i := 0; i < len(toUpdate.AnycastGateways); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(toUpdate.AnycastGateways))
+			chunk := toUpdate.AnycastGateways[i:end]
+			currentPlanForShard := plan
+			currentPlanForShard.AnycastGateways = chunk
+			updateList = append(updateList, currentPlanForShard)
+
 		}
 
-		body := toUpdate.toBody(ctx, AnycastGateways{})
-		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-			return
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.AnycastGateways)))
+		planIndexMap := make(map[string]int)
+
+		for _, pl := range updateList {
+			for i, v := range plan.AnycastGateways {
+				planIndexMap[v.IpPoolName.ValueString()] = i
+			}
+			for itemInd, item := range pl.AnycastGateways {
+				toUpdateKey := item.IpPoolName.ValueString()
+				if updatedItem, exists := planMap[toUpdateKey]; exists {
+					if index, found := planIndexMap[toUpdateKey]; found {
+						vlanId := stateMap[toUpdateKey].VlanId
+						updatedItem.VlanId = vlanId
+						plan.AnycastGateways[index] = updatedItem
+						// updateList[plInd].AnycastGateways[itemInd].VlanId = vlanId
+						pl.AnycastGateways[itemInd].VlanId = vlanId
+					}
+				}
+			}
+
+			body := pl.toBody(ctx, AnycastGateways{})
+			tflog.Debug(ctx, fmt.Sprintf("edss elements: %d, body: %v", len(pl.AnycastGateways), body))
+			params := ""
+			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+				return
+			}
 		}
 	}
 
@@ -474,6 +562,8 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AnycastGatewaysResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

@@ -1,4 +1,5 @@
 //go:build ignore
+
 // Copyright © 2023 Cisco Systems, Inc. and its affiliates.
 // All rights reserved.
 //
@@ -26,22 +27,24 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-catalystcenter"
-	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/tidwall/gjson"
 )
+
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin model
@@ -454,12 +457,81 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 
 	// Create object
 	body := plan.toBody(ctx, {{camelCase .Name}}{})
+	
+	{{- $resName := .Name }}
+	{{- $MaxElementsInRootList := 0 }} 
+	{{- range  .Attributes}}
+	{{- if .MaxElementsInRootList}}
+	var planList []{{camelCase $resName}}
+	{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
+	maxElementsPerShard := {{.MaxElementsInRootList}}
+	originalList := plan.{{toGoName .TfName}}
+	for i := 0; i < len(originalList); i += maxElementsPerShard {
+		end := i+maxElementsPerShard
+		if end > len(originalList){
+			end = len(originalList)
+		}
+		chunk := originalList[i:end]
+		currentPlanForShard := plan 
+		currentPlanForShard.{{toGoName .TfName}} = chunk
+		planList = append(planList, currentPlanForShard)
+
+	}
+	{{- end}}
+	{{- end}}
 
 	params := ""
 	{{- if hasCreateQueryPath .Attributes}}
 		{{- $createQueryPath := getCreateQueryPath .Attributes}}
 	params += "/" + url.QueryEscape(plan.{{toGoName $createQueryPath.TfName}}.Value{{$createQueryPath.Type}}())
 	{{- end}}
+
+	{{- if $MaxElementsInRootList}}
+	var err error
+	var res gjson.Result
+	for _, pl := range planList{
+		body = pl.toBody(ctx, {{camelCase .Name}}{})
+		{{- if .PutCreate}}
+		res, err = r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+		{{- else}}
+		res, err = r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
+		{{- end}}
+		if err != nil {
+		{{- if .DeviceUnreachabilityWarning}}
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				{{- if and .AllowExistingOnCreate (not .PutCreate)}}	
+				if r.AllowExistingOnCreate  {
+					tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+				} else{
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+					break
+				}
+				{{- else}}
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+				break
+				{{- end}}
+			}
+		{{- else}}
+			{{- if and .AllowExistingOnCreate (not .PutCreate)}}	
+			if r.AllowExistingOnCreate  {
+				tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+			} else{
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+				return
+			}
+			{{- else}}
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
+			return
+			{{- end}}
+		{{- end}}
+		}
+	}
+	{{- else}}
 	{{- if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
@@ -499,6 +571,8 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		{{- end}}
 	{{- end}}
 	}
+	{{- end}}
+
 
 	{{- /* Check if id can be resolved directly from response */}}
 	{{- if .IdPath}}
@@ -801,7 +875,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				{{- range .Attributes}}
 				{{- range .Attributes}}
 				{{- if .RequiresReplace }}
+				{{- if .NoPut }}
 				if planItem.{{toGoName .TfName}} != stateItem.{{toGoName .TfName}} {
+				{{- else}}
+				if planItem.{{toGoName .TfName}} != stateItem.{{toGoName .TfName}} {
+				{{- end}}
 					toReplace.{{toGoName $items}} = append(toReplace.{{toGoName $items}}, planItem)
 					continue
 				}
@@ -826,8 +904,21 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		}
 		for _, item := range toReplace.{{toGoName $items}} {
 			{{- range .Attributes}}
+			{{- $Atts := .Attributes}}
 			{{- range .Attributes}}
-			{{- if and .Computed .ExcludeTest }}
+			{{- if and .NoPut (not .ExcludeTest)}}
+				{{$putName := toGoName .TfName}}
+				{{$putVal := .Type}} 
+				{{- range $Atts}}
+				{{$transformedName := toGoName .TfName}}
+
+				{{- if and (strContains $transformedName $putName) (ne $transformedName $putName)  }}
+				if !item.{{$transformedName}}.IsNull() && item.{{$transformedName}}.Value{{.Type}}() {
+					item.{{$putName}} = types.{{$putVal}}Null()
+				}
+				{{- end}}
+				{{- end}}
+			{{- else if and .Computed .ExcludeTest}}
 			item.{{toGoName .TfName}} = types.{{.Type}}Null()
 			{{- end}}
 			{{- end}}
@@ -871,7 +962,51 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	// CREATE
 	// If there are objects marked for create
 	if len(toCreate.{{toGoName $items}}) > 0 {
+		{{$chunks := false}}
+		{{- $resName := .Name }}
+		{{- $MaxElementsInRootList := 0 }} 
+		{{- range  .Attributes}}
+		{{- if .MaxElementsInRootList}}
+		{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
+		maxElementsPerShard := {{$MaxElementsInRootList}}
+		var createList []{{toGoName $items}}
+		for i := 0; i < len(toCreate.{{toGoName $items}}); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(toCreate.{{toGoName $items}}))
+			chunk := toCreate.{{toGoName $items}}[i:end]
+			currentPlanForShard := plan 
+			currentPlanForShard.{{toGoName $items}} = chunk
+			createList = append(createList, currentPlanForShard)
+
+			
+		}
+		{{$chunks = true}}
+		{{- end}}
+		{{- end}}
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.{{toGoName $items}})))
+
+		{{- if $chunks}}
+		var err error
+		var res gjson.Result
+		params := ""
+		for _, pl := range createList {
+			body := pl.toBody(ctx, {{toGoName $items}}{}) // Convert to request body
+			tflog.Debug(ctx, fmt.Sprintf("cdss elements: %d, body: %v", len(pl.{{toGoName $items}}), body))
+			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+			if err != nil {
+				errorCode := res.Get("response.errorCode").String()
+				if errorCode == "NCDP10000" {
+					// Log a warning and continue execution when device is unreachable
+					failureReason := res.Get("response.failureReason").String()
+					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+				} else {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+					break
+				}
+			}
+		}
+
+		{{- else}}
 		body := toCreate.toBody(ctx, {{camelCase .Name}}{}) // Convert to request body
 		params := ""
 		{{- if hasCreateQueryPath .Attributes}}
@@ -895,7 +1030,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			return
 		{{- end}}
 		}
-
+		{{- end}}
 		{{- $queryParams := generateQueryParamString "GET" "plan" .Attributes }}
 
 		{{- if .IdQueryParam}}
@@ -923,8 +1058,65 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	// UPDATE
 	// Update objects (objects that have different definition in plan and state)
 	if len(toUpdate.{{toGoName $items}}) > 0 {
+
+		{{$chunks := false}}
+		{{- $resName := .Name }}
+		{{- $MaxElementsInRootList := 0 }} 
+		{{- range  .Attributes}}
+		{{- if .MaxElementsInRootList}}
+		{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
+		maxElementsPerShard := {{$MaxElementsInRootList}}
+		var updateList []{{toGoName $items}}
+		for i := 0; i < len(toUpdate.{{toGoName $items}}); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(toUpdate.{{toGoName $items}}))
+			chunk := toUpdate.{{toGoName $items}}[i:end]
+			currentPlanForShard := plan 
+			currentPlanForShard.{{toGoName $items}} = chunk
+			updateList = append(updateList, currentPlanForShard)
+
+			
+		}
+		{{$chunks = true}}
+		{{- end}}
+		{{- end}}
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.{{toGoName $items}})))
 		planIndexMap := make(map[string]int)
+
+
+		{{- if $chunks}}
+
+		for _, pl := range updateList {
+
+			{{- range .Attributes}}
+			{{- $id := getId .Attributes}}
+			{{- if not (eq (toGoName $id.TfName) "") }}
+			for i, v := range plan.{{toGoName $items}} {
+				planIndexMap[{{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(v.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}v.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}] = i
+			}
+			for _, item := range pl.{{toGoName $items}} {
+				toUpdateKey := {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(item.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}item.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}
+				if updatedItem, exists := planMap[toUpdateKey]; exists {
+					if index, found := planIndexMap[toUpdateKey]; found {
+						plan.{{toGoName $items}}[index] = updatedItem
+					}
+				}
+			}
+			{{- end}}
+			{{- end}}
+
+			body := pl.toBody(ctx, AnycastGateways{})
+			tflog.Debug(ctx, fmt.Sprintf("edss elements: %d, body: %v", len(pl.{{toGoName $items}}), body))
+			params := ""
+			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+				return
+			}
+		}
+		
+		{{- else}}
+
 		{{- range .Attributes}}
 		{{- $id := getId .Attributes}}
 		{{- if not (eq (toGoName $id.TfName) "") }}
@@ -949,6 +1141,8 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 			return
 		}
+
+		{{- end}}
 	}
 	{{- end}}
 
