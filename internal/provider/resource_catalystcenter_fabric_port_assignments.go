@@ -356,6 +356,7 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 	// CREATE
 	// If there are objects marked for create
 	if len(toCreate.PortAssignments) > 0 {
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.PortAssignments)))
 		body := toCreate.toBody(ctx, FabricPortAssignments{}) // Convert to request body
 		params := ""
@@ -385,6 +386,7 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 	// UPDATE
 	// Update objects (objects that have different definition in plan and state)
 	if len(toUpdate.PortAssignments) > 0 {
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.PortAssignments)))
 		planIndexMap := make(map[string]int)
 		for i, v := range plan.PortAssignments {

@@ -100,3 +100,5 @@ attribute:
   minimum_test_value: any(str(), int(), bool(), num(), required=False) # Value used for "minimum" resource acceptance test
   test_tags: list(str(), required=False) # List of test tags, attribute is only included in acceptance tests if an environment variable with one of these tags is configured
   attributes: list(include('attribute'), required=False) # List of attributes, only relevant if type is "List" or "Set"
+  max_elements_in_root_list: int(required=False) # The chunk size of a single bulk request
+  no_put: bool(required=False) # Set to true if the attribute should be excluded from the PUT request
