@@ -529,6 +529,29 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.AnycastGateways)))
 		planIndexMap := make(map[string]int)
 
+		var getState AnycastGateways
+		getParams := ""
+		getParams += "?fabricId=" + url.QueryEscape(state.FabricId.ValueString())
+		getRes, err := r.client.Get(state.getPath() + getParams)
+		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
+			resp.State.RemoveResource(ctx)
+			return
+		} else if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, getRes.String()))
+			return
+		}
+
+		if getState.isNull(ctx, getRes) {
+			getState.fromBody(ctx, getRes)
+		} else {
+			getState.updateFromBody(ctx, getRes)
+		}
+		existingVlanIds := make(map[string]types.Int64)
+		for _, el := range getState.AnycastGateways {
+			updateKey := el.IpPoolName.ValueString()
+			existingVlanIds[updateKey] = el.VlanId
+		}
+
 		for _, pl := range updateList {
 			for i, v := range plan.AnycastGateways {
 				planIndexMap[v.IpPoolName.ValueString()] = i
@@ -537,11 +560,11 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 				toUpdateKey := item.IpPoolName.ValueString()
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					if index, found := planIndexMap[toUpdateKey]; found {
-						vlanId := stateMap[toUpdateKey].VlanId
-						updatedItem.VlanId = vlanId
+						// vlanId := stateMap[toUpdateKey].VlanId
+						// updatedItem.VlanId = vlanId
 						plan.AnycastGateways[index] = updatedItem
 						// updateList[plInd].AnycastGateways[itemInd].VlanId = vlanId
-						pl.AnycastGateways[itemInd].VlanId = vlanId
+						pl.AnycastGateways[itemInd].VlanId = existingVlanIds[toUpdateKey]
 					}
 				}
 			}
