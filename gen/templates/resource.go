@@ -991,7 +991,6 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		params := ""
 		for _, pl := range createList {
 			body := pl.toBody(ctx, {{toGoName $items}}{}) // Convert to request body
-			tflog.Debug(ctx, fmt.Sprintf("cdss elements: %d, body: %v", len(pl.{{toGoName $items}}), body))
 			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
@@ -1062,8 +1061,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{$chunks := false}}
 		{{- $resName := .Name }}
 		{{- $MaxElementsInRootList := 0 }} 
-		{{- range  .Attributes}}
-		{{- if .MaxElementsInRootList}}
+		{{- range  .Attributes}}{{- if .MaxElementsInRootList}}
 		{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
 		maxElementsPerShard := {{$MaxElementsInRootList}}
 		var updateList []{{toGoName $items}}
@@ -1085,6 +1083,76 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 
 		{{- if $chunks}}
+		{{$noPutAttr := ""}}
+		{{$noPutAttrType := ""}}
+		{{$idValue := ""}}
+		{{- range  .Attributes}}
+		{{- if eq .Type "Set"}}
+		{{- range  .Attributes}}
+		{{- if and .ExcludeTest .NoPut (eq $noPutAttr "")}}
+		{{$noPutAttr = .ModelName}}
+		{{$noPutAttrType = .Type}}
+		{{- end}}
+		{{- end}}
+		{{- end}}
+
+		{{- if ne $noPutAttr ""}}
+		{{$noId := not (hasId .Attributes)}}
+		{{- range .Attributes}}
+			{{- if not .Computed}}
+				{{- if or .Id $noId}}
+					{{- if eq .Type "Int64"}}
+						{{$idValue = printf "strconv.FormatInt(item.%s.ValueInt64(), 10)" (toGoName .TfName)}}
+					{{- else if eq .Type "Bool"}}
+						{{$idValue = printf "strconv.FormatBool(item.%s.ValueBool())" (toGoName .TfName)}}
+					{{- else if eq .Type "String"}}
+						{{$idValue = printf "item.%s.Value%s()" (toGoName .TfName) .Type}}
+					{{- end}}
+				{{- end}}
+			{{- end}}
+		{{- end}}
+
+		{{- end}}
+		{{- end}}
+
+		{{- if ne $noPutAttr ""}}
+		var getState {{toGoName $items}}
+		getParams := ""
+		{{- $queryParams := generateQueryParamString "GET" "state" .Attributes }}
+
+		{{- if .IdQueryParam}}
+		getParams += "?{{.IdQueryParam}}=" + url.QueryEscape(state.Id.ValueString())
+		{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
+		{{- if $queryParams }}
+		getParams += {{$queryParams}}
+		{{- end}}
+		{{- else if and (not .GetNoId) (not .GetFromAll)}}
+		getParams += "/" + url.QueryEscape(state.Id.ValueString())
+		{{- end}}
+		{{- if .GetExtraQueryParams}}
+		getParams += "{{.GetExtraQueryParams}}"
+		{{- end}}
+		getRes, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + getParams)
+		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
+			resp.State.RemoveResource(ctx)
+			return
+		} else if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, getRes.String()))
+			return
+		}
+
+		if getState.isNull(ctx, getRes) {
+			getState.fromBody(ctx, getRes)
+		} else {
+			getState.updateFromBody(ctx, getRes)
+		}
+
+		existingNoPut := make(map[string]types.{{$noPutAttrType}})
+		for _, item := range getState.{{toGoName $items}} {
+			updateKey := {{$idValue}}
+			existingNoPut[updateKey] = item.{{toGoName $noPutAttr}}
+		}
+		{{- end}}
 
 		for _, pl := range updateList {
 
@@ -1094,10 +1162,17 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			for i, v := range plan.{{toGoName $items}} {
 				planIndexMap[{{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(v.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}v.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}] = i
 			}
+			{{- if ne $noPutAttr ""}}
+			for itemInd, item := range pl.{{toGoName $items}} {
+			{{- else}}
 			for _, item := range pl.{{toGoName $items}} {
+			{{- end}}
 				toUpdateKey := {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(item.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}item.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					if index, found := planIndexMap[toUpdateKey]; found {
+						{{- if ne $noPutAttr ""}}
+						pl.{{toGoName $items}}[itemInd].{{toGoName $noPutAttr}} = existingNoPut[toUpdateKey]
+						{{- end}}
 						plan.{{toGoName $items}}[index] = updatedItem
 					}
 				}
@@ -1106,7 +1181,6 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{- end}}
 
 			body := pl.toBody(ctx, AnycastGateways{})
-			tflog.Debug(ctx, fmt.Sprintf("edss elements: %d, body: %v", len(pl.{{toGoName $items}}), body))
 			params := ""
 			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {

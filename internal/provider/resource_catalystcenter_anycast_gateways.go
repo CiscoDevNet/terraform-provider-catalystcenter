@@ -62,27 +62,6 @@ func (r *AnycastGatewaysResource) Metadata(ctx context.Context, req resource.Met
 	resp.TypeName = req.ProviderTypeName + "_anycast_gateways"
 }
 
-func (r *AnycastGatewaysResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() || !req.Plan.Raw.IsKnown() {
-		return
-	}
-
-	var plan AnycastGateways
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	for i := range plan.AnycastGateways {
-		if plan.AnycastGateways[i].VlanId.IsNull() {
-			plan.AnycastGateways[i].VlanId = types.Int64Unknown()
-		}
-	}
-
-	resp.Diagnostics.Append(resp.Plan.Set(ctx, &plan)...)
-
-}
-
 func (r *AnycastGatewaysResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
@@ -359,7 +338,6 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 
 	planMap := make(map[string]AnycastGatewaysAnycastGateways)
 	stateMap := make(map[string]AnycastGatewaysAnycastGateways)
-	indexMap := make(map[string]int)
 
 	// Populate state map
 	for _, v := range state.AnycastGateways {
@@ -367,9 +345,8 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	// Populate plan map
-	for i, v := range plan.AnycastGateways {
+	for _, v := range plan.AnycastGateways {
 		planMap[v.IpPoolName.ValueString()] = v
-		indexMap[v.IpPoolName.ValueString()] = i
 	}
 
 	// Find items to delete (exist in state but not in plan)
@@ -388,9 +365,6 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 				// Update planItem but ensure ID comes from stateItem
 				planItem.Id = stateItem.Id
 				planMap[planKey] = planItem // Store back in planMap
-				if planItem.VlanId.IsNull() {
-					planItem.VlanId = types.Int64Unknown()
-				}
 				// Check if any field marked as requires_replace differs
 				if planItem.VirtualNetworkName != stateItem.VirtualNetworkName {
 					toReplace.AnycastGateways = append(toReplace.AnycastGateways, planItem)
@@ -412,10 +386,6 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 			}
 		} else {
 			// Exists only in plan → New item
-			if planItem.VlanId.IsNull() {
-				planItem.VlanId = types.Int64Unknown()
-				plan.AnycastGateways[indexMap[planKey]].VlanId = types.Int64Unknown()
-			}
 			toCreate.AnycastGateways = append(toCreate.AnycastGateways, planItem)
 		}
 	}
@@ -430,10 +400,11 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 		}
 		for _, item := range toReplace.AnycastGateways {
 			item.Id = types.StringNull()
-			item.VlanId = types.Int64Null()
+
 			if !item.AutoGenerateVlanName.IsNull() && item.AutoGenerateVlanName.ValueBool() {
 				item.VlanName = types.StringNull()
 			}
+			item.VlanId = types.Int64Null()
 			toReplaceNoId.AnycastGateways = append(toReplaceNoId.AnycastGateways, item)
 		}
 
@@ -486,7 +457,6 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 		params := ""
 		for _, pl := range createList {
 			body := pl.toBody(ctx, AnycastGateways{}) // Convert to request body
-			tflog.Debug(ctx, fmt.Sprintf("cdss elements: %d, body: %v", len(pl.AnycastGateways), body))
 			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
@@ -546,10 +516,11 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 		} else {
 			getState.updateFromBody(ctx, getRes)
 		}
-		existingVlanIds := make(map[string]types.Int64)
-		for _, el := range getState.AnycastGateways {
-			updateKey := el.IpPoolName.ValueString()
-			existingVlanIds[updateKey] = el.VlanId
+
+		existingNoPut := make(map[string]types.Int64)
+		for _, item := range getState.AnycastGateways {
+			updateKey := item.IpPoolName.ValueString()
+			existingNoPut[updateKey] = item.VlanId
 		}
 
 		for _, pl := range updateList {
@@ -560,17 +531,13 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 				toUpdateKey := item.IpPoolName.ValueString()
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					if index, found := planIndexMap[toUpdateKey]; found {
-						// vlanId := stateMap[toUpdateKey].VlanId
-						// updatedItem.VlanId = vlanId
+						pl.AnycastGateways[itemInd].VlanId = existingNoPut[toUpdateKey]
 						plan.AnycastGateways[index] = updatedItem
-						// updateList[plInd].AnycastGateways[itemInd].VlanId = vlanId
-						pl.AnycastGateways[itemInd].VlanId = existingVlanIds[toUpdateKey]
 					}
 				}
 			}
 
 			body := pl.toBody(ctx, AnycastGateways{})
-			tflog.Debug(ctx, fmt.Sprintf("edss elements: %d, body: %v", len(pl.AnycastGateways), body))
 			params := ""
 			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {

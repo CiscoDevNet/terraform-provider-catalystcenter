@@ -71,7 +71,7 @@ attributes:
       - model_name: vlanId
         computed: true
         type: Int64
-        optional: true
+        mandatory: false
         description: ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
         exclude_test: true
         no_put: true
