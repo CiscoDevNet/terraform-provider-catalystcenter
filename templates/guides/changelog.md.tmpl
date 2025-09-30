@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.3.4 (unreleased)
+
+- Add maximum number of objects supported in a single request under `catalystcenter_anycast_gateways` resource
+
 ## 0.3.3
 
 - Change the attribute type of `mappings` in `catalystcenter_fabric_vlan_to_ssid` from `List` to `Set`
