@@ -27,6 +27,7 @@ attributes:
     response_data_path: response
     mandatory: true
     description: List of anycast gateways
+    max_elements_in_root_list: 20
     attributes:
       - model_name: id
         type: String
@@ -66,11 +67,13 @@ attributes:
         type: String
         description: Name of the VLAN of the anycast gateway
         example: VLAN401
+        no_put: true
       - model_name: vlanId
         computed: true
         type: Int64
         description: ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
         exclude_test: true
+        no_put: true
       - model_name: trafficType
         type: String
         enum_values: [DATA, VOICE]

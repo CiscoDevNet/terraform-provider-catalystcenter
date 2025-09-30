@@ -402,6 +402,7 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 	// CREATE
 	// If there are objects marked for create
 	if len(toCreate.L3Handoffs) > 0 {
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.L3Handoffs)))
 		body := toCreate.toBody(ctx, FabricL3HandoffIPTransits{}) // Convert to request body
 		params := ""
@@ -431,6 +432,7 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 	// UPDATE
 	// Update objects (objects that have different definition in plan and state)
 	if len(toUpdate.L3Handoffs) > 0 {
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.L3Handoffs)))
 		planIndexMap := make(map[string]int)
 		for i, v := range plan.L3Handoffs {
