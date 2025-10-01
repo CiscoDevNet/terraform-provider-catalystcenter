@@ -9,6 +9,7 @@ description: |-
 
 ## 0.3.4 (unreleased)
 
+- Change in `catalystcenter_deploy_template` resource to throw a warning instead of an error when template deployment fails on a device
 - Add support for handling more than the API’s maximum number of objects supported in a single request, allowing larger configurations under a single `catalystcenter_fabric_l3_handoff_ip_transits` resource
 - Add support for handling more than the API’s maximum number of objects supported in a single request, allowing larger configurations under a single `catalystcenter_anycast_gateways` resource
 
