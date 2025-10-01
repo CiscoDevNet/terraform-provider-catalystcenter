@@ -314,7 +314,7 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 				retry = maxRetries       // exit the for loop
 
 			case status == "FAILURE":
-				resp.Diagnostics.AddError(
+				resp.Diagnostics.AddWarning(
 					"Template Deployment Failed",
 					fmt.Sprintf("Deployment %s failed with status: %s, on devices: %s", plan.Id.ValueString(), status, devices),
 				)
@@ -326,7 +326,7 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 				continue
 
 			default:
-				resp.Diagnostics.AddError(
+				resp.Diagnostics.AddWarning(
 					"Template Deployment Unknown Status",
 					fmt.Sprintf("Deployment %s ended with unexpected status: %s", plan.Id.ValueString(), status),
 				)
@@ -336,7 +336,7 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 
 		// if maxRetries reached without success
 		if !deploymentSuccess {
-			resp.Diagnostics.AddError(
+			resp.Diagnostics.AddWarning(
 				"Template Deployment Timeout",
 				fmt.Sprintf("Deployment %s did not complete within expected time", plan.Id.ValueString()),
 			)
