@@ -37,6 +37,7 @@ attributes:
   - tf_name: l3_handoffs
     type: Set
     response_data_path: response
+    max_elements_in_root_list: 20
     mandatory: true
     description: List of layer 3 handoff ip transits
     attributes:

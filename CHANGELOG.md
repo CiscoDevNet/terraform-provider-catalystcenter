@@ -1,3 +1,8 @@
+## 0.3.4 (unreleased)
+
+- Add support for handling more than the API’s maximum number of objects supported in a single request, allowing larger configurations under a single `catalystcenter_fabric_l3_handoff_ip_transits` resource
+- Add support for handling more than the API’s maximum number of objects supported in a single request, allowing larger configurations under a single `catalystcenter_anycast_gateways` resource
+
 ## 0.3.3
 
 - Change the attribute type of `mappings` in `catalystcenter_fabric_vlan_to_ssid` from `List` to `Set`
