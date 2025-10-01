@@ -37,6 +37,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -180,18 +181,37 @@ func (r *FabricL3HandoffIPTransitsResource) Create(ctx context.Context, req reso
 
 	// Create object
 	body := plan.toBody(ctx, FabricL3HandoffIPTransits{})
+	var planList []FabricL3HandoffIPTransits
+	maxElementsPerShard := 20
+	originalList := plan.L3Handoffs
+	for i := 0; i < len(originalList); i += maxElementsPerShard {
+		end := i + maxElementsPerShard
+		if end > len(originalList) {
+			end = len(originalList)
+		}
+		chunk := originalList[i:end]
+		currentPlanForShard := plan
+		currentPlanForShard.L3Handoffs = chunk
+		planList = append(planList, currentPlanForShard)
+
+	}
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-	if err != nil {
-		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
-			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
-			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-			return
+	var err error
+	var res gjson.Result
+	for _, pl := range planList {
+		body = pl.toBody(ctx, FabricL3HandoffIPTransits{})
+		res, err = r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+		if err != nil {
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+				break
+			}
 		}
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
@@ -403,19 +423,34 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 	// If there are objects marked for create
 	if len(toCreate.L3Handoffs) > 0 {
 
+		maxElementsPerShard := 20
+		var createList []FabricL3HandoffIPTransits
+		for i := 0; i < len(toCreate.L3Handoffs); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(toCreate.L3Handoffs))
+			chunk := toCreate.L3Handoffs[i:end]
+			currentPlanForShard := plan
+			currentPlanForShard.L3Handoffs = chunk
+			createList = append(createList, currentPlanForShard)
+
+		}
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.L3Handoffs)))
-		body := toCreate.toBody(ctx, FabricL3HandoffIPTransits{}) // Convert to request body
+		var err error
+		var res gjson.Result
 		params := ""
-		res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-		if err != nil {
-			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
-				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
-				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-			} else {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-				return
+		for _, pl := range createList {
+			body := pl.toBody(ctx, FabricL3HandoffIPTransits{}) // Convert to request body
+			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+			if err != nil {
+				errorCode := res.Get("response.errorCode").String()
+				if errorCode == "NCDP10000" {
+					// Log a warning and continue execution when device is unreachable
+					failureReason := res.Get("response.failureReason").String()
+					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+				} else {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+					break
+				}
 			}
 		}
 		params += "?networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(plan.FabricId.ValueString())
@@ -433,26 +468,40 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 	// Update objects (objects that have different definition in plan and state)
 	if len(toUpdate.L3Handoffs) > 0 {
 
-		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.L3Handoffs)))
-		planIndexMap := make(map[string]int)
-		for i, v := range plan.L3Handoffs {
-			planIndexMap[strconv.FormatInt(v.VlanId.ValueInt64(), 10)] = i
-		}
-		for _, item := range toUpdate.L3Handoffs {
-			toUpdateKey := strconv.FormatInt(item.VlanId.ValueInt64(), 10)
-			if updatedItem, exists := planMap[toUpdateKey]; exists {
-				if index, found := planIndexMap[toUpdateKey]; found {
-					plan.L3Handoffs[index] = updatedItem
-				}
-			}
+		maxElementsPerShard := 20
+		var updateList []FabricL3HandoffIPTransits
+		for i := 0; i < len(toUpdate.L3Handoffs); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(toUpdate.L3Handoffs))
+			chunk := toUpdate.L3Handoffs[i:end]
+			currentPlanForShard := plan
+			currentPlanForShard.L3Handoffs = chunk
+			updateList = append(updateList, currentPlanForShard)
+
 		}
 
-		body := toUpdate.toBody(ctx, FabricL3HandoffIPTransits{})
-		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-			return
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.L3Handoffs)))
+		planIndexMap := make(map[string]int)
+
+		for _, pl := range updateList {
+			for i, v := range plan.L3Handoffs {
+				planIndexMap[strconv.FormatInt(v.VlanId.ValueInt64(), 10)] = i
+			}
+			for _, item := range pl.L3Handoffs {
+				toUpdateKey := strconv.FormatInt(item.VlanId.ValueInt64(), 10)
+				if updatedItem, exists := planMap[toUpdateKey]; exists {
+					if index, found := planIndexMap[toUpdateKey]; found {
+						plan.L3Handoffs[index] = updatedItem
+					}
+				}
+			}
+
+			body := pl.toBody(ctx, FabricL3HandoffIPTransits{})
+			params := ""
+			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+				return
+			}
 		}
 	}
 

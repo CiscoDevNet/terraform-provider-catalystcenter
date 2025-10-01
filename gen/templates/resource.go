@@ -749,6 +749,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state {{camelCase .Name}}
+	{{- $name := camelCase .Name}}
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -969,7 +970,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- if .MaxElementsInRootList}}
 		{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
 		maxElementsPerShard := {{$MaxElementsInRootList}}
-		var createList []{{toGoName $items}}
+		var createList []{{$name}}
 		for i := 0; i < len(toCreate.{{toGoName $items}}); i += maxElementsPerShard {
 			end := min(i+maxElementsPerShard, len(toCreate.{{toGoName $items}}))
 			chunk := toCreate.{{toGoName $items}}[i:end]
@@ -990,7 +991,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		var res gjson.Result
 		params := ""
 		for _, pl := range createList {
-			body := pl.toBody(ctx, {{toGoName $items}}{}) // Convert to request body
+			body := pl.toBody(ctx, {{$name}}{}) // Convert to request body
 			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
@@ -1064,7 +1065,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- range  .Attributes}}{{- if .MaxElementsInRootList}}
 		{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
 		maxElementsPerShard := {{$MaxElementsInRootList}}
-		var updateList []{{toGoName $items}}
+		var updateList []{{$name}}
 		for i := 0; i < len(toUpdate.{{toGoName $items}}); i += maxElementsPerShard {
 			end := min(i+maxElementsPerShard, len(toUpdate.{{toGoName $items}}))
 			chunk := toUpdate.{{toGoName $items}}[i:end]
@@ -1180,7 +1181,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{- end}}
 			{{- end}}
 
-			body := pl.toBody(ctx, AnycastGateways{})
+			body := pl.toBody(ctx, {{$name}}{})
 			params := ""
 			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
