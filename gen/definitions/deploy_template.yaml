@@ -124,6 +124,7 @@ attributes:
         type: Map
         description:  Template params/values to be provisioned
         exclude_test: true
+        requires_replace: true
       - model_name: resourceParams
         type: List
         description: Resource params to be provisioned

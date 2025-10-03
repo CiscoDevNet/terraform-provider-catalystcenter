@@ -30,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -201,6 +202,9 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 							MarkdownDescription: helpers.NewAttributeDescription("Template params/values to be provisioned").String,
 							ElementType:         types.StringType,
 							Optional:            true,
+							PlanModifiers: []planmodifier.Map{
+								mapplanmodifier.RequiresReplace(),
+							},
 						},
 						"resource_params": schema.ListNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Resource params to be provisioned").String,
