@@ -20,7 +20,10 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"fmt"
 
+	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -73,8 +76,14 @@ func (data AssignDeviceToSite) toBody(ctx context.Context, state AssignDeviceToS
 
 // End of section. //template:end toBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *AssignDeviceToSite) fromBody(ctx context.Context, res gjson.Result) {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	data.Id = types.StringValue(fmt.Sprint(data.SiteId.ValueString()))
+	if value := res.Get("response.#.deviceId"); value.Exists() && len(value.Array()) > 0 {
+		data.DeviceIds = helpers.GetStringSet(value.Array())
+	} else {
+		data.DeviceIds = types.SetNull(types.StringType)
+	}
 	if value := res.Get("response.0.siteId"); value.Exists() {
 		data.SiteId = types.StringValue(value.String())
 	} else {
@@ -82,18 +91,44 @@ func (data *AssignDeviceToSite) fromBody(ctx context.Context, res gjson.Result) 
 	}
 }
 
-// End of section. //template:end fromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *AssignDeviceToSite) updateFromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("response.#.deviceId"); value.Exists() && !data.DeviceIds.IsNull() {
+		// Collect all deviceIds returned by the API
+		apiDevices := value.Array()
+		apiSet := make(map[string]struct{}, len(apiDevices))
+		for _, v := range apiDevices {
+			apiSet[v.String()] = struct{}{}
+		}
+
+		// Only preserve deviceIds that are configured in Terraform AND exist in API
+		// This prevents import from adding unwanted devices from the API response
+		var filtered []attr.Value
+		for _, elem := range data.DeviceIds.Elements() {
+			id := elem.(types.String)
+			if _, exists := apiSet[id.ValueString()]; exists {
+				filtered = append(filtered, types.StringValue(id.ValueString()))
+			}
+			// Note: If a configured device doesn't exist in API, it's omitted
+			// This handles cases where devices might have been removed outside Terraform
+		}
+
+		// Create new Terraform Set from filtered list
+		set, diag := types.SetValue(types.StringType, filtered)
+		if diag.HasError() {
+			data.DeviceIds = types.SetNull(types.StringType)
+		} else {
+			data.DeviceIds = set
+		}
+	} else {
+		data.DeviceIds = types.SetNull(types.StringType)
+	}
+
 	if value := res.Get("response.0.siteId"); value.Exists() && !data.SiteId.IsNull() {
 		data.SiteId = types.StringValue(value.String())
 	} else {
 		data.SiteId = types.StringNull()
 	}
 }
-
-// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AssignDeviceToSite) isNull(ctx context.Context, res gjson.Result) bool {

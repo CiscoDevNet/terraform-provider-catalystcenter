@@ -1,7 +1,7 @@
-## 0.3.5 (unreleased)
+## 0.3.5
 
 - Change `border_types` and `device_roles` attributes in `catalystcenter_fabric_device` resource from `List` to `Set` 
-- Replace `catalystcenter_deploy_template` resource when params are changed
+- Replace `catalystcenter_deploy_template` resource when `params` attribute is changed
 
 ## 0.3.4
 
