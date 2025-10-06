@@ -1,3 +1,8 @@
+## 0.3.5 (unreleased)
+
+- Change `border_types` and `device_roles` attributes in `catalystcenter_fabric_device` resource from `List` to `Set` 
+- Replace `catalystcenter_deploy_template` resource when params are changed
+
 ## 0.3.4
 
 - Change in `catalystcenter_deploy_template` resource to throw a warning instead of an error when template deployment fails on a device

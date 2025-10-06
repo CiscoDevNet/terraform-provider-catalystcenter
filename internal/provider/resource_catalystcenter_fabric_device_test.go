@@ -34,8 +34,6 @@ func TestAccCcFabricDevice(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_device.test", "network_device_id", "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_device.test", "device_roles.0", "CONTROL_PLANE_NODE"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_device.test", "border_types.0", "LAYER_3"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_device.test", "local_autonomous_system_number", "65000"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_device.test", "default_exit", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_device.test", "import_external_routes", "false"))

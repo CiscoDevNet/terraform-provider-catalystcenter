@@ -30,9 +30,9 @@ data "catalystcenter_fabric_device" "example" {
 ### Read-Only
 
 - `border_priority` (Number) Border priority of the fabric border device. A lower value indicates higher priority
-- `border_types` (List of String) List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]
+- `border_types` (Set of String) List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]
 - `default_exit` (Boolean) Set this to make the fabric border device the gateway of last resort for this site. Any unknown traffic will be sent to this fabric border device from edge nodes
-- `device_roles` (List of String) List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE]
+- `device_roles` (Set of String) List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE]
 - `id` (String) The id of the object
 - `import_external_routes` (Boolean) Set this to import external routes from other routing protocols (such as BGP) to the fabric control plane
 - `local_autonomous_system_number` (String) BGP Local autonomous system number of the fabric border device
