@@ -46,3 +46,7 @@ log*.txt
 .terraform.tfstate.lock.info
 
 .envrc
+
+
+.claude/
+logs/

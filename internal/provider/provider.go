@@ -383,6 +383,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewAnycastGatewaysDataSource,
 		NewAreaDataSource,
 		NewAssignCredentialsDataSource,
+		NewAssignDeviceToSiteDataSource,
 		NewAssignDevicesToTagDataSource,
 		NewAssignTemplatesToTagDataSource,
 		NewAuthenticationPolicyServerDataSource,

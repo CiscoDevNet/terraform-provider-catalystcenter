@@ -79,7 +79,7 @@ func (d *TemplateDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				MarkdownDescription: "Description",
 				Computed:            true,
 			},
-			"device_types": schema.ListNestedAttribute{
+			"device_types": schema.SetNestedAttribute{
 				MarkdownDescription: "List of device types",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{

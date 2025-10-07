@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcUpdateAuthenticationProfile(t *testing.T) {
+	if os.Getenv("SDA") == "" {
+		t.Skip("skipping test, set environment variable SDA")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_update_authentication_profile.test", "authentication_profile_name", "Open Authentication"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_update_authentication_profile.test", "authentication_order", "mac"))

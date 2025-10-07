@@ -28,7 +28,7 @@ attributes:
     description: Description
     example: My description
   - model_name: deviceTypes
-    type: List
+    type: Set
     mandatory: true
     description: List of device types
     attributes:

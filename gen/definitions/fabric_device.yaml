@@ -36,7 +36,7 @@ attributes:
     requires_replace: true
     data_path: '0'
     response_data_path: response.0.deviceRoles
-    type: List
+    type: Set
     element_type: String
     mandatory: true
     description: List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE]
@@ -44,7 +44,7 @@ attributes:
   - model_name: borderTypes
     data_path: '0.borderDeviceSettings'
     response_data_path: response.0.borderDeviceSettings.borderTypes
-    type: List
+    type: Set
     element_type: String
     description: List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]
     example: LAYER_3

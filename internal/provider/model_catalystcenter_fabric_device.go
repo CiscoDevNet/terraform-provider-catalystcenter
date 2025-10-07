@@ -34,8 +34,8 @@ type FabricDevice struct {
 	Id                           types.String `tfsdk:"id"`
 	NetworkDeviceId              types.String `tfsdk:"network_device_id"`
 	FabricId                     types.String `tfsdk:"fabric_id"`
-	DeviceRoles                  types.List   `tfsdk:"device_roles"`
-	BorderTypes                  types.List   `tfsdk:"border_types"`
+	DeviceRoles                  types.Set    `tfsdk:"device_roles"`
+	BorderTypes                  types.Set    `tfsdk:"border_types"`
 	LocalAutonomousSystemNumber  types.String `tfsdk:"local_autonomous_system_number"`
 	DefaultExit                  types.Bool   `tfsdk:"default_exit"`
 	ImportExternalRoutes         types.Bool   `tfsdk:"import_external_routes"`
@@ -120,14 +120,14 @@ func (data *FabricDevice) fromBody(ctx context.Context, res gjson.Result) {
 		data.FabricId = types.StringNull()
 	}
 	if value := res.Get("response.0.deviceRoles"); value.Exists() && len(value.Array()) > 0 {
-		data.DeviceRoles = helpers.GetStringList(value.Array())
+		data.DeviceRoles = helpers.GetStringSet(value.Array())
 	} else {
-		data.DeviceRoles = types.ListNull(types.StringType)
+		data.DeviceRoles = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.0.borderDeviceSettings.borderTypes"); value.Exists() && len(value.Array()) > 0 {
-		data.BorderTypes = helpers.GetStringList(value.Array())
+		data.BorderTypes = helpers.GetStringSet(value.Array())
 	} else {
-		data.BorderTypes = types.ListNull(types.StringType)
+		data.BorderTypes = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.0.borderDeviceSettings.layer3Settings.localAutonomousSystemNumber"); value.Exists() {
 		data.LocalAutonomousSystemNumber = types.StringValue(value.String())
@@ -171,14 +171,14 @@ func (data *FabricDevice) updateFromBody(ctx context.Context, res gjson.Result) 
 		data.FabricId = types.StringNull()
 	}
 	if value := res.Get("response.0.deviceRoles"); value.Exists() && !data.DeviceRoles.IsNull() {
-		data.DeviceRoles = helpers.GetStringList(value.Array())
+		data.DeviceRoles = helpers.GetStringSet(value.Array())
 	} else {
-		data.DeviceRoles = types.ListNull(types.StringType)
+		data.DeviceRoles = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.0.borderDeviceSettings.borderTypes"); value.Exists() && !data.BorderTypes.IsNull() {
-		data.BorderTypes = helpers.GetStringList(value.Array())
+		data.BorderTypes = helpers.GetStringSet(value.Array())
 	} else {
-		data.BorderTypes = types.ListNull(types.StringType)
+		data.BorderTypes = types.SetNull(types.StringType)
 	}
 	if value := res.Get("response.0.borderDeviceSettings.layer3Settings.localAutonomousSystemNumber"); value.Exists() && !data.LocalAutonomousSystemNumber.IsNull() {
 		data.LocalAutonomousSystemNumber = types.StringValue(value.String())

@@ -31,7 +31,7 @@ resource "catalystcenter_fabric_device" "example" {
 
 ### Required
 
-- `device_roles` (List of String) List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE]
+- `device_roles` (Set of String) List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE]
 - `fabric_id` (String) ID of the fabric site/zone of this fabric device
 - `network_device_id` (String) Network device ID of the fabric device
 
@@ -39,7 +39,7 @@ resource "catalystcenter_fabric_device" "example" {
 
 - `border_priority` (Number) Border priority of the fabric border device. A lower value indicates higher priority
   - Range: `1`-`9`
-- `border_types` (List of String) List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]
+- `border_types` (Set of String) List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]
 - `default_exit` (Boolean) Set this to make the fabric border device the gateway of last resort for this site. Any unknown traffic will be sent to this fabric border device from edge nodes
 - `import_external_routes` (Boolean) Set this to import external routes from other routing protocols (such as BGP) to the fabric control plane
 - `local_autonomous_system_number` (String) BGP Local autonomous system number of the fabric border device

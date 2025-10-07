@@ -11,6 +11,7 @@ id_from_query_path: response.0
 id_from_query_path_attribute: id
 put_id_include_path: "0.id"
 skip_minimum_test: true
+test_tags: [SDA]
 mutex: true
 doc_category: SDA
 attributes:

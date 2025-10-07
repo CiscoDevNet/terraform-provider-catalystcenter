@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -41,6 +42,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &AssignDeviceToSiteResource{}
+var _ resource.ResourceWithImportState = &AssignDeviceToSiteResource{}
 
 func NewAssignDeviceToSiteResource() resource.Resource {
 	return &AssignDeviceToSiteResource{}
@@ -284,4 +286,17 @@ func (r *AssignDeviceToSiteResource) Delete(ctx context.Context, req resource.De
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *AssignDeviceToSiteResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 1 || idParts[0] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <site_id>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), idParts[0])...)
+}
+
 // End of section. //template:end import

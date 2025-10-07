@@ -6,9 +6,9 @@ delete_rest_endpoint: /dna/intent/api/v1/networkDevices/unassignFromSite/apply
 get_no_id: true
 res_description: Assign unprovisioned network devices to a site.
 post_update: true
-no_import: true
+data_source_no_id: true
+import_no_id: true
 delete_no_id: true
-no_data_source: true
 mutex: true
 test_tags: [INVENTORY]
 doc_category: Sites
@@ -16,7 +16,6 @@ attributes:
   - model_name: deviceIds
     type: Set
     mandatory: true
-    write_only: true
     element_type: String
     description: Unassigned network device ID
     example: 024f383c-14a5-421c-b21d-b80910cde422

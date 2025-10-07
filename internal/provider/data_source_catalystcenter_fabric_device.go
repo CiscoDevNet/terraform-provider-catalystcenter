@@ -70,12 +70,12 @@ func (d *FabricDeviceDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "ID of the fabric site/zone of this fabric device",
 				Required:            true,
 			},
-			"device_roles": schema.ListAttribute{
+			"device_roles": schema.SetAttribute{
 				MarkdownDescription: "List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE]",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"border_types": schema.ListAttribute{
+			"border_types": schema.SetAttribute{
 				MarkdownDescription: "List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]",
 				ElementType:         types.StringType,
 				Computed:            true,

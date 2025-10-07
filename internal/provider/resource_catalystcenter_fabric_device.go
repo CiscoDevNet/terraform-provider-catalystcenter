@@ -29,8 +29,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -86,15 +86,15 @@ func (r *FabricDeviceResource) Schema(ctx context.Context, req resource.SchemaRe
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"device_roles": schema.ListAttribute{
+			"device_roles": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE]").String,
 				ElementType:         types.StringType,
 				Required:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.RequiresReplace(),
 				},
 			},
-			"border_types": schema.ListAttribute{
+			"border_types": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of the border types of the fabric device. Allowed values are [LAYER_2, LAYER_3]").String,
 				ElementType:         types.StringType,
 				Optional:            true,

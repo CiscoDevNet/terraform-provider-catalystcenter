@@ -53,7 +53,7 @@ resource "catalystcenter_template" "example" {
 
 ### Required
 
-- `device_types` (Attributes List) List of device types (see [below for nested schema](#nestedatt--device_types))
+- `device_types` (Attributes Set) List of device types (see [below for nested schema](#nestedatt--device_types))
 - `language` (String) Language of the template
   - Choices: `JINJA`, `VELOCITY`
 - `name` (String) Name of the template
