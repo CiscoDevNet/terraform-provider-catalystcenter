@@ -6,6 +6,7 @@ data_source_no_id: true
 skip_minimum_test: true
 put_id: true
 import_no_id: true
+mutex: true
 res_description: This resource manages a Wireless RF Profile.
 doc_category: Wireless
 attributes:
