@@ -36,7 +36,7 @@ data "catalystcenter_template" "example" {
 - `composite` (Boolean) Is it composite template
 - `containing_templates` (Attributes List) Containing templates for composite template (see [below for nested schema](#nestedatt--containing_templates))
 - `description` (String) Description
-- `device_types` (Attributes List) List of device types (see [below for nested schema](#nestedatt--device_types))
+- `device_types` (Attributes Set) List of device types (see [below for nested schema](#nestedatt--device_types))
 - `language` (String) Language of the template
 - `software_type` (String) Software type
 - `software_variant` (String) Software variant

@@ -87,7 +87,7 @@ func (r *TemplateResource) Schema(ctx context.Context, req resource.SchemaReques
 				MarkdownDescription: helpers.NewAttributeDescription("Description").String,
 				Optional:            true,
 			},
-			"device_types": schema.ListNestedAttribute{
+			"device_types": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of device types").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
