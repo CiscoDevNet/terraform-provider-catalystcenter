@@ -1,5 +1,7 @@
 ## 0.3.5
 
+- Change `device_types` attributes in `catalystcenter_template` resource from `List` to `Set`
+- Add `data_source` and `import` to `catalystcenter_assign_device_to_site` resource
 - Change `border_types` and `device_roles` attributes in `catalystcenter_fabric_device` resource from `List` to `Set` 
 - Replace `catalystcenter_deploy_template` resource when `params` attribute is changed
 
