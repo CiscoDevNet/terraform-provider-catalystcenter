@@ -14,13 +14,14 @@ This resource can manage a Floor.
 
 ```terraform
 resource "catalystcenter_floor" "example" {
-  name         = "Floor1"
-  parent_name  = "Global/Building1"
-  floor_number = 1
-  rf_model     = "Drywall Office Only"
-  width        = 30.5
-  length       = 50.5
-  height       = 3.5
+  parent_id        = "34af13e4-da94-4c5f-8da2-aa51a0f0655e"
+  name             = "Floor1"
+  floor_number     = 1
+  rf_model         = "Drywall Office Only"
+  width            = 40
+  length           = 50.5
+  height           = 3.5
+  units_of_measure = "meters"
 }
 ```
 
@@ -29,17 +30,16 @@ resource "catalystcenter_floor" "example" {
 
 ### Required
 
+- `floor_number` (Number) Floor number
 - `height` (Number) Height
 - `length` (Number) Length
-- `name` (String) The name of the floor
-- `parent_name` (String) The path of the parent building, e.g. `Global/Building1`
+- `name` (String) Floor name
+- `parent_id` (String) The ID of the parent building
 - `rf_model` (String) The RF model
   - Choices: `Cubes And Walled Offices`, `Drywall Office Only`, `Indoor High Ceiling`, `Outdoor Open Space`, `Free Space`
+- `units_of_measure` (String) The unit of measurement
+  - Choices: `feet`, `meters`
 - `width` (Number) Width
-
-### Optional
-
-- `floor_number` (Number) Floor number
 
 ### Read-Only
 
@@ -52,5 +52,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import catalystcenter_floor.example "<id>"
+terraform import catalystcenter_floor.example "<units_of_measure>,<id>"
 ```
