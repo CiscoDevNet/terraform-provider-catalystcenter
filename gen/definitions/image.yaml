@@ -1,8 +1,8 @@
 ---
 name: Image
 rest_endpoint: /dna/intent/api/v1/image/importation/source/file
-get_rest_endpoint: /dna/intent/api/v1/image/importation
-delete_rest_endpoint: /api/v1/image/importation
+get_rest_endpoint: /dna/intent/api/v1/images
+delete_rest_endpoint: /dna/intent/api/v1/images
 no_data_source: true
 res_description:
   'This resource can fetch a software image from a local file and upload it on the Catalyst Center.
@@ -10,8 +10,7 @@ res_description:
 no_update: true
 no_import: true
 id_from_query_path: response
-id_from_query_path_attribute: imageUuid
-id_query_param: imageUuid
+id_from_query_path_attribute: id
 test_tags:
   # Test requires a local file with software image - but the content is licensed and quite large, so not suitable for this repository.
   - TEST_IMAGE_FROM_FILE

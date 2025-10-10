@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -72,20 +71,17 @@ func (r *FloorResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The name of the floor").String,
+			"parent_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the parent building").String,
 				Required:            true,
 			},
-			"parent_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The path of the parent building, e.g. `Global/Building1`").String,
+			"name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Floor name").String,
 				Required:            true,
 			},
 			"floor_number": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Floor number").String,
-				Optional:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
-				},
+				Required:            true,
 			},
 			"rf_model": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The RF model").AddStringEnumDescription("Cubes And Walled Offices", "Drywall Office Only", "Indoor High Ceiling", "Outdoor Open Space", "Free Space").String,
@@ -105,6 +101,13 @@ func (r *FloorResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 			"height": schema.Float64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Height").String,
 				Required:            true,
+			},
+			"units_of_measure": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The unit of measurement").AddStringEnumDescription("feet", "meters").String,
+				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("feet", "meters"),
+				},
 			},
 		},
 	}
@@ -147,7 +150,7 @@ func (r *FloorResource) Create(ctx context.Context, req resource.CreateRequest, 
 			return
 		}
 	}
-	plan.Id = types.StringValue(res.Get("siteId").String())
+	plan.Id = types.StringValue(res.Get("response.data").String())
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
@@ -184,7 +187,8 @@ func (r *FloorResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	params := ""
 	params += "/" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get("/api/v1/dna-maps-service/domains" + params)
+	params += "?_unitsOfMeasure=" + url.QueryEscape(state.UnitsOfMeasure.ValueString())
+	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -272,14 +276,15 @@ func (r *FloorResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 func (r *FloorResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
-	if len(idParts) != 1 || idParts[0] == "" {
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <units_of_measure>,<id>. Got: %q", req.ID),
 		)
 		return
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("units_of_measure"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[1])...)
 }
 
 // End of section. //template:end import

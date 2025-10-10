@@ -24,13 +24,14 @@ data "catalystcenter_floor" "example" {
 ### Required
 
 - `id` (String) The id of the object
+- `units_of_measure` (String) The unit of measurement
 
 ### Read-Only
 
 - `floor_number` (Number) Floor number
 - `height` (Number) Height
 - `length` (Number) Length
-- `name` (String) The name of the floor
-- `parent_name` (String) The path of the parent building, e.g. `Global/Building1`
+- `name` (String) Floor name
+- `parent_id` (String) The ID of the parent building
 - `rf_model` (String) The RF model
 - `width` (Number) Width

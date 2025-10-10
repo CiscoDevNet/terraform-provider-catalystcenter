@@ -23,6 +23,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 // End of section. //template:end imports
 
@@ -126,6 +127,19 @@ func TestAccCc{{camelCase .Name}}(t *testing.T) {
 	steps = append(steps, resource.TestStep{
 		ResourceName:  "catalystcenter_{{snakeCase $name}}.test",
 		ImportState:   true,
+		{{- if hasGetQueryParam .Attributes }}
+		ImportStateIdFunc: func(s *terraform.State) (string, error) {
+			rs, ok := s.RootModule().Resources["catalystcenter_{{snakeCase $name}}.test"]
+			if !ok {
+				return "", fmt.Errorf("resource not found in state")
+			}
+			{{- range .Attributes}}
+			{{- if .GetQueryParam}}
+			return fmt.Sprintf("%s,%s", rs.Primary.Attributes["{{.TfName}}"], rs.Primary.ID), nil
+			{{- end}}
+			{{- end}}
+		},
+		{{- end}}
 	})
 	{{- end}}
 
