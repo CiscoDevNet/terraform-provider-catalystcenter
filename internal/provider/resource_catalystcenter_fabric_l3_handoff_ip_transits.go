@@ -209,7 +209,7 @@ func (r *FabricL3HandoffIPTransitsResource) Create(ctx context.Context, req reso
 				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 				break
 			}
 		}
@@ -448,7 +448,7 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 					failureReason := res.Get("response.failureReason").String()
 					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 				} else {
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+					resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 					break
 				}
 			}
@@ -499,8 +499,8 @@ func (r *FabricL3HandoffIPTransitsResource) Update(ctx context.Context, req reso
 			params := ""
 			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-				return
+				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+				break
 			}
 		}
 	}
