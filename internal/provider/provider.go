@@ -360,7 +360,6 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewUpdateAuthenticationProfileResource,
 		NewUpdateDeviceManagementAddressResource,
 		NewUserResource,
-		NewVirtualNetworkIPPoolResource,
 		NewVirtualNetworkToFabricSiteResource,
 		NewWirelessDeviceProvisionResource,
 		NewWirelessEnterpriseSSIDResource,
