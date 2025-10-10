@@ -2,7 +2,7 @@
 name: Image
 rest_endpoint: /dna/intent/api/v1/image/importation/source/file
 get_rest_endpoint: /dna/intent/api/v1/image/importation
-delete_rest_endpoint: /api/v1/image/importation
+delete_rest_endpoint: /dna/intent/api/v1/images
 no_data_source: true
 res_description:
   'This resource can fetch a software image from a local file and upload it on the Catalyst Center.
