@@ -209,6 +209,7 @@ func (data *FabricL3HandoffIPTransits) fromBody(ctx context.Context, res gjson.R
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *FabricL3HandoffIPTransits) updateFromBody(ctx context.Context, res gjson.Result) {
+	var final []FabricL3HandoffIPTransitsL3Handoffs
 
 	res = res.Get("response")
 	for i := range data.L3Handoffs {
@@ -294,7 +295,11 @@ func (data *FabricL3HandoffIPTransits) updateFromBody(ctx context.Context, res g
 		} else {
 			data.L3Handoffs[i].RemoteIpv6Address = types.StringNull()
 		}
+		if data.L3Handoffs[i].Id != types.StringNull() {
+			final = append(final, data.L3Handoffs[i])
+		}
 	}
+	data.L3Handoffs = final
 }
 
 // End of section. //template:end updateFromBody

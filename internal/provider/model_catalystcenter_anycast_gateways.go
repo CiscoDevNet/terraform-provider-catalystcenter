@@ -259,6 +259,7 @@ func (data *AnycastGateways) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *AnycastGateways) updateFromBody(ctx context.Context, res gjson.Result) {
+	var final []AnycastGatewaysAnycastGateways
 
 	res = res.Get("response")
 	for i := range data.AnycastGateways {
@@ -374,7 +375,11 @@ func (data *AnycastGateways) updateFromBody(ctx context.Context, res gjson.Resul
 		} else {
 			data.AnycastGateways[i].GroupBasedPolicyEnforcementEnabled = types.BoolNull()
 		}
+		if data.AnycastGateways[i].Id != types.StringNull() {
+			final = append(final, data.AnycastGateways[i])
+		}
 	}
+	data.AnycastGateways = final
 }
 
 // End of section. //template:end updateFromBody

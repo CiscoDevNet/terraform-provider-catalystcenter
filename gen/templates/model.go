@@ -470,6 +470,13 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.Result) {
+	{{- $chunkElementName := "" }} 
+	{{- range  .Attributes}}
+	{{- if .MaxElementsInRootList}}
+	{{- $chunkElementName = .TfName }}
+	var final []{{$name}}{{toGoName .TfName}}
+	{{- end}}
+	{{- end}}
 	{{- if .RootList}}
 	{{- range .Attributes}}
 	{{if .ResponseDataPath}}
@@ -647,9 +654,17 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 		{{- end}}
 		{{- end}}
 		{{- end}}
+		{{- if ne $chunkElementName "" }} 
+		if data.{{toGoName $chunkElementName}}[i].Id != types.StringNull() {
+			final = append(final, data.{{toGoName $chunkElementName}}[i])
+		}
+		{{- end}}
 	}
 	{{- end}}
 	{{- end}}
+	{{- end}}
+	{{- if $chunkElementName }} 
+	data.{{toGoName $chunkElementName}} = final
 	{{- end}}
 }
 // End of section. //template:end updateFromBody
