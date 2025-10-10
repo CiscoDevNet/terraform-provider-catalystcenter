@@ -303,7 +303,6 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewAssignDevicesToTagResource,
 		NewAssignManagedAPLocationsResource,
 		NewAssignTemplatesToTagResource,
-		NewAssociateSiteToNetworkProfileResource,
 		NewAuthenticationPolicyServerResource,
 		NewBannerSettingsResource,
 		NewBuildingResource,

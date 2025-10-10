@@ -8,7 +8,7 @@ import_no_id: true
 put_id: true
 res_description:
   'This resource creates a wireless network profile. To associate a wireless network profile with a site, use 
-  the `catalystcenter_associate_site_to_network_profile` resource.'
+  the `catalystcenter_network_profile_for_sites_assignments` resource.'
 doc_category: Wireless
 attributes:
   - model_name: wirelessProfileName
