@@ -9,6 +9,7 @@ description: |-
 
 ## 0.4.0 (unreleased)
 
+- Removed deprecated API endpoints from `catalystcenter_image` resource
 - BREAKING CHANGE: Removed `catalystcenter_fabric_virtual_network` (deprecated in CC 2.3.7.9). Use `catalystcenter_fabric_l3_virtual_network` instead
 - BREAKING CHANGE: Removed `catalystcenter_associate_site_to_network_profile` (deprecated in CC 2.3.7.6). Use `catalystcenter_network_profile_for_sites_assignments` instead
 - BREAKING CHANGE: Removed `catalystcenter_network` (deprecated in CC 2.3.7.6). Use `catalystcenter_ntp_settings`, `catalystcenter_dhcp_settings`, `catalystcenter_dns_settings`, `catalystcenter_timezone_settings`, `catalystcenter_banner_settings`, `catalystcenter_telemetry_settings` or `catalystcenter_aaa_settings` instead

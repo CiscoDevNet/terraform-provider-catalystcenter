@@ -275,8 +275,8 @@ func (r *ImageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?imageUuid=" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get("/dna/intent/api/v1/image/importation" + params)
+	params += "?name=" + url.QueryEscape(state.Name.ValueString())
+	res, err := r.client.Get("/dna/intent/api/v1/images" + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
