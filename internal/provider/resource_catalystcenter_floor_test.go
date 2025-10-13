@@ -73,9 +73,12 @@ func TestAccCcFloor(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcFloorPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
 resource "catalystcenter_building" "test" {
   name        = "Building1"
-  parent_name = "Global"
+  parent_id   = data.catalystcenter_site.test.id
   country     = "United States"
   address     = "150 W Tasman Dr, San Jose"
   latitude    = 37.338

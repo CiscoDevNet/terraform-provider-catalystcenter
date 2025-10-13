@@ -14,8 +14,8 @@ This resource can manage an Area.
 
 ```terraform
 resource "catalystcenter_area" "example" {
-  name        = "Area1"
-  parent_name = "Global"
+  name      = "Area1"
+  parent_id = "34af13e4-da94-4c5f-8da2-aa51a0f0655e"
 }
 ```
 
@@ -25,10 +25,7 @@ resource "catalystcenter_area" "example" {
 ### Required
 
 - `name` (String) The name of the area
-
-### Optional
-
-- `parent_name` (String) The path of the parent area, e.g. `Global/Area5`. `Global` in case of root area.
+- `parent_id` (String) The ID of the parent area
 
 ### Read-Only
 

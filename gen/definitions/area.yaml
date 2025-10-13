@@ -1,26 +1,24 @@
 ---
 name: Area
-rest_endpoint: /dna/intent/api/v1/site
-get_rest_endpoint: /dna/intent/api/v2/site
-id_path: siteId
-id_query_param: id
+rest_endpoint: /dna/intent/api/v1/areas
 doc_category: Sites
+id_path: response.data
 allow_existing_on_create: true
 attributes:
-  - model_name: type
-    type: String
-    value: area
   - model_name: name
-    data_path: site.area
-    response_data_path: response.0.name
+    response_data_path: response.name
     type: String
     mandatory: true
-    data_source_query: true
     description: The name of the area
     example: Area1
-  - model_name: parentName
-    data_path: site.area
+  - model_name: parentId
+    response_data_path: response.parentId
     type: String
-    write_only: true
-    description: The path of the parent area, e.g. `Global/Area5`. `Global` in case of root area.
-    example: Global
+    mandatory: true
+    description: The ID of the parent area
+    example: 34af13e4-da94-4c5f-8da2-aa51a0f0655e
+    test_value: data.catalystcenter_site.test.id
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }

@@ -1,3 +1,4 @@
 data "catalystcenter_floor" "example" {
-  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  id               = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  units_of_measure = "meters"
 }

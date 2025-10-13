@@ -30,16 +30,16 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type Area struct {
-	Id         types.String `tfsdk:"id"`
-	Name       types.String `tfsdk:"name"`
-	ParentName types.String `tfsdk:"parent_name"`
+	Id       types.String `tfsdk:"id"`
+	Name     types.String `tfsdk:"name"`
+	ParentId types.String `tfsdk:"parent_id"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data Area) getPath() string {
-	return "/dna/intent/api/v1/site"
+	return "/dna/intent/api/v1/areas"
 }
 
 // End of section. //template:end getPath
@@ -52,12 +52,11 @@ func (data Area) toBody(ctx context.Context, state Area) string {
 		put = true
 	}
 	_ = put
-	body, _ = sjson.Set(body, "type", "area")
 	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "site.area.name", data.Name.ValueString())
+		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
-	if !data.ParentName.IsNull() {
-		body, _ = sjson.Set(body, "site.area.parentName", data.ParentName.ValueString())
+	if !data.ParentId.IsNull() {
+		body, _ = sjson.Set(body, "parentId", data.ParentId.ValueString())
 	}
 	return body
 }
@@ -66,10 +65,15 @@ func (data Area) toBody(ctx context.Context, state Area) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Area) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.name"); value.Exists() {
+	if value := res.Get("response.name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("response.parentId"); value.Exists() {
+		data.ParentId = types.StringValue(value.String())
+	} else {
+		data.ParentId = types.StringNull()
 	}
 }
 
@@ -77,10 +81,15 @@ func (data *Area) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Area) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.name"); value.Exists() && !data.Name.IsNull() {
+	if value := res.Get("response.name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("response.parentId"); value.Exists() && !data.ParentId.IsNull() {
+		data.ParentId = types.StringValue(value.String())
+	} else {
+		data.ParentId = types.StringNull()
 	}
 }
 
@@ -91,7 +100,7 @@ func (data *Area) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Name.IsNull() {
 		return false
 	}
-	if !data.ParentName.IsNull() {
+	if !data.ParentId.IsNull() {
 		return false
 	}
 	return true
