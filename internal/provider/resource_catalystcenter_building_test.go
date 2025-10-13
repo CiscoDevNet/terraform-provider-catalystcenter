@@ -39,11 +39,11 @@ func TestAccCcBuilding(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccCcBuildingConfig_minimum(),
+			Config: testAccCcBuildingPrerequisitesConfig + testAccCcBuildingConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcBuildingConfig_all(),
+		Config: testAccCcBuildingPrerequisitesConfig + testAccCcBuildingConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -61,13 +61,21 @@ func TestAccCcBuilding(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccCcBuildingPrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcBuildingConfig_minimum() string {
 	config := `resource "catalystcenter_building" "test" {` + "\n"
 	config += `	name = "Building1"` + "\n"
-	config += `	parent_name = "Global"` + "\n"
+	config += `	parent_id = catalystcenter_area.test.id` + "\n"
 	config += `	country = "United States"` + "\n"
 	config += `	address = "150 W Tasman Dr, San Jose"` + "\n"
 	config += `}` + "\n"
@@ -80,7 +88,7 @@ func testAccCcBuildingConfig_minimum() string {
 func testAccCcBuildingConfig_all() string {
 	config := `resource "catalystcenter_building" "test" {` + "\n"
 	config += `	name = "Building1"` + "\n"
-	config += `	parent_name = "Global"` + "\n"
+	config += `	parent_id = catalystcenter_area.test.id` + "\n"
 	config += `	country = "United States"` + "\n"
 	config += `	address = "150 W Tasman Dr, San Jose"` + "\n"
 	config += `	latitude = 37.338` + "\n"

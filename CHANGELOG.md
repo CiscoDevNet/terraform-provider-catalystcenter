@@ -1,5 +1,6 @@
 ## 0.4.0 (unreleased)
 
+- BREAKING CHANGE: Modified `catalystcenter_building` to use the `/dna/intent/api/v2/buildings` API endpoint instead of `/dna/intent/api/v1/site`
 - Removed deprecated API endpoints from `catalystcenter_image` resource
 - BREAKING CHANGE: Removed `catalystcenter_fabric_virtual_network` (deprecated in CC 2.3.7.9). Use `catalystcenter_fabric_l3_virtual_network` instead
 - BREAKING CHANGE: Removed `catalystcenter_associate_site_to_network_profile` (deprecated in CC 2.3.7.6). Use `catalystcenter_network_profile_for_sites_assignments` instead

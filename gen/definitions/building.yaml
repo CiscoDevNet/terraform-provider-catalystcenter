@@ -1,53 +1,47 @@
 ---
 name: Building
-rest_endpoint: /dna/intent/api/v1/site
-get_rest_endpoint: /dna/intent/api/v2/site
-id_path: siteId
-id_query_param: id
+rest_endpoint: /dna/intent/api/v2/buildings
 doc_category: Sites
+id_path: response.data
 allow_existing_on_create: true
 attributes:
-  - model_name: type
-    type: String
-    value: building
   - model_name: name
-    data_path: site.building
-    response_data_path: response.0.name
+    response_data_path: response.name
     type: String
     mandatory: true
-    data_source_query: true
     description: The name of the building
     example: Building1
-  - model_name: parentName
-    data_path: site.building
+  - model_name: parentId
+    response_data_path: response.parentId
     type: String
     mandatory: true
-    write_only: true
-    description: The path of the parent area, e.g. `Global/Area5`. `Global` in case of root area.
-    example: Global
+    description: The ID of the parent area
+    example: 34af13e4-da94-4c5f-8da2-aa51a0f0655e
+    test_value: catalystcenter_area.test.id
   - model_name: country
-    data_path: site.building
-    response_data_path: response.0.additionalInfo.0.attributes.country
+    response_data_path: response.country
     type: String
     description: The country of the building
+    mandatory: true
     example: United States
-    minimum_test_value: '"United States"'
   - model_name: address
-    data_path: site.building
-    response_data_path: response.0.additionalInfo.0.attributes.address
+    response_data_path: response.address
     type: String
     description: The address of the building
     example: 150 W Tasman Dr, San Jose
     minimum_test_value: '"150 W Tasman Dr, San Jose"'
   - model_name: latitude
-    data_path: site.building
-    response_data_path: response.0.additionalInfo.0.attributes.latitude
+    response_data_path: response.latitude
     type: Float64
     description: Latitude
     example: 37.338
   - model_name: longitude
-    data_path: site.building
-    response_data_path: response.0.additionalInfo.0.attributes.longitude
+    response_data_path: response.longitude
     type: Float64
     description: Longitude
     example: -121.832
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }

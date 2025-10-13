@@ -30,20 +30,20 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type Building struct {
-	Id         types.String  `tfsdk:"id"`
-	Name       types.String  `tfsdk:"name"`
-	ParentName types.String  `tfsdk:"parent_name"`
-	Country    types.String  `tfsdk:"country"`
-	Address    types.String  `tfsdk:"address"`
-	Latitude   types.Float64 `tfsdk:"latitude"`
-	Longitude  types.Float64 `tfsdk:"longitude"`
+	Id        types.String  `tfsdk:"id"`
+	Name      types.String  `tfsdk:"name"`
+	ParentId  types.String  `tfsdk:"parent_id"`
+	Country   types.String  `tfsdk:"country"`
+	Address   types.String  `tfsdk:"address"`
+	Latitude  types.Float64 `tfsdk:"latitude"`
+	Longitude types.Float64 `tfsdk:"longitude"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data Building) getPath() string {
-	return "/dna/intent/api/v1/site"
+	return "/dna/intent/api/v2/buildings"
 }
 
 // End of section. //template:end getPath
@@ -56,24 +56,23 @@ func (data Building) toBody(ctx context.Context, state Building) string {
 		put = true
 	}
 	_ = put
-	body, _ = sjson.Set(body, "type", "building")
 	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "site.building.name", data.Name.ValueString())
+		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
-	if !data.ParentName.IsNull() {
-		body, _ = sjson.Set(body, "site.building.parentName", data.ParentName.ValueString())
+	if !data.ParentId.IsNull() {
+		body, _ = sjson.Set(body, "parentId", data.ParentId.ValueString())
 	}
 	if !data.Country.IsNull() {
-		body, _ = sjson.Set(body, "site.building.country", data.Country.ValueString())
+		body, _ = sjson.Set(body, "country", data.Country.ValueString())
 	}
 	if !data.Address.IsNull() {
-		body, _ = sjson.Set(body, "site.building.address", data.Address.ValueString())
+		body, _ = sjson.Set(body, "address", data.Address.ValueString())
 	}
 	if !data.Latitude.IsNull() {
-		body, _ = sjson.Set(body, "site.building.latitude", data.Latitude.ValueFloat64())
+		body, _ = sjson.Set(body, "latitude", data.Latitude.ValueFloat64())
 	}
 	if !data.Longitude.IsNull() {
-		body, _ = sjson.Set(body, "site.building.longitude", data.Longitude.ValueFloat64())
+		body, _ = sjson.Set(body, "longitude", data.Longitude.ValueFloat64())
 	}
 	return body
 }
@@ -82,27 +81,32 @@ func (data Building) toBody(ctx context.Context, state Building) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Building) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.name"); value.Exists() {
+	if value := res.Get("response.name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("response.0.additionalInfo.0.attributes.country"); value.Exists() {
+	if value := res.Get("response.parentId"); value.Exists() {
+		data.ParentId = types.StringValue(value.String())
+	} else {
+		data.ParentId = types.StringNull()
+	}
+	if value := res.Get("response.country"); value.Exists() {
 		data.Country = types.StringValue(value.String())
 	} else {
 		data.Country = types.StringNull()
 	}
-	if value := res.Get("response.0.additionalInfo.0.attributes.address"); value.Exists() {
+	if value := res.Get("response.address"); value.Exists() {
 		data.Address = types.StringValue(value.String())
 	} else {
 		data.Address = types.StringNull()
 	}
-	if value := res.Get("response.0.additionalInfo.0.attributes.latitude"); value.Exists() {
+	if value := res.Get("response.latitude"); value.Exists() {
 		data.Latitude = types.Float64Value(value.Float())
 	} else {
 		data.Latitude = types.Float64Null()
 	}
-	if value := res.Get("response.0.additionalInfo.0.attributes.longitude"); value.Exists() {
+	if value := res.Get("response.longitude"); value.Exists() {
 		data.Longitude = types.Float64Value(value.Float())
 	} else {
 		data.Longitude = types.Float64Null()
@@ -113,27 +117,32 @@ func (data *Building) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Building) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.0.name"); value.Exists() && !data.Name.IsNull() {
+	if value := res.Get("response.name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("response.0.additionalInfo.0.attributes.country"); value.Exists() && !data.Country.IsNull() {
+	if value := res.Get("response.parentId"); value.Exists() && !data.ParentId.IsNull() {
+		data.ParentId = types.StringValue(value.String())
+	} else {
+		data.ParentId = types.StringNull()
+	}
+	if value := res.Get("response.country"); value.Exists() && !data.Country.IsNull() {
 		data.Country = types.StringValue(value.String())
 	} else {
 		data.Country = types.StringNull()
 	}
-	if value := res.Get("response.0.additionalInfo.0.attributes.address"); value.Exists() && !data.Address.IsNull() {
+	if value := res.Get("response.address"); value.Exists() && !data.Address.IsNull() {
 		data.Address = types.StringValue(value.String())
 	} else {
 		data.Address = types.StringNull()
 	}
-	if value := res.Get("response.0.additionalInfo.0.attributes.latitude"); value.Exists() && !data.Latitude.IsNull() {
+	if value := res.Get("response.latitude"); value.Exists() && !data.Latitude.IsNull() {
 		data.Latitude = types.Float64Value(value.Float())
 	} else {
 		data.Latitude = types.Float64Null()
 	}
-	if value := res.Get("response.0.additionalInfo.0.attributes.longitude"); value.Exists() && !data.Longitude.IsNull() {
+	if value := res.Get("response.longitude"); value.Exists() && !data.Longitude.IsNull() {
 		data.Longitude = types.Float64Value(value.Float())
 	} else {
 		data.Longitude = types.Float64Null()
@@ -147,7 +156,7 @@ func (data *Building) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Name.IsNull() {
 		return false
 	}
-	if !data.ParentName.IsNull() {
+	if !data.ParentId.IsNull() {
 		return false
 	}
 	if !data.Country.IsNull() {

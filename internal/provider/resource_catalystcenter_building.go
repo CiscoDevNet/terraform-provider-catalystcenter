@@ -73,13 +73,13 @@ func (r *BuildingResource) Schema(ctx context.Context, req resource.SchemaReques
 				MarkdownDescription: helpers.NewAttributeDescription("The name of the building").String,
 				Required:            true,
 			},
-			"parent_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The path of the parent area, e.g. `Global/Area5`. `Global` in case of root area.").String,
+			"parent_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the parent area").String,
 				Required:            true,
 			},
 			"country": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The country of the building").String,
-				Optional:            true,
+				Required:            true,
 			},
 			"address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The address of the building").String,
@@ -134,7 +134,7 @@ func (r *BuildingResource) Create(ctx context.Context, req resource.CreateReques
 			return
 		}
 	}
-	plan.Id = types.StringValue(res.Get("siteId").String())
+	plan.Id = types.StringValue(res.Get("response.data").String())
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
@@ -170,8 +170,8 @@ func (r *BuildingResource) Read(ctx context.Context, req resource.ReadRequest, r
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?id=" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get("/dna/intent/api/v2/site" + params)
+	params += "/" + url.QueryEscape(state.Id.ValueString())
+	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
