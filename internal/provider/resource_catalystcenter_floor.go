@@ -154,9 +154,15 @@ func (r *FloorResource) Create(ctx context.Context, req resource.CreateRequest, 
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
-		params = ""
+		params = "?name=" + url.QueryEscape(plan.Name.ValueString())
+		res, err = r.client.Get("/dna/intent/api/v1/sites" + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+		plan.Id = types.StringValue(res.Get("response.#(parentId==\"" + plan.ParentId.ValueString() + "\").id").String())
 		body = plan.toBody(ctx, Floor{Id: plan.Id})
-		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
+		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 			return
