@@ -39,9 +39,16 @@ attributes:
     mandatory: true
     description: List of role IDs
     example: 5f8d9a3a-3c6a-4a1c-9a1b-1a4f5a4a4a4a
-    test_value: "[data.catalystcenter_role.test.id]"
+    test_value: "[catalystcenter_role.test.id]"
 
 test_prerequisites: |
-  data "catalystcenter_role" "test" {
-    name = "OBSERVER-ROLE"
+  resource "catalystcenter_role" "test" {
+    name        = "Role1"
+    description = "Role1 description"
+    resource_types = [
+      {
+        type       = "Platform"
+        operations = ["gRead"]
+      }
+    ]
   }

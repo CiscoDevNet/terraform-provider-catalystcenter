@@ -49,9 +49,17 @@ func TestAccDataSourceCcUser(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcUserPrerequisitesConfig = `
-data "catalystcenter_role" "test" {
-  name = "OBSERVER-ROLE"
+resource "catalystcenter_role" "test" {
+  name        = "Role1"
+  description = "Role1 description"
+  resource_types = [
+    {
+      type       = "Platform"
+      operations = ["gRead"]
+    }
+  ]
 }
+
 `
 
 // End of section. //template:end testPrerequisites
@@ -64,7 +72,7 @@ func testAccDataSourceCcUserConfig() string {
 	config += `	username = "johndoe"` + "\n"
 	config += `	password = "C1sco1357"` + "\n"
 	config += `	email = "john.doe@example.com"` + "\n"
-	config += `	role_ids = [data.catalystcenter_role.test.id]` + "\n"
+	config += `	role_ids = [catalystcenter_role.test.id]` + "\n"
 	config += `}` + "\n"
 
 	config += `

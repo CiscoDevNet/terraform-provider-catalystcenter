@@ -48,9 +48,12 @@ func TestAccCcFabricZone(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcFabricZonePrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
 resource "catalystcenter_area" "test" {
-  name        = "Area1"
-  parent_name = "Global"
+  name      = "Area1"
+  parent_id = data.catalystcenter_site.test.id
 }
 resource "catalystcenter_fabric_site" "test" {
   site_id                     = catalystcenter_area.test.id
@@ -59,11 +62,12 @@ resource "catalystcenter_fabric_site" "test" {
 }
 resource "catalystcenter_building" "test" {
   name        = "Building1"
-  parent_name = "Global/Area1"
+  parent_id   = catalystcenter_area.test.id
   country     = "United States"
   address     = "150 W Tasman Dr, San Jose"
   latitude    = 37.338
   longitude   = -121.832
+  
   depends_on = [catalystcenter_fabric_site.test]
 }
 

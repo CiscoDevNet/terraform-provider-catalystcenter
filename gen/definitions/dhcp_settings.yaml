@@ -27,8 +27,10 @@ attributes:
     description: DHCP servers for managing client device networking configuration. Max:10
     example: "10.0.0.1"
 test_prerequisites: |
-  resource "catalystcenter_area" "test" {
-    name        = "Area1"
-    parent_name = "Global"
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
   }
-  
+  resource "catalystcenter_area" "test" {
+    name      = "Area1"
+    parent_id = data.catalystcenter_site.test.id
+  }

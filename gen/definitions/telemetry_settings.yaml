@@ -99,8 +99,10 @@ attributes:
     description: Enable Netflow Application Telemetry and Controller Based Application Recognition (CBAR) by default upon network device site assignment for wired access devices
     example: false
 test_prerequisites: |
-  resource "catalystcenter_area" "test" {
-    name        = "Area1"
-    parent_name = "Global"
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
   }
-  
+  resource "catalystcenter_area" "test" {
+    name      = "Area1"
+    parent_id = data.catalystcenter_site.test.id
+  }

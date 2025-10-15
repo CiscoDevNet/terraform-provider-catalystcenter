@@ -1,6 +1,6 @@
 ---
 name: Wireless Profile
-rest_endpoint: /intent/api/v1/wirelessProfiles
+rest_endpoint: /dna/intent/api/v1/wirelessProfiles
 id_from_query_path: response.0
 id_from_query_path_attribute: id
 data_source_no_id: true
@@ -28,7 +28,7 @@ attributes:
         id: true
         description: SSID Name
         example: mySSID1
-        test_value: catalystcenter_wireless_enterprise_ssid.test.name
+        test_value: catalystcenter_wireless_ssid.test.ssid
       - model_name: enableFabric
         type: Bool
         description: "True if fabric is enabled, else False. Flex and fabric cannot be enabled simultaneously and a profile can only contain either flex SSIDs or fabric SSIDs and not both at the same time"
@@ -88,8 +88,34 @@ attributes:
         example: mySSID1
         exclude_test: true
 test_prerequisites: |
-  resource "catalystcenter_wireless_enterprise_ssid" "test" {
-    name                                  = "mySSID1"
-    security_level                        = "wpa3_enterprise"
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_wireless_ssid" "test" {
+    site_id                               = data.catalystcenter_site.test.id
+    ssid                                  = "mySSID1"
+    auth_type                             = "WPA3_PERSONAL"
     passphrase                            = "Cisco123"
+    fast_lane                             = false
+    mac_filtering                         = false
+    ssid_radio_type                       = "Triple band operation(2.4GHz, 5GHz and 6GHz)"
+    broadcast_ssid                        = true
+    fast_transition                       = "ADAPTIVE"
+    session_timeout_enable                = true
+    session_timeout                       = 1800
+    client_exclusion                      = true
+    client_exclusion_timeout              = 1800
+    basic_service_set_max_idle            = true
+    basic_service_set_client_idle_timeout = 300
+    directed_multicast_service            = true
+    neighbor_list                         = true
+    mft_client_protection                 = "OPTIONAL"
+    aaa_override                          = false
+    protected_management_frame            = "REQUIRED"
+    rsn_cipher_suite_ccmp128              = true
+    wlan_type                             = "Enterprise"
+    auth_key_sae_ext                      = true
+    ghz24_policy                          = "dot11-g-only"
+    hex                                   = false
+    random_mac_filter                     = false
   }

@@ -58,7 +58,7 @@ type WirelessProfileApZones struct {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data WirelessProfile) getPath() string {
-	return "/intent/api/v1/wirelessProfiles"
+	return "/dna/intent/api/v1/wirelessProfiles"
 }
 
 // End of section. //template:end getPath

@@ -45,9 +45,12 @@ func TestAccDataSourceCcDHCPSettings(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcDHCPSettingsPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
 resource "catalystcenter_area" "test" {
-  name        = "Area1"
-  parent_name = "Global"
+  name      = "Area1"
+  parent_id = data.catalystcenter_site.test.id
 }
 
 `

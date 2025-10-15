@@ -49,12 +49,14 @@ func TestAccDataSourceCcIPPoolReservation(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcIPPoolReservationPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
 resource "catalystcenter_area" "test" {
   name        = "Area1"
-  parent_name = "Global"
+  parent_id   = data.catalystcenter_site.test.id
   depends_on  = [catalystcenter_ip_pool.test]
 }
-
 resource "catalystcenter_ip_pool" "test" {
   name             = "MyPool1"
   ip_subnet        = "172.32.0.0/16"

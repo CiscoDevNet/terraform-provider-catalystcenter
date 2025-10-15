@@ -49,9 +49,12 @@ func TestAccDataSourceCcFabricL2VirtualNetwork(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcFabricL2VirtualNetworkPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
 resource "catalystcenter_area" "test" {
-  name        = "Area1"
-  parent_name = "Global"
+  name      = "Area1"
+  parent_id = data.catalystcenter_site.test.id
 }
 resource "catalystcenter_fabric_site" "test" {
   site_id                     = catalystcenter_area.test.id

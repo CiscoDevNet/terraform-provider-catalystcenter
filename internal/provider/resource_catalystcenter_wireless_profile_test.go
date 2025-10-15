@@ -56,10 +56,36 @@ func TestAccCcWirelessProfile(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcWirelessProfilePrerequisitesConfig = `
-resource "catalystcenter_wireless_enterprise_ssid" "test" {
-  name                                  = "mySSID1"
-  security_level                        = "wpa3_enterprise"
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
+resource "catalystcenter_wireless_ssid" "test" {
+  site_id                               = data.catalystcenter_site.test.id
+  ssid                                  = "mySSID1"
+  auth_type                             = "WPA3_PERSONAL"
   passphrase                            = "Cisco123"
+  fast_lane                             = false
+  mac_filtering                         = false
+  ssid_radio_type                       = "Triple band operation(2.4GHz, 5GHz and 6GHz)"
+  broadcast_ssid                        = true
+  fast_transition                       = "ADAPTIVE"
+  session_timeout_enable                = true
+  session_timeout                       = 1800
+  client_exclusion                      = true
+  client_exclusion_timeout              = 1800
+  basic_service_set_max_idle            = true
+  basic_service_set_client_idle_timeout = 300
+  directed_multicast_service            = true
+  neighbor_list                         = true
+  mft_client_protection                 = "OPTIONAL"
+  aaa_override                          = false
+  protected_management_frame            = "REQUIRED"
+  rsn_cipher_suite_ccmp128              = true
+  wlan_type                             = "Enterprise"
+  auth_key_sae_ext                      = true
+  ghz24_policy                          = "dot11-g-only"
+  hex                                   = false
+  random_mac_filter                     = false
 }
 
 `
@@ -81,7 +107,7 @@ func testAccCcWirelessProfileConfig_all() string {
 	config := `resource "catalystcenter_wireless_profile" "test" {` + "\n"
 	config += `	wireless_profile_name = "Wireless_Profile_1"` + "\n"
 	config += `	ssid_details = [{` + "\n"
-	config += `	  ssid_name = catalystcenter_wireless_enterprise_ssid.test.name` + "\n"
+	config += `	  ssid_name = catalystcenter_wireless_ssid.test.ssid` + "\n"
 	config += `	  enable_fabric = false` + "\n"
 	config += `	  enable_flex_connect = false` + "\n"
 	config += `	}]` + "\n"
