@@ -33,9 +33,9 @@ attributes:
     test_value: catalystcenter_fabric_site.test.id
   - model_name: interfaceName
     requires_replace: true
+    match_id: true
     data_path: '0'
     response_data_path: interfaceName
-    match_id: true
     type: String
     mandatory: true
     description: Interface name of the layer 2 handoff. E.g., GigabitEthernet1/0/4
@@ -50,6 +50,7 @@ attributes:
     example: 300
   - model_name: externalVlanId
     data_path: '0'
+    match_id: true
     requires_replace: true
     response_data_path: externalVlanId
     mandatory: true

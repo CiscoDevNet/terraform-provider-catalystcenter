@@ -9,6 +9,7 @@ description: |-
 
 ## 0.4.0 (unreleased)
 
+- Fix issue with `catalystcenter_fabric_l2_handoff` idempotency, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/296)
 - Add `catalystcenter_provision_devices` resource and data source to provision multiple devices within single resource
 - BREAKING CHANGE: Modified `catalystcenter_area` to use the `/dna/intent/api/v1/areas` API endpoint instead of `/dna/intent/api/v1/site`
 - BREAKING CHANGE: Modified `catalystcenter_building` to use the `/dna/intent/api/v2/buildings` API endpoint instead of `/dna/intent/api/v1/site`
