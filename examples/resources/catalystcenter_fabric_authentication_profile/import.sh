@@ -1,1 +1,0 @@
-terraform import catalystcenter_fabric_authentication_profile.example "<site_name_hierarchy>"

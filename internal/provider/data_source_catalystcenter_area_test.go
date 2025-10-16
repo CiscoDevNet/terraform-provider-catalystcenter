@@ -35,7 +35,7 @@ func TestAccDataSourceCcArea(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcAreaConfig(),
+				Config: testAccDataSourceCcAreaPrerequisitesConfig + testAccDataSourceCcAreaConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -45,13 +45,20 @@ func TestAccDataSourceCcArea(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceCcAreaPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcAreaConfig() string {
 	config := `resource "catalystcenter_area" "test" {` + "\n"
 	config += `	name = "Area1"` + "\n"
-	config += `	parent_name = "Global"` + "\n"
+	config += `	parent_id = data.catalystcenter_site.test.id` + "\n"
 	config += `}` + "\n"
 
 	config += `

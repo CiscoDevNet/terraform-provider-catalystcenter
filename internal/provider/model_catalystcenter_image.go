@@ -51,7 +51,7 @@ func (data Image) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 
 func (data Image) getPathDelete() string {
-	return "/api/v1/image/importation"
+	return "/dna/intent/api/v1/images"
 }
 
 // End of section. //template:end getPathDelete

@@ -106,10 +106,15 @@ resource "catalystcenter_wireless_profile" "test" {
     }
   ]
 }
-resource "catalystcenter_associate_site_to_network_profile" "test" {
+resource "catalystcenter_network_profile_for_sites_assignments" "test" {
   network_profile_id = catalystcenter_wireless_profile.test.id
-  site_id            = catalystcenter_building.test.id
+  items = [
+    {
+      id = catalystcenter_building.test.id
+    }
+  ]
 }
+
 `
 
 // End of section. //template:end testPrerequisites

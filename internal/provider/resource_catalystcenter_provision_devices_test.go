@@ -28,24 +28,17 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccCcFabricVirtualNetwork(t *testing.T) {
+func TestAccCcProvisionDevices(t *testing.T) {
+	if os.Getenv("INVENTORY") == "" {
+		t.Skip("skipping test, set environment variable INVENTORY")
+	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_virtual_network.test", "virtual_network_name", "SDA_VN1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_virtual_network.test", "is_guest", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_provision_devices.test", "provision_devices.0.network_device_id", "4cb565d3-1944-42be-be9f-a87cff79e831"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccCcFabricVirtualNetworkConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcFabricVirtualNetworkConfig_all(),
+		Config: testAccCcProvisionDevicesPrerequisitesConfig + testAccCcProvisionDevicesConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
-	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "catalystcenter_fabric_virtual_network.test",
-		ImportState:  true,
 	})
 
 	resource.Test(t, resource.TestCase{
@@ -58,12 +51,24 @@ func TestAccCcFabricVirtualNetwork(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccCcProvisionDevicesPrerequisitesConfig = `
+resource "catalystcenter_area" "test" {
+  name        = "Area1"
+  parent_name = "Global"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccCcFabricVirtualNetworkConfig_minimum() string {
-	config := `resource "catalystcenter_fabric_virtual_network" "test" {` + "\n"
-	config += `	virtual_network_name = "SDA_VN1"` + "\n"
+func testAccCcProvisionDevicesConfig_minimum() string {
+	config := `resource "catalystcenter_provision_devices" "test" {` + "\n"
+	config += `	site_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"` + "\n"
+	config += `	provision_devices = [{` + "\n"
+	config += `	  site_id = catalystcenter_area.test.id` + "\n"
+	config += `	  network_device_id = "4cb565d3-1944-42be-be9f-a87cff79e831"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -71,11 +76,13 @@ func testAccCcFabricVirtualNetworkConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccCcFabricVirtualNetworkConfig_all() string {
-	config := `resource "catalystcenter_fabric_virtual_network" "test" {` + "\n"
-	config += `	virtual_network_name = "SDA_VN1"` + "\n"
-	config += `	is_guest = false` + "\n"
-	config += `	sg_names = ["Employees"]` + "\n"
+func testAccCcProvisionDevicesConfig_all() string {
+	config := `resource "catalystcenter_provision_devices" "test" {` + "\n"
+	config += `	site_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"` + "\n"
+	config += `	provision_devices = [{` + "\n"
+	config += `	  site_id = catalystcenter_area.test.id` + "\n"
+	config += `	  network_device_id = "4cb565d3-1944-42be-be9f-a87cff79e831"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }

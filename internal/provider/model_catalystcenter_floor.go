@@ -30,21 +30,22 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type Floor struct {
-	Id          types.String  `tfsdk:"id"`
-	Name        types.String  `tfsdk:"name"`
-	ParentName  types.String  `tfsdk:"parent_name"`
-	FloorNumber types.Int64   `tfsdk:"floor_number"`
-	RfModel     types.String  `tfsdk:"rf_model"`
-	Width       types.Float64 `tfsdk:"width"`
-	Length      types.Float64 `tfsdk:"length"`
-	Height      types.Float64 `tfsdk:"height"`
+	Id             types.String  `tfsdk:"id"`
+	ParentId       types.String  `tfsdk:"parent_id"`
+	Name           types.String  `tfsdk:"name"`
+	FloorNumber    types.Int64   `tfsdk:"floor_number"`
+	RfModel        types.String  `tfsdk:"rf_model"`
+	Width          types.Float64 `tfsdk:"width"`
+	Length         types.Float64 `tfsdk:"length"`
+	Height         types.Float64 `tfsdk:"height"`
+	UnitsOfMeasure types.String  `tfsdk:"units_of_measure"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data Floor) getPath() string {
-	return "/dna/intent/api/v1/site"
+	return "/dna/intent/api/v2/floors"
 }
 
 // End of section. //template:end getPath
@@ -57,27 +58,29 @@ func (data Floor) toBody(ctx context.Context, state Floor) string {
 		put = true
 	}
 	_ = put
-	body, _ = sjson.Set(body, "type", "floor")
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "site.floor.name", data.Name.ValueString())
+	if !data.ParentId.IsNull() {
+		body, _ = sjson.Set(body, "parentId", data.ParentId.ValueString())
 	}
-	if !data.ParentName.IsNull() {
-		body, _ = sjson.Set(body, "site.floor.parentName", data.ParentName.ValueString())
+	if !data.Name.IsNull() {
+		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
 	if !data.FloorNumber.IsNull() {
-		body, _ = sjson.Set(body, "site.floor.floorNumber", data.FloorNumber.ValueInt64())
+		body, _ = sjson.Set(body, "floorNumber", data.FloorNumber.ValueInt64())
 	}
 	if !data.RfModel.IsNull() {
-		body, _ = sjson.Set(body, "site.floor.rfModel", data.RfModel.ValueString())
+		body, _ = sjson.Set(body, "rfModel", data.RfModel.ValueString())
 	}
 	if !data.Width.IsNull() {
-		body, _ = sjson.Set(body, "site.floor.width", data.Width.ValueFloat64())
+		body, _ = sjson.Set(body, "width", data.Width.ValueFloat64())
 	}
 	if !data.Length.IsNull() {
-		body, _ = sjson.Set(body, "site.floor.length", data.Length.ValueFloat64())
+		body, _ = sjson.Set(body, "length", data.Length.ValueFloat64())
 	}
 	if !data.Height.IsNull() {
-		body, _ = sjson.Set(body, "site.floor.height", data.Height.ValueFloat64())
+		body, _ = sjson.Set(body, "height", data.Height.ValueFloat64())
+	}
+	if !data.UnitsOfMeasure.IsNull() {
+		body, _ = sjson.Set(body, "unitsOfMeasure", data.UnitsOfMeasure.ValueString())
 	}
 	return body
 }
@@ -86,30 +89,45 @@ func (data Floor) toBody(ctx context.Context, state Floor) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Floor) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("name"); value.Exists() {
+	if value := res.Get("response.parentId"); value.Exists() {
+		data.ParentId = types.StringValue(value.String())
+	} else {
+		data.ParentId = types.StringNull()
+	}
+	if value := res.Get("response.name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("floorIndex"); value.Exists() {
+	if value := res.Get("response.floorNumber"); value.Exists() {
 		data.FloorNumber = types.Int64Value(value.Int())
 	} else {
 		data.FloorNumber = types.Int64Null()
 	}
-	if value := res.Get("geometry.width"); value.Exists() {
+	if value := res.Get("response.rfModel"); value.Exists() {
+		data.RfModel = types.StringValue(value.String())
+	} else {
+		data.RfModel = types.StringNull()
+	}
+	if value := res.Get("response.width"); value.Exists() {
 		data.Width = types.Float64Value(value.Float())
 	} else {
 		data.Width = types.Float64Null()
 	}
-	if value := res.Get("geometry.length"); value.Exists() {
+	if value := res.Get("response.length"); value.Exists() {
 		data.Length = types.Float64Value(value.Float())
 	} else {
 		data.Length = types.Float64Null()
 	}
-	if value := res.Get("geometry.height"); value.Exists() {
+	if value := res.Get("response.height"); value.Exists() {
 		data.Height = types.Float64Value(value.Float())
 	} else {
 		data.Height = types.Float64Null()
+	}
+	if value := res.Get("response.unitsOfMeasure"); value.Exists() {
+		data.UnitsOfMeasure = types.StringValue(value.String())
+	} else {
+		data.UnitsOfMeasure = types.StringNull()
 	}
 }
 
@@ -117,30 +135,45 @@ func (data *Floor) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
+	if value := res.Get("response.parentId"); value.Exists() && !data.ParentId.IsNull() {
+		data.ParentId = types.StringValue(value.String())
+	} else {
+		data.ParentId = types.StringNull()
+	}
+	if value := res.Get("response.name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("floorIndex"); value.Exists() && !data.FloorNumber.IsNull() {
+	if value := res.Get("response.floorNumber"); value.Exists() && !data.FloorNumber.IsNull() {
 		data.FloorNumber = types.Int64Value(value.Int())
 	} else {
 		data.FloorNumber = types.Int64Null()
 	}
-	if value := res.Get("geometry.width"); value.Exists() && !data.Width.IsNull() {
+	if value := res.Get("response.rfModel"); value.Exists() && !data.RfModel.IsNull() {
+		data.RfModel = types.StringValue(value.String())
+	} else {
+		data.RfModel = types.StringNull()
+	}
+	if value := res.Get("response.width"); value.Exists() && !data.Width.IsNull() {
 		data.Width = types.Float64Value(value.Float())
 	} else {
 		data.Width = types.Float64Null()
 	}
-	if value := res.Get("geometry.length"); value.Exists() && !data.Length.IsNull() {
+	if value := res.Get("response.length"); value.Exists() && !data.Length.IsNull() {
 		data.Length = types.Float64Value(value.Float())
 	} else {
 		data.Length = types.Float64Null()
 	}
-	if value := res.Get("geometry.height"); value.Exists() && !data.Height.IsNull() {
+	if value := res.Get("response.height"); value.Exists() && !data.Height.IsNull() {
 		data.Height = types.Float64Value(value.Float())
 	} else {
 		data.Height = types.Float64Null()
+	}
+	if value := res.Get("response.unitsOfMeasure"); value.Exists() && !data.UnitsOfMeasure.IsNull() {
+		data.UnitsOfMeasure = types.StringValue(value.String())
+	} else {
+		data.UnitsOfMeasure = types.StringNull()
 	}
 }
 
@@ -148,10 +181,10 @@ func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Floor) isNull(ctx context.Context, res gjson.Result) bool {
-	if !data.Name.IsNull() {
+	if !data.ParentId.IsNull() {
 		return false
 	}
-	if !data.ParentName.IsNull() {
+	if !data.Name.IsNull() {
 		return false
 	}
 	if !data.FloorNumber.IsNull() {

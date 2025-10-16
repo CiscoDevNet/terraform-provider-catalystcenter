@@ -43,9 +43,12 @@ attributes:
     example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
     test_value: catalystcenter_fabric_site.test.id
 test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
   resource "catalystcenter_area" "test" {
-    name        = "Area1"
-    parent_name = "Global"
+    name      = "Area1"
+    parent_id = data.catalystcenter_site.test.id
   }
   resource "catalystcenter_fabric_site" "test" {
     site_id                     = catalystcenter_area.test.id

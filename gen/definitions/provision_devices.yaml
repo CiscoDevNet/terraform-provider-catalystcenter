@@ -1,0 +1,60 @@
+---
+name: Provision Devices
+rest_endpoint: /dna/intent/api/v1/sda/provisionDevices
+root_list: true
+res_description: Manages the provisioning of devices within a single resource, specifying a list of devices to be provisioned in selected site.
+update_computed: true
+id_from_attribute: true
+device_unreachability_warning: true
+skip_minimum_test: true
+doc_category: Inventory
+mutex: true
+test_tags: [INVENTORY]
+attributes:
+  - model_name: siteId
+    mandatory: true
+    id: true
+    requires_replace: true
+    write_only: true
+    query_param: true
+    query_param_name: siteId
+    description: Site Id
+    type: String
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+  - tf_name: provision_devices
+    type: Set
+    response_data_path: response
+    mandatory: true
+    description: List of devices to be provisioned
+    max_elements_in_root_list: 10
+    attributes:
+      - model_name: id
+        type: String
+        computed: true
+        computed_refresh_value: true
+        description: ID of the provisioned device
+        exclude_test: true
+      - model_name: siteId
+        requires_replace: true
+        mandatory: true
+        description: ID of the site this network device needs to be provisioned
+        type: String
+        example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+        test_value: catalystcenter_area.test.id
+      - model_name: networkDeviceId
+        requires_replace: true
+        mandatory: true
+        id: true
+        description: ID of network device to be provisioned
+        type: String
+        example: 4cb565d3-1944-42be-be9f-a87cff79e831
+      - tf_name: reprovision
+        description: Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply
+        type: Bool
+        example: false
+        exclude_test: true
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }

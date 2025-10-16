@@ -31,9 +31,11 @@ func TestAccDataSourceCcFloor(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floor.test", "name", "Floor1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floor.test", "floor_number", "1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floor.test", "width", "30.5"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floor.test", "rf_model", "Drywall Office Only"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floor.test", "width", "40"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floor.test", "length", "50.5"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floor.test", "height", "3.5"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floor.test", "units_of_measure", "meters"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -50,9 +52,12 @@ func TestAccDataSourceCcFloor(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcFloorPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
 resource "catalystcenter_building" "test" {
   name        = "Building1"
-  parent_name = "Global"
+  parent_id   = data.catalystcenter_site.test.id
   country     = "United States"
   address     = "150 W Tasman Dr, San Jose"
   latitude    = 37.338
@@ -66,18 +71,20 @@ resource "catalystcenter_building" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcFloorConfig() string {
 	config := `resource "catalystcenter_floor" "test" {` + "\n"
+	config += `	parent_id = catalystcenter_building.test.id` + "\n"
 	config += `	name = "Floor1"` + "\n"
-	config += `	parent_name = "${catalystcenter_building.test.parent_name}/${catalystcenter_building.test.name}"` + "\n"
 	config += `	floor_number = 1` + "\n"
 	config += `	rf_model = "Drywall Office Only"` + "\n"
-	config += `	width = 30.5` + "\n"
+	config += `	width = 40` + "\n"
 	config += `	length = 50.5` + "\n"
 	config += `	height = 3.5` + "\n"
+	config += `	units_of_measure = "meters"` + "\n"
 	config += `}` + "\n"
 
 	config += `
 		data "catalystcenter_floor" "test" {
 			id = catalystcenter_floor.test.id
+			units_of_measure = "meters"
 		}
 	`
 	return config

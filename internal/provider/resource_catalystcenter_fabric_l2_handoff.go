@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -34,6 +35,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -120,7 +122,6 @@ func (r *FabricL2HandoffResource) Configure(_ context.Context, req resource.Conf
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricL2HandoffResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FabricL2Handoff
 
@@ -156,15 +157,24 @@ func (r *FabricL2HandoffResource) Create(ctx context.Context, req resource.Creat
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(interfaceName==\"" + plan.InterfaceName.ValueString() + "\").id").String())
+
+	// default to null in case no match
+	plan.Id = types.StringNull()
+
+	filteredByInterface := res.Get(`response.#(interfaceName=="` + plan.InterfaceName.ValueString() + `")#`)
+	filteredByInterface.ForEach(func(_, v gjson.Result) bool {
+		if v.Get("externalVlanId").String() == strconv.FormatInt(plan.ExternalVlanId.ValueInt64(), 10) {
+			plan.Id = types.StringValue(v.Get("id").String())
+			return false
+		}
+		return true
+	})
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricL2HandoffResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {

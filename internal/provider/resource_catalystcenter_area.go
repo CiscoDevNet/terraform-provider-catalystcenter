@@ -73,9 +73,9 @@ func (r *AreaResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: helpers.NewAttributeDescription("The name of the area").String,
 				Required:            true,
 			},
-			"parent_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The path of the parent area, e.g. `Global/Area5`. `Global` in case of root area.").String,
-				Optional:            true,
+			"parent_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the parent area").String,
+				Required:            true,
 			},
 		},
 	}
@@ -118,13 +118,19 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 			return
 		}
 	}
-	plan.Id = types.StringValue(res.Get("siteId").String())
+	plan.Id = types.StringValue(res.Get("response.data").String())
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
-		params = ""
+		params = "?name=" + url.QueryEscape(plan.Name.ValueString())
+		res, err = r.client.Get("/dna/intent/api/v1/sites" + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+		plan.Id = types.StringValue(res.Get("response.#(parentId==\"" + plan.ParentId.ValueString() + "\").id").String())
 		body = plan.toBody(ctx, Area{Id: plan.Id})
-		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
+		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 			return
@@ -154,8 +160,8 @@ func (r *AreaResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?id=" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get("/dna/intent/api/v2/site" + params)
+	params += "/" + url.QueryEscape(state.Id.ValueString())
+	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return

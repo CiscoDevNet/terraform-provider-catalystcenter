@@ -1,38 +1,31 @@
 ---
 name: Floor
-rest_endpoint: /dna/intent/api/v1/site
-get_rest_endpoint: /api/v1/dna-maps-service/domains
-id_path: siteId
+rest_endpoint: /dna/intent/api/v2/floors
 doc_category: Sites
+id_path: response.data
 allow_existing_on_create: true
 attributes:
-  - model_name: type
+  - model_name: parentId
+    response_data_path: response.parentId
     type: String
-    value: floor
+    mandatory: true
+    example: 34af13e4-da94-4c5f-8da2-aa51a0f0655e
+    description: The ID of the parent building
+    test_value: catalystcenter_building.test.id
   - model_name: name
-    data_path: site.floor
-    response_data_path: name
+    response_data_path: response.name
     type: String
     mandatory: true
-    description: The name of the floor
+    description: Floor name
     example: Floor1
-  - model_name: parentName
-    data_path: site.floor
-    type: String
-    mandatory: true
-    write_only: true
-    description: The path of the parent building, e.g. `Global/Building1`
-    example: Global/Building1
-    test_value: '"${catalystcenter_building.test.parent_name}/${catalystcenter_building.test.name}"'
   - model_name: floorNumber
-    data_path: site.floor
-    response_data_path: floorIndex
-    requires_replace: true
+    response_data_path: response.floorNumber
+    mandatory: true
     type: Int64
     description: Floor number
     example: 1
   - model_name: rfModel
-    data_path: site.floor
+    response_data_path: response.rfModel
     type: String
     enum_values:
       [
@@ -43,34 +36,42 @@ attributes:
         "Free Space",
       ]
     mandatory: true
-    write_only: true
     description: The RF model
     example: Drywall Office Only
   - model_name: width
-    data_path: site.floor
-    response_data_path: geometry.width
+    response_data_path: response.width
     type: Float64
     mandatory: true
     description: Width
-    example: 30.5
+    example: 40
   - model_name: length
-    data_path: site.floor
-    response_data_path: geometry.length
+    response_data_path: response.length
     type: Float64
     mandatory: true
     description: Length
     example: 50.5
   - model_name: height
-    data_path: site.floor
-    response_data_path: geometry.height
+    response_data_path: response.height
     type: Float64
     mandatory: true
     description: Height
     example: 3.5
+  - model_name: unitsOfMeasure
+    get_query_param: true
+    get_query_param_name: _unitsOfMeasure
+    response_data_path: response.unitsOfMeasure
+    type: String
+    enum_values: ["feet", "meters"]
+    mandatory: true
+    description: The unit of measurement
+    example: meters
 test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
   resource "catalystcenter_building" "test" {
     name        = "Building1"
-    parent_name = "Global"
+    parent_id   = data.catalystcenter_site.test.id
     country     = "United States"
     address     = "150 W Tasman Dr, San Jose"
     latitude    = 37.338

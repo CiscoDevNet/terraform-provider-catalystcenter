@@ -25,7 +25,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 )
@@ -36,54 +35,65 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &FabricVirtualNetworkDataSource{}
-	_ datasource.DataSourceWithConfigure = &FabricVirtualNetworkDataSource{}
+	_ datasource.DataSource              = &ProvisionDevicesDataSource{}
+	_ datasource.DataSourceWithConfigure = &ProvisionDevicesDataSource{}
 )
 
-func NewFabricVirtualNetworkDataSource() datasource.DataSource {
-	return &FabricVirtualNetworkDataSource{}
+func NewProvisionDevicesDataSource() datasource.DataSource {
+	return &ProvisionDevicesDataSource{}
 }
 
-type FabricVirtualNetworkDataSource struct {
+type ProvisionDevicesDataSource struct {
 	client *cc.Client
 }
 
-func (d *FabricVirtualNetworkDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_virtual_network"
+func (d *ProvisionDevicesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_provision_devices"
 }
 
-func (d *FabricVirtualNetworkDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *ProvisionDevicesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Fabric Virtual Network.",
+		MarkdownDescription: "This data source can read the Provision Devices.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
 				Required:            true,
 			},
-			"virtual_network_name": schema.StringAttribute{
-				MarkdownDescription: "Virtual Network Name to be assigned at global level",
-				Computed:            true,
+			"site_id": schema.StringAttribute{
+				MarkdownDescription: "Site Id",
+				Required:            true,
 			},
-			"is_guest": schema.BoolAttribute{
-				MarkdownDescription: "Guest Virtual Network enablement flag",
+			"provision_devices": schema.SetNestedAttribute{
+				MarkdownDescription: "List of devices to be provisioned",
 				Computed:            true,
-			},
-			"sg_names": schema.SetAttribute{
-				MarkdownDescription: "Scalable Groups to be associated to virtual network",
-				ElementType:         types.StringType,
-				Computed:            true,
-			},
-			"vmanage_vpn_id": schema.StringAttribute{
-				MarkdownDescription: "vManage vpn id for SD-WAN",
-				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "ID of the provisioned device",
+							Computed:            true,
+						},
+						"site_id": schema.StringAttribute{
+							MarkdownDescription: "ID of the site this network device needs to be provisioned",
+							Computed:            true,
+						},
+						"network_device_id": schema.StringAttribute{
+							MarkdownDescription: "ID of network device to be provisioned",
+							Computed:            true,
+						},
+						"reprovision": schema.BoolAttribute{
+							MarkdownDescription: "Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply",
+							Computed:            true,
+						},
+					},
+				},
 			},
 		},
 	}
 }
 
-func (d *FabricVirtualNetworkDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *ProvisionDevicesDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -94,8 +104,8 @@ func (d *FabricVirtualNetworkDataSource) Configure(_ context.Context, req dataso
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *FabricVirtualNetworkDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config FabricVirtualNetwork
+func (d *ProvisionDevicesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config ProvisionDevices
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
@@ -107,7 +117,7 @@ func (d *FabricVirtualNetworkDataSource) Read(ctx context.Context, req datasourc
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "?virtualNetworkName=" + url.QueryEscape(config.Id.ValueString())
+	params += "?siteId=" + url.QueryEscape(config.SiteId.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

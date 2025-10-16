@@ -39,7 +39,7 @@ func TestAccDataSourceCcBuilding(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcBuildingConfig(),
+				Config: testAccDataSourceCcBuildingPrerequisitesConfig + testAccDataSourceCcBuildingConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -49,13 +49,24 @@ func TestAccDataSourceCcBuilding(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceCcBuildingPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
+resource "catalystcenter_area" "test" {
+  name       = "Area1"
+  parent_id  = data.catalystcenter_site.test.id
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcBuildingConfig() string {
 	config := `resource "catalystcenter_building" "test" {` + "\n"
 	config += `	name = "Building1"` + "\n"
-	config += `	parent_name = "Global"` + "\n"
+	config += `	parent_id = catalystcenter_area.test.id` + "\n"
 	config += `	country = "United States"` + "\n"
 	config += `	address = "150 W Tasman Dr, San Jose"` + "\n"
 	config += `	latitude = 37.338` + "\n"

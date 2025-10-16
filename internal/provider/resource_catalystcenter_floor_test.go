@@ -19,10 +19,12 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"fmt"
 	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 // End of section. //template:end imports
@@ -32,9 +34,11 @@ func TestAccCcFloor(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "name", "Floor1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "floor_number", "1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "width", "30.5"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "rf_model", "Drywall Office Only"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "width", "40"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "length", "50.5"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "height", "3.5"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floor.test", "units_of_measure", "meters"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -49,6 +53,13 @@ func TestAccCcFloor(t *testing.T) {
 	steps = append(steps, resource.TestStep{
 		ResourceName: "catalystcenter_floor.test",
 		ImportState:  true,
+		ImportStateIdFunc: func(s *terraform.State) (string, error) {
+			rs, ok := s.RootModule().Resources["catalystcenter_floor.test"]
+			if !ok {
+				return "", fmt.Errorf("resource not found in state")
+			}
+			return fmt.Sprintf("%s,%s", rs.Primary.Attributes["units_of_measure"], rs.Primary.ID), nil
+		},
 	})
 
 	resource.Test(t, resource.TestCase{
@@ -62,9 +73,12 @@ func TestAccCcFloor(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcFloorPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
 resource "catalystcenter_building" "test" {
   name        = "Building1"
-  parent_name = "Global"
+  parent_id   = data.catalystcenter_site.test.id
   country     = "United States"
   address     = "150 W Tasman Dr, San Jose"
   latitude    = 37.338
@@ -78,12 +92,14 @@ resource "catalystcenter_building" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcFloorConfig_minimum() string {
 	config := `resource "catalystcenter_floor" "test" {` + "\n"
+	config += `	parent_id = catalystcenter_building.test.id` + "\n"
 	config += `	name = "Floor1"` + "\n"
-	config += `	parent_name = "${catalystcenter_building.test.parent_name}/${catalystcenter_building.test.name}"` + "\n"
+	config += `	floor_number = 1` + "\n"
 	config += `	rf_model = "Drywall Office Only"` + "\n"
-	config += `	width = 30.5` + "\n"
+	config += `	width = 40` + "\n"
 	config += `	length = 50.5` + "\n"
 	config += `	height = 3.5` + "\n"
+	config += `	units_of_measure = "meters"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -93,13 +109,14 @@ func testAccCcFloorConfig_minimum() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcFloorConfig_all() string {
 	config := `resource "catalystcenter_floor" "test" {` + "\n"
+	config += `	parent_id = catalystcenter_building.test.id` + "\n"
 	config += `	name = "Floor1"` + "\n"
-	config += `	parent_name = "${catalystcenter_building.test.parent_name}/${catalystcenter_building.test.name}"` + "\n"
 	config += `	floor_number = 1` + "\n"
 	config += `	rf_model = "Drywall Office Only"` + "\n"
-	config += `	width = 30.5` + "\n"
+	config += `	width = 40` + "\n"
 	config += `	length = 50.5` + "\n"
 	config += `	height = 3.5` + "\n"
+	config += `	units_of_measure = "meters"` + "\n"
 	config += `}` + "\n"
 	return config
 }

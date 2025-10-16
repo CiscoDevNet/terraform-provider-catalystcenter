@@ -35,11 +35,11 @@ func TestAccCcArea(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccCcAreaConfig_minimum(),
+			Config: testAccCcAreaPrerequisitesConfig + testAccCcAreaConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcAreaConfig_all(),
+		Config: testAccCcAreaPrerequisitesConfig + testAccCcAreaConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -57,12 +57,20 @@ func TestAccCcArea(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccCcAreaPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcAreaConfig_minimum() string {
 	config := `resource "catalystcenter_area" "test" {` + "\n"
 	config += `	name = "Area1"` + "\n"
+	config += `	parent_id = data.catalystcenter_site.test.id` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -73,7 +81,7 @@ func testAccCcAreaConfig_minimum() string {
 func testAccCcAreaConfig_all() string {
 	config := `resource "catalystcenter_area" "test" {` + "\n"
 	config += `	name = "Area1"` + "\n"
-	config += `	parent_name = "Global"` + "\n"
+	config += `	parent_id = data.catalystcenter_site.test.id` + "\n"
 	config += `}` + "\n"
 	return config
 }

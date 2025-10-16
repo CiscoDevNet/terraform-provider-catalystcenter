@@ -59,7 +59,7 @@ func (r *WirelessProfileResource) Metadata(ctx context.Context, req resource.Met
 func (r *WirelessProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource creates a wireless network profile. To associate a wireless network profile with a site, use the `catalystcenter_associate_site_to_network_profile` resource.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource creates a wireless network profile. To associate a wireless network profile with a site, use the `catalystcenter_network_profile_for_sites_assignments` resource.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

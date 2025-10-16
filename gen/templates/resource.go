@@ -649,6 +649,17 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	if !r.AllowExistingOnCreate  {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
+		{{- if eq .DocCategory "Sites" }}
+		params = "?name=" + url.QueryEscape(plan.Name.ValueString())
+		res, err = r.client.Get("/dna/intent/api/v1/sites" + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+		plan.Id = types.StringValue(res.Get("response.#(parentId==\"" + plan.ParentId.ValueString() + "\").id").String())
+		body = plan.toBody(ctx, {{camelCase .Name}}{Id: plan.Id})
+		res, err = r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()), body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+		{{- else}}
 		params = ""
 		{{- if hasCreateQueryPath .Attributes}}
 		{{- $createQueryPath := getCreateQueryPath .Attributes}}
@@ -668,6 +679,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		res, err = r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 		{{- else}}
 		res, err = r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+		{{- end}}
 		{{- end}}
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
@@ -710,6 +722,9 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	{{- else if and (not .GetNoId) (not .GetFromAll)}}
 	params += "/" + url.QueryEscape(state.Id.ValueString())
 	{{- end}}
+	{{- if hasGetQueryParam .Attributes }}
+	params += {{$queryParams}}
+	{{- end }}
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}

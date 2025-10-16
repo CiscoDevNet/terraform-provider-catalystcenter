@@ -28,18 +28,18 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-func TestAccDataSourceCcFabricAuthenticationProfile(t *testing.T) {
-	if os.Getenv("FABRIC") == "" {
-		t.Skip("skipping test, set environment variable FABRIC")
+func TestAccDataSourceCcProvisionDevices(t *testing.T) {
+	if os.Getenv("INVENTORY") == "" {
+		t.Skip("skipping test, set environment variable INVENTORY")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_authentication_profile.test", "authentication_template_name", "No Authentication"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_provision_devices.test", "provision_devices.0.network_device_id", "4cb565d3-1944-42be-be9f-a87cff79e831"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcFabricAuthenticationProfilePrerequisitesConfig + testAccDataSourceCcFabricAuthenticationProfileConfig(),
+				Config: testAccDataSourceCcProvisionDevicesPrerequisitesConfig + testAccDataSourceCcProvisionDevicesConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -49,16 +49,10 @@ func TestAccDataSourceCcFabricAuthenticationProfile(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-const testAccDataSourceCcFabricAuthenticationProfilePrerequisitesConfig = `
+const testAccDataSourceCcProvisionDevicesPrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
-}
-
-resource "catalystcenter_fabric_site" "test" {
-  site_id                     = catalystcenter_area.test.id
-  authentication_profile_name = "No Authentication"
-  pub_sub_enabled             = false
 }
 
 `
@@ -66,15 +60,19 @@ resource "catalystcenter_fabric_site" "test" {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-func testAccDataSourceCcFabricAuthenticationProfileConfig() string {
-	config := `resource "catalystcenter_fabric_authentication_profile" "test" {` + "\n"
-	config += `	site_name_hierarchy = "${catalystcenter_area.test.parent_name}/${catalystcenter_area.test.name}"` + "\n"
-	config += `	authentication_template_name = "No Authentication"` + "\n"
+func testAccDataSourceCcProvisionDevicesConfig() string {
+	config := `resource "catalystcenter_provision_devices" "test" {` + "\n"
+	config += `	site_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"` + "\n"
+	config += `	provision_devices = [{` + "\n"
+	config += `	  site_id = catalystcenter_area.test.id` + "\n"
+	config += `	  network_device_id = "4cb565d3-1944-42be-be9f-a87cff79e831"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `
-		data "catalystcenter_fabric_authentication_profile" "test" {
-			id = catalystcenter_fabric_authentication_profile.test.id
+		data "catalystcenter_provision_devices" "test" {
+			id = catalystcenter_provision_devices.test.id
+			site_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
 		}
 	`
 	return config

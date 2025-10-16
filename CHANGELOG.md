@@ -1,3 +1,18 @@
+## 0.4.0 (unreleased)
+
+- Fix issue with `catalystcenter_fabric_l2_handoff` idempotency, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/296)
+- Add `catalystcenter_provision_devices` resource and data source to provision multiple devices within single resource
+- BREAKING CHANGE: Modified `catalystcenter_area` to use the `/dna/intent/api/v1/areas` API endpoint instead of `/dna/intent/api/v1/site`
+- BREAKING CHANGE: Modified `catalystcenter_building` to use the `/dna/intent/api/v2/buildings` API endpoint instead of `/dna/intent/api/v1/site`
+- Removed deprecated API endpoints from `catalystcenter_image` resource
+- BREAKING CHANGE: Removed `catalystcenter_fabric_virtual_network` (deprecated in CC 2.3.7.9). Use `catalystcenter_fabric_l3_virtual_network` instead
+- BREAKING CHANGE: Removed `catalystcenter_associate_site_to_network_profile` (deprecated in CC 2.3.7.6). Use `catalystcenter_network_profile_for_sites_assignments` instead
+- BREAKING CHANGE: Removed `catalystcenter_network` (deprecated in CC 2.3.7.6). Use `catalystcenter_ntp_settings`, `catalystcenter_dhcp_settings`, `catalystcenter_dns_settings`, `catalystcenter_timezone_settings`, `catalystcenter_banner_settings`, `catalystcenter_telemetry_settings` or `catalystcenter_aaa_settings` instead
+- BREAKING CHANGE: Removed `catalystcenter_wireless_enterprise_ssid` (deprecated in CC 2.3.7.6). Use `catalystcenter_wireless_ssid` instead
+- BREAKING CHANGE: Removed `catalystcenter_fabric_authentication_profile`. Use `catalystcenter_update_authentication_profile` instead
+- BREAKING CHANGE: Removed `catalystcenter_virtual_network_ip_pool` (deprecated in CC 2.3.7.9). Use `catalystcenter_anycast_gateway` or `catalystcenter_anycast_gateways` instead
+- BREAKING CHANGE: Modified `catalystcenter_floor` to use the `/dna/intent/api/v2/floors` API endpoint instead of `/dna/intent/api/v1/site`
+
 ## 0.3.5
 
 - Change `device_types` attributes in `catalystcenter_template` resource from `List` to `Set`
