@@ -20,6 +20,8 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -44,7 +46,7 @@ type AssignCredentials struct {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data AssignCredentials) getPath() string {
-	return "/dna/intent/api/v2/credential-to-site"
+	return fmt.Sprintf("/dna/intent/api/v1/sites/%v/deviceCredentials", url.QueryEscape(data.SiteId.ValueString()))
 }
 
 // End of section. //template:end getPath
@@ -58,22 +60,22 @@ func (data AssignCredentials) toBody(ctx context.Context, state AssignCredential
 	}
 	_ = put
 	if !data.CliId.IsNull() {
-		body, _ = sjson.Set(body, "cliId", data.CliId.ValueString())
+		body, _ = sjson.Set(body, "cliCredentialsId.credentialsId", data.CliId.ValueString())
 	}
 	if !data.SnmpV2ReadId.IsNull() {
-		body, _ = sjson.Set(body, "snmpV2ReadId", data.SnmpV2ReadId.ValueString())
+		body, _ = sjson.Set(body, "snmpv2cReadCredentialsId.credentialsId", data.SnmpV2ReadId.ValueString())
 	}
 	if !data.SnmpV2WriteId.IsNull() {
-		body, _ = sjson.Set(body, "snmpV2WriteId", data.SnmpV2WriteId.ValueString())
+		body, _ = sjson.Set(body, "snmpv2cWriteCredentialsId.credentialsId", data.SnmpV2WriteId.ValueString())
 	}
 	if !data.SnmpV3Id.IsNull() {
-		body, _ = sjson.Set(body, "snmpV3Id", data.SnmpV3Id.ValueString())
+		body, _ = sjson.Set(body, "snmpv3CredentialsId.credentialsId", data.SnmpV3Id.ValueString())
 	}
 	if !data.HttpsReadId.IsNull() {
-		body, _ = sjson.Set(body, "httpRead", data.HttpsReadId.ValueString())
+		body, _ = sjson.Set(body, "httpReadCredentialsId.credentialsId", data.HttpsReadId.ValueString())
 	}
 	if !data.HttpsWriteId.IsNull() {
-		body, _ = sjson.Set(body, "httpWrite", data.HttpsWriteId.ValueString())
+		body, _ = sjson.Set(body, "httpWriteCredentialsId.credentialsId", data.HttpsWriteId.ValueString())
 	}
 	return body
 }

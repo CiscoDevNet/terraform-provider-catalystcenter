@@ -31,21 +31,21 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type IPPool struct {
-	Id             types.String `tfsdk:"id"`
-	Name           types.String `tfsdk:"name"`
-	IpAddressSpace types.String `tfsdk:"ip_address_space"`
-	Type           types.String `tfsdk:"type"`
-	IpSubnet       types.String `tfsdk:"ip_subnet"`
-	Gateway        types.Set    `tfsdk:"gateway"`
-	DhcpServerIps  types.Set    `tfsdk:"dhcp_server_ips"`
-	DnsServerIps   types.Set    `tfsdk:"dns_server_ips"`
+	Id                       types.String `tfsdk:"id"`
+	Name                     types.String `tfsdk:"name"`
+	PoolType                 types.String `tfsdk:"pool_type"`
+	AddressSpaceSubnet       types.String `tfsdk:"address_space_subnet"`
+	AddressSpacePrefixLength types.Int64  `tfsdk:"address_space_prefix_length"`
+	AddressSpaceGateway      types.String `tfsdk:"address_space_gateway"`
+	AddressSpaceDhcpServers  types.Set    `tfsdk:"address_space_dhcp_servers"`
+	AddressSpaceDnsServers   types.Set    `tfsdk:"address_space_dns_servers"`
 }
 
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data IPPool) getPath() string {
-	return "/api/v2/ippool"
+	return "/dna/intent/api/v1/ipam/globalIpAddressPools"
 }
 
 // End of section. //template:end getPath
@@ -63,31 +63,29 @@ func (data IPPool) toBody(ctx context.Context, state IPPool) string {
 	}
 	_ = put
 	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "ipPoolName", data.Name.ValueString())
+		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
-	if !data.IpAddressSpace.IsNull() {
-		body, _ = sjson.Set(body, "IpAddressSpace", data.IpAddressSpace.ValueString())
+	if !data.PoolType.IsNull() {
+		body, _ = sjson.Set(body, "poolType", data.PoolType.ValueString())
 	}
-	if !data.Type.IsNull() {
-		body, _ = sjson.Set(body, "type", data.Type.ValueString())
+	if !data.AddressSpaceSubnet.IsNull() {
+		body, _ = sjson.Set(body, "addressSpace.subnet", data.AddressSpaceSubnet.ValueString())
 	}
-	if !data.IpSubnet.IsNull() {
-		body, _ = sjson.Set(body, "ipPoolCidr", data.IpSubnet.ValueString())
+	if !data.AddressSpacePrefixLength.IsNull() {
+		body, _ = sjson.Set(body, "addressSpace.prefixLength", data.AddressSpacePrefixLength.ValueInt64())
 	}
-	if !data.Gateway.IsNull() {
+	if !data.AddressSpaceGateway.IsNull() {
+		body, _ = sjson.Set(body, "addressSpace.gatewayIpAddress", data.AddressSpaceGateway.ValueString())
+	}
+	if !data.AddressSpaceDhcpServers.IsNull() {
 		var values []string
-		data.Gateway.ElementsAs(ctx, &values, false)
-		body, _ = sjson.Set(body, "gateways", values)
+		data.AddressSpaceDhcpServers.ElementsAs(ctx, &values, false)
+		body, _ = sjson.Set(body, "addressSpace.dhcpServers", values)
 	}
-	if !data.DhcpServerIps.IsNull() {
+	if !data.AddressSpaceDnsServers.IsNull() {
 		var values []string
-		data.DhcpServerIps.ElementsAs(ctx, &values, false)
-		body, _ = sjson.Set(body, "dhcpServerIps", values)
-	}
-	if !data.DnsServerIps.IsNull() {
-		var values []string
-		data.DnsServerIps.ElementsAs(ctx, &values, false)
-		body, _ = sjson.Set(body, "dnsServerIps", values)
+		data.AddressSpaceDnsServers.ElementsAs(ctx, &values, false)
+		body, _ = sjson.Set(body, "addressSpace.dnsServers", values)
 	}
 	return body
 }
@@ -96,35 +94,40 @@ func (data IPPool) toBody(ctx context.Context, state IPPool) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *IPPool) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.ipPoolName"); value.Exists() {
+	if value := res.Get("name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("type"); value.Exists() {
-		data.Type = types.StringValue(value.String())
+	if value := res.Get("poolType"); value.Exists() {
+		data.PoolType = types.StringValue(value.String())
 	} else {
-		data.Type = types.StringValue("generic")
+		data.PoolType = types.StringNull()
 	}
-	if value := res.Get("response.ipPoolCidr"); value.Exists() {
-		data.IpSubnet = types.StringValue(value.String())
+	if value := res.Get("addressSpace.subnet"); value.Exists() {
+		data.AddressSpaceSubnet = types.StringValue(value.String())
 	} else {
-		data.IpSubnet = types.StringNull()
+		data.AddressSpaceSubnet = types.StringNull()
 	}
-	if value := res.Get("response.gateways"); value.Exists() && len(value.Array()) > 0 {
-		data.Gateway = helpers.GetStringSet(value.Array())
+	if value := res.Get("addressSpace.prefixLength"); value.Exists() {
+		data.AddressSpacePrefixLength = types.Int64Value(value.Int())
 	} else {
-		data.Gateway = types.SetNull(types.StringType)
+		data.AddressSpacePrefixLength = types.Int64Null()
 	}
-	if value := res.Get("response.dhcpServerIps"); value.Exists() && len(value.Array()) > 0 {
-		data.DhcpServerIps = helpers.GetStringSet(value.Array())
+	if value := res.Get("addressSpace.gatewayIpAddress"); value.Exists() {
+		data.AddressSpaceGateway = types.StringValue(value.String())
 	} else {
-		data.DhcpServerIps = types.SetNull(types.StringType)
+		data.AddressSpaceGateway = types.StringNull()
 	}
-	if value := res.Get("response.dnsServerIps"); value.Exists() && len(value.Array()) > 0 {
-		data.DnsServerIps = helpers.GetStringSet(value.Array())
+	if value := res.Get("addressSpace.dhcpServers"); value.Exists() && len(value.Array()) > 0 {
+		data.AddressSpaceDhcpServers = helpers.GetStringSet(value.Array())
 	} else {
-		data.DnsServerIps = types.SetNull(types.StringType)
+		data.AddressSpaceDhcpServers = types.SetNull(types.StringType)
+	}
+	if value := res.Get("addressSpace.dnsServers"); value.Exists() && len(value.Array()) > 0 {
+		data.AddressSpaceDnsServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.AddressSpaceDnsServers = types.SetNull(types.StringType)
 	}
 }
 
@@ -132,35 +135,40 @@ func (data *IPPool) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *IPPool) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.ipPoolName"); value.Exists() && !data.Name.IsNull() {
+	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
-		data.Type = types.StringValue(value.String())
-	} else if data.Type.ValueString() != "generic" {
-		data.Type = types.StringNull()
-	}
-	if value := res.Get("response.ipPoolCidr"); value.Exists() && !data.IpSubnet.IsNull() {
-		data.IpSubnet = types.StringValue(value.String())
+	if value := res.Get("poolType"); value.Exists() && !data.PoolType.IsNull() {
+		data.PoolType = types.StringValue(value.String())
 	} else {
-		data.IpSubnet = types.StringNull()
+		data.PoolType = types.StringNull()
 	}
-	if value := res.Get("response.gateways"); value.Exists() && !data.Gateway.IsNull() {
-		data.Gateway = helpers.GetStringSet(value.Array())
+	if value := res.Get("addressSpace.subnet"); value.Exists() && !data.AddressSpaceSubnet.IsNull() {
+		data.AddressSpaceSubnet = types.StringValue(value.String())
 	} else {
-		data.Gateway = types.SetNull(types.StringType)
+		data.AddressSpaceSubnet = types.StringNull()
 	}
-	if value := res.Get("response.dhcpServerIps"); value.Exists() && !data.DhcpServerIps.IsNull() {
-		data.DhcpServerIps = helpers.GetStringSet(value.Array())
+	if value := res.Get("addressSpace.prefixLength"); value.Exists() && !data.AddressSpacePrefixLength.IsNull() {
+		data.AddressSpacePrefixLength = types.Int64Value(value.Int())
 	} else {
-		data.DhcpServerIps = types.SetNull(types.StringType)
+		data.AddressSpacePrefixLength = types.Int64Null()
 	}
-	if value := res.Get("response.dnsServerIps"); value.Exists() && !data.DnsServerIps.IsNull() {
-		data.DnsServerIps = helpers.GetStringSet(value.Array())
+	if value := res.Get("addressSpace.gatewayIpAddress"); value.Exists() && !data.AddressSpaceGateway.IsNull() {
+		data.AddressSpaceGateway = types.StringValue(value.String())
 	} else {
-		data.DnsServerIps = types.SetNull(types.StringType)
+		data.AddressSpaceGateway = types.StringNull()
+	}
+	if value := res.Get("addressSpace.dhcpServers"); value.Exists() && !data.AddressSpaceDhcpServers.IsNull() {
+		data.AddressSpaceDhcpServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.AddressSpaceDhcpServers = types.SetNull(types.StringType)
+	}
+	if value := res.Get("addressSpace.dnsServers"); value.Exists() && !data.AddressSpaceDnsServers.IsNull() {
+		data.AddressSpaceDnsServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.AddressSpaceDnsServers = types.SetNull(types.StringType)
 	}
 }
 
@@ -171,22 +179,22 @@ func (data *IPPool) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Name.IsNull() {
 		return false
 	}
-	if !data.IpAddressSpace.IsNull() {
+	if !data.PoolType.IsNull() {
 		return false
 	}
-	if !data.Type.IsNull() {
+	if !data.AddressSpaceSubnet.IsNull() {
 		return false
 	}
-	if !data.IpSubnet.IsNull() {
+	if !data.AddressSpacePrefixLength.IsNull() {
 		return false
 	}
-	if !data.Gateway.IsNull() {
+	if !data.AddressSpaceGateway.IsNull() {
 		return false
 	}
-	if !data.DhcpServerIps.IsNull() {
+	if !data.AddressSpaceDhcpServers.IsNull() {
 		return false
 	}
-	if !data.DnsServerIps.IsNull() {
+	if !data.AddressSpaceDnsServers.IsNull() {
 		return false
 	}
 	return true

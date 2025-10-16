@@ -21,16 +21,12 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/url"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
-	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -63,50 +59,39 @@ func (d *IPPoolDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Optional:            true,
-				Computed:            true,
+				Required:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the IP pool",
-				Optional:            true,
+				MarkdownDescription: "The name for this global IP pool. Only letters, numbers, '-', '_', '.', and '/' are allowed.",
 				Computed:            true,
 			},
-			"ip_address_space": schema.StringAttribute{
-				MarkdownDescription: "IP address version",
+			"pool_type": schema.StringAttribute{
+				MarkdownDescription: "The type of the global IP pool. Once created, this cannot be changed.",
 				Computed:            true,
 			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: "Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.",
+			"address_space_subnet": schema.StringAttribute{
+				MarkdownDescription: "The IP address component of the CIDR notation for this subnet.",
 				Computed:            true,
 			},
-			"ip_subnet": schema.StringAttribute{
-				MarkdownDescription: "The IP subnet of the IP pool",
+			"address_space_prefix_length": schema.Int64Attribute{
+				MarkdownDescription: "The network mask component, as a decimal, for the CIDR notation of this subnet.",
 				Computed:            true,
 			},
-			"gateway": schema.SetAttribute{
-				MarkdownDescription: "The gateway for the IP pool",
+			"address_space_gateway": schema.StringAttribute{
+				MarkdownDescription: "The gateway IP address for this subnet.",
+				Computed:            true,
+			},
+			"address_space_dhcp_servers": schema.SetAttribute{
+				MarkdownDescription: "The DHCP server(s) for this subnet.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"dhcp_server_ips": schema.SetAttribute{
-				MarkdownDescription: "List of DHCP Server IPs",
-				ElementType:         types.StringType,
-				Computed:            true,
-			},
-			"dns_server_ips": schema.SetAttribute{
-				MarkdownDescription: "List of DNS Server IPs",
+			"address_space_dns_servers": schema.SetAttribute{
+				MarkdownDescription: "The DNS server(s) for this subnet.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
 		},
-	}
-}
-func (d *IPPoolDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
-	return []datasource.ConfigValidator{
-		datasourcevalidator.ExactlyOneOf(
-			path.MatchRoot("id"),
-			path.MatchRoot("name"),
-		),
 	}
 }
 
@@ -132,37 +117,14 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.Name.IsNull() {
-		res, err := d.client.Get(config.getPath() + "?limit=1000")
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
-			return
-		}
-		if value := res.Get("response"); len(value.Array()) > 0 {
-			value.ForEach(func(k, v gjson.Result) bool {
-				if config.Name.ValueString() == v.Get("ipPoolName").String() {
-					config.Id = types.StringValue(v.Get("id").String())
-					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with ipPoolName '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
-					return false
-				}
-				return true
-			})
-		}
-
-		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with ipPoolName: %s", config.Name.ValueString()))
-			return
-		}
-	}
 
 	params := ""
-	params += "/" + url.QueryEscape(config.Id.ValueString())
-	params += "?limit=1000"
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
+	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 

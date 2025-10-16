@@ -30,7 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -62,7 +61,7 @@ func (r *IPPoolResource) Metadata(ctx context.Context, req resource.MetadataRequ
 func (r *IPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage an IP Pool.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource manages an IP global pool using the new API schema.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -73,46 +72,38 @@ func (r *IPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The name of the IP pool").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The name for this global IP pool. Only letters, numbers, '-', '_', '.', and '/' are allowed.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"ip_address_space": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("IP address version").AddStringEnumDescription("IPv4", "IPv6").AddDefaultValueDescription("IPv4").String,
-				Optional:            true,
-				Computed:            true,
+			"pool_type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The type of the global IP pool. Once created, this cannot be changed.").AddStringEnumDescription("Generic", "Tunnel").String,
+				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("IPv4", "IPv6"),
+					stringvalidator.OneOf("Generic", "Tunnel"),
 				},
-				Default: stringdefault.StaticString("IPv4"),
 			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.").AddStringEnumDescription("generic", "tunnel").AddDefaultValueDescription("generic").String,
-				Optional:            true,
-				Computed:            true,
-				Validators: []validator.String{
-					stringvalidator.OneOf("generic", "tunnel"),
-				},
-				Default: stringdefault.StaticString("generic"),
-			},
-			"ip_subnet": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The IP subnet of the IP pool").String,
+			"address_space_subnet": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The IP address component of the CIDR notation for this subnet.").String,
 				Required:            true,
 			},
-			"gateway": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The gateway for the IP pool").String,
+			"address_space_prefix_length": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The network mask component, as a decimal, for the CIDR notation of this subnet.").String,
+				Required:            true,
+			},
+			"address_space_gateway": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The gateway IP address for this subnet.").String,
+				Optional:            true,
+			},
+			"address_space_dhcp_servers": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The DHCP server(s) for this subnet.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"dhcp_server_ips": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of DHCP Server IPs").String,
-				ElementType:         types.StringType,
-				Optional:            true,
-			},
-			"dns_server_ips": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of DNS Server IPs").String,
+			"address_space_dns_servers": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The DNS server(s) for this subnet.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
@@ -158,13 +149,12 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		}
 	}
 	params = ""
-	params += "?limit=1000"
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(ipPoolName==\"" + plan.Name.ValueString() + "\").id").String())
+	plan.Id = types.StringValue(res.Get("response.#(name==\"" + plan.Name.ValueString() + "\").id").String())
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
@@ -200,8 +190,6 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "/" + url.QueryEscape(state.Id.ValueString())
-	params += "?limit=1000"
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
@@ -210,6 +198,7 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
+	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -288,16 +277,7 @@ func (r *IPPoolResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *IPPoolResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
-
-	if len(idParts) != 1 || idParts[0] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <id>. Got: %q", req.ID),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[0])...)
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // End of section. //template:end import

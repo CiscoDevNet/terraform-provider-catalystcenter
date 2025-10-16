@@ -1,163 +1,185 @@
----
 name: IP Pool Reservation
-# Manual modifications in model file in updateFromBody and fromBody to support dual-stack pools
-rest_endpoint: /dna/intent/api/v1/reserve-ip-subpool
-id_from_query_path: response.0
+rest_endpoint: /dna/intent/api/v1/ipam/siteIpAddressPools
+id_from_query_path: response
 id_from_query_path_attribute: id
-put_id_query_param: id
+get_from_all: true
+skip_minimum_test: true
+put_id: true
 import_no_id: true
-data_source_no_id: true
-doc_category: Network Settings
 allow_existing_on_create: true
+res_description: This resource manages an IP reserve subpool using the new API schema.
+doc_category: Network Settings
 attributes:
-  - model_name: siteId
-    type: String
-    query_param: true
-    create_query_path: true
-    response_data_path: response.0.siteId
-    description: The site ID
-    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
-    test_value: catalystcenter_area.test.id
-  - model_name: name
-    response_model_name: groupName
-    query_param: true
-    query_param_name: groupName
-    response_data_path: response.0.groupName
-    type: String
-    match_id: true
-    description: The name of the IP pool reservation
-    example: MyRes1
-  - model_name: type
-    type: String
-    mandatory: true
-    write_only: true
-    response_data_path: response.0.type
-    exclude_from_put: true
-    enum_values: [Generic, LAN, WAN, management, service]
-    description: The type of the IP pool reservation
-    example: Generic
-  - model_name: ipv6AddressSpace
-    type: Bool
-    write_only: true
-    description: If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required
-    example: false
-  - model_name: ipv4GlobalPool
-    type: String
-    mandatory: true
-    write_only: true
-    exclude_from_put: true
-    description: "IPv4 Global pool address with cidr, example: 175.175.0.0/16"
-    example: 172.32.0.0/16
-  - model_name: ipv4Prefix
-    type: Bool
-    mandatory: true
-    write_only: true
-    exclude_from_put: true
-    description: If this value is `true`, the `ipv4_prefix_length` attribute must be provided, if it is `false`, the `ipv4_total_host` attribute must be provided
-    example: true
-  - model_name: ipv4PrefixLength
-    type: Int64
-    requires_replace: true
-    exclude_from_put: true
-    description: The IPv4 prefix length is required when `ipv4_prefix` value is `true`.
-    example: 24
-    minimum_test_value: 24
-  - model_name: ipv4Subnet
-    type: String
-    requires_replace: true
-    exclude_from_put: true
-    description: The IPv4 subnet
-    example: 172.32.1.0
-    minimum_test_value: '"172.32.1.0"'
-  - model_name: ipv4GateWay
-    tf_name: ipv4_gateway
-    type: String
-    response_data_path: response.0.ipPools.0.gateways.0
-    description: The gateway for the IP pool reservation
-    example: 172.32.1.1
-  - model_name: ipv4DhcpServers
-    type: Set
-    element_type: String
-    response_data_path: response.0.ipPools.0.dhcpServerIps
-    description: List of DHCP Server IPs
-    example: 1.2.3.4
-  - model_name: ipv4DnsServers
-    type: Set
-    element_type: String
-    response_data_path: response.0.ipPools.0.dnsServerIps
-    description: List of DNS Server IPs
-    example: 2.3.4.5
-  - model_name: ipv6GlobalPool
-    type: String
-    write_only: true
-    description: "IPv6 Global pool address with cidr, example: 2001:db8:85a3::/64"
-    example: 2001:db8:85a3::/64
-    exclude_test: true
-  - model_name: ipv6Prefix
-    type: Bool
-    write_only: true
-    description: If this value is `true`, the `ipv6_prefix_length` attribute must be provided, if it is `false`, the `ipv6_total_host` attribute must be provided
-    example: true
-    exclude_test: true
-  - model_name: ipv6PrefixLength
-    type: Int64
-    write_only: true
-    description: The IPv6 prefix length is required when `ipv6_prefix` value is `true`.
-    example: 80
-    exclude_test: true
-  - model_name: ipv6Subnet
-    type: String
-    write_only: true
-    description: The IPv6 subnet, for example `2001:db8:85a3:0:100::`
-    example: "2001:db8:85a3:0:100::"
-    exclude_test: true
-  - model_name: ipv6GateWay
-    tf_name: ipv6_gateway
-    type: String
-    description: The gateway for the IP pool reservation
-    example: "2001:db8:85a3:0:100::1"
-    exclude_test: true
-  - model_name: ipv6DhcpServers
-    type: Set
-    element_type: String
-    description: List of DHCP Server IPs
-    example: "2001:db8::1234"
-    exclude_test: true
-  - model_name: ipv6DnsServers
-    type: Set
-    element_type: String
-    description: List of DNS Server IPs
-    example: "2001:db8::1234"
-    exclude_test: true
-  - model_name: ipv4TotalHost
-    type: Int64
-    write_only: true
-    description: The total number of IPv4 hosts
-    example: 100
-    exclude_test: true
-  - model_name: ipv6TotalHost
-    type: Int64
-    write_only: true
-    description: The total number of IPv6 hosts
-    example: 100
-    exclude_test: true
-  - model_name: slaacSupport
-    type: Bool
-    write_only: true
-    description: Enable SLAAC support
-    example: true
-    exclude_test: true
-
-test_prerequisites: |
-  data "catalystcenter_site" "test" {
-    name_hierarchy = "Global"
-  }
-  resource "catalystcenter_area" "test" {
-    name        = "Area1"
-    parent_id   = data.catalystcenter_site.test.id
-    depends_on  = [catalystcenter_ip_pool.test]
-  }
-  resource "catalystcenter_ip_pool" "test" {
-    name             = "MyPool1"
-    ip_subnet        = "172.32.0.0/16"
-  }
+- model_name: name
+  type: String
+  mandatory: true
+  match_id: true
+  description: The name for this reserve IP pool. Only letters, numbers, '-' (hyphen), '_' (underscore), '.' (period), and '/' (forward slash) are allowed.
+  example: MyRes1
+- model_name: poolType
+  type: String
+  mandatory: true
+  enum_values: [Generic, LAN, Management, Service, WAN]
+  description: The type of the reserve IP subpool. Once created, this cannot be changed.
+  example: Generic
+- model_name: siteId
+  type: String
+  mandatory: true
+  description: The id of the non-Global site that this subpool belongs to.
+  example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+  test_value: catalystcenter_area.test.id
+- model_name: subnet
+  tf_name: ipv4_subnet
+  data_path: ipV4AddressSpace
+  type: String
+  mandatory: true
+  description: The IPv4 IP address component of the CIDR notation for this subnet.
+  example: 172.32.1.0
+  response_data_path: ipV4AddressSpace.subnet
+- model_name: prefixLength
+  tf_name: ipv4_prefix_length
+  data_path: ipV4AddressSpace
+  type: Int64
+  mandatory: true
+  description: The IPv4 network mask length as a decimal for the CIDR notation of this subnet.
+  example: 24
+  response_data_path: ipV4AddressSpace.prefixLength
+- model_name: gatewayIpAddress
+  tf_name: ipv4_gateway
+  data_path: ipV4AddressSpace
+  type: String
+  description: The IPv4 gateway IP address for this subnet.
+  example: 172.32.1.1
+  response_data_path: ipV4AddressSpace.gatewayIpAddress
+- model_name: dhcpServers
+  tf_name: ipv4_dhcp_servers
+  data_path: ipV4AddressSpace
+  type: Set
+  element_type: String
+  description: The IPv4 DHCP server(s) for this subnet.
+  example: 1.2.3.4
+  response_data_path: ipV4AddressSpace.dhcpServers
+- model_name: dnsServers
+  tf_name: ipv4_dns_servers
+  data_path: ipV4AddressSpace
+  type: Set
+  element_type: String
+  description: The IPv4 DNS server(s) for this subnet.
+  example: 2.3.4.5
+  response_data_path: ipV4AddressSpace.dnsServers
+- model_name: totalAddresses
+  tf_name: ipv4_total_addresses
+  data_path: ipV4AddressSpace
+  type: String
+  description: The total number of addresses in the IPv4 pool (numeric string).
+  response_data_path: ipV4AddressSpace.totalAddresses
+  exclude_test: true
+- model_name: unassignableAddresses
+  tf_name: ipv4_unassignable_addresses
+  data_path: ipV4AddressSpace
+  type: String
+  description: The number of addresses in the IPv4 pool that cannot be assigned (numeric string).
+  response_data_path: ipV4AddressSpace.unassignableAddresses
+  exclude_test: true
+- model_name: assignedAddresses
+  tf_name: ipv4_assigned_addresses
+  data_path: ipV4AddressSpace
+  type: String
+  description: The number of addresses assigned from the IPv4 pool (numeric string).
+  response_data_path: ipV4AddressSpace.assignedAddresses
+  exclude_test: true
+- model_name: defaultAssignedAddresses
+  tf_name: ipv4_default_assigned_addresses
+  data_path: ipV4AddressSpace
+  type: String
+  description: The number of addresses that are assigned from the IPv4 pool by default (numeric string).
+  response_data_path: ipV4AddressSpace.defaultAssignedAddresses
+  exclude_test: true
+- model_name: globalPoolId
+  tf_name: ipv4_global_pool_id
+  data_path: ipV4AddressSpace
+  type: String
+  mandatory: true
+  description: The non-tunnel global pool ID for this IPv4 reserve pool. Once added, this value cannot be changed.
+  example: 1b2c3d4e-1111-2222-3333-abcdefabcdef
+  test_value: catalystcenter_ip_pool.test.id
+  response_data_path: ipV4AddressSpace.globalPoolId
+- model_name: subnet
+  tf_name: ipv6_subnet
+  data_path: ipV6AddressSpace
+  type: String
+  description: The IPv6 IP address component of the CIDR notation for this subnet.
+  example: "2001:db8:85a3:0:100::"
+  response_data_path: ipV6AddressSpace.subnet
+- model_name: prefixLength
+  tf_name: ipv6_prefix_length
+  data_path: ipV6AddressSpace
+  type: Int64
+  description: The IPv6 network mask length as a decimal for the CIDR notation of this subnet.
+  example: 64
+  response_data_path: ipV6AddressSpace.prefixLength
+- model_name: gatewayIpAddress
+  tf_name: ipv6_gateway
+  data_path: ipV6AddressSpace
+  type: String
+  description: The IPv6 gateway IP address for this subnet.
+  example: "2001:db8:85a3:0:100::1"
+  response_data_path: ipV6AddressSpace.gatewayIpAddress
+- model_name: dhcpServers
+  tf_name: ipv6_dhcp_servers
+  data_path: ipV6AddressSpace
+  type: Set
+  element_type: String
+  description: The IPv6 DHCP server(s) for this subnet.
+  example: "2001:db8::1234"
+  response_data_path: ipV6AddressSpace.dhcpServers
+- model_name: dnsServers
+  tf_name: ipv6_dns_servers
+  data_path: ipV6AddressSpace
+  type: Set
+  element_type: String
+  description: The IPv6 DNS server(s) for this subnet.
+  example: "2001:db8::1234"
+  response_data_path: ipV6AddressSpace.dnsServers
+- model_name: totalAddresses
+  tf_name: ipv6_total_addresses
+  data_path: ipV6AddressSpace
+  type: String
+  description: The total number of addresses in the IPv6 pool (numeric string, up to 128 bits).
+  response_data_path: ipV6AddressSpace.totalAddresses
+  exclude_test: true
+- model_name: unassignableAddresses
+  tf_name: ipv6_unassignable_addresses
+  data_path: ipV6AddressSpace
+  type: String
+  description: The number of addresses in the IPv6 pool that cannot be assigned (numeric string).
+  response_data_path: ipV6AddressSpace.unassignableAddresses
+  exclude_test: true
+- model_name: assignedAddresses
+  tf_name: ipv6_assigned_addresses
+  data_path: ipV6AddressSpace
+  type: String
+  description: The number of addresses assigned from the IPv6 pool (numeric string).
+  response_data_path: ipV6AddressSpace.assignedAddresses
+  exclude_test: true
+- model_name: defaultAssignedAddresses
+  tf_name: ipv6_default_assigned_addresses
+  data_path: ipV6AddressSpace
+  type: String
+  description: The number of addresses that are assigned from the IPv6 pool by default (numeric string).
+  response_data_path: ipV6AddressSpace.defaultAssignedAddresses
+  exclude_test: true
+- model_name: slaacSupport
+  tf_name: ipv6_slaac_support
+  data_path: ipV6AddressSpace
+  type: Bool
+  description: If the IPv6 prefixLength is 64, this option may be enabled for SLAAC.
+  example: true
+  response_data_path: ipV6AddressSpace.slaacSupport
+- model_name: globalPoolId
+  tf_name: ipv6_global_pool_id
+  data_path: ipV6AddressSpace
+  type: String
+  description: The non-tunnel global pool ID for this IPv6 reserve pool. Once added, this value cannot be changed.
+  example: 9f8e7d6c-aaaa-bbbb-cccc-1234567890ab
+  response_data_path: ipV6AddressSpace.globalPoolId

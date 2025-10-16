@@ -14,8 +14,7 @@ This data source can read the IP Pool Reservation.
 
 ```terraform
 data "catalystcenter_ip_pool_reservation" "example" {
-  site_id = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
-  name    = "MyRes1"
+  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 
@@ -24,28 +23,31 @@ data "catalystcenter_ip_pool_reservation" "example" {
 
 ### Required
 
-- `name` (String) The name of the IP pool reservation
-- `site_id` (String) The site ID
+- `id` (String) The id of the object
 
 ### Read-Only
 
-- `id` (String) The id of the object
-- `ipv4_dhcp_servers` (Set of String) List of DHCP Server IPs
-- `ipv4_dns_servers` (Set of String) List of DNS Server IPs
-- `ipv4_gateway` (String) The gateway for the IP pool reservation
-- `ipv4_global_pool` (String) IPv4 Global pool address with cidr, example: 175.175.0.0/16
-- `ipv4_prefix` (Boolean) If this value is `true`, the `ipv4_prefix_length` attribute must be provided, if it is `false`, the `ipv4_total_host` attribute must be provided
-- `ipv4_prefix_length` (Number) The IPv4 prefix length is required when `ipv4_prefix` value is `true`.
-- `ipv4_subnet` (String) The IPv4 subnet
-- `ipv4_total_host` (Number) The total number of IPv4 hosts
-- `ipv6_address_space` (Boolean) If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required
-- `ipv6_dhcp_servers` (Set of String) List of DHCP Server IPs
-- `ipv6_dns_servers` (Set of String) List of DNS Server IPs
-- `ipv6_gateway` (String) The gateway for the IP pool reservation
-- `ipv6_global_pool` (String) IPv6 Global pool address with cidr, example: 2001:db8:85a3::/64
-- `ipv6_prefix` (Boolean) If this value is `true`, the `ipv6_prefix_length` attribute must be provided, if it is `false`, the `ipv6_total_host` attribute must be provided
-- `ipv6_prefix_length` (Number) The IPv6 prefix length is required when `ipv6_prefix` value is `true`.
-- `ipv6_subnet` (String) The IPv6 subnet, for example `2001:db8:85a3:0:100::`
-- `ipv6_total_host` (Number) The total number of IPv6 hosts
-- `slaac_support` (Boolean) Enable SLAAC support
-- `type` (String) The type of the IP pool reservation
+- `ipv4_assigned_addresses` (String) The number of addresses assigned from the IPv4 pool (numeric string).
+- `ipv4_default_assigned_addresses` (String) The number of addresses that are assigned from the IPv4 pool by default (numeric string).
+- `ipv4_dhcp_servers` (Set of String) The IPv4 DHCP server(s) for this subnet.
+- `ipv4_dns_servers` (Set of String) The IPv4 DNS server(s) for this subnet.
+- `ipv4_gateway` (String) The IPv4 gateway IP address for this subnet.
+- `ipv4_global_pool_id` (String) The non-tunnel global pool ID for this IPv4 reserve pool. Once added, this value cannot be changed.
+- `ipv4_prefix_length` (Number) The IPv4 network mask length as a decimal for the CIDR notation of this subnet.
+- `ipv4_subnet` (String) The IPv4 IP address component of the CIDR notation for this subnet.
+- `ipv4_total_addresses` (String) The total number of addresses in the IPv4 pool (numeric string).
+- `ipv4_unassignable_addresses` (String) The number of addresses in the IPv4 pool that cannot be assigned (numeric string).
+- `ipv6_assigned_addresses` (String) The number of addresses assigned from the IPv6 pool (numeric string).
+- `ipv6_default_assigned_addresses` (String) The number of addresses that are assigned from the IPv6 pool by default (numeric string).
+- `ipv6_dhcp_servers` (Set of String) The IPv6 DHCP server(s) for this subnet.
+- `ipv6_dns_servers` (Set of String) The IPv6 DNS server(s) for this subnet.
+- `ipv6_gateway` (String) The IPv6 gateway IP address for this subnet.
+- `ipv6_global_pool_id` (String) The non-tunnel global pool ID for this IPv6 reserve pool. Once added, this value cannot be changed.
+- `ipv6_prefix_length` (Number) The IPv6 network mask length as a decimal for the CIDR notation of this subnet.
+- `ipv6_slaac_support` (Boolean) If the IPv6 prefixLength is 64, this option may be enabled for SLAAC.
+- `ipv6_subnet` (String) The IPv6 IP address component of the CIDR notation for this subnet.
+- `ipv6_total_addresses` (String) The total number of addresses in the IPv6 pool (numeric string, up to 128 bits).
+- `ipv6_unassignable_addresses` (String) The number of addresses in the IPv6 pool that cannot be assigned (numeric string).
+- `name` (String) The name for this reserve IP pool. Only letters, numbers, '-' (hyphen), '_' (underscore), '.' (period), and '/' (forward slash) are allowed.
+- `pool_type` (String) The type of the reserve IP subpool. Once created, this cannot be changed.
+- `site_id` (String) The id of the non-Global site that this subpool belongs to.

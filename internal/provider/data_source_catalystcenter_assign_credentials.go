@@ -62,31 +62,31 @@ func (d *AssignCredentialsDataSource) Schema(ctx context.Context, req datasource
 				Required:            true,
 			},
 			"site_id": schema.StringAttribute{
-				MarkdownDescription: "The site ID",
+				MarkdownDescription: "The site ID.",
 				Required:            true,
 			},
 			"cli_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the CLI credentials",
+				MarkdownDescription: "The ID of the CLI credentials used to access devices at the site.",
 				Computed:            true,
 			},
 			"snmp_v2_read_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the SNMPv2 read credentials",
+				MarkdownDescription: "The ID of the SNMPv2c Read credentials.",
 				Computed:            true,
 			},
 			"snmp_v2_write_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the SNMPv2 write credentials",
+				MarkdownDescription: "The ID of the SNMPv2c Write credentials.",
 				Computed:            true,
 			},
 			"snmp_v3_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the SNMPv3 credentials",
+				MarkdownDescription: "The ID of the SNMPv3 credentials.",
 				Computed:            true,
 			},
 			"https_read_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the HTTPS read credentials",
+				MarkdownDescription: "The ID of the HTTP(S) Read credentials.",
 				Computed:            true,
 			},
 			"https_write_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the HTTPS write credentials",
+				MarkdownDescription: "The ID of the HTTP(S) Write credentials.",
 				Computed:            true,
 			},
 		},

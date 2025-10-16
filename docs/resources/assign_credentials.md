@@ -25,16 +25,16 @@ resource "catalystcenter_assign_credentials" "example" {
 
 ### Required
 
-- `site_id` (String) The site ID
+- `site_id` (String) The site ID.
 
 ### Optional
 
-- `cli_id` (String) The ID of the CLI credentials
-- `https_read_id` (String) The ID of the HTTPS read credentials
-- `https_write_id` (String) The ID of the HTTPS write credentials
-- `snmp_v2_read_id` (String) The ID of the SNMPv2 read credentials
-- `snmp_v2_write_id` (String) The ID of the SNMPv2 write credentials
-- `snmp_v3_id` (String) The ID of the SNMPv3 credentials
+- `cli_id` (String) The ID of the CLI credentials used to access devices at the site.
+- `https_read_id` (String) The ID of the HTTP(S) Read credentials.
+- `https_write_id` (String) The ID of the HTTP(S) Write credentials.
+- `snmp_v2_read_id` (String) The ID of the SNMPv2c Read credentials.
+- `snmp_v2_write_id` (String) The ID of the SNMPv2c Write credentials.
+- `snmp_v3_id` (String) The ID of the SNMPv3 credentials.
 
 ### Read-Only
 

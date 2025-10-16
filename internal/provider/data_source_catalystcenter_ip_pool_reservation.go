@@ -21,7 +21,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -60,94 +59,106 @@ func (d *IPPoolReservationDataSource) Schema(ctx context.Context, req datasource
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Computed:            true,
-			},
-			"site_id": schema.StringAttribute{
-				MarkdownDescription: "The site ID",
 				Required:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the IP pool reservation",
-				Required:            true,
-			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: "The type of the IP pool reservation",
+				MarkdownDescription: "The name for this reserve IP pool. Only letters, numbers, '-' (hyphen), '_' (underscore), '.' (period), and '/' (forward slash) are allowed.",
 				Computed:            true,
 			},
-			"ipv6_address_space": schema.BoolAttribute{
-				MarkdownDescription: "If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required",
+			"pool_type": schema.StringAttribute{
+				MarkdownDescription: "The type of the reserve IP subpool. Once created, this cannot be changed.",
 				Computed:            true,
 			},
-			"ipv4_global_pool": schema.StringAttribute{
-				MarkdownDescription: "IPv4 Global pool address with cidr, example: 175.175.0.0/16",
-				Computed:            true,
-			},
-			"ipv4_prefix": schema.BoolAttribute{
-				MarkdownDescription: "If this value is `true`, the `ipv4_prefix_length` attribute must be provided, if it is `false`, the `ipv4_total_host` attribute must be provided",
-				Computed:            true,
-			},
-			"ipv4_prefix_length": schema.Int64Attribute{
-				MarkdownDescription: "The IPv4 prefix length is required when `ipv4_prefix` value is `true`.",
+			"site_id": schema.StringAttribute{
+				MarkdownDescription: "The id of the non-Global site that this subpool belongs to.",
 				Computed:            true,
 			},
 			"ipv4_subnet": schema.StringAttribute{
-				MarkdownDescription: "The IPv4 subnet",
+				MarkdownDescription: "The IPv4 IP address component of the CIDR notation for this subnet.",
+				Computed:            true,
+			},
+			"ipv4_prefix_length": schema.Int64Attribute{
+				MarkdownDescription: "The IPv4 network mask length as a decimal for the CIDR notation of this subnet.",
 				Computed:            true,
 			},
 			"ipv4_gateway": schema.StringAttribute{
-				MarkdownDescription: "The gateway for the IP pool reservation",
+				MarkdownDescription: "The IPv4 gateway IP address for this subnet.",
 				Computed:            true,
 			},
 			"ipv4_dhcp_servers": schema.SetAttribute{
-				MarkdownDescription: "List of DHCP Server IPs",
+				MarkdownDescription: "The IPv4 DHCP server(s) for this subnet.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
 			"ipv4_dns_servers": schema.SetAttribute{
-				MarkdownDescription: "List of DNS Server IPs",
+				MarkdownDescription: "The IPv4 DNS server(s) for this subnet.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"ipv6_global_pool": schema.StringAttribute{
-				MarkdownDescription: "IPv6 Global pool address with cidr, example: 2001:db8:85a3::/64",
+			"ipv4_total_addresses": schema.StringAttribute{
+				MarkdownDescription: "The total number of addresses in the IPv4 pool (numeric string).",
 				Computed:            true,
 			},
-			"ipv6_prefix": schema.BoolAttribute{
-				MarkdownDescription: "If this value is `true`, the `ipv6_prefix_length` attribute must be provided, if it is `false`, the `ipv6_total_host` attribute must be provided",
+			"ipv4_unassignable_addresses": schema.StringAttribute{
+				MarkdownDescription: "The number of addresses in the IPv4 pool that cannot be assigned (numeric string).",
 				Computed:            true,
 			},
-			"ipv6_prefix_length": schema.Int64Attribute{
-				MarkdownDescription: "The IPv6 prefix length is required when `ipv6_prefix` value is `true`.",
+			"ipv4_assigned_addresses": schema.StringAttribute{
+				MarkdownDescription: "The number of addresses assigned from the IPv4 pool (numeric string).",
+				Computed:            true,
+			},
+			"ipv4_default_assigned_addresses": schema.StringAttribute{
+				MarkdownDescription: "The number of addresses that are assigned from the IPv4 pool by default (numeric string).",
+				Computed:            true,
+			},
+			"ipv4_global_pool_id": schema.StringAttribute{
+				MarkdownDescription: "The non-tunnel global pool ID for this IPv4 reserve pool. Once added, this value cannot be changed.",
 				Computed:            true,
 			},
 			"ipv6_subnet": schema.StringAttribute{
-				MarkdownDescription: "The IPv6 subnet, for example `2001:db8:85a3:0:100::`",
+				MarkdownDescription: "The IPv6 IP address component of the CIDR notation for this subnet.",
+				Computed:            true,
+			},
+			"ipv6_prefix_length": schema.Int64Attribute{
+				MarkdownDescription: "The IPv6 network mask length as a decimal for the CIDR notation of this subnet.",
 				Computed:            true,
 			},
 			"ipv6_gateway": schema.StringAttribute{
-				MarkdownDescription: "The gateway for the IP pool reservation",
+				MarkdownDescription: "The IPv6 gateway IP address for this subnet.",
 				Computed:            true,
 			},
 			"ipv6_dhcp_servers": schema.SetAttribute{
-				MarkdownDescription: "List of DHCP Server IPs",
+				MarkdownDescription: "The IPv6 DHCP server(s) for this subnet.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
 			"ipv6_dns_servers": schema.SetAttribute{
-				MarkdownDescription: "List of DNS Server IPs",
+				MarkdownDescription: "The IPv6 DNS server(s) for this subnet.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
-			"ipv4_total_host": schema.Int64Attribute{
-				MarkdownDescription: "The total number of IPv4 hosts",
+			"ipv6_total_addresses": schema.StringAttribute{
+				MarkdownDescription: "The total number of addresses in the IPv6 pool (numeric string, up to 128 bits).",
 				Computed:            true,
 			},
-			"ipv6_total_host": schema.Int64Attribute{
-				MarkdownDescription: "The total number of IPv6 hosts",
+			"ipv6_unassignable_addresses": schema.StringAttribute{
+				MarkdownDescription: "The number of addresses in the IPv6 pool that cannot be assigned (numeric string).",
 				Computed:            true,
 			},
-			"slaac_support": schema.BoolAttribute{
-				MarkdownDescription: "Enable SLAAC support",
+			"ipv6_assigned_addresses": schema.StringAttribute{
+				MarkdownDescription: "The number of addresses assigned from the IPv6 pool (numeric string).",
+				Computed:            true,
+			},
+			"ipv6_default_assigned_addresses": schema.StringAttribute{
+				MarkdownDescription: "The number of addresses that are assigned from the IPv6 pool by default (numeric string).",
+				Computed:            true,
+			},
+			"ipv6_slaac_support": schema.BoolAttribute{
+				MarkdownDescription: "If the IPv6 prefixLength is 64, this option may be enabled for SLAAC.",
+				Computed:            true,
+			},
+			"ipv6_global_pool_id": schema.StringAttribute{
+				MarkdownDescription: "The non-tunnel global pool ID for this IPv6 reserve pool. Once added, this value cannot be changed.",
 				Computed:            true,
 			},
 		},
@@ -178,12 +189,12 @@ func (d *IPPoolReservationDataSource) Read(ctx context.Context, req datasource.R
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	params += "?siteId=" + url.QueryEscape(config.SiteId.ValueString()) + "&groupName=" + url.QueryEscape(config.Name.ValueString())
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
+	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 
