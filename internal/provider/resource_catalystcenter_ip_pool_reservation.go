@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -62,7 +61,7 @@ func (r *IPPoolReservationResource) Metadata(ctx context.Context, req resource.M
 func (r *IPPoolReservationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage an IP Pool Reservation.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource manages an IP reserve subpool using the new API schema.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -72,104 +71,110 @@ func (r *IPPoolReservationResource) Schema(ctx context.Context, req resource.Sch
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"site_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The site ID").String,
-				Optional:            true,
-			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The name of the IP pool reservation").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The name for this reserve IP pool. Only letters, numbers, '-' (hyphen), '_' (underscore), '.' (period), and '/' (forward slash) are allowed.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The type of the IP pool reservation").AddStringEnumDescription("Generic", "LAN", "WAN", "management", "service").String,
+			"pool_type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The type of the reserve IP subpool. Once created, this cannot be changed.").AddStringEnumDescription("Generic", "LAN", "Management", "Service", "WAN").String,
 				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("Generic", "LAN", "WAN", "management", "service"),
+					stringvalidator.OneOf("Generic", "LAN", "Management", "Service", "WAN"),
 				},
 			},
-			"ipv6_address_space": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required").String,
-				Optional:            true,
-			},
-			"ipv4_global_pool": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("IPv4 Global pool address with cidr, example: 175.175.0.0/16").String,
+			"site_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The id of the non-Global site that this subpool belongs to.").String,
 				Required:            true,
 			},
-			"ipv4_prefix": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("If this value is `true`, the `ipv4_prefix_length` attribute must be provided, if it is `false`, the `ipv4_total_host` attribute must be provided").String,
+			"ipv4_subnet": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 IP address component of the CIDR notation for this subnet.").String,
 				Required:            true,
 			},
 			"ipv4_prefix_length": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 prefix length is required when `ipv4_prefix` value is `true`.").String,
-				Optional:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
-				},
-			},
-			"ipv4_subnet": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 subnet").String,
-				Optional:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 network mask length as a decimal for the CIDR notation of this subnet.").String,
+				Required:            true,
 			},
 			"ipv4_gateway": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The gateway for the IP pool reservation").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 gateway IP address for this subnet.").String,
 				Optional:            true,
 			},
 			"ipv4_dhcp_servers": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of DHCP Server IPs").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 DHCP server(s) for this subnet.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
 			"ipv4_dns_servers": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of DNS Server IPs").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 DNS server(s) for this subnet.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"ipv6_global_pool": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("IPv6 Global pool address with cidr, example: 2001:db8:85a3::/64").String,
+			"ipv4_total_addresses": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The total number of addresses in the IPv4 pool (numeric string).").String,
 				Optional:            true,
 			},
-			"ipv6_prefix": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("If this value is `true`, the `ipv6_prefix_length` attribute must be provided, if it is `false`, the `ipv6_total_host` attribute must be provided").String,
+			"ipv4_unassignable_addresses": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The number of addresses in the IPv4 pool that cannot be assigned (numeric string).").String,
+				Optional:            true,
+			},
+			"ipv4_assigned_addresses": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The number of addresses assigned from the IPv4 pool (numeric string).").String,
+				Optional:            true,
+			},
+			"ipv4_default_assigned_addresses": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The number of addresses that are assigned from the IPv4 pool by default (numeric string).").String,
+				Optional:            true,
+			},
+			"ipv4_global_pool_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The non-tunnel global pool ID for this IPv4 reserve pool. Once added, this value cannot be changed.").String,
+				Required:            true,
+			},
+			"ipv6_subnet": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 IP address component of the CIDR notation for this subnet.").String,
 				Optional:            true,
 			},
 			"ipv6_prefix_length": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 prefix length is required when `ipv6_prefix` value is `true`.").String,
-				Optional:            true,
-			},
-			"ipv6_subnet": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 subnet, for example `2001:db8:85a3:0:100::`").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 network mask length as a decimal for the CIDR notation of this subnet.").String,
 				Optional:            true,
 			},
 			"ipv6_gateway": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The gateway for the IP pool reservation").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 gateway IP address for this subnet.").String,
 				Optional:            true,
 			},
 			"ipv6_dhcp_servers": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of DHCP Server IPs").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 DHCP server(s) for this subnet.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
 			"ipv6_dns_servers": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of DNS Server IPs").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 DNS server(s) for this subnet.").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"ipv4_total_host": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The total number of IPv4 hosts").String,
+			"ipv6_total_addresses": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The total number of addresses in the IPv6 pool (numeric string, up to 128 bits).").String,
 				Optional:            true,
 			},
-			"ipv6_total_host": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The total number of IPv6 hosts").String,
+			"ipv6_unassignable_addresses": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The number of addresses in the IPv6 pool that cannot be assigned (numeric string).").String,
 				Optional:            true,
 			},
-			"slaac_support": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable SLAAC support").String,
+			"ipv6_assigned_addresses": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The number of addresses assigned from the IPv6 pool (numeric string).").String,
+				Optional:            true,
+			},
+			"ipv6_default_assigned_addresses": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The number of addresses that are assigned from the IPv6 pool by default (numeric string).").String,
+				Optional:            true,
+			},
+			"ipv6_slaac_support": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("If the IPv6 prefixLength is 64, this option may be enabled for SLAAC.").String,
+				Optional:            true,
+			},
+			"ipv6_global_pool_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The non-tunnel global pool ID for this IPv6 reserve pool. Once added, this value cannot be changed.").String,
 				Optional:            true,
 			},
 		},
@@ -204,7 +209,6 @@ func (r *IPPoolReservationResource) Create(ctx context.Context, req resource.Cre
 	body := plan.toBody(ctx, IPPoolReservation{})
 
 	params := ""
-	params += "/" + url.QueryEscape(plan.SiteId.ValueString())
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		if r.AllowExistingOnCreate {
@@ -215,21 +219,18 @@ func (r *IPPoolReservationResource) Create(ctx context.Context, req resource.Cre
 		}
 	}
 	params = ""
-	params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString()) + "&groupName=" + url.QueryEscape(plan.Name.ValueString())
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.0.id").String())
+	plan.Id = types.StringValue(res.Get("response.#(name==\"" + plan.Name.ValueString() + "\").id").String())
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
 		params = ""
-		params += "/" + url.QueryEscape(plan.SiteId.ValueString())
-		params += "?id=" + url.QueryEscape(plan.Id.ValueString())
 		body = plan.toBody(ctx, IPPoolReservation{Id: plan.Id})
-		res, err = r.client.Put(plan.getPath()+params, body)
+		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 			return
@@ -259,7 +260,6 @@ func (r *IPPoolReservationResource) Read(ctx context.Context, req resource.ReadR
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	params += "?siteId=" + url.QueryEscape(state.SiteId.ValueString()) + "&groupName=" + url.QueryEscape(state.Name.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
@@ -268,6 +268,7 @@ func (r *IPPoolReservationResource) Read(ctx context.Context, req resource.ReadR
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
+	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -305,9 +306,7 @@ func (r *IPPoolReservationResource) Update(ctx context.Context, req resource.Upd
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	params += "/" + url.QueryEscape(plan.SiteId.ValueString())
-	params += "?id=" + url.QueryEscape(plan.Id.ValueString())
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -348,17 +347,7 @@ func (r *IPPoolReservationResource) Delete(ctx context.Context, req resource.Del
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *IPPoolReservationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	idParts := strings.Split(req.ID, ",")
-
-	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <site_id>,<name>. Got: %q", req.ID),
-		)
-		return
-	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("site_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), idParts[1])...)
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // End of section. //template:end import

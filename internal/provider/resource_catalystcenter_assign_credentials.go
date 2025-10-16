@@ -70,34 +70,34 @@ func (r *AssignCredentialsResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"site_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The site ID").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The site ID.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"cli_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the CLI credentials").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the CLI credentials used to access devices at the site.").String,
 				Optional:            true,
 			},
 			"snmp_v2_read_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv2 read credentials").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv2c Read credentials.").String,
 				Optional:            true,
 			},
 			"snmp_v2_write_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv2 write credentials").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv2c Write credentials.").String,
 				Optional:            true,
 			},
 			"snmp_v3_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv3 credentials").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the SNMPv3 credentials.").String,
 				Optional:            true,
 			},
 			"https_read_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTPS read credentials").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTP(S) Read credentials.").String,
 				Optional:            true,
 			},
 			"https_write_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTPS write credentials").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTP(S) Write credentials.").String,
 				Optional:            true,
 			},
 		},
@@ -132,10 +132,9 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 	body := plan.toBody(ctx, AssignCredentials{})
 
 	params := ""
-	params += "/" + url.QueryEscape(plan.SiteId.ValueString())
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
@@ -208,8 +207,7 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	params += "/" + url.QueryEscape(plan.SiteId.ValueString())
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return

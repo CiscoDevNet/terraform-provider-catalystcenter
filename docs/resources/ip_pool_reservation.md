@@ -3,28 +3,33 @@
 page_title: "catalystcenter_ip_pool_reservation Resource - terraform-provider-catalystcenter"
 subcategory: "Network Settings"
 description: |-
-  This resource can manage an IP Pool Reservation.
+  This resource manages an IP reserve subpool using the new API schema.
 ---
 
 # catalystcenter_ip_pool_reservation (Resource)
 
-This resource can manage an IP Pool Reservation.
+This resource manages an IP reserve subpool using the new API schema.
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_ip_pool_reservation" "example" {
-  site_id            = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
-  name               = "MyRes1"
-  type               = "Generic"
-  ipv6_address_space = false
-  ipv4_global_pool   = "172.32.0.0/16"
-  ipv4_prefix        = true
-  ipv4_prefix_length = 24
-  ipv4_subnet        = "172.32.1.0"
-  ipv4_gateway       = "172.32.1.1"
-  ipv4_dhcp_servers  = ["1.2.3.4"]
-  ipv4_dns_servers   = ["2.3.4.5"]
+  name                = "MyRes1"
+  pool_type           = "Generic"
+  site_id             = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  ipv4_subnet         = "172.32.1.0"
+  ipv4_prefix_length  = 24
+  ipv4_gateway        = "172.32.1.1"
+  ipv4_dhcp_servers   = ["1.2.3.4"]
+  ipv4_dns_servers    = ["2.3.4.5"]
+  ipv4_global_pool_id = "1b2c3d4e-1111-2222-3333-abcdefabcdef"
+  ipv6_subnet         = "2001:db8:85a3:0:100::"
+  ipv6_prefix_length  = 64
+  ipv6_gateway        = "2001:db8:85a3:0:100::1"
+  ipv6_dhcp_servers   = ["2001:db8::1234"]
+  ipv6_dns_servers    = ["2001:db8::1234"]
+  ipv6_slaac_support  = true
+  ipv6_global_pool_id = "9f8e7d6c-aaaa-bbbb-cccc-1234567890ab"
 }
 ```
 
@@ -33,31 +38,34 @@ resource "catalystcenter_ip_pool_reservation" "example" {
 
 ### Required
 
-- `ipv4_global_pool` (String) IPv4 Global pool address with cidr, example: 175.175.0.0/16
-- `ipv4_prefix` (Boolean) If this value is `true`, the `ipv4_prefix_length` attribute must be provided, if it is `false`, the `ipv4_total_host` attribute must be provided
-- `name` (String) The name of the IP pool reservation
-- `type` (String) The type of the IP pool reservation
-  - Choices: `Generic`, `LAN`, `WAN`, `management`, `service`
+- `ipv4_global_pool_id` (String) The non-tunnel global pool ID for this IPv4 reserve pool. Once added, this value cannot be changed.
+- `ipv4_prefix_length` (Number) The IPv4 network mask length as a decimal for the CIDR notation of this subnet.
+- `ipv4_subnet` (String) The IPv4 IP address component of the CIDR notation for this subnet.
+- `name` (String) The name for this reserve IP pool. Only letters, numbers, '-' (hyphen), '_' (underscore), '.' (period), and '/' (forward slash) are allowed.
+- `pool_type` (String) The type of the reserve IP subpool. Once created, this cannot be changed.
+  - Choices: `Generic`, `LAN`, `Management`, `Service`, `WAN`
+- `site_id` (String) The id of the non-Global site that this subpool belongs to.
 
 ### Optional
 
-- `ipv4_dhcp_servers` (Set of String) List of DHCP Server IPs
-- `ipv4_dns_servers` (Set of String) List of DNS Server IPs
-- `ipv4_gateway` (String) The gateway for the IP pool reservation
-- `ipv4_prefix_length` (Number) The IPv4 prefix length is required when `ipv4_prefix` value is `true`.
-- `ipv4_subnet` (String) The IPv4 subnet
-- `ipv4_total_host` (Number) The total number of IPv4 hosts
-- `ipv6_address_space` (Boolean) If the value is `false` only IPv4 input are required, otherwise both IPv6 and IPv4 are required
-- `ipv6_dhcp_servers` (Set of String) List of DHCP Server IPs
-- `ipv6_dns_servers` (Set of String) List of DNS Server IPs
-- `ipv6_gateway` (String) The gateway for the IP pool reservation
-- `ipv6_global_pool` (String) IPv6 Global pool address with cidr, example: 2001:db8:85a3::/64
-- `ipv6_prefix` (Boolean) If this value is `true`, the `ipv6_prefix_length` attribute must be provided, if it is `false`, the `ipv6_total_host` attribute must be provided
-- `ipv6_prefix_length` (Number) The IPv6 prefix length is required when `ipv6_prefix` value is `true`.
-- `ipv6_subnet` (String) The IPv6 subnet, for example `2001:db8:85a3:0:100::`
-- `ipv6_total_host` (Number) The total number of IPv6 hosts
-- `site_id` (String) The site ID
-- `slaac_support` (Boolean) Enable SLAAC support
+- `ipv4_assigned_addresses` (String) The number of addresses assigned from the IPv4 pool (numeric string).
+- `ipv4_default_assigned_addresses` (String) The number of addresses that are assigned from the IPv4 pool by default (numeric string).
+- `ipv4_dhcp_servers` (Set of String) The IPv4 DHCP server(s) for this subnet.
+- `ipv4_dns_servers` (Set of String) The IPv4 DNS server(s) for this subnet.
+- `ipv4_gateway` (String) The IPv4 gateway IP address for this subnet.
+- `ipv4_total_addresses` (String) The total number of addresses in the IPv4 pool (numeric string).
+- `ipv4_unassignable_addresses` (String) The number of addresses in the IPv4 pool that cannot be assigned (numeric string).
+- `ipv6_assigned_addresses` (String) The number of addresses assigned from the IPv6 pool (numeric string).
+- `ipv6_default_assigned_addresses` (String) The number of addresses that are assigned from the IPv6 pool by default (numeric string).
+- `ipv6_dhcp_servers` (Set of String) The IPv6 DHCP server(s) for this subnet.
+- `ipv6_dns_servers` (Set of String) The IPv6 DNS server(s) for this subnet.
+- `ipv6_gateway` (String) The IPv6 gateway IP address for this subnet.
+- `ipv6_global_pool_id` (String) The non-tunnel global pool ID for this IPv6 reserve pool. Once added, this value cannot be changed.
+- `ipv6_prefix_length` (Number) The IPv6 network mask length as a decimal for the CIDR notation of this subnet.
+- `ipv6_slaac_support` (Boolean) If the IPv6 prefixLength is 64, this option may be enabled for SLAAC.
+- `ipv6_subnet` (String) The IPv6 IP address component of the CIDR notation for this subnet.
+- `ipv6_total_addresses` (String) The total number of addresses in the IPv6 pool (numeric string, up to 128 bits).
+- `ipv6_unassignable_addresses` (String) The number of addresses in the IPv6 pool that cannot be assigned (numeric string).
 
 ### Read-Only
 
@@ -70,5 +78,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import catalystcenter_ip_pool_reservation.example "<site_id>,<name>"
+terraform import catalystcenter_ip_pool_reservation.example "4b0b7a80-44c0-4bf2-bab5-fc24b4e0a17e"
 ```

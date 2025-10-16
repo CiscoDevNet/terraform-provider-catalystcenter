@@ -1,56 +1,63 @@
----
 name: IP Pool
-rest_endpoint: /api/v2/ippool
-get_requires_id: true
+rest_endpoint: /dna/intent/api/v1/ipam/globalIpAddressPools
 id_from_query_path: response
-get_extra_query_params: "?limit=1000"
-doc_category: Network Settings
+id_from_query_path_attribute: id
+get_from_all: true
+skip_minimum_test: true
+put_id: true
+import_no_id: true
 allow_existing_on_create: true
+res_description: This resource manages an IP global pool using the new API schema.
+doc_category: Network Settings
 attributes:
-  - model_name: ipPoolName
-    tf_name: name
-    response_data_path: response.ipPoolName
-    type: String
-    match_id: true
-    data_source_query: true
-    description: The name of the IP pool
-    example: MyPool1
-  - model_name: IpAddressSpace
-    type: String
-    enum_values: [IPv4, IPv6]
-    default_value: IPv4
-    write_only: true
-    description: IP address version
-    example: IPv4
-  - model_name: type
-    type: String
-    enum_values: [generic, tunnel]
-    default_value: generic
-    description: Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.
-    example: generic
-  - model_name: ipPoolCidr
-    tf_name: ip_subnet
-    response_data_path: response.ipPoolCidr
-    type: String
-    mandatory: true
-    description: The IP subnet of the IP pool
-    example: 21.1.1.0/24
-  - model_name: gateways
-    tf_name: gateway
-    response_data_path: response.gateways
-    type: Set
-    element_type: String
-    description: The gateway for the IP pool
-    example: 21.1.1.1
-  - model_name: dhcpServerIps
-    response_data_path: response.dhcpServerIps
-    type: Set
-    element_type: String
-    description: List of DHCP Server IPs
-    example: 1.2.3.4
-  - model_name: dnsServerIps
-    response_data_path: response.dnsServerIps
-    type: Set
-    element_type: String
-    description: List of DNS Server IPs
-    example: 2.3.4.5
+- model_name: name
+  type: String
+  mandatory: true
+  match_id: true
+  description: The name for this global IP pool. Only letters, numbers, '-', '_', '.', and '/' are allowed.
+  example: MyPool1
+- model_name: poolType
+  type: String
+  mandatory: true
+  enum_values: [Generic, Tunnel]
+  description: The type of the global IP pool. Once created, this cannot be changed.
+  example: Generic
+- model_name: subnet
+  tf_name: address_space_subnet
+  data_path: addressSpace
+  type: String
+  mandatory: true
+  description: The IP address component of the CIDR notation for this subnet.
+  example: 192.168.0.0
+  response_data_path: addressSpace.subnet
+- model_name: prefixLength
+  tf_name: address_space_prefix_length
+  data_path: addressSpace
+  type: Int64
+  mandatory: true
+  description: The network mask component, as a decimal, for the CIDR notation of this subnet.
+  example: 16
+  response_data_path: addressSpace.prefixLength
+- model_name: gatewayIpAddress
+  tf_name: address_space_gateway
+  data_path: addressSpace
+  type: String
+  description: The gateway IP address for this subnet.
+  example: 192.168.0.1
+  response_data_path: addressSpace.gatewayIpAddress
+- model_name: dhcpServers
+  tf_name: address_space_dhcp_servers
+  data_path: addressSpace
+  type: Set
+  element_type: String
+  description: The DHCP server(s) for this subnet.
+  example: 192.168.0.10
+  response_data_path: addressSpace.dhcpServers
+- model_name: dnsServers
+  tf_name: address_space_dns_servers
+  data_path: addressSpace
+  type: Set
+  element_type: String
+  description: The DNS server(s) for this subnet.
+  example: 192.168.0.53
+  response_data_path: addressSpace.dnsServers

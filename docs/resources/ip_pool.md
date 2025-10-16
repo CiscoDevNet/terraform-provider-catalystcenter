@@ -3,24 +3,24 @@
 page_title: "catalystcenter_ip_pool Resource - terraform-provider-catalystcenter"
 subcategory: "Network Settings"
 description: |-
-  This resource can manage an IP Pool.
+  This resource manages an IP global pool using the new API schema.
 ---
 
 # catalystcenter_ip_pool (Resource)
 
-This resource can manage an IP Pool.
+This resource manages an IP global pool using the new API schema.
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_ip_pool" "example" {
-  name             = "MyPool1"
-  ip_address_space = "IPv4"
-  type             = "generic"
-  ip_subnet        = "21.1.1.0/24"
-  gateway          = ["21.1.1.1"]
-  dhcp_server_ips  = ["1.2.3.4"]
-  dns_server_ips   = ["2.3.4.5"]
+  name                        = "MyPool1"
+  pool_type                   = "Generic"
+  address_space_subnet        = "192.168.0.0"
+  address_space_prefix_length = 16
+  address_space_gateway       = "192.168.0.1"
+  address_space_dhcp_servers  = ["192.168.0.10"]
+  address_space_dns_servers   = ["192.168.0.53"]
 }
 ```
 
@@ -29,20 +29,17 @@ resource "catalystcenter_ip_pool" "example" {
 
 ### Required
 
-- `ip_subnet` (String) The IP subnet of the IP pool
-- `name` (String) The name of the IP pool
+- `address_space_prefix_length` (Number) The network mask component, as a decimal, for the CIDR notation of this subnet.
+- `address_space_subnet` (String) The IP address component of the CIDR notation for this subnet.
+- `name` (String) The name for this global IP pool. Only letters, numbers, '-', '_', '.', and '/' are allowed.
+- `pool_type` (String) The type of the global IP pool. Once created, this cannot be changed.
+  - Choices: `Generic`, `Tunnel`
 
 ### Optional
 
-- `dhcp_server_ips` (Set of String) List of DHCP Server IPs
-- `dns_server_ips` (Set of String) List of DNS Server IPs
-- `gateway` (Set of String) The gateway for the IP pool
-- `ip_address_space` (String) IP address version
-  - Choices: `IPv4`, `IPv6`
-  - Default value: `IPv4`
-- `type` (String) Choose `Tunnel` to assign IP addresses to site-to-site VPN for IPSec tunneling. Choose `Generic` for all other network types.
-  - Choices: `generic`, `tunnel`
-  - Default value: `generic`
+- `address_space_dhcp_servers` (Set of String) The DHCP server(s) for this subnet.
+- `address_space_dns_servers` (Set of String) The DNS server(s) for this subnet.
+- `address_space_gateway` (String) The gateway IP address for this subnet.
 
 ### Read-Only
 
@@ -55,5 +52,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import catalystcenter_ip_pool.example "<id>"
+terraform import catalystcenter_ip_pool.example "4b0b7a80-44c0-4bf2-bab5-fc24b4e0a17e"
 ```

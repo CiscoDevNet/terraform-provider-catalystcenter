@@ -53,16 +53,9 @@ func TestAccCcAssignCredentials(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcAssignCredentialsPrerequisitesConfig = `
-data "catalystcenter_site" "test" {
-  name_hierarchy = "Global"
-}
 resource "catalystcenter_area" "test" {
-  name      = "Area1"
-  parent_id = data.catalystcenter_site.test.id
-  depends_on = [
-    catalystcenter_credentials_cli.test,
-    catalystcenter_credentials_https_read.test,
-  ]
+  name        = "Area1"
+  parent_name = "Global"
 }
 resource "catalystcenter_credentials_cli" "test" {
   description = "TestCli1"
@@ -74,7 +67,6 @@ resource "catalystcenter_credentials_https_read" "test" {
   username    = "user1"
   password    = "password1"
 }
-
 `
 
 // End of section. //template:end testPrerequisites
