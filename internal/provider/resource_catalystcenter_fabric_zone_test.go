@@ -67,7 +67,7 @@ resource "catalystcenter_building" "test" {
   address     = "150 W Tasman Dr, San Jose"
   latitude    = 37.338
   longitude   = -121.832
-  
+
   depends_on = [catalystcenter_fabric_site.test]
 }
 
