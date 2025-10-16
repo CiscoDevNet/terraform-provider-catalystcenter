@@ -62,18 +62,24 @@ resource "catalystcenter_area" "test" {
   parent_id = data.catalystcenter_site.test.id
 }
 resource "catalystcenter_ip_pool" "test" {
-  name             = "MyPool1"
-  ip_subnet        = "172.32.0.0/16"
+  name                        = "MyPool1"
+  pool_type                   = "Generic"
+  address_space_subnet        = "192.168.0.0"
+  address_space_prefix_length = 16
+  address_space_gateway       = "192.168.0.1"
+  address_space_dhcp_servers  = ["192.168.0.10"]
+  address_space_dns_servers   = ["192.168.0.53"]
 }
 resource "catalystcenter_ip_pool_reservation" "test" {
-  site_id            = catalystcenter_area.test.id
-  name               = "MyRes1"
-  type               = "Generic"
-  ipv4_global_pool   = catalystcenter_ip_pool.test.ip_subnet
-  ipv4_prefix        = true
-  ipv4_prefix_length = 24
-  ipv4_subnet        = "172.32.1.0"
-  depends_on = [catalystcenter_ip_pool.test]
+  name                = "MyRes1"
+  pool_type           = "Generic"
+  site_id             = catalystcenter_area.test.id
+  ipv4_subnet         = "192.168.10.0"
+  ipv4_prefix_length  = 24
+  ipv4_gateway        = "192.168.10.1"
+  ipv4_dhcp_servers   = ["1.2.3.4"]
+  ipv4_dns_servers    = ["2.3.4.5"]
+  ipv4_global_pool_id = catalystcenter_ip_pool.test.id
 }
 resource "catalystcenter_fabric_site" "test" {
   site_id                     = catalystcenter_area.test.id

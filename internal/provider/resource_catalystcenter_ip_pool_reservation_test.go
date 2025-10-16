@@ -31,18 +31,17 @@ func TestAccCcIPPoolReservation(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "name", "MyRes1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "pool_type", "Generic"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv4_subnet", "172.32.1.0"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv4_subnet", "192.168.10.0"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv4_prefix_length", "24"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv4_gateway", "172.32.1.1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv6_subnet", "2001:db8:85a3:0:100::"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv4_gateway", "192.168.10.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv6_subnet", "2001:db8:8000::"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv6_prefix_length", "64"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv6_gateway", "2001:db8:85a3:0:100::1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv6_gateway", "2001:db8:8000::1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv6_slaac_support", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_ip_pool_reservation.test", "ipv6_global_pool_id", "9f8e7d6c-aaaa-bbbb-cccc-1234567890ab"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcIPPoolReservationConfig_all(),
+		Config: testAccCcIPPoolReservationPrerequisitesConfig + testAccCcIPPoolReservationConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -60,6 +59,32 @@ func TestAccCcIPPoolReservation(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccCcIPPoolReservationPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
+resource "catalystcenter_area" "test" {
+  name      = "Area1"
+  parent_id = data.catalystcenter_site.test.id
+}
+resource "catalystcenter_ip_pool" "test" {
+  name                        = "MyPool1"
+  pool_type                   = "Generic"
+  address_space_subnet        = "192.168.0.0"
+  address_space_prefix_length = 16
+  address_space_gateway       = "192.168.0.1"
+  address_space_dhcp_servers  = ["192.168.0.10"]
+  address_space_dns_servers   = ["192.168.0.53"]
+}
+resource "catalystcenter_ip_pool" "test_v6" {
+  name                        = "MyPool1V6"
+  pool_type                   = "Generic"
+  address_space_subnet        = "2001:db8:8000::"
+  address_space_prefix_length = 36
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
@@ -68,7 +93,7 @@ func testAccCcIPPoolReservationConfig_minimum() string {
 	config += `	name = "MyRes1"` + "\n"
 	config += `	pool_type = "Generic"` + "\n"
 	config += `	site_id = catalystcenter_area.test.id` + "\n"
-	config += `	ipv4_subnet = "172.32.1.0"` + "\n"
+	config += `	ipv4_subnet = "192.168.10.0"` + "\n"
 	config += `	ipv4_prefix_length = 24` + "\n"
 	config += `	ipv4_global_pool_id = catalystcenter_ip_pool.test.id` + "\n"
 	config += `}` + "\n"
@@ -83,19 +108,19 @@ func testAccCcIPPoolReservationConfig_all() string {
 	config += `	name = "MyRes1"` + "\n"
 	config += `	pool_type = "Generic"` + "\n"
 	config += `	site_id = catalystcenter_area.test.id` + "\n"
-	config += `	ipv4_subnet = "172.32.1.0"` + "\n"
+	config += `	ipv4_subnet = "192.168.10.0"` + "\n"
 	config += `	ipv4_prefix_length = 24` + "\n"
-	config += `	ipv4_gateway = "172.32.1.1"` + "\n"
+	config += `	ipv4_gateway = "192.168.10.1"` + "\n"
 	config += `	ipv4_dhcp_servers = ["1.2.3.4"]` + "\n"
 	config += `	ipv4_dns_servers = ["2.3.4.5"]` + "\n"
 	config += `	ipv4_global_pool_id = catalystcenter_ip_pool.test.id` + "\n"
-	config += `	ipv6_subnet = "2001:db8:85a3:0:100::"` + "\n"
+	config += `	ipv6_subnet = "2001:db8:8000::"` + "\n"
 	config += `	ipv6_prefix_length = 64` + "\n"
-	config += `	ipv6_gateway = "2001:db8:85a3:0:100::1"` + "\n"
+	config += `	ipv6_gateway = "2001:db8:8000::1"` + "\n"
 	config += `	ipv6_dhcp_servers = ["2001:db8::1234"]` + "\n"
 	config += `	ipv6_dns_servers = ["2001:db8::1234"]` + "\n"
 	config += `	ipv6_slaac_support = true` + "\n"
-	config += `	ipv6_global_pool_id = "9f8e7d6c-aaaa-bbbb-cccc-1234567890ab"` + "\n"
+	config += `	ipv6_global_pool_id = catalystcenter_ip_pool.test_v6.id` + "\n"
 	config += `}` + "\n"
 	return config
 }

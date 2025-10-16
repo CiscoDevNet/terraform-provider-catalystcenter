@@ -31,9 +31,9 @@ func TestAccDataSourceCcIPPools(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pools.test", "pools.0.name", "MyPool1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pools.test", "pools.0.pool_type", "Generic"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pools.test", "pools.0.gateway_ip_address", "21.1.1.1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pools.test", "pools.0.subnet", "21.1.1.0"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pools.test", "pools.0.prefix_length", "24"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pools.test", "pools.0.gateway_ip_address", "192.168.0.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pools.test", "pools.0.subnet", "192.168.0.0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_ip_pools.test", "pools.0.prefix_length", "16"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -51,11 +51,13 @@ func TestAccDataSourceCcIPPools(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcIPPoolsPrerequisitesConfig = `
 resource "catalystcenter_ip_pool" "test" {
-  name             = "MyPool1"
-  ip_address_space = "IPv4"
-  type             = "generic"
-  ip_subnet        = "21.1.1.0/24"
-  gateway          = ["21.1.1.1"]
+  name                        = "MyPool1"
+  pool_type                   = "Generic"
+  address_space_subnet        = "192.168.0.0"
+  address_space_prefix_length = 16
+  address_space_gateway       = "192.168.0.1"
+  address_space_dhcp_servers  = ["192.168.0.10"]
+  address_space_dns_servers   = ["192.168.0.53"]
 }
 `
 
