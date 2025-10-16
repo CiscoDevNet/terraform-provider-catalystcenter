@@ -9,6 +9,9 @@ description: |-
 
 ## 0.4.0 (unreleased)
 
+- BREAKING CHANGE: Modified `catalystcenter_assign_credentials` to use the `/dna/intent/api/v1/sites/%v/deviceCredentials` API endpoint instead of `/dna/intent/api/v2/credential-to-site`
+- BREAKING CHANGE: Modified `catalystcenter_ip_pool_reservation` to use the `/dna/intent/api/v1/ipam/siteIpAddressPools` API endpoint instead of `/dna/intent/api/v1/reserve-ip-subpool`
+- BREAKING CHANGE: Modified `catalystcenter_ip_pool` to use the `/dna/intent/api/v1/ipam/globalIpAddressPools` API endpoint instead of `/api/v2/ippool`
 - Fix issue with `catalystcenter_fabric_l2_handoff` idempotency, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/296)
 - Add `catalystcenter_provision_devices` resource and data source to provision multiple devices within single resource
 - BREAKING CHANGE: Modified `catalystcenter_area` to use the `/dna/intent/api/v1/areas` API endpoint instead of `/dna/intent/api/v1/site`
