@@ -31,7 +31,6 @@ import (
 func TestAccCcApplyPendingFabricEvents(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_apply_pending_fabric_events.test", "fabric_id", "2a3b4c5d-6789-4abc-90de-f1234567890a"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_apply_pending_fabric_events.test", "event_id", ""))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -70,7 +69,6 @@ func testAccCcApplyPendingFabricEventsConfig_minimum() string {
 func testAccCcApplyPendingFabricEventsConfig_all() string {
 	config := `resource "catalystcenter_apply_pending_fabric_events" "test" {` + "\n"
 	config += `	fabric_id = "2a3b4c5d-6789-4abc-90de-f1234567890a"` + "\n"
-	config += `	event_id = ""` + "\n"
 	config += `}` + "\n"
 	return config
 }

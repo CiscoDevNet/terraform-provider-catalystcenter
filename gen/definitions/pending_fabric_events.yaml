@@ -25,7 +25,7 @@ attributes:
     tf_name: event_id
     type: String
     requires_replace: true
-    skip_test: true
+    exclude_test: true
     description: Pending fabric event ID resolved via GET and used for POST apply.
     data_path: "0"
     response_data_path: "response.0.id"
