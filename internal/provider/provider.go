@@ -340,6 +340,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewNetworkProfileResource,
 		NewNetworkProfileForSitesAssignmentsResource,
 		NewNTPSettingsResource,
+		NewApplyPendingFabricEventsResource,
 		NewPNPConfigPreviewResource,
 		NewPnPDeviceResource,
 		NewPnPDeviceClaimSiteResource,
