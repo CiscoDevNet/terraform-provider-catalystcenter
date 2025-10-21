@@ -297,6 +297,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewAAASettingsResource,
 		NewAnycastGatewayResource,
 		NewAnycastGatewaysResource,
+		NewApplyPendingFabricEventsResource,
 		NewAreaResource,
 		NewAssignCredentialsResource,
 		NewAssignDeviceToSiteResource,
