@@ -326,7 +326,13 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 	{{- end}}
 	{{- end}}
 	{{- range .Attributes}}
-	{{- if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
+	{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") }}
+	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+	} else {
+		data.{{toGoName .TfName}} = types.{{.Type}}Value(false)
+	}
+	{{- else if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
 	{{- $cname := toGoName .TfName}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() {
@@ -485,7 +491,13 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	{{- end}}
 	{{- end}}
 	{{- range .Attributes}}
-	{{- if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
+	{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") }}
+	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+	} else {
+		data.{{toGoName .TfName}} = types.{{.Type}}Value(false)
+	}
+	{{- else if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())

@@ -28,21 +28,21 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccCcFabricProvisionDevice(t *testing.T) {
+func TestAccCcProvisionDevice(t *testing.T) {
 	if os.Getenv("SDA") == "" {
 		t.Skip("skipping test, set environment variable SDA")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_provision_device.test", "network_device_id", "4cb565d3-1944-42be-be9f-a87cff79e831"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_provision_device.test", "network_device_id", "4cb565d3-1944-42be-be9f-a87cff79e831"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccCcFabricProvisionDevicePrerequisitesConfig + testAccCcFabricProvisionDeviceConfig_minimum(),
+			Config: testAccCcProvisionDevicePrerequisitesConfig + testAccCcProvisionDeviceConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcFabricProvisionDevicePrerequisitesConfig + testAccCcFabricProvisionDeviceConfig_all(),
+		Config: testAccCcProvisionDevicePrerequisitesConfig + testAccCcProvisionDeviceConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -56,7 +56,7 @@ func TestAccCcFabricProvisionDevice(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-const testAccCcFabricProvisionDevicePrerequisitesConfig = `
+const testAccCcProvisionDevicePrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
@@ -72,8 +72,8 @@ resource "catalystcenter_fabric_site" "test" {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccCcFabricProvisionDeviceConfig_minimum() string {
-	config := `resource "catalystcenter_fabric_provision_device" "test" {` + "\n"
+func testAccCcProvisionDeviceConfig_minimum() string {
+	config := `resource "catalystcenter_provision_device" "test" {` + "\n"
 	config += `	site_id = catalystcenter_area.test.id` + "\n"
 	config += `	network_device_id = "4cb565d3-1944-42be-be9f-a87cff79e831"` + "\n"
 	config += `}` + "\n"
@@ -83,8 +83,8 @@ func testAccCcFabricProvisionDeviceConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccCcFabricProvisionDeviceConfig_all() string {
-	config := `resource "catalystcenter_fabric_provision_device" "test" {` + "\n"
+func testAccCcProvisionDeviceConfig_all() string {
+	config := `resource "catalystcenter_provision_device" "test" {` + "\n"
 	config += `	site_id = catalystcenter_area.test.id` + "\n"
 	config += `	network_device_id = "4cb565d3-1944-42be-be9f-a87cff79e831"` + "\n"
 	config += `}` + "\n"

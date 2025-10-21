@@ -40,26 +40,26 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &FabricProvisionDeviceResource{}
-var _ resource.ResourceWithImportState = &FabricProvisionDeviceResource{}
+var _ resource.Resource = &ProvisionDeviceResource{}
+var _ resource.ResourceWithImportState = &ProvisionDeviceResource{}
 
-func NewFabricProvisionDeviceResource() resource.Resource {
-	return &FabricProvisionDeviceResource{}
+func NewProvisionDeviceResource() resource.Resource {
+	return &ProvisionDeviceResource{}
 }
 
-type FabricProvisionDeviceResource struct {
+type ProvisionDeviceResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
 }
 
-func (r *FabricProvisionDeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_provision_device"
+func (r *ProvisionDeviceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_provision_device"
 }
 
-func (r *FabricProvisionDeviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *ProvisionDeviceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Fabric Provision Device.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Provision Device.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -91,7 +91,7 @@ func (r *FabricProvisionDeviceResource) Schema(ctx context.Context, req resource
 	}
 }
 
-func (r *FabricProvisionDeviceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *ProvisionDeviceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -103,8 +103,8 @@ func (r *FabricProvisionDeviceResource) Configure(_ context.Context, req resourc
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan FabricProvisionDevice
+func (r *ProvisionDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan ProvisionDevice
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -116,7 +116,7 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, FabricProvisionDevice{})
+	body := plan.toBody(ctx, ProvisionDevice{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
@@ -149,8 +149,8 @@ func (r *FabricProvisionDeviceResource) Create(ctx context.Context, req resource
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *FabricProvisionDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state FabricProvisionDevice
+func (r *ProvisionDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state ProvisionDevice
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -187,8 +187,9 @@ func (r *FabricProvisionDeviceResource) Read(ctx context.Context, req resource.R
 
 // End of section. //template:end read
 
-func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state FabricProvisionDevice
+// Section below is generated&owned by "gen/generator.go". //template:begin update
+func (r *ProvisionDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state ProvisionDevice
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -204,23 +205,20 @@ func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
-	if plan.Reprovision.ValueBool() {
-		body := plan.toBody(ctx, state)
-		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Re-Provisioning", plan.Id.ValueString()))
-		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body)
-		if err != nil {
-			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
-				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
-				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-			} else {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
-				return
-			}
+
+	body := plan.toBody(ctx, state)
+	params := ""
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+	if err != nil {
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCDP10000" {
+			// Log a warning and continue execution when device is unreachable
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
 		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Device Re-Provisioning finished successfully", plan.Id.ValueString()))
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -229,9 +227,11 @@ func (r *FabricProvisionDeviceResource) Update(ctx context.Context, req resource
 	resp.Diagnostics.Append(diags...)
 }
 
+// End of section. //template:end update
+
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state FabricProvisionDevice
+func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state ProvisionDevice
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -262,7 +262,7 @@ func (r *FabricProvisionDeviceResource) Delete(ctx context.Context, req resource
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *FabricProvisionDeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *ProvisionDeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {

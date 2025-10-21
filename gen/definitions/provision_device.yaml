@@ -1,5 +1,5 @@
 ---
-name: Fabric Provision Device
+name: Provision Device
 rest_endpoint: /dna/intent/api/v1/sda/provisionDevices
 id_from_query_path: response.0
 id_from_query_path_attribute: id
@@ -35,6 +35,7 @@ attributes:
     description: Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply
     type: Bool
     example: false
+    write_only: true
     exclude_test: true
 test_prerequisites: |
   resource "catalystcenter_area" "test" {

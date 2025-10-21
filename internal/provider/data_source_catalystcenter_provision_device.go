@@ -35,26 +35,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &FabricProvisionDeviceDataSource{}
-	_ datasource.DataSourceWithConfigure = &FabricProvisionDeviceDataSource{}
+	_ datasource.DataSource              = &ProvisionDeviceDataSource{}
+	_ datasource.DataSourceWithConfigure = &ProvisionDeviceDataSource{}
 )
 
-func NewFabricProvisionDeviceDataSource() datasource.DataSource {
-	return &FabricProvisionDeviceDataSource{}
+func NewProvisionDeviceDataSource() datasource.DataSource {
+	return &ProvisionDeviceDataSource{}
 }
 
-type FabricProvisionDeviceDataSource struct {
+type ProvisionDeviceDataSource struct {
 	client *cc.Client
 }
 
-func (d *FabricProvisionDeviceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_provision_device"
+func (d *ProvisionDeviceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_provision_device"
 }
 
-func (d *FabricProvisionDeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *ProvisionDeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Fabric Provision Device.",
+		MarkdownDescription: "This data source can read the Provision Device.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -77,7 +77,7 @@ func (d *FabricProvisionDeviceDataSource) Schema(ctx context.Context, req dataso
 	}
 }
 
-func (d *FabricProvisionDeviceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *ProvisionDeviceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -88,8 +88,8 @@ func (d *FabricProvisionDeviceDataSource) Configure(_ context.Context, req datas
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *FabricProvisionDeviceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config FabricProvisionDevice
+func (d *ProvisionDeviceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config ProvisionDevice
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

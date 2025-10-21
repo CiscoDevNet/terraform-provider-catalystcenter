@@ -28,18 +28,18 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-func TestAccDataSourceCcFabricProvisionDevice(t *testing.T) {
+func TestAccDataSourceCcProvisionDevice(t *testing.T) {
 	if os.Getenv("SDA") == "" {
 		t.Skip("skipping test, set environment variable SDA")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_provision_device.test", "network_device_id", "4cb565d3-1944-42be-be9f-a87cff79e831"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_provision_device.test", "network_device_id", "4cb565d3-1944-42be-be9f-a87cff79e831"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcFabricProvisionDevicePrerequisitesConfig + testAccDataSourceCcFabricProvisionDeviceConfig(),
+				Config: testAccDataSourceCcProvisionDevicePrerequisitesConfig + testAccDataSourceCcProvisionDeviceConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -49,7 +49,7 @@ func TestAccDataSourceCcFabricProvisionDevice(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-const testAccDataSourceCcFabricProvisionDevicePrerequisitesConfig = `
+const testAccDataSourceCcProvisionDevicePrerequisitesConfig = `
 resource "catalystcenter_area" "test" {
   name        = "Area1"
   parent_name = "Global"
@@ -65,17 +65,17 @@ resource "catalystcenter_fabric_site" "test" {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-func testAccDataSourceCcFabricProvisionDeviceConfig() string {
-	config := `resource "catalystcenter_fabric_provision_device" "test" {` + "\n"
+func testAccDataSourceCcProvisionDeviceConfig() string {
+	config := `resource "catalystcenter_provision_device" "test" {` + "\n"
 	config += `	site_id = catalystcenter_area.test.id` + "\n"
 	config += `	network_device_id = "4cb565d3-1944-42be-be9f-a87cff79e831"` + "\n"
 	config += `}` + "\n"
 
 	config += `
-		data "catalystcenter_fabric_provision_device" "test" {
+		data "catalystcenter_provision_device" "test" {
 			site_id = catalystcenter_area.test.id
 			network_device_id = "4cb565d3-1944-42be-be9f-a87cff79e831"
-			depends_on = [catalystcenter_fabric_provision_device.test]
+			depends_on = [catalystcenter_provision_device.test]
 		}
 	`
 	return config
