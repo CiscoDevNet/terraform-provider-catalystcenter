@@ -7,6 +7,7 @@ no_data_source: true
 no_read: true
 no_update: true
 skip_minimum_test: true
+mutex: true
 doc_category: Templates
 test_tags: [TEMPLATES]
 attributes:
