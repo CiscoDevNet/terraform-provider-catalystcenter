@@ -29,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcApplyPendingFabricEvents(t *testing.T) {
+	if os.Getenv("SDA") == "" {
+		t.Skip("skipping test, set environment variable SDA")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_apply_pending_fabric_events.test", "fabric_id", "2a3b4c5d-6789-4abc-90de-f1234567890a"))
 

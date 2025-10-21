@@ -5,7 +5,8 @@ get_rest_endpoint: /dna/intent/api/v1/sda/pendingFabricEvents
 # Manual updates in resource
 get_no_id: true
 res_description: Apply a pending SDA fabric event.
-doc_category: Software Defined Access
+doc_category: SDA
+test_tags: [SDA]
 no_update: true
 no_delete: true
 no_data_source: true
