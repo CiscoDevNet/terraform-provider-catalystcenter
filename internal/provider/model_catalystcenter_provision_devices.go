@@ -116,7 +116,7 @@ func (data *ProvisionDevices) fromBody(ctx context.Context, res gjson.Result) {
 			if cValue := v.Get(""); cValue.Exists() {
 				item.Reprovision = types.BoolValue(cValue.Bool())
 			} else {
-				item.Reprovision = types.BoolNull()
+				item.Reprovision = types.BoolValue(false)
 			}
 			data.ProvisionDevices = append(data.ProvisionDevices, item)
 			return true

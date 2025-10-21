@@ -53,6 +53,7 @@ attributes:
         type: Bool
         example: false
         exclude_test: true
+        write_only: true
 test_prerequisites: |
   resource "catalystcenter_area" "test" {
     name        = "Area1"
