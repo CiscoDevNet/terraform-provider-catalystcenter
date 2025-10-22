@@ -121,6 +121,8 @@ func (r *ProvisionDeviceResource) Create(ctx context.Context, req resource.Creat
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
+		detail := res.Get("response.detail").String()
+
 		if errorCode == "NCDP10000" {
 			// Log a warning and continue execution when device is unreachable
 			failureReason := res.Get("response.failureReason").String()
@@ -128,7 +130,7 @@ func (r *ProvisionDeviceResource) Create(ctx context.Context, req resource.Creat
 		} else {
 			if r.AllowExistingOnCreate {
 				tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
-			} else {
+			} else if errorCode == "NCHS20405" && strings.Contains(detail, "Cannot provision already provisioned device") {
 				params = ""
 				params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
 				res, err = r.client.Get(plan.getPath() + params)

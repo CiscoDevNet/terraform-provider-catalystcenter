@@ -29,8 +29,8 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcProvisionDevice(t *testing.T) {
-	if os.Getenv("SDA") == "" {
-		t.Skip("skipping test, set environment variable SDA")
+	if os.Getenv("INVENTORY") == "" {
+		t.Skip("skipping test, set environment variable INVENTORY")
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_provision_device.test", "network_device_id", "4cb565d3-1944-42be-be9f-a87cff79e831"))

@@ -1,5 +1,6 @@
 ---
 name: Provision Devices
+# manual updates to Create and Update function in resource file
 rest_endpoint: /dna/intent/api/v1/sda/provisionDevices
 root_list: true
 res_description: Manages the provisioning of devices within a single resource, specifying a list of devices to be provisioned in selected site.
@@ -7,6 +8,7 @@ update_computed: true
 id_from_attribute: true
 device_unreachability_warning: true
 skip_minimum_test: true
+allow_existing_on_create: true
 doc_category: Inventory
 mutex: true
 test_tags: [INVENTORY]

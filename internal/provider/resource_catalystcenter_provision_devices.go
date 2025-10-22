@@ -117,7 +117,6 @@ func (r *ProvisionDevicesResource) Configure(_ context.Context, req resource.Con
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan ProvisionDevices
 
@@ -155,13 +154,66 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 		res, err = r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
+			detail := res.Get("response.detail").String()
+
 			if errorCode == "NCDP10000" {
 				// Log a warning and continue execution when device is unreachable
 				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
-				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-				break
+				if r.AllowExistingOnCreate {
+					tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
+				} else if errorCode == "NCHS20405" && strings.Contains(detail, "Cannot provision already provisioned device") {
+					params = ""
+					params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString())
+					res, err = r.client.Get(plan.getPath() + params)
+					if err != nil {
+						resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+						return
+					}
+
+					// Parse response
+					data := gjson.Get(res.String(), "response")
+					if !data.Exists() {
+						resp.Diagnostics.AddError("Parse Error", fmt.Sprintf("No 'response' array found in GET result for site %s", plan.SiteId.ValueString()))
+						return
+					}
+					// Build the list of provision devices
+					var devices []ProvisionDevicesProvisionDevices
+					data.ForEach(func(_, device gjson.Result) bool {
+						dev := ProvisionDevicesProvisionDevices{}
+
+						if id := device.Get("id"); id.Exists() {
+							dev.Id = types.StringValue(id.String())
+						}
+						if site := device.Get("siteId"); site.Exists() {
+							dev.SiteId = types.StringValue(site.String())
+						}
+						if nd := device.Get("networkDeviceId"); nd.Exists() {
+							dev.NetworkDeviceId = types.StringValue(nd.String())
+						}
+						dev.Reprovision = types.BoolValue(false)
+
+						devices = append(devices, dev)
+						return true
+					})
+
+					if len(devices) == 0 {
+						resp.Diagnostics.AddError("No Devices Found", fmt.Sprintf("No provisioned devices found for site %s", plan.SiteId.ValueString()))
+						return
+					}
+
+					plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
+					plan.ProvisionDevices = devices
+
+					body = plan.toBody(ctx, ProvisionDevices{Id: plan.Id})
+					res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
+					if err != nil {
+						resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+						return
+					}
+					tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to reprovision finished successfully", plan.Id.ValueString()))
+				}
 			}
 		}
 	}
@@ -174,14 +226,24 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 	plan.fromBodyUnknowns(ctx, res)
+	if !r.AllowExistingOnCreate {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	} else {
+		params = ""
+		body = plan.toBody(ctx, ProvisionDevices{Id: plan.Id})
+		res, err = r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to update existing resource finished successfully", plan.Id.ValueString()))
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *ProvisionDevicesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -222,7 +284,6 @@ func (r *ProvisionDevicesResource) Read(ctx context.Context, req resource.ReadRe
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state ProvisionDevices
 
@@ -366,25 +427,94 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
+				detail := res.Get("response.detail").String()
 				if errorCode == "NCDP10000" {
 					// Log a warning and continue execution when device is unreachable
 					failureReason := res.Get("response.failureReason").String()
 					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-				} else {
-					resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-					break
+				} else if errorCode == "NCHS20405" && strings.Contains(detail, "Cannot provision already provisioned device") {
+					params = ""
+					params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString())
+					res, err = r.client.Get(pl.getPath() + params)
+					if err != nil {
+						resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+						return
+					}
+
+					// Parse GET response
+					data := gjson.Get(res.String(), "response")
+					if !data.Exists() {
+						resp.Diagnostics.AddError("Parse Error", fmt.Sprintf("No 'response' array found in GET result for site %s", plan.SiteId.ValueString()))
+						return
+					}
+
+					// Build devices slice
+					var allDevices []ProvisionDevicesProvisionDevices
+					data.ForEach(func(_, device gjson.Result) bool {
+						dev := ProvisionDevicesProvisionDevices{}
+
+						if id := device.Get("id"); id.Exists() {
+							dev.Id = types.StringValue(id.String())
+						}
+						if site := device.Get("siteId"); site.Exists() {
+							dev.SiteId = types.StringValue(site.String())
+						}
+						if nd := device.Get("networkDeviceId"); nd.Exists() {
+							dev.NetworkDeviceId = types.StringValue(nd.String())
+						}
+						dev.Reprovision = types.BoolValue(false)
+
+						allDevices = append(allDevices, dev)
+						return true
+					})
+
+					if len(allDevices) == 0 {
+						resp.Diagnostics.AddError("No Devices Found",
+							fmt.Sprintf("No provisioned devices found for site %s", plan.SiteId.ValueString()))
+						return
+					}
+
+					// Find the specific device(s) you want to PUT (matching toCreate element)
+					var devicesToUpdate []ProvisionDevicesProvisionDevices
+					for _, newDev := range toCreate.ProvisionDevices {
+						for _, existing := range allDevices {
+							if existing.NetworkDeviceId.Equal(newDev.NetworkDeviceId) {
+								devicesToUpdate = append(devicesToUpdate, existing)
+								break
+							}
+						}
+					}
+
+					// PUT only the matching devices
+					if len(devicesToUpdate) > 0 {
+						plan.Id = types.StringValue(plan.SiteId.ValueString())
+						plan.ProvisionDevices = devicesToUpdate
+
+						body = plan.toBody(ctx, ProvisionDevices{Id: plan.Id})
+						res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
+						if err != nil {
+							resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+							return
+						}
+						tflog.Debug(ctx, fmt.Sprintf("%s: Fallback PUT finished successfully", plan.Id.ValueString()))
+					}
+
+					plan.ProvisionDevices = allDevices
+
+					tflog.Debug(ctx, fmt.Sprintf("%s: All devices", allDevices))
+
 				}
 			}
 		}
+
+		tflog.Debug(ctx, fmt.Sprintf("%s: Provsion devices", plan.ProvisionDevices))
+		params = ""
 		params += "?siteId=" + url.QueryEscape(plan.SiteId.ValueString())
 		res, err = r.client.Get(plan.getPath() + params)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 			return
 		}
-
-		// Populate missing IDs using fromBodyUnknowns
-		plan.fromBodyUnknowns(ctx, res)
 	}
 
 	// UPDATE
@@ -433,8 +563,6 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

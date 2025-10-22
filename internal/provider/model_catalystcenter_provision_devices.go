@@ -153,11 +153,6 @@ func (data *ProvisionDevices) updateFromBody(ctx context.Context, res gjson.Resu
 				return true
 			},
 		)
-		if value := r.Get("id"); value.Exists() && !data.ProvisionDevices[i].Id.IsNull() {
-			data.ProvisionDevices[i].Id = types.StringValue(value.String())
-		} else {
-			data.ProvisionDevices[i].Id = types.StringNull()
-		}
 		if value := r.Get("siteId"); value.Exists() && !data.ProvisionDevices[i].SiteId.IsNull() {
 			data.ProvisionDevices[i].SiteId = types.StringValue(value.String())
 		} else {

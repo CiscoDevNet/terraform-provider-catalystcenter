@@ -10,9 +10,9 @@ put_id_include_path: "0.id"
 put_no_id: true
 device_unreachability_warning: true
 allow_existing_on_create: true
-doc_category: SDA
+doc_category: Inventory
 mutex: true
-test_tags: [SDA]
+test_tags: [INVENTORY]
 attributes:
   - model_name: siteId
     requires_replace: true
