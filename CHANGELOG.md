@@ -1,4 +1,4 @@
-## 0.4.0 (unreleased)
+## 0.4.0
 
 - Add `apply_pending_fabric_events` resource to apply all pending fabric events
 - BREAKING CHANGE: Rename resource `catalystcenter_fabric_provision_device` to `catalystcenter_provision_device`
