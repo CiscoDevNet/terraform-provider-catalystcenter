@@ -9,6 +9,7 @@ description: |-
 
 ## 0.4.1 (unreleased)
 
+- Add `catalystcenter_provision_access_points` resource to provision multiple access points within single resource
 - Fix issue with `catalystcenter_ip_pool_reservation` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/300)
 
 ## 0.4.0
