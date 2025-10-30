@@ -214,8 +214,9 @@ func (r *IPPoolReservationResource) Create(ctx context.Context, req resource.Cre
 		if r.AllowExistingOnCreate {
 			tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-			return
+			if strings.Contains(err.Error(), "StatusCode 404") {
+				res, err = r.client.Post(plan.getFallbackPath()+params, body)
+			}
 		}
 	}
 	params = ""

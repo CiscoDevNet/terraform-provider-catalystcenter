@@ -101,6 +101,7 @@ type YamlConfig struct {
 	GetRestEndpoint             string                `yaml:"get_rest_endpoint"`
 	PutRestEndpoint             string                `yaml:"put_rest_endpoint"`
 	DeleteRestEndpoint          string                `yaml:"delete_rest_endpoint"`
+	FallbackRestEndpoint        string                `yaml:"fallback_rest_endpoint"`
 	GetNoId                     bool                  `yaml:"get_no_id"`
 	GetFromAll                  bool                  `yaml:"get_from_all"`
 	GetRequiresId               bool                  `yaml:"get_requires_id"`
