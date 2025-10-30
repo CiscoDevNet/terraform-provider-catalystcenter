@@ -1,5 +1,6 @@
 name: IP Pool Reservation
 rest_endpoint: /dna/intent/api/v1/ipam/siteIpAddressPools
+fallback_rest_endpoint: /intent/api/v1/ipam/siteIpAddressPools
 id_from_query_path: response
 id_from_query_path_attribute: id
 get_from_all: true

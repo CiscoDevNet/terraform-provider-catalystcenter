@@ -132,6 +132,16 @@ func (data {{camelCase .Name}}) getPath() string {
 }
 // End of section. //template:end getPath
 
+// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
+func (data {{camelCase .Name}}) getFallbackPath() string {
+	{{- if hasReference .Attributes}}
+		return fmt.Sprintf("{{.FallbackRestEndpoint}}"{{range .Attributes}}{{if .Reference}}, url.QueryEscape(data.{{toGoName .TfName}}.Value{{.Type}}()){{end}}{{end}})
+	{{- else}}
+		return "{{.FallbackRestEndpoint}}"
+	{{- end}}
+}
+// End of section. //template:end getFallbackPath
+
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 {{if .DeleteRestEndpoint}}
 func (data {{camelCase .Name}}) getPathDelete() string {

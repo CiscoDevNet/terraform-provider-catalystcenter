@@ -562,8 +562,18 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		if r.AllowExistingOnCreate  {
 			tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
 		} else{
+			{{- if .FallbackRestEndpoint }}
+			if strings.Contains(err.Error(), "StatusCode 404") {
+				{{- if .PutCreate}}
+				res, err = r.client.Put(plan.getFallbackPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+				{{- else}}
+				res, err = r.client.Post(plan.getFallbackPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
+				{{- end}}
+			}
+			{{- else}}
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
 			return
+			{{- end}}
 		}
 		{{- else}}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
