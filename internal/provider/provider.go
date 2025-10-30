@@ -345,6 +345,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewPnPDeviceClaimSiteResource,
 		NewPnPImportDevicesResource,
 		NewProjectResource,
+		NewProvisionAccessPointsResource,
 		NewProvisionDeviceResource,
 		NewProvisionDevicesResource,
 		NewRoleResource,
