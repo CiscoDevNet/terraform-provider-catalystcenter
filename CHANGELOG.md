@@ -1,4 +1,4 @@
-## 0.4.2 (unreleased)
+## 0.4.2
 
 - Add `catalystcenter_fabric_ewlc` resource to enable fabric embedded wireless capabilities on switch devices
 
