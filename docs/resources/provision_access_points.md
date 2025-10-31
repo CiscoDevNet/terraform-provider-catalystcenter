@@ -30,7 +30,6 @@ resource "catalystcenter_provision_access_points" "example" {
 
 - `network_devices` (Attributes Set) List of access points to be provisioned (see [below for nested schema](#nestedatt--network_devices))
 - `rf_profile_name` (String) RF Profile Name. RF Profile is not allowed for custom AP Zones.
-  - Choices: `LOW`, `TYPICAL`, `HIGH`
 - `site_id` (String) ID of the site this network device needs to be provisioned
 
 ### Optional

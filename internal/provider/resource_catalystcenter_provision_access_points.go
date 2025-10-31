@@ -23,13 +23,11 @@ import (
 	"fmt"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -96,11 +94,8 @@ func (r *ProvisionAccessPointsResource) Schema(ctx context.Context, req resource
 				},
 			},
 			"rf_profile_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("RF Profile Name. RF Profile is not allowed for custom AP Zones.").AddStringEnumDescription("LOW", "TYPICAL", "HIGH").String,
+				MarkdownDescription: helpers.NewAttributeDescription("RF Profile Name. RF Profile is not allowed for custom AP Zones.").String,
 				Required:            true,
-				Validators: []validator.String{
-					stringvalidator.OneOf("LOW", "TYPICAL", "HIGH"),
-				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},

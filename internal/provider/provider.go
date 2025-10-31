@@ -320,6 +320,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewDiscoveryResource,
 		NewDNSSettingsResource,
 		NewFabricDeviceResource,
+		NewFabricEWLCResource,
 		NewFabricL2HandoffResource,
 		NewFabricL2VirtualNetworkResource,
 		NewFabricL3HandoffIPTransitResource,
