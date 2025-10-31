@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.4.2 (unreleased)
+
+- Add `catalystcenter_fabric_ewlc` resource to enable fabric embedded wireless capabilities on switch devices
+
 ## 0.4.1
 
 - Add `catalystcenter_provision_access_points` resource to provision multiple access points within single resource

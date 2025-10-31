@@ -42,7 +42,6 @@ attributes:
     mandatory: true
     description: RF Profile Name. RF Profile is not allowed for custom AP Zones.
     type: String
-    enum_values: [LOW, TYPICAL, HIGH]
     example: TYPICAL
   - model_name: apZoneName
     requires_replace: true
