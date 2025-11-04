@@ -49,13 +49,6 @@ func (data FabricEWLC) getPath() string {
 
 // End of section. //template:end getPath
 
-// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
-func (data FabricEWLC) getFallbackPath() string {
-	return fmt.Sprintf("", url.QueryEscape(data.FabricId.ValueString()))
-}
-
-// End of section. //template:end getFallbackPath
-
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 
 // End of section. //template:end getPathDelete
