@@ -100,6 +100,7 @@ func (data *NetworkProfileForSitesAssignments) fromBody(ctx context.Context, res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *NetworkProfileForSitesAssignments) updateFromBody(ctx context.Context, res gjson.Result) {
+	var final []NetworkProfileForSitesAssignmentsItems
 	for i := range data.Items {
 		keys := [...]string{"id"}
 		keyValues := [...]string{data.Items[i].Id.ValueString()}
@@ -128,7 +129,11 @@ func (data *NetworkProfileForSitesAssignments) updateFromBody(ctx context.Contex
 		} else {
 			data.Items[i].Id = types.StringNull()
 		}
+		if data.Items[i].Id != types.StringNull() {
+			final = append(final, data.Items[i])
+		}
 	}
+	data.Items = final
 }
 
 // End of section. //template:end updateFromBody

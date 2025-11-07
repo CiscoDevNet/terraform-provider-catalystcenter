@@ -20,6 +20,7 @@ attributes:
   - model_name: items
     type: Set
     mandatory: true
+    max_elements_in_root_list: 10000
     response_data_path: response
     description: List of sites where the network profile is assigned
     attributes:
