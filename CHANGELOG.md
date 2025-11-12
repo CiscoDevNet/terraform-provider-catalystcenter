@@ -1,6 +1,6 @@
 ## 0.4.3 (unreleased)
 
-- Add `catalystcenter_extranet_policies` resource and data_source
+- Add `catalystcenter_extranet_policy` resource and data_source
 
 ## 0.4.2
 
