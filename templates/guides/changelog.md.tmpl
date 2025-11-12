@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.4.3 (unreleased)
+
+- Add `catalystcenter_extranet_policies` resource and data_source
+
 ## 0.4.2
 
 - Add `catalystcenter_fabric_ewlc` resource to enable fabric embedded wireless capabilities on switch devices
