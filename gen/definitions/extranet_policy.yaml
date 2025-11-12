@@ -33,7 +33,7 @@ attributes:
     response_data_path: response.0.providerVirtualNetworkName
     description: Name of the existing provider virtual network
     type: String
-    example: "8b6830b4-bf36-43d3-a97c-d94dc7d4715d"
+    example: "SDA_VN1"
     test_value: catalystcenter_fabric_l3_virtual_network.test.virtual_network_name
   - model_name: subscriberVirtualNetworkNames
     data_path: "0"
@@ -42,7 +42,7 @@ attributes:
     description: Name of the subscriber virtual networks
     type: Set
     element_type: String
-    example: "afc4ed30-3c57-4992-a41a-97d3f48bf071"
+    example: "SDA_VN2"
     test_value: "[catalystcenter_fabric_l3_virtual_network.test2.virtual_network_name]"
 test_prerequisites: |
   data "catalystcenter_site" "test" {
