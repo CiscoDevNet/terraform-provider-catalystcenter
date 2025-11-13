@@ -10,6 +10,7 @@ data_source_no_id: true
 put_id_include_path: "0.id"
 put_no_id: true
 device_unreachability_warning: true
+mutex: true
 doc_category: SDA
 attributes:
   - model_name: fabricId
