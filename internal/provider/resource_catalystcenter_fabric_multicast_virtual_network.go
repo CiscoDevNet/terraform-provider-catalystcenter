@@ -42,23 +42,23 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &FabricMulticastResource{}
-var _ resource.ResourceWithImportState = &FabricMulticastResource{}
+var _ resource.Resource = &FabricMulticastVirtualNetworkResource{}
+var _ resource.ResourceWithImportState = &FabricMulticastVirtualNetworkResource{}
 
-func NewFabricMulticastResource() resource.Resource {
-	return &FabricMulticastResource{}
+func NewFabricMulticastVirtualNetworkResource() resource.Resource {
+	return &FabricMulticastVirtualNetworkResource{}
 }
 
-type FabricMulticastResource struct {
+type FabricMulticastVirtualNetworkResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
 }
 
-func (r *FabricMulticastResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fabric_multicast"
+func (r *FabricMulticastVirtualNetworkResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_fabric_multicast_virtual_network"
 }
 
-func (r *FabricMulticastResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *FabricMulticastVirtualNetworkResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: helpers.NewAttributeDescription("Manages Fabric Site VN Multicast").String,
@@ -72,45 +72,71 @@ func (r *FabricMulticastResource) Schema(ctx context.Context, req resource.Schem
 				},
 			},
 			"fabric_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric to contain this anycast gateway").String,
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric site this multicast configuration is associated with").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"virtual_network_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the layer 3 virtual network associated with the anycast gateway. the virtual network must have already been added to the site before creating an anycast gateway with it").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the virtual network associated with the fabric site").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"ip_pool_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the IP pool associated with the anycast gateway").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the IP Pool associated with the fabric site").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"ipv4_ssm_ranges": schema.ListAttribute{
+			"ipv4_ssm_ranges": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("IPv4 Source Specific Multicast (SSM) ranges").String,
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"multicast_r_ps": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Multicast Rendezvous Points (RP).").String,
+			"multicast_rps": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Multicast Rendezvous Points (RP). Required for Any Source Multicast (ASM) scenario").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"rp_device_location": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Device location of the RP").AddStringEnumDescription("EXTERNAL", "FABRIC").String,
-							Optional:            true,
+							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("EXTERNAL", "FABRIC"),
 							},
 						},
-						"network_device_ids": schema.ListAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("IDs of the network devices%").String,
+						"ipv4_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("IPv4 address of the RP. For external RP configuration, exactly one of ipv4Address or ipv6Address must be provided. For fabric RP, this address is allocated by SDA and should not be provided during RP creation request and SDA allocated address should be retained in subsequent requests.").String,
+							Optional:            true,
+						},
+						"ipv6_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("IPv6 address of the RP. For external RP configuration, exactly one of ipv4Address or ipv6Address must be provided. For fabric RP, this address is allocated by SDA and should not be provided during RP creation request and SDA allocated address should be retained in subsequent requests. ipv6Address can only be provided for virtual networks with dual stack (IPv4 + IPv6) multicast pool.").String,
+							Optional:            true,
+						},
+						"is_default_v4_rp": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Specifies whether it is a default IPv4 RP").String,
+							Optional:            true,
+						},
+						"is_default_v6_rp": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Specifies whether it is a default IPv6 RP").String,
+							Optional:            true,
+						},
+						"network_device_ids": schema.SetAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("IDs of the network devices. This is a required field for fabric RPs").String,
+							ElementType:         types.StringType,
+							Optional:            true,
+						},
+						"ipv4_asm_ranges": schema.SetAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("IPv4 Any Source Multicast ranges. Comma seperated list of IPv4 multicast group ranges that will be served by a given Multicast RP.").String,
+							ElementType:         types.StringType,
+							Optional:            true,
+						},
+						"ipv6_asm_ranges": schema.SetAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("IPv6 Any Source Multicast ranges. Comma seperated list of IPv6 multicast group ranges that will be served by a given Multicast RP.").String,
 							ElementType:         types.StringType,
 							Optional:            true,
 						},
@@ -121,7 +147,7 @@ func (r *FabricMulticastResource) Schema(ctx context.Context, req resource.Schem
 	}
 }
 
-func (r *FabricMulticastResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *FabricMulticastVirtualNetworkResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -133,8 +159,8 @@ func (r *FabricMulticastResource) Configure(_ context.Context, req resource.Conf
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *FabricMulticastResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan FabricMulticast
+func (r *FabricMulticastVirtualNetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan FabricMulticastVirtualNetwork
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -146,7 +172,7 @@ func (r *FabricMulticastResource) Create(ctx context.Context, req resource.Creat
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, FabricMulticast{})
+	body := plan.toBody(ctx, FabricMulticastVirtualNetwork{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -179,8 +205,8 @@ func (r *FabricMulticastResource) Create(ctx context.Context, req resource.Creat
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *FabricMulticastResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state FabricMulticast
+func (r *FabricMulticastVirtualNetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state FabricMulticastVirtualNetwork
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -218,8 +244,8 @@ func (r *FabricMulticastResource) Read(ctx context.Context, req resource.ReadReq
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *FabricMulticastResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state FabricMulticast
+func (r *FabricMulticastVirtualNetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state FabricMulticastVirtualNetwork
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -260,8 +286,8 @@ func (r *FabricMulticastResource) Update(ctx context.Context, req resource.Updat
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *FabricMulticastResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state FabricMulticast
+func (r *FabricMulticastVirtualNetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state FabricMulticastVirtualNetwork
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -292,7 +318,7 @@ func (r *FabricMulticastResource) Delete(ctx context.Context, req resource.Delet
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *FabricMulticastResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *FabricMulticastVirtualNetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
