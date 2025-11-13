@@ -1,0 +1,131 @@
+---
+name: Fabric Multicast Virtual Network
+rest_endpoint: /dna/intent/api/v1/sda/multicast/virtualNetworks
+res_description: Manages Fabric Site VN Multicast
+id_from_query_path: response.0
+skip_minimum_test: true
+id_from_query_path_attribute: id
+import_no_id: true
+data_source_no_id: true
+put_id_include_path: "0.id"
+put_no_id: true
+device_unreachability_warning: true
+doc_category: SDA
+attributes:
+  - model_name: fabricId
+    requires_replace: true
+    data_path: '0'
+    query_param: true
+    response_data_path: response.0.fabricId
+    mandatory: true
+    description: ID of the fabric site this multicast configuration is associated with
+    type: String
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_fabric_site.test.id
+  - model_name: virtualNetworkName
+    requires_replace: true
+    data_path: '0'
+    query_param: true
+    response_data_path: response.0.virtualNetworkName
+    type: String
+    mandatory: true
+    description: Name of the virtual network associated with the fabric site
+    example: SDA_VN1
+    test_value: catalystcenter_fabric_l3_virtual_network.test.virtual_network_name
+  - model_name: ipPoolName
+    requires_replace: true
+    data_path: '0'
+    response_data_path: response.0.ipPoolName
+    type: String
+    mandatory: true
+    description: Name of the IP Pool associated with the fabric site
+    example: MyRes1
+    test_value: catalystcenter_ip_pool_reservation.test.name
+  - model_name: ipv4SsmRanges
+    tf_name: ipv4_ssm_ranges
+    data_path: '0'
+    response_data_path: response.0.ipv4SsmRanges
+    type: Set
+    element_type: String
+    description:  IPv4 Source Specific Multicast (SSM) ranges
+    example: "225.0.0.0/8"
+  - model_name: multicastRPs
+    tf_name: multicast_rps
+    data_path: '0'
+    response_data_path: response.0.multicastRPs
+    type: Set
+    description: Multicast Rendezvous Points (RP). Required for Any Source Multicast (ASM) scenario
+    exclude_test: true
+    attributes:
+      - model_name: rpDeviceLocation
+        type: String
+        mandatory: true
+        enum_values: [EXTERNAL, FABRIC]
+        description: Device location of the RP
+      - model_name: ipv4Address
+        tf_name: ipv4_address
+        type: String
+        description: IPv4 address of the RP. For external RP configuration, exactly one of ipv4Address or ipv6Address must be provided. For fabric RP, this address is allocated by SDA and should not be provided during RP creation request and SDA allocated address should be retained in subsequent requests.
+      - model_name: ipv6Address
+        tf_name: ipv6_address
+        type: String
+        description: IPv6 address of the RP. For external RP configuration, exactly one of ipv4Address or ipv6Address must be provided. For fabric RP, this address is allocated by SDA and should not be provided during RP creation request and SDA allocated address should be retained in subsequent requests. ipv6Address can only be provided for virtual networks with dual stack (IPv4 + IPv6) multicast pool.
+      - model_name: isDefaultV4RP
+        tf_name: is_default_v4_rp
+        type: Bool
+        description: Specifies whether it is a default IPv4 RP
+      - model_name: isDefaultV6RP
+        tf_name: is_default_v6_rp
+        type: Bool
+        description: Specifies whether it is a default IPv6 RP
+      - model_name: networkDeviceIds
+        type: Set
+        element_type: String
+        description: IDs of the network devices. This is a required field for fabric RPs
+      - model_name: ipv4AsmRanges
+        tf_name: ipv4_asm_ranges
+        type: Set
+        element_type: String
+        description:  IPv4 Any Source Multicast ranges. Comma seperated list of IPv4 multicast group ranges that will be served by a given Multicast RP.
+      - model_name: ipv6AsmRanges
+        tf_name: ipv6_asm_ranges
+        type: Set
+        element_type: String
+        description: IPv6 Any Source Multicast ranges. Comma seperated list of IPv6 multicast group ranges that will be served by a given Multicast RP.
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_area" "test" {
+    name      = "Area1"
+    parent_id = data.catalystcenter_site.test.id
+  }
+  resource "catalystcenter_ip_pool" "test" {
+    name                        = "MyPool1"
+    pool_type                   = "Generic"
+    address_space_subnet        = "192.168.0.0"
+    address_space_prefix_length = 16
+    address_space_gateway       = "192.168.0.1"
+    address_space_dhcp_servers  = ["192.168.0.10"]
+    address_space_dns_servers   = ["192.168.0.53"]
+  }
+  resource "catalystcenter_ip_pool_reservation" "test" {
+    name                = "MyRes1"
+    pool_type           = "Generic"
+    site_id             = catalystcenter_area.test.id
+    ipv4_subnet         = "192.168.10.0"
+    ipv4_prefix_length  = 24
+    ipv4_gateway        = "192.168.10.1"
+    ipv4_dhcp_servers   = ["1.2.3.4"]
+    ipv4_dns_servers    = ["2.3.4.5"]
+    ipv4_global_pool_id = catalystcenter_ip_pool.test.id
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+  }
+  resource "catalystcenter_fabric_l3_virtual_network" "test" {
+    virtual_network_name = "SDA_VN1"
+    fabric_ids           = [catalystcenter_fabric_site.test.id]
+  }

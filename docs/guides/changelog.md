@@ -9,6 +9,7 @@ description: |-
 
 ## 0.4.3 (unreleased)
 
+- Add `catalystcenter_fabric_multicast_virtual_network` resource and data_source
 - Add `catalystcenter_extranet_policy` resource and data_source
 
 ## 0.4.2
