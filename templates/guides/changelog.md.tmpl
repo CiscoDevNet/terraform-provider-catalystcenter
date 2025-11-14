@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.4.3 (unreleased)
+## 0.4.3
 
 - Add `catalystcenter_fabric_devices` resource and data_source to manage multiple fabric devices under same fabric site within single resource 
 - Add `catalystcenter_fabric_multicast_virtual_networks` resource and data_source to manage multiple multicast virtual networks under same fabric site within single resource
