@@ -7,8 +7,23 @@ description: |-
 
 # Changelog
 
+## 0.4.3 (unreleased)
+
+- Add `catalystcenter_fabric_multicast_virtual_network` resource and data_source
+- Add `catalystcenter_extranet_policy` resource and data_source
+
+## 0.4.2
+
+- Add `catalystcenter_fabric_ewlc` resource to enable fabric embedded wireless capabilities on switch devices
+
+## 0.4.1
+
+- Add `catalystcenter_provision_access_points` resource to provision multiple access points within single resource
+- Fix issue with `catalystcenter_ip_pool_reservation` resource, [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/300)
+
 ## 0.4.0
 
+- Enhancement to `catalystcenter_provision_device` and `catalystcenter_provision_devices`: during resource creation, if a device is already provisioned, it will now be reprovisioned via a PUT request instead of returning an error
 - Add `apply_pending_fabric_events` resource to apply all pending fabric events
 - BREAKING CHANGE: Rename resource `catalystcenter_fabric_provision_device` to `catalystcenter_provision_device`
 - BREAKING CHANGE: Modified `catalystcenter_assign_credentials` to use the `/dna/intent/api/v1/sites/%v/deviceCredentials` API endpoint instead of `/dna/intent/api/v2/credential-to-site`

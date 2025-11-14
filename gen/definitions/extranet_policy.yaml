@@ -1,0 +1,67 @@
+---
+name: Extranet Policy
+rest_endpoint: /dna/intent/api/v1/sda/extranetPolicies
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+import_no_id: true
+data_source_no_id: true
+put_id_include_path: "0.id"
+put_no_id: true
+doc_category: SDA
+mutex: true
+attributes:
+  - model_name: extranetPolicyName
+    requires_replace: true
+    data_path: "0"
+    query_param: true
+    response_data_path: response.0.extranetPolicyName
+    type: String
+    mandatory: true
+    description: Name of the extranet policy to be created
+    example: MyExtranetPolicy
+  - model_name: fabricIds
+    data_path: "0"
+    response_data_path: response.0.fabricIds
+    description: IDs of the fabric sites to be associated with this extranet policy
+    type: Set
+    element_type: String
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: "[catalystcenter_fabric_site.test.id]"
+  - model_name: providerVirtualNetworkName
+    data_path: "0"
+    mandatory: true
+    response_data_path: response.0.providerVirtualNetworkName
+    description: Name of the existing provider virtual network
+    type: String
+    example: "SDA_VN1"
+    test_value: catalystcenter_fabric_l3_virtual_network.test.virtual_network_name
+  - model_name: subscriberVirtualNetworkNames
+    data_path: "0"
+    mandatory: true
+    response_data_path: response.0.subscriberVirtualNetworkNames
+    description: Name of the subscriber virtual networks
+    type: Set
+    element_type: String
+    example: "SDA_VN2"
+    test_value: "[catalystcenter_fabric_l3_virtual_network.test2.virtual_network_name]"
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_area" "test" {
+    name      = "Area1"
+    parent_id = data.catalystcenter_site.test.id
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+  }
+  resource "catalystcenter_fabric_l3_virtual_network" "test" {
+    virtual_network_name = "SDA_VN1"
+    fabric_ids           = [catalystcenter_fabric_site.test.id]
+  }
+  resource "catalystcenter_fabric_l3_virtual_network" "test2" {
+    virtual_network_name = "SDA_VN2"
+    fabric_ids           = [catalystcenter_fabric_site.test.id]
+  }
