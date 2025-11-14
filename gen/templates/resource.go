@@ -901,10 +901,20 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				{{- range .Attributes}}
 				{{- range .Attributes}}
 				{{- if .RequiresReplace }}
+				{{- if eq .Type "Set"}}
+				var planR []string
+				var stateR []string
+				stateItem.{{toGoName .TfName}}.ElementsAs(ctx, &stateR, false)
+				planItem.{{toGoName .TfName}}.ElementsAs(ctx, &planR, false)
+				sort.Strings(stateR)
+				sort.Strings(planR)
+				if !reflect.DeepEqual(stateR, planR) {
+				{{- else}}
 				{{- if .NoPut }}
 				if planItem.{{toGoName .TfName}} != stateItem.{{toGoName .TfName}} {
 				{{- else}}
 				if planItem.{{toGoName .TfName}} != stateItem.{{toGoName .TfName}} {
+				{{- end}}
 				{{- end}}
 					toReplace.{{toGoName $items}} = append(toReplace.{{toGoName $items}}, planItem)
 					continue
@@ -1076,6 +1086,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			return
 		}
 
+		
 		// Populate missing IDs using fromBodyUnknowns
 		plan.fromBodyUnknowns(ctx, res)
 	}
