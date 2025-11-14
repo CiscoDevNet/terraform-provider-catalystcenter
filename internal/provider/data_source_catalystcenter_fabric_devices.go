@@ -72,7 +72,7 @@ func (d *FabricDevicesDataSource) Schema(ctx context.Context, req datasource.Sch
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "ID of the layer 3 handoff ip transit",
+							MarkdownDescription: "ID of the fabric device",
 							Computed:            true,
 						},
 						"network_device_id": schema.StringAttribute{

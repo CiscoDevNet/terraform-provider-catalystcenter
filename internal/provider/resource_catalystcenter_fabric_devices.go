@@ -64,7 +64,7 @@ func (r *FabricDevicesResource) Metadata(ctx context.Context, req resource.Metad
 func (r *FabricDevicesResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages Fabric Devices in bulk").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages Fabric Devices within a single resource, specifying a list of fabric_devices as input").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -87,7 +87,7 @@ func (r *FabricDevicesResource) Schema(ctx context.Context, req resource.SchemaR
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of the layer 3 handoff ip transit").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric device").String,
 							Computed:            true,
 						},
 						"network_device_id": schema.StringAttribute{
@@ -168,7 +168,7 @@ func (r *FabricDevicesResource) Create(ctx context.Context, req resource.CreateR
 	// Create object
 	body := plan.toBody(ctx, FabricDevices{})
 	var planList []FabricDevices
-	maxElementsPerShard := 50
+	maxElementsPerShard := 10
 	originalList := plan.FabricDevices
 	for i := 0; i < len(originalList); i += maxElementsPerShard {
 		end := i + maxElementsPerShard
@@ -403,7 +403,7 @@ func (r *FabricDevicesResource) Update(ctx context.Context, req resource.UpdateR
 	// If there are objects marked for create
 	if len(toCreate.FabricDevices) > 0 {
 
-		maxElementsPerShard := 50
+		maxElementsPerShard := 10
 		var createList []FabricDevices
 		for i := 0; i < len(toCreate.FabricDevices); i += maxElementsPerShard {
 			end := min(i+maxElementsPerShard, len(toCreate.FabricDevices))
@@ -448,7 +448,7 @@ func (r *FabricDevicesResource) Update(ctx context.Context, req resource.UpdateR
 	// Update objects (objects that have different definition in plan and state)
 	if len(toUpdate.FabricDevices) > 0 {
 
-		maxElementsPerShard := 50
+		maxElementsPerShard := 10
 		var updateList []FabricDevices
 		for i := 0; i < len(toUpdate.FabricDevices); i += maxElementsPerShard {
 			end := min(i+maxElementsPerShard, len(toUpdate.FabricDevices))

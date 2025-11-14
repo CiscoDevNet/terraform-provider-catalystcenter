@@ -3,12 +3,12 @@
 page_title: "catalystcenter_fabric_devices Resource - terraform-provider-catalystcenter"
 subcategory: "SDA"
 description: |-
-  Manages Fabric Devices in bulk
+  Manages Fabric Devices within a single resource, specifying a list of fabric_devices as input
 ---
 
 # catalystcenter_fabric_devices (Resource)
 
-Manages Fabric Devices in bulk
+Manages Fabric Devices within a single resource, specifying a list of fabric_devices as input
 
 ## Example Usage
 
@@ -65,7 +65,7 @@ Optional:
 
 Read-Only:
 
-- `id` (String) ID of the layer 3 handoff ip transit
+- `id` (String) ID of the fabric device
 
 ## Import
 

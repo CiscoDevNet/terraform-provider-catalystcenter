@@ -1,7 +1,7 @@
 ---
 name: Fabric Devices
 rest_endpoint: /dna/intent/api/v1/sda/fabricDevices
-res_description: Manages Fabric Devices in bulk
+res_description: Manages Fabric Devices within a single resource, specifying a list of fabric_devices as input
 root_list: true
 update_computed: true
 device_unreachability_warning: true
@@ -30,14 +30,13 @@ attributes:
     mandatory: true
     description: List of fabric devices to be managed in bulk
     response_data_path: response
-    max_elements_in_root_list: 50
+    max_elements_in_root_list: 10
     attributes:
       - model_name: id
         type: String
         computed: true
         computed_refresh_value: true
-        mandatory: false
-        description: ID of the layer 3 handoff ip transit
+        description: ID of the fabric device
         exclude_test: true
       - model_name: networkDeviceId
         id: true

@@ -40,7 +40,7 @@ Read-Only:
 - `default_exit` (Boolean) Set this to make the fabric border device the gateway of last resort for this site. Any unknown traffic will be sent to this fabric border device from edge nodes
 - `device_roles` (Set of String) List of the roles of the fabric device. Allowed values are [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE, WIRELESS_CONTROLLER_NODE]
 - `fabric_id` (String) ID of the fabric of this fabric device
-- `id` (String) ID of the layer 3 handoff ip transit
+- `id` (String) ID of the fabric device
 - `import_external_routes` (Boolean) Set this to import external routes from other routing protocols (such as BGP) to the fabric control plane.
 - `local_autonomous_system_number` (String) BGP Local autonomous system number of the fabric border device. Allowed range is [1 to 4294967295].
 - `network_device_id` (String) Network device ID of the fabric device
