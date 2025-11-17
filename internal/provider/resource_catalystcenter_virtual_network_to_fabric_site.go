@@ -257,7 +257,7 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
 	MAX_RETRIES := 3
-	for try := 0; try <= MAX_RETRIES; try++ {
+	for try := 1; try <= MAX_RETRIES; try++ {
 
 		params := ""
 		params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
@@ -302,15 +302,15 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 
 		getFabricIds := []string{}
 		for _, id := range res.Get("response.0.fabricIds").Array() {
-			existingFabricIds = append(existingFabricIds, id.String())
+			getFabricIds = append(getFabricIds, id.String())
 		}
 		slices.Sort(newFabricIds)
 		slices.Sort(getFabricIds)
-		if slices.Equal(newFabricIds, existingFabricIds) {
+		if slices.Equal(newFabricIds, getFabricIds) {
 			break
 		}
 		if try != MAX_RETRIES {
-			tflog.Warn(ctx, fmt.Sprintf("%s: Assigned fabric ids does not match. Retrying for %d time", res.String(), try))
+			tflog.Warn(ctx, fmt.Sprintf("Assigned fabric ids does not match. Retrying for %d time(s). Response: %s", try, res.String()))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Assigned fabric ids does not match. Please try again later, %s", res.String()))
 			return
