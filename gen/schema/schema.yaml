@@ -103,3 +103,4 @@ attribute:
   attributes: list(include('attribute'), required=False) # List of attributes, only relevant if type is "List" or "Set"
   max_elements_in_root_list: int(required=False) # The chunk size of a single bulk request
   no_put: bool(required=False) # Set to true if the attribute should be excluded from the PUT request
+  custom_modifier: str(required=False) # Set custom modifier on the field, Modifier should exist in the package

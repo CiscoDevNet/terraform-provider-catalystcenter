@@ -149,6 +149,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and (len .DefaultValue) (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
+				{{- if .CustomModifier}}
+				PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
+					{{.CustomModifier}}{},
+				},
+				{{- else}}
 				{{- if or .Id .MatchId .Reference .RequiresReplace}}
 				PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 					{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
@@ -158,6 +163,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				PlanModifiers: []planmodifier.{{.Type}}{
 					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 				},
+				{{- end}}
 				{{- end}}
 				{{- if isNestedListSet .}}
 				NestedObject: schema.NestedAttributeObject{
@@ -223,6 +229,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if and (len .DefaultValue) (eq .Type "String")}}
 							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 							{{- end}}
+							{{- if .CustomModifier}}
+							PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
+								{{.CustomModifier}}{},
+							},
+							{{- else}}
 							{{- if and .RequiresReplace (not $root.RootList)}}
 							PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 								{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
@@ -232,6 +243,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							PlanModifiers: []planmodifier.{{.Type}}{
 								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 							},
+							{{- end}}
 							{{- end}}
 							{{- if isNestedListSet .}}
 							NestedObject: schema.NestedAttributeObject{
@@ -295,6 +307,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- else if and (len .DefaultValue) (eq .Type "String")}}
 										Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 										{{- end}}
+										{{- if .CustomModifier}}
+										PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
+											{{.CustomModifier}}{},
+										},
+										{{- else}}
 										{{- if .RequiresReplace}}
 										PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 											{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
@@ -304,6 +321,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										PlanModifiers: []planmodifier.{{.Type}}{
 											{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 										},
+										{{- end}}
 										{{- end}}
 										{{- if isNestedListSet .}}
 										NestedObject: schema.NestedAttributeObject{
@@ -367,6 +385,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- else if and (len .DefaultValue) (eq .Type "String")}}
 													Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 													{{- end}}
+													{{- if .CustomModifier}}
+													PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
+														{{.CustomModifier}}{},
+													},
+													{{- else}}
 													{{- if .RequiresReplace}}
 													PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 														{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
@@ -376,6 +399,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													PlanModifiers: []planmodifier.{{.Type}}{
 														{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 													},
+													{{- end}}
 													{{- end}}
 												},
 												{{- end}}
@@ -954,7 +978,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				}
 				{{- end}}
 				{{- end}}
-			{{- else if and .Computed .ExcludeTest}}
+			{{- else if and .Computed .ExcludeTest  (ne .Type "Set") }}
 			item.{{toGoName .TfName}} = types.{{.Type}}Null()
 			{{- end}}
 			{{- end}}

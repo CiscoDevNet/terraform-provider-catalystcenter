@@ -49,12 +49,9 @@ Required:
 
 Optional:
 
+- `id` (String) ID of the multicast configuration
 - `ipv4_ssm_ranges` (Set of String) IPv4 Source Specific Multicast (SSM) ranges
 - `multicast_rps` (Attributes Set) Multicast Rendezvous Points (RP). Required for Any Source Multicast (ASM) scenario (see [below for nested schema](#nestedatt--virtual_networks--multicast_rps))
-
-Read-Only:
-
-- `id` (String) ID of the multicast configuration
 
 <a id="nestedatt--virtual_networks--multicast_rps"></a>
 ### Nested Schema for `virtual_networks.multicast_rps`

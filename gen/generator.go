@@ -200,6 +200,7 @@ type YamlConfigAttribute struct {
 	Attributes            []YamlConfigAttribute `yaml:"attributes"`
 	MaxElementsInRootList int64                 `yaml:"max_elements_in_root_list"`
 	NoPut                 bool                  `yaml:"no_put"`
+	CustomModifier        string                `yaml:"custom_modifier"`
 }
 
 // Templating helper function to convert TF name to GO name
