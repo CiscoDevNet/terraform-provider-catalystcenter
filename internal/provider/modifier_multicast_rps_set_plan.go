@@ -29,9 +29,13 @@ func (m multicastRpsSetPlanModifier) MarkdownDescription(ctx context.Context) st
 // PlanModifySet is the method required by the planmodifier.Set interface.
 func (m multicastRpsSetPlanModifier) PlanModifySet(ctx context.Context, req planmodifier.SetRequest, resp *planmodifier.SetResponse) {
 	var plannedRps []FabricMulticastVirtualNetworksVirtualNetworksMulticastRps
-	resp.Diagnostics.Append(req.PlanValue.ElementsAs(ctx, &plannedRps, false)...)
-	if resp.Diagnostics.HasError() {
-		return
+	if !req.PlanValue.IsNull() && !req.PlanValue.IsUnknown() {
+		resp.Diagnostics.Append(req.PlanValue.ElementsAs(ctx, &plannedRps, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	} else {
+		plannedRps = []FabricMulticastVirtualNetworksVirtualNetworksMulticastRps{}
 	}
 
 	var stateRps []FabricMulticastVirtualNetworksVirtualNetworksMulticastRps
