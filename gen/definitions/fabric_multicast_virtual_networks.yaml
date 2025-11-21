@@ -32,7 +32,6 @@ attributes:
       - model_name: id
         type: String
         computed: true
-        computed_refresh_value: true
         description: ID of the multicast configuration
         exclude_test: true
       - model_name: fabricId
@@ -65,8 +64,10 @@ attributes:
       - model_name: multicastRPs
         tf_name: multicast_rps
         type: Set
+        custom_modifier: multicastRpsSetPlanModifier
         description: Multicast Rendezvous Points (RP). Required for Any Source Multicast (ASM) scenario
         exclude_test: true
+        computed: true
         attributes:
           - model_name: rpDeviceLocation
             type: String
@@ -76,10 +77,12 @@ attributes:
           - model_name: ipv4Address
             tf_name: ipv4_address
             type: String
+            computed_refresh_value: true
             description: IPv4 address of the RP. For external RP configuration, exactly one of ipv4Address or ipv6Address must be provided. For fabric RP, this address is allocated by SDA and should not be provided during RP creation request and SDA allocated address should be retained in subsequent requests.
           - model_name: ipv6Address
             tf_name: ipv6_address
             type: String
+            computed_refresh_value: true
             description: IPv6 address of the RP. For external RP configuration, exactly one of ipv4Address or ipv6Address must be provided. For fabric RP, this address is allocated by SDA and should not be provided during RP creation request and SDA allocated address should be retained in subsequent requests. ipv6Address can only be provided for virtual networks with dual stack (IPv4 + IPv6) multicast pool.
           - model_name: isDefaultV4RP
             tf_name: is_default_v4_rp

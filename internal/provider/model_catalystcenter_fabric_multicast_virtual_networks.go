@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"slices"
 	"strconv"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -404,6 +405,71 @@ func (data *FabricMulticastVirtualNetworks) fromBodyUnknowns(ctx context.Context
 				data.VirtualNetworks[i].Id = types.StringValue(value.String())
 			} else {
 				data.VirtualNetworks[i].Id = types.StringNull()
+			}
+		}
+		for ci := range data.VirtualNetworks[i].MulticastRps {
+			keys := [...]string{"rpDeviceLocation", "ipv4Address", "ipv6Address", "isDefaultV4RP", "isDefaultV6RP"}
+			keyValues := [...]string{data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation.ValueString(), data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address.ValueString(), data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address.ValueString(), strconv.FormatBool(data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp.ValueBool()), strconv.FormatBool(data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp.ValueBool())}
+			emptyKeys := [...]string{"ipv4Address", "ipv6Address"}
+
+			var cr gjson.Result
+			r.Get("multicastRPs").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] || slices.Contains(emptyKeys[:], keys[ik]) && keyValues[ik] == "" {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("rpDeviceLocation"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation.IsNull() {
+				data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation = types.StringValue(value.String())
+			} else {
+				data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation = types.StringNull()
+			}
+			if value := cr.Get("ipv4Address"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address.IsNull() {
+				data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address = types.StringValue(value.String())
+			} else {
+				data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address = types.StringNull()
+			}
+			if value := cr.Get("ipv6Address"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address.IsNull() {
+				data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address = types.StringValue(value.String())
+			} else {
+				data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address = types.StringNull()
+			}
+			if value := cr.Get("isDefaultV4RP"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp.IsNull() {
+				data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp = types.BoolValue(value.Bool())
+			} else {
+				data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp = types.BoolNull()
+			}
+			if value := cr.Get("isDefaultV6RP"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp.IsNull() {
+				data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp = types.BoolValue(value.Bool())
+			} else {
+				data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp = types.BoolNull()
+			}
+			if value := cr.Get("networkDeviceIds"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].NetworkDeviceIds.IsNull() {
+				data.VirtualNetworks[i].MulticastRps[ci].NetworkDeviceIds = helpers.GetStringSet(value.Array())
+			} else {
+				data.VirtualNetworks[i].MulticastRps[ci].NetworkDeviceIds = types.SetNull(types.StringType)
+			}
+			if value := cr.Get("ipv4AsmRanges"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].Ipv4AsmRanges.IsNull() {
+				data.VirtualNetworks[i].MulticastRps[ci].Ipv4AsmRanges = helpers.GetStringSet(value.Array())
+			} else {
+				data.VirtualNetworks[i].MulticastRps[ci].Ipv4AsmRanges = types.SetNull(types.StringType)
+			}
+			if value := cr.Get("ipv6AsmRanges"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].Ipv6AsmRanges.IsNull() {
+				data.VirtualNetworks[i].MulticastRps[ci].Ipv6AsmRanges = helpers.GetStringSet(value.Array())
+			} else {
+				data.VirtualNetworks[i].MulticastRps[ci].Ipv6AsmRanges = types.SetNull(types.StringType)
 			}
 		}
 	}

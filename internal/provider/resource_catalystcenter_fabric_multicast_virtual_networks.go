@@ -87,7 +87,11 @@ func (r *FabricMulticastVirtualNetworksResource) Schema(ctx context.Context, req
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("ID of the multicast configuration").String,
+							Optional:            true,
 							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"fabric_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("ID of the fabric site this multicast configuration is associated with").String,
@@ -109,6 +113,10 @@ func (r *FabricMulticastVirtualNetworksResource) Schema(ctx context.Context, req
 						"multicast_rps": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Multicast Rendezvous Points (RP). Required for Any Source Multicast (ASM) scenario").String,
 							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.Set{
+								multicastRpsSetPlanModifier{},
+							},
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"rp_device_location": schema.StringAttribute{
@@ -275,7 +283,6 @@ func (r *FabricMulticastVirtualNetworksResource) Read(ctx context.Context, req r
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricMulticastVirtualNetworksResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state FabricMulticastVirtualNetworks
 
@@ -480,14 +487,19 @@ func (r *FabricMulticastVirtualNetworksResource) Update(ctx context.Context, req
 			}
 		}
 	}
-
+	params := ""
+	params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString())
+	res, err := r.client.Get(plan.getPath() + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.fromBodyUnknowns(ctx, res)
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricMulticastVirtualNetworksResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
