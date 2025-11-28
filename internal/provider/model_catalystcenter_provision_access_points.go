@@ -55,9 +55,6 @@ func (data ProvisionAccessPoints) getPath() string {
 // End of section. //template:end getPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
-func (data ProvisionAccessPoints) getFallbackPath() string {
-	return ""
-}
 
 // End of section. //template:end getFallbackPath
 

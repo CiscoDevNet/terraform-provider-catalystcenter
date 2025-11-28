@@ -30,22 +30,26 @@ attributes:
         type: String
         description: Description about the Cisco ISE server
       - model_name: fqdn
+        write_only: true
         type: String
         description: Fully-qualified domain name of the Cisco ISE server
         mandatory: true
       - model_name: password
         type: String
+        write_only: true
         description: Password of the Cisco ISE server
         mandatory: true
       - model_name: sshkey
         type: String
         description: SSH key of the Cisco ISE server
       - model_name: ipAddress
+        id: true
         type: String
         description: IP Address of the Cisco ISE Server
         mandatory: true
       - model_name: subscriberName
         type: String
+        write_only: true
         description: Subscriber name of the Cisco ISE server
         mandatory: true
       - model_name: userName

@@ -68,6 +68,7 @@ func (data IPPoolReservation) getPath() string {
 // End of section. //template:end getPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
+
 func (data IPPoolReservation) getFallbackPath() string {
 	return "/intent/api/v1/ipam/siteIpAddressPools"
 }
