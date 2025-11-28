@@ -1,9 +1,11 @@
 ---
 name: Building
 rest_endpoint: /dna/intent/api/v2/buildings
+cache_rest_endpoint: /dna/intent/api/v1/sites?type=building
 doc_category: Sites
 id_path: response.data
 allow_existing_on_create: true
+use_cache: true
 attributes:
   - model_name: name
     response_data_path: response.name

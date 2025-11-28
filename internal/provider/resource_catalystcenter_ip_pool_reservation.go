@@ -52,6 +52,7 @@ func NewIPPoolReservationResource() resource.Resource {
 type IPPoolReservationResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *IPPoolReservationResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -188,6 +189,7 @@ func (r *IPPoolReservationResource) Configure(_ context.Context, req resource.Co
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model
@@ -195,6 +197,8 @@ func (r *IPPoolReservationResource) Configure(_ context.Context, req resource.Co
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *IPPoolReservationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan IPPoolReservation
+	cacheKey := "IPPoolReservation"
+	r.cache.Delete(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -261,7 +265,7 @@ func (r *IPPoolReservationResource) Read(ctx context.Context, req resource.ReadR
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.ReadCache(ctx, req, state, params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -289,6 +293,8 @@ func (r *IPPoolReservationResource) Read(ctx context.Context, req resource.ReadR
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *IPPoolReservationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state IPPoolReservation
+	cacheKey := "IPPoolReservation"
+	r.cache.Delete(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -324,6 +330,8 @@ func (r *IPPoolReservationResource) Update(ctx context.Context, req resource.Upd
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *IPPoolReservationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state IPPoolReservation
+	cacheKey := "IPPoolReservation"
+	r.cache.Delete(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -352,3 +360,33 @@ func (r *IPPoolReservationResource) ImportState(ctx context.Context, req resourc
 }
 
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin readcache
+func (r *IPPoolReservationResource) ReadCache(ctx context.Context, req resource.ReadRequest, state IPPoolReservation, params string) (cc.Res, error) {
+	var err error
+	cacheKey := "IPPoolReservation"
+
+	_, cacheSuffix, found := strings.Cut(params, "?")
+	queryPart, err := url.ParseQuery(cacheSuffix)
+	if err == nil {
+		delete(queryPart, "id")
+		newQuery := queryPart.Encode()
+		cacheSuffix = "?" + newQuery
+		cacheKey += cacheSuffix
+	}
+
+	cachedValue, found := r.cache.Get(cacheKey)
+	if found {
+		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
+		return cachedValue.(cc.Res), nil
+	}
+	res, err := r.client.Get(state.getPath() + params)
+	singleRes := res
+	if err == nil {
+		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
+		r.cache.Set(cacheKey, res)
+	}
+	return singleRes, err
+}
+
+// End of section. //template:end readcache

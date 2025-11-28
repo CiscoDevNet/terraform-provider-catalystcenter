@@ -145,6 +145,8 @@ type YamlConfig struct {
 	TestPrerequisites           string                `yaml:"test_prerequisites"`
 	MaxAsyncWaitTime            int64                 `yaml:"max_async_wait_time"`
 	Mutex                       bool                  `yaml:"mutex"`
+	UseCache                    bool                  `yaml:"use_cache"`
+	CacheRestEndpoint           string                `yaml:"cache_rest_endpoint"`
 }
 
 type YamlConfigAttribute struct {

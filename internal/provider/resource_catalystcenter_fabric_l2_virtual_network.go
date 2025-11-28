@@ -53,6 +53,7 @@ func NewFabricL2VirtualNetworkResource() resource.Resource {
 type FabricL2VirtualNetworkResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *FabricL2VirtualNetworkResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -122,6 +123,7 @@ func (r *FabricL2VirtualNetworkResource) Configure(_ context.Context, req resour
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model

@@ -62,6 +62,7 @@ func New{{camelCase .Name}}Resource() resource.Resource {
 type {{camelCase .Name}}Resource struct {
 	client *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *{{camelCase .Name}}Resource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -463,12 +464,18 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan {{camelCase .Name}}
+
+	{{- if .UseCache}}
+	cacheKey := "{{camelCase .Name}}"
+	r.cache.Delete(cacheKey)
+	{{- end}}
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -762,7 +769,11 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
+	{{- if .UseCache}}
+	res, err := r.ReadCache(ctx, req, state, params)
+	{{- else}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
+	{{- end}}
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -799,6 +810,11 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state {{camelCase .Name}}
 	{{- $name := camelCase .Name}}
+
+	{{- if .UseCache}}
+	cacheKey := "{{camelCase .Name}}"
+	r.cache.Delete(cacheKey)
+	{{- end}}
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -1292,6 +1308,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state {{camelCase .Name}}
 
+	{{- if .UseCache}}
+	cacheKey := "{{camelCase .Name}}"
+	r.cache.Delete(cacheKey)
+	{{- end}}
+
 	// Read state
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -1428,3 +1449,46 @@ func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resou
 }
 {{- end}}
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin readcache
+func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resource.ReadRequest, state {{camelCase .Name}}, params string) (cc.Res, error) {
+	var err error
+	cacheKey := "{{camelCase .Name}}"
+
+	_, cacheSuffix, found := strings.Cut(params, "?")
+	queryPart, err := url.ParseQuery(cacheSuffix)
+	if err == nil{
+		delete(queryPart, "id")
+		newQuery := queryPart.Encode()
+		cacheSuffix  =  "?" + newQuery
+		cacheKey += cacheSuffix
+	}
+	
+	cachedValue, found := r.cache.Get(cacheKey)
+	if found {
+		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
+		{{- if .CacheRestEndpoint}}
+		filteredValue := cachedValue.(cc.Res).Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+		jsonBytes, _ := json.Marshal(map[string]interface{}{"response": filteredValue.Value()})
+		wrappedRes := gjson.ParseBytes(jsonBytes)
+		return wrappedRes, nil
+		{{- else}}
+		return cachedValue.(cc.Res), nil
+		{{- end}}
+	}
+	{{- if .CacheRestEndpoint}}
+	res, err := r.client.Get("{{.CacheRestEndpoint}}" + strings.Replace(cacheSuffix, "?", "&", 1))
+	foundRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+	jsonBytes, _ := json.Marshal(map[string]interface{}{"response": foundRes.Value()})
+	singleRes := gjson.ParseBytes(jsonBytes)
+	{{- else}}
+	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
+	singleRes := res
+	{{- end}}
+	if err == nil {
+		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
+		r.cache.Set(cacheKey, res)
+	}
+	return singleRes, err
+}
+// End of section. //template:end readcache

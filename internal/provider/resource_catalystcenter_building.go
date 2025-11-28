@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -33,6 +34,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -50,6 +52,7 @@ func NewBuildingResource() resource.Resource {
 type BuildingResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *BuildingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -104,6 +107,7 @@ func (r *BuildingResource) Configure(_ context.Context, req resource.ConfigureRe
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model
@@ -111,6 +115,8 @@ func (r *BuildingResource) Configure(_ context.Context, req resource.ConfigureRe
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *BuildingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Building
+	cacheKey := "Building"
+	r.cache.Delete(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -177,7 +183,7 @@ func (r *BuildingResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 	params := ""
 	params += "/" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.ReadCache(ctx, req, state, params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -204,6 +210,8 @@ func (r *BuildingResource) Read(ctx context.Context, req resource.ReadRequest, r
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *BuildingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Building
+	cacheKey := "Building"
+	r.cache.Delete(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -239,6 +247,8 @@ func (r *BuildingResource) Update(ctx context.Context, req resource.UpdateReques
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *BuildingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Building
+	cacheKey := "Building"
+	r.cache.Delete(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -276,3 +286,38 @@ func (r *BuildingResource) ImportState(ctx context.Context, req resource.ImportS
 }
 
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin readcache
+func (r *BuildingResource) ReadCache(ctx context.Context, req resource.ReadRequest, state Building, params string) (cc.Res, error) {
+	var err error
+	cacheKey := "Building"
+
+	_, cacheSuffix, found := strings.Cut(params, "?")
+	queryPart, err := url.ParseQuery(cacheSuffix)
+	if err == nil {
+		delete(queryPart, "id")
+		newQuery := queryPart.Encode()
+		cacheSuffix = "?" + newQuery
+		cacheKey += cacheSuffix
+	}
+
+	cachedValue, found := r.cache.Get(cacheKey)
+	if found {
+		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
+		filteredValue := cachedValue.(cc.Res).Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+		jsonBytes, _ := json.Marshal(map[string]interface{}{"response": filteredValue.Value()})
+		wrappedRes := gjson.ParseBytes(jsonBytes)
+		return wrappedRes, nil
+	}
+	res, err := r.client.Get("/dna/intent/api/v1/sites?type=building" + strings.Replace(cacheSuffix, "?", "&", 1))
+	foundRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+	jsonBytes, _ := json.Marshal(map[string]interface{}{"response": foundRes.Value()})
+	singleRes := gjson.ParseBytes(jsonBytes)
+	if err == nil {
+		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
+		r.cache.Set(cacheKey, res)
+	}
+	return singleRes, err
+}
+
+// End of section. //template:end readcache
