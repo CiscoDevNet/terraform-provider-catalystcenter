@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"math"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -87,7 +88,6 @@ func (data Floor) toBody(ctx context.Context, state Floor) string {
 
 // End of section. //template:end toBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Floor) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.parentId"); value.Exists() {
 		data.ParentId = types.StringValue(value.String())
@@ -110,17 +110,17 @@ func (data *Floor) fromBody(ctx context.Context, res gjson.Result) {
 		data.RfModel = types.StringNull()
 	}
 	if value := res.Get("response.width"); value.Exists() {
-		data.Width = types.Float64Value(value.Float())
+		data.Width = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 	} else {
 		data.Width = types.Float64Null()
 	}
 	if value := res.Get("response.length"); value.Exists() {
-		data.Length = types.Float64Value(value.Float())
+		data.Length = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 	} else {
 		data.Length = types.Float64Null()
 	}
 	if value := res.Get("response.height"); value.Exists() {
-		data.Height = types.Float64Value(value.Float())
+		data.Height = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 	} else {
 		data.Height = types.Float64Null()
 	}
@@ -131,9 +131,6 @@ func (data *Floor) fromBody(ctx context.Context, res gjson.Result) {
 	}
 }
 
-// End of section. //template:end fromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.parentId"); value.Exists() && !data.ParentId.IsNull() {
 		data.ParentId = types.StringValue(value.String())
@@ -156,17 +153,17 @@ func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.RfModel = types.StringNull()
 	}
 	if value := res.Get("response.width"); value.Exists() && !data.Width.IsNull() {
-		data.Width = types.Float64Value(value.Float())
+		data.Width = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 	} else {
 		data.Width = types.Float64Null()
 	}
 	if value := res.Get("response.length"); value.Exists() && !data.Length.IsNull() {
-		data.Length = types.Float64Value(value.Float())
+		data.Length = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 	} else {
 		data.Length = types.Float64Null()
 	}
 	if value := res.Get("response.height"); value.Exists() && !data.Height.IsNull() {
-		data.Height = types.Float64Value(value.Float())
+		data.Height = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 	} else {
 		data.Height = types.Float64Null()
 	}
@@ -176,8 +173,6 @@ func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.UnitsOfMeasure = types.StringNull()
 	}
 }
-
-// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Floor) isNull(ctx context.Context, res gjson.Result) bool {
