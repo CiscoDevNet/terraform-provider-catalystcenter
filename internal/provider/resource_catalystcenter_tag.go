@@ -52,6 +52,7 @@ func NewTagResource() resource.Resource {
 type TagResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *TagResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -152,6 +153,7 @@ func (r *TagResource) Configure(_ context.Context, req resource.ConfigureRequest
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model

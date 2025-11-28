@@ -22,6 +22,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -56,6 +57,7 @@ type CcProviderModel struct {
 type CcProviderData struct {
 	Client                *cc.Client
 	AllowExistingOnCreate bool
+	Cache                 *ThreadSafeCache
 }
 
 // Metadata returns the provider type name.
@@ -287,7 +289,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 		return
 	}
 
-	data := CcProviderData{Client: &c, AllowExistingOnCreate: allow_existing_on_create}
+	data := CcProviderData{Client: &c, AllowExistingOnCreate: allow_existing_on_create, Cache: NewThreadSafeCache()}
 	resp.DataSourceData = &data
 	resp.ResourceData = &data
 }
@@ -450,6 +452,40 @@ func New(version string) func() provider.Provider {
 			version: version,
 		}
 	}
+}
+
+type ThreadSafeCache struct {
+	mu    sync.RWMutex
+	items map[string]interface{}
+}
+
+// NewThreadSafeCache creates and returns a new initialized ThreadSafeCache.
+func NewThreadSafeCache() *ThreadSafeCache {
+	return &ThreadSafeCache{
+		items: make(map[string]interface{}),
+	}
+}
+
+// Set adds or updates an item in the cache.
+func (c *ThreadSafeCache) Set(key string, value interface{}) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.items[key] = value
+}
+
+// Get retrieves an item from the cache.
+func (c *ThreadSafeCache) Get(key string) (interface{}, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	item, found := c.items[key]
+	return item, found
+}
+
+// Delete removes an item from the cache.
+func (c *ThreadSafeCache) Delete(key string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.items, key)
 }
 
 // End of section. //template:end provider
