@@ -66,10 +66,7 @@ func TestAccCcAuthenticationPolicyServer(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcAuthenticationPolicyServerConfig_minimum() string {
 	config := `resource "catalystcenter_authentication_policy_server" "test" {` + "\n"
-	config += `	authentication_port = 1812` + "\n"
-	config += `	accounting_port = 1813` + "\n"
 	config += `	ip_address = "10.0.0.1"` + "\n"
-	config += `	port = 49` + "\n"
 	config += `	protocol = "RADIUS"` + "\n"
 	config += `	retries = 2` + "\n"
 	config += `	role = "secondary"` + "\n"

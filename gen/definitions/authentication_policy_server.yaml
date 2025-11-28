@@ -9,14 +9,12 @@ doc_category: System
 attributes:
   - model_name: authenticationPort
     type: Int64
-    mandatory: true
     min_int: 1
     max_int: 65535
     description: Authentication port of RADIUS server
     example: 1812
   - model_name: accountingPort
     type: Int64
-    mandatory: true
     min_int: 1
     max_int: 65535
     description: Accounting port of RADIUS server
@@ -76,7 +74,6 @@ attributes:
     example: false
   - model_name: port
     type: Int64
-    mandatory: true
     min_int: 1
     max_int: 65535
     description: Port of TACACS server
