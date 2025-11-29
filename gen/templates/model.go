@@ -133,6 +133,7 @@ func (data {{camelCase .Name}}) getPath() string {
 // End of section. //template:end getPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
+{{if .FallbackRestEndpoint}}
 func (data {{camelCase .Name}}) getFallbackPath() string {
 	{{- if hasReference .Attributes}}
 		return fmt.Sprintf("{{.FallbackRestEndpoint}}"{{range .Attributes}}{{if .Reference}}, url.QueryEscape(data.{{toGoName .TfName}}.Value{{.Type}}()){{end}}{{end}})
@@ -140,6 +141,7 @@ func (data {{camelCase .Name}}) getFallbackPath() string {
 		return "{{.FallbackRestEndpoint}}"
 	{{- end}}
 }
+{{- end}}
 // End of section. //template:end getFallbackPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
@@ -374,7 +376,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 			{{- range .Attributes}}
 			{{- $ccname := toGoName .TfName}}
 			{{- if and .WriteOnly .Mandatory }}
-			item.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Bool"}}false{{else if eq .Type "Int64"}}0{{else}}{{.Type}}{{end}})
+			item.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Bool"}}false{{else if eq .Type "Int64"}}0{{else if eq .Type "String"}}""{{else}}{{.Type}}{{end}})
 			{{- end}}
 			{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") }}
 			if cValue := v.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cValue.Exists() {

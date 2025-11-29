@@ -339,6 +339,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewImageResource,
 		NewImageActivationResource,
 		NewImageDistributionResource,
+		NewIntegrateISEResource,
 		NewIPPoolResource,
 		NewIPPoolReservationResource,
 		NewLANAutomationResource,

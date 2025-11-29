@@ -209,16 +209,8 @@ func (data *AuthenticationPolicyServer) fromBody(ctx context.Context, res gjson.
 			} else {
 				item.Description = types.StringNull()
 			}
-			if cValue := v.Get("fqdn"); cValue.Exists() {
-				item.Fqdn = types.StringValue(cValue.String())
-			} else {
-				item.Fqdn = types.StringNull()
-			}
-			if cValue := v.Get("password"); cValue.Exists() {
-				item.Password = types.StringValue(cValue.String())
-			} else {
-				item.Password = types.StringNull()
-			}
+			item.Fqdn = types.StringValue("")
+			item.Password = types.StringValue("")
 			if cValue := v.Get("sshkey"); cValue.Exists() {
 				item.Sshkey = types.StringValue(cValue.String())
 			} else {
@@ -229,11 +221,7 @@ func (data *AuthenticationPolicyServer) fromBody(ctx context.Context, res gjson.
 			} else {
 				item.IpAddress = types.StringNull()
 			}
-			if cValue := v.Get("subscriberName"); cValue.Exists() {
-				item.SubscriberName = types.StringValue(cValue.String())
-			} else {
-				item.SubscriberName = types.StringNull()
-			}
+			item.SubscriberName = types.StringValue("")
 			if cValue := v.Get("userName"); cValue.Exists() {
 				item.UserName = types.StringValue(cValue.String())
 			} else {
@@ -336,8 +324,8 @@ func (data *AuthenticationPolicyServer) updateFromBody(ctx context.Context, res 
 		data.AccountingPort = types.Int64Null()
 	}
 	for i := range data.CiscoIseDtos {
-		keys := [...]string{"description", "fqdn", "password", "sshkey", "ipAddress", "subscriberName", "userName"}
-		keyValues := [...]string{data.CiscoIseDtos[i].Description.ValueString(), data.CiscoIseDtos[i].Fqdn.ValueString(), data.CiscoIseDtos[i].Password.ValueString(), data.CiscoIseDtos[i].Sshkey.ValueString(), data.CiscoIseDtos[i].IpAddress.ValueString(), data.CiscoIseDtos[i].SubscriberName.ValueString(), data.CiscoIseDtos[i].UserName.ValueString()}
+		keys := [...]string{"ipAddress"}
+		keyValues := [...]string{data.CiscoIseDtos[i].IpAddress.ValueString()}
 
 		var r gjson.Result
 		res.Get("ciscoIseDtos").ForEach(
@@ -363,16 +351,6 @@ func (data *AuthenticationPolicyServer) updateFromBody(ctx context.Context, res 
 		} else {
 			data.CiscoIseDtos[i].Description = types.StringNull()
 		}
-		if value := r.Get("fqdn"); value.Exists() && !data.CiscoIseDtos[i].Fqdn.IsNull() {
-			data.CiscoIseDtos[i].Fqdn = types.StringValue(value.String())
-		} else {
-			data.CiscoIseDtos[i].Fqdn = types.StringNull()
-		}
-		if value := r.Get("password"); value.Exists() && !data.CiscoIseDtos[i].Password.IsNull() {
-			data.CiscoIseDtos[i].Password = types.StringValue(value.String())
-		} else {
-			data.CiscoIseDtos[i].Password = types.StringNull()
-		}
 		if value := r.Get("sshkey"); value.Exists() && !data.CiscoIseDtos[i].Sshkey.IsNull() {
 			data.CiscoIseDtos[i].Sshkey = types.StringValue(value.String())
 		} else {
@@ -382,11 +360,6 @@ func (data *AuthenticationPolicyServer) updateFromBody(ctx context.Context, res 
 			data.CiscoIseDtos[i].IpAddress = types.StringValue(value.String())
 		} else {
 			data.CiscoIseDtos[i].IpAddress = types.StringNull()
-		}
-		if value := r.Get("subscriberName"); value.Exists() && !data.CiscoIseDtos[i].SubscriberName.IsNull() {
-			data.CiscoIseDtos[i].SubscriberName = types.StringValue(value.String())
-		} else {
-			data.CiscoIseDtos[i].SubscriberName = types.StringNull()
 		}
 		if value := r.Get("userName"); value.Exists() && !data.CiscoIseDtos[i].UserName.IsNull() {
 			data.CiscoIseDtos[i].UserName = types.StringValue(value.String())
