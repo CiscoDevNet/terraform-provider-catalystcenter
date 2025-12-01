@@ -9,6 +9,7 @@ description: |-
 
 ## 0.4.4 (unreleased)
 
+- Fix issue with the destroy operation in the `catalystcenter_provision_devices` resource
 - Add `catalystcenter_integrate_ise` resource to accept Cisco ISE server certificate for Cisco ISE server integration
 
 ## 0.4.3
