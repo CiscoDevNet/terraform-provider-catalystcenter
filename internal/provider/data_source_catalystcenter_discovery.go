@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -192,7 +193,6 @@ func (d *DiscoveryDataSource) Configure(_ context.Context, req datasource.Config
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *DiscoveryDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config Discovery
 
@@ -205,20 +205,47 @@ func (d *DiscoveryDataSource) Read(ctx context.Context, req datasource.ReadReque
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
+	// Fetch all discoveries with pagination
 	params := ""
-	res, err := d.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
+	var foundDiscovery gjson.Result
+	var found bool
+	offset := 1
+	limit := 500
+
+	for {
+		endpoint := fmt.Sprintf("/dna/intent/api/v1/discovery/%d/%d%s", offset, limit, params)
+		res, err := d.client.Get(endpoint)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
+			return
+		}
+
+		// Try to find the discovery by ID in this batch
+		discoveryRes := res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
+		if discoveryRes.Exists() {
+			foundDiscovery = discoveryRes
+			found = true
+			break
+		}
+
+		responses := res.Get("response").Array()
+		// If we got fewer than limit records, we've reached the end
+		if len(responses) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	if !found {
+		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("Discovery with ID %s not found", config.Id.ValueString()))
 		return
 	}
-	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
-	config.fromBody(ctx, res)
+	config.fromBody(ctx, foundDiscovery)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read

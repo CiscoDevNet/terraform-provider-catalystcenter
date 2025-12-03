@@ -1,7 +1,7 @@
 ---
 name: Discovery
 rest_endpoint: /dna/intent/api/v1/discovery
-get_rest_endpoint: /dna/intent/api/v1/discovery/1/500
+get_rest_endpoint: /dna/intent/api/v1/discovery
 res_description:
   'After discovery resource has been created, the Catalyst Center would contain device entries (if discovered).
   All the device entries can be subsequently obtained from data source `catalystcenter_network_devices`. Terraform

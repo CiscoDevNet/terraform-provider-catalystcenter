@@ -308,7 +308,6 @@ func (r *DiscoveryResource) Configure(_ context.Context, req resource.ConfigureR
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Discovery
 
@@ -330,13 +329,41 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
+	// Fetch all discoveries with pagination to find the created one
 	params = ""
-	res, err = r.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+	var discoveryId string
+	offset := 1
+	limit := 500
+
+	for {
+		endpoint := fmt.Sprintf("/dna/intent/api/v1/discovery/%d/%d%s", offset, limit, params)
+		res, err = r.client.Get(endpoint)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+
+		// Try to find the discovery by name
+		discoveryId = res.Get("response.#(name==\"" + plan.Name.ValueString() + "\").id").String()
+		if discoveryId != "" {
+			break
+		}
+
+		responses := res.Get("response").Array()
+		// If we got fewer than limit records, we've reached the end
+		if len(responses) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	if discoveryId == "" {
+		resp.Diagnostics.AddError("Client Error", "Failed to find created discovery")
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(name==\"" + plan.Name.ValueString() + "\").id").String())
+
+	plan.Id = types.StringValue(discoveryId)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -344,9 +371,6 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end create
-
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state Discovery
 
@@ -359,16 +383,46 @@ func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
+	// Fetch all discoveries with pagination to find the one we need
 	params := ""
-	res, err := r.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
+	var res cc.Res
+	var err error
+	var foundDiscovery bool
+	offset := 1
+	limit := 500
+
+	for {
+		endpoint := fmt.Sprintf("/dna/intent/api/v1/discovery/%d/%d%s", offset, limit, params)
+		res, err = r.client.Get(endpoint)
+		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
+			resp.State.RemoveResource(ctx)
+			return
+		} else if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+
+		// Try to find the discovery by ID
+		discoveryRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+		if discoveryRes.Exists() {
+			res = discoveryRes
+			foundDiscovery = true
+			break
+		}
+
+		responses := res.Get("response").Array()
+		// If we got fewer than limit records, we've reached the end
+		if len(responses) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	if !foundDiscovery {
 		resp.State.RemoveResource(ctx)
 		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
 	}
-	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
@@ -382,8 +436,6 @@ func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *DiscoveryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
