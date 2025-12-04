@@ -211,8 +211,9 @@ func (d *DiscoveryDataSource) Read(ctx context.Context, req datasource.ReadReque
 	var found bool
 	offset := 1
 	limit := 500
+	responsesLen := limit
 
-	for {
+	for responsesLen >= limit {
 		endpoint := fmt.Sprintf("/dna/intent/api/v1/discovery/%d/%d%s", offset, limit, params)
 		res, err := d.client.Get(endpoint)
 		if err != nil {
@@ -228,11 +229,7 @@ func (d *DiscoveryDataSource) Read(ctx context.Context, req datasource.ReadReque
 			break
 		}
 
-		responses := res.Get("response").Array()
-		// If we got fewer than limit records, we've reached the end
-		if len(responses) < limit {
-			break
-		}
+		responsesLen = len(res.Get("response").Array())
 
 		offset += limit
 	}

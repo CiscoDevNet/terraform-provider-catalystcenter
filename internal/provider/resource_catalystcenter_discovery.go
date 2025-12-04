@@ -334,8 +334,9 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 	var discoveryId string
 	offset := 1
 	limit := 500
+	responsesLen := limit
 
-	for {
+	for responsesLen >= limit {
 		endpoint := fmt.Sprintf("/dna/intent/api/v1/discovery/%d/%d%s", offset, limit, params)
 		res, err = r.client.Get(endpoint)
 		if err != nil {
@@ -349,11 +350,7 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 			break
 		}
 
-		responses := res.Get("response").Array()
-		// If we got fewer than limit records, we've reached the end
-		if len(responses) < limit {
-			break
-		}
+		responsesLen = len(res.Get("response").Array())
 
 		offset += limit
 	}
@@ -390,8 +387,9 @@ func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, 
 	var foundDiscovery bool
 	offset := 1
 	limit := 500
+	responsesLen := limit
 
-	for {
+	for responsesLen >= limit {
 		endpoint := fmt.Sprintf("/dna/intent/api/v1/discovery/%d/%d%s", offset, limit, params)
 		res, err = r.client.Get(endpoint)
 		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
@@ -410,11 +408,7 @@ func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, 
 			break
 		}
 
-		responses := res.Get("response").Array()
-		// If we got fewer than limit records, we've reached the end
-		if len(responses) < limit {
-			break
-		}
+		responsesLen = len(res.Get("response").Array())
 
 		offset += limit
 	}
