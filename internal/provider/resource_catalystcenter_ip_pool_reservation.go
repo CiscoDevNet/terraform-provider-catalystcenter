@@ -198,7 +198,7 @@ func (r *IPPoolReservationResource) Configure(_ context.Context, req resource.Co
 func (r *IPPoolReservationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan IPPoolReservation
 	cacheKey := "IPPoolReservation"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -294,7 +294,7 @@ func (r *IPPoolReservationResource) Read(ctx context.Context, req resource.ReadR
 func (r *IPPoolReservationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state IPPoolReservation
 	cacheKey := "IPPoolReservation"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -331,7 +331,7 @@ func (r *IPPoolReservationResource) Update(ctx context.Context, req resource.Upd
 func (r *IPPoolReservationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state IPPoolReservation
 	cacheKey := "IPPoolReservation"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)

@@ -132,7 +132,7 @@ func (r *FloorResource) Configure(_ context.Context, req resource.ConfigureReque
 func (r *FloorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Floor
 	cacheKey := "Floor"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -228,7 +228,7 @@ func (r *FloorResource) Read(ctx context.Context, req resource.ReadRequest, resp
 func (r *FloorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Floor
 	cacheKey := "Floor"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -265,7 +265,7 @@ func (r *FloorResource) Update(ctx context.Context, req resource.UpdateRequest, 
 func (r *FloorResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Floor
 	cacheKey := "Floor"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)

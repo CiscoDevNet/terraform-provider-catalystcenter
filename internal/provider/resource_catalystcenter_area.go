@@ -100,7 +100,7 @@ func (r *AreaResource) Configure(_ context.Context, req resource.ConfigureReques
 func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Area
 	cacheKey := "Area"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -195,7 +195,7 @@ func (r *AreaResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 func (r *AreaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Area
 	cacheKey := "Area"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -232,7 +232,7 @@ func (r *AreaResource) Update(ctx context.Context, req resource.UpdateRequest, r
 func (r *AreaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Area
 	cacheKey := "Area"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)

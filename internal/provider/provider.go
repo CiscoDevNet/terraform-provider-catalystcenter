@@ -22,6 +22,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
@@ -486,6 +487,17 @@ func (c *ThreadSafeCache) Delete(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.items, key)
+}
+
+// DeletePattern removes all items from the cache matching the pattern.
+func (c *ThreadSafeCache) DeletePattern(pattern string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	for key := range c.items {
+		if strings.Contains(key, pattern) {
+			delete(c.items, key)
+		}
+	}
 }
 
 // End of section. //template:end provider

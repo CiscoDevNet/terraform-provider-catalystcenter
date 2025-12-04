@@ -474,7 +474,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 
 	{{- if .UseCache}}
 	cacheKey := "{{camelCase .Name}}"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 	{{- end}}
 
 	// Read plan
@@ -813,7 +813,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 	{{- if .UseCache}}
 	cacheKey := "{{camelCase .Name}}"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 	{{- end}}
 
 	// Read plan
@@ -1310,7 +1310,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 
 	{{- if .UseCache}}
 	cacheKey := "{{camelCase .Name}}"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 	{{- end}}
 
 	// Read state

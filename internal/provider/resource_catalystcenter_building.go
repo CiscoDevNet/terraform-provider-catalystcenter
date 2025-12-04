@@ -116,7 +116,7 @@ func (r *BuildingResource) Configure(_ context.Context, req resource.ConfigureRe
 func (r *BuildingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Building
 	cacheKey := "Building"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -211,7 +211,7 @@ func (r *BuildingResource) Read(ctx context.Context, req resource.ReadRequest, r
 func (r *BuildingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Building
 	cacheKey := "Building"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -248,7 +248,7 @@ func (r *BuildingResource) Update(ctx context.Context, req resource.UpdateReques
 func (r *BuildingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Building
 	cacheKey := "Building"
-	r.cache.Delete(cacheKey)
+	r.cache.DeletePattern(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
