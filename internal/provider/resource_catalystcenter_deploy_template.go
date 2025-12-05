@@ -5,7 +5,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     https://mozilla.org/MPL/2.0/
+// https://mozilla.org/MPL/2.0/
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import (
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
@@ -264,87 +265,24 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("Beginning Create for TemplateId: %s", plan.TemplateId.ValueString()))
 
-	// Create object
+	// As per requirement, plan.Id should always be TemplateId
+	plan.Id = types.StringValue(fmt.Sprint(plan.TemplateId.ValueString()))
+
+	// Create object body
 	body := plan.toBody(ctx, DeployTemplate{})
 
-	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+	for _, v := range plan.TargetInfo {
+		tflog.Debug(ctx, fmt.Sprintf("create deploying target id: %s", v.Id))
 	}
+	postPath := plan.getPath() // params is an empty string in the original code, so just getPath() is sufficient.
 
-	progress := res.Get("response.progress").String()
-
-	re := regexp.MustCompile(`Template Deployemnt Id:\s*([a-f0-9-]+)`)
-	matches := re.FindStringSubmatch(progress)
-
-	var deploymentSuccess bool = false
-
-	if len(matches) > 1 {
-		plan.Id = types.StringValue(matches[1])
-
-		// Check deployment status
-		maxRetries := 30 // e.g., wait up to 5 minutes (30*10s)
-
-		statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(plan.Id.ValueString()))
-
-		// define waiting status
-		waitingStatuses := map[string]bool{
-			"INIT": true,
-		}
-
-		for retry := 0; retry < maxRetries; retry++ {
-			statusRes, err := r.client.Get(statusURL)
-			if err != nil {
-				tflog.Warn(ctx, fmt.Sprintf("Failed to retrieve deployment status for Id %s: %s", plan.Id.ValueString(), err))
-				time.Sleep(10 * time.Second)
-				continue
-			}
-
-			status := statusRes.Get("status").String()
-			devices := statusRes.Get("devices").String()
-
-			switch {
-			case status == "SUCCESS":
-				tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", plan.Id.ValueString()))
-				deploymentSuccess = true // Mark success
-				retry = maxRetries       // exit the for loop
-
-			case status == "FAILURE":
-				resp.Diagnostics.AddWarning(
-					"Template Deployment Failed",
-					fmt.Sprintf("Deployment %s failed with status: %s, on devices: %s", plan.Id.ValueString(), status, devices),
-				)
-				return // stop function with error
-
-			case waitingStatuses[status]:
-				// still waiting, sleep and retry
-				time.Sleep(10 * time.Second)
-				continue
-
-			default:
-				resp.Diagnostics.AddWarning(
-					"Template Deployment Unknown Status",
-					fmt.Sprintf("Deployment %s ended with unexpected status: %s", plan.Id.ValueString(), status),
-				)
-				return
-			}
-		}
-
-		// if maxRetries reached without success
-		if !deploymentSuccess {
-			resp.Diagnostics.AddWarning(
-				"Template Deployment Timeout",
-				fmt.Sprintf("Deployment %s did not complete within expected time", plan.Id.ValueString()),
-			)
-			return
-		}
-	} else {
-		plan.Id = types.StringValue(fmt.Sprint(plan.TemplateId.ValueString()))
-		tflog.Debug(ctx, fmt.Sprintf("Deployment Id was not found, hence using Template Id as resource Id: %s", plan.TemplateId.ValueString()))
+	// Perform deployment and monitor status using the new helper
+	deploymentSuccess := r.performDeploymentAndMonitorStatus(ctx, postPath, body, &resp.Diagnostics)
+	if !deploymentSuccess {
+		// The helper function already added warnings/errors to diagnostics
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -438,7 +376,7 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 
 	// Deploy to changed/new targets
 	if len(targetInfoToRedeploy) > 0 {
-		success := r.deployTargets(ctx, &plan, targetInfoToRedeploy, resp)
+		success := r.deployTargets(ctx, &plan, targetInfoToRedeploy, &resp.Diagnostics) // Pass resp.Diagnostics
 		if !success {
 			return
 		}
@@ -522,8 +460,87 @@ func targetChanged(ctx context.Context, planTarget, stateTarget DeployTemplateTa
 	return false
 }
 
+// New helper function to perform template deployment and monitor its status
+func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, diag *diag.Diagnostics) bool {
+	// The `body` parameter is typed as `interface{}`, but based on the error message,
+	// `r.client.Post` seems to expect a `string` for the body.
+	// We assume that the `toBody` method (called by the caller) returns a string.
+	bodyString, ok := body.(string)
+	if !ok {
+		diag.AddError("Internal Error", "Failed to convert request body to string. The 'toBody' method is expected to return a string for the client.Post method.")
+		return false
+	}
+
+	res, err := r.client.Post(postPath, bodyString) // Pass the type-asserted string
+	if err != nil {
+		diag.AddError("Client Error", fmt.Sprintf("Failed to initiate template deployment (%s), got error: %s, %s", "POST", err, res.String()))
+		return false
+	}
+
+	progress := res.Get("response.progress").String()
+	re := regexp.MustCompile(`Template Deployemnt Id:\s*([a-f0-9-]+)`)
+	matches := re.FindStringSubmatch(progress)
+
+	if len(matches) == 0 {
+		tflog.Warn(ctx, "Deployment Id was not found in response. Assuming immediate success or no deployment to track.")
+		// If no deployment ID is found, we assume the operation completed without a trackable deployment.
+		// This aligns with the original logic where if no ID was found, it proceeded.
+		return true
+	}
+
+	deploymentId := matches[1]
+	tflog.Debug(ctx, fmt.Sprintf("Deployment started with ID: %s", deploymentId))
+
+	maxRetries := 30 // e.g., wait up to 5 minutes (30*10s)
+	statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
+
+	waitingStatuses := map[string]bool{
+		"INIT": true,
+	}
+
+	for retry := 0; retry < maxRetries; retry++ {
+		statusRes, err := r.client.Get(statusURL)
+		if err != nil {
+			tflog.Warn(ctx, fmt.Sprintf("Failed to retrieve deployment status for Id %s: %s", deploymentId, err))
+			time.Sleep(10 * time.Second)
+			continue
+		}
+
+		status := statusRes.Get("status").String()
+		devices := statusRes.Get("devices").String()
+
+		switch {
+		case status == "SUCCESS":
+			tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", deploymentId))
+			return true
+		case status == "FAILURE":
+			diag.AddWarning(
+				"Template Deployment Failed",
+				fmt.Sprintf("Deployment %s failed with status: %s, on devices: %s", deploymentId, status, devices),
+			)
+			return false
+		case waitingStatuses[status]:
+			time.Sleep(10 * time.Second)
+			continue
+		default:
+			diag.AddWarning(
+				"Template Deployment Unknown Status",
+				fmt.Sprintf("Deployment %s ended with unexpected status: %s", deploymentId, status),
+			)
+			return false
+		}
+	}
+
+	// If maxRetries reached without success
+	diag.AddWarning(
+		"Template Deployment Timeout",
+		fmt.Sprintf("Deployment %s did not complete within expected time", deploymentId),
+	)
+	return false
+}
+
 // Helper function to deploy to specific target_info items
-func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, resp *resource.UpdateResponse) bool {
+func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, diag *diag.Diagnostics) bool {
 	// Create a temporary DeployTemplate with only the targets to redeploy
 	tempPlan := DeployTemplate{
 		TemplateId:        plan.TemplateId,
@@ -535,79 +552,15 @@ func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *Deploy
 	}
 
 	for _, v := range targets {
-		tflog.Debug(ctx, fmt.Sprintf("deploying id: %s", v.Id))
+		tflog.Debug(ctx, fmt.Sprintf("deploying target id: %s", v.Id))
 	}
 
 	body := tempPlan.toBody(ctx, DeployTemplate{})
-	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to redeploy template (%s), got error: %s, %s", "POST", err, res.String()))
-		return false
-	}
+	postPath := plan.getPath() // params is an empty string
 
-	progress := res.Get("response.progress").String()
-	re := regexp.MustCompile(`Template Deployemnt Id:\s*([a-f0-9-]+)`)
-	matches := re.FindStringSubmatch(progress)
-
-	if len(matches) > 1 {
-		deploymentId := matches[1]
-		tflog.Debug(ctx, fmt.Sprintf("Redeployment started with ID: %s", deploymentId))
-
-		// Check deployment status
-		maxRetries := 30
-		statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
-
-		waitingStatuses := map[string]bool{
-			"INIT": true,
-		}
-
-		for range maxRetries {
-			statusRes, err := r.client.Get(statusURL)
-			if err != nil {
-				tflog.Warn(ctx, fmt.Sprintf("Failed to retrieve deployment status for Id %s: %s", deploymentId, err))
-				time.Sleep(10 * time.Second)
-				continue
-			}
-
-			status := statusRes.Get("status").String()
-			devices := statusRes.Get("devices").String()
-
-			switch {
-			case status == "SUCCESS":
-				tflog.Debug(ctx, fmt.Sprintf("Template redeployment %s finished successfully", deploymentId))
-				return true
-
-			case status == "FAILURE":
-				resp.Diagnostics.AddWarning(
-					"Template Redeployment Failed",
-					fmt.Sprintf("Redeployment %s failed with status: %s, on devices: %s", deploymentId, status, devices),
-				)
-				return false
-
-			case waitingStatuses[status]:
-				time.Sleep(10 * time.Second)
-				continue
-
-			default:
-				resp.Diagnostics.AddWarning(
-					"Template Redeployment Unknown Status",
-					fmt.Sprintf("Redeployment %s ended with unexpected status: %s", deploymentId, status),
-				)
-				return false
-			}
-		}
-
-		// Timeout
-		resp.Diagnostics.AddWarning(
-			"Template Redeployment Timeout",
-			fmt.Sprintf("Redeployment %s did not complete within expected time", deploymentId),
-		)
-		return false
-	} else {
-		tflog.Warn(ctx, "Deployment Id was not found in response, assuming success")
-		return true
-	}
+	// Use the unified helper for deployment and status monitoring
+	deploymentSuccess := r.performDeploymentAndMonitorStatus(ctx, postPath, body, diag)
+	return deploymentSuccess
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
