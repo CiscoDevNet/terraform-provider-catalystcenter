@@ -1,0 +1,54 @@
+---
+name: Integrate ISE
+# manual changes in Create function to check state of ISE integration
+rest_endpoint: /dna/intent/api/v1/integrate-ise/%v
+get_rest_endpoint: /dna/intent/api/v1/ise-integration-status
+res_description: This resource accepts the Cisco ISE server certificate for Cisco ISE integration
+no_data_source: true
+get_no_id: true
+put_create: true
+no_delete: true
+no_import: true
+id_from_attribute: true
+doc_category: System
+test_tags: [SYSTEM]
+skip_minimum_test: true
+attributes:
+  - model_name: ise_instance_id
+    type: String
+    reference: true
+    id: true
+    description: ISE instance UUID, obtained from the id of the catalystcenter_authentication_policy_server resource
+    example: 0df326df-3609-417d-bbfc-fdffe125a172
+  - model_name: isCertAcceptedByUser
+    response_data_path: response.managementIpAddress
+    type: Bool
+    value: true
+    mandatory: true
+    write_only: true
+    description: Value true for accept, false for deny.
+    example: true
+test_prerequisites: |
+  resource "catalystcenter_authentication_policy_server" "ise" {
+    authentication_port      = 1812
+    accounting_port          = 1813
+    ip_address               = "198.18.133.27"
+    pxgrid_enabled           = true
+    use_dnac_cert_for_pxgrid = false
+    is_ise_enabled           = true
+    port                     = 49
+    protocol                 = "RADIUS"
+    retries                  = 3
+    timeout_seconds          = 4
+    role                     = "primary"
+    shared_secret            = "C1sco12345"
+    cisco_ise_dtos = [
+      {
+        user_name       = "admin"
+        password        = "C1sco12345"
+        fqdn            = "198.18.133.27"
+        ip_address      = "198.18.133.27"
+        subscriber_name = "198.18.133.27"
+      }
+    ]
+  }

@@ -9,14 +9,12 @@ doc_category: System
 attributes:
   - model_name: authenticationPort
     type: Int64
-    mandatory: true
     min_int: 1
     max_int: 65535
     description: Authentication port of RADIUS server
     example: 1812
   - model_name: accountingPort
     type: Int64
-    mandatory: true
     min_int: 1
     max_int: 65535
     description: Accounting port of RADIUS server
@@ -30,22 +28,26 @@ attributes:
         type: String
         description: Description about the Cisco ISE server
       - model_name: fqdn
+        write_only: true
         type: String
         description: Fully-qualified domain name of the Cisco ISE server
         mandatory: true
       - model_name: password
         type: String
+        write_only: true
         description: Password of the Cisco ISE server
         mandatory: true
       - model_name: sshkey
         type: String
         description: SSH key of the Cisco ISE server
       - model_name: ipAddress
+        id: true
         type: String
         description: IP Address of the Cisco ISE Server
         mandatory: true
       - model_name: subscriberName
         type: String
+        write_only: true
         description: Subscriber name of the Cisco ISE server
         mandatory: true
       - model_name: userName
@@ -72,7 +74,6 @@ attributes:
     example: false
   - model_name: port
     type: Int64
-    mandatory: true
     min_int: 1
     max_int: 65535
     description: Port of TACACS server

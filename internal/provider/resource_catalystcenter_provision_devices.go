@@ -578,16 +578,18 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
-			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
-			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
-			return
+	for _, v := range state.ProvisionDevices {
+		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
+		if err != nil {
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
+				return
+			}
 		}
 	}
 

@@ -75,14 +75,14 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 			},
 			"authentication_port": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Authentication port of RADIUS server").AddIntegerRangeDescription(1, 65535).String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 65535),
 				},
 			},
 			"accounting_port": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Accounting port of RADIUS server").AddIntegerRangeDescription(1, 65535).String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 65535),
 				},
@@ -144,7 +144,7 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 			},
 			"port": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Port of TACACS server").AddIntegerRangeDescription(1, 65535).String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 65535),
 				},

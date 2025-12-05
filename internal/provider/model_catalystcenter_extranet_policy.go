@@ -48,9 +48,6 @@ func (data ExtranetPolicy) getPath() string {
 // End of section. //template:end getPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
-func (data ExtranetPolicy) getFallbackPath() string {
-	return ""
-}
 
 // End of section. //template:end getFallbackPath
 

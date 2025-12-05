@@ -7,6 +7,11 @@ description: |-
 
 # Changelog
 
+## 0.4.4 (unreleased)
+
+- Fix issue with the destroy operation in the `catalystcenter_provision_devices` resource
+- Add `catalystcenter_integrate_ise` resource to accept Cisco ISE server certificate for Cisco ISE server integration
+
 ## 0.4.3
 
 - Add `catalystcenter_fabric_devices` resource and data_source to manage multiple fabric devices under same fabric site within single resource 

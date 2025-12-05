@@ -34,13 +34,7 @@ resource "catalystcenter_authentication_policy_server" "example" {
 
 ### Required
 
-- `accounting_port` (Number) Accounting port of RADIUS server
-  - Range: `1`-`65535`
-- `authentication_port` (Number) Authentication port of RADIUS server
-  - Range: `1`-`65535`
 - `ip_address` (String) IP address of authentication and policy server
-- `port` (Number) Port of TACACS server
-  - Range: `1`-`65535`
 - `protocol` (String) Type of protocol for authentication and policy server. If already saved with RADIUS, can update to RADIUS_TACACS. If already saved with TACACS, can update to RADIUS_TACACS
   - Choices: `TACACS`, `RADIUS`, `RADIUS_TACACS`
 - `retries` (Number) Number of communication retries between devices and authentication and policy server. The range is from 1 to 3
@@ -53,6 +47,10 @@ resource "catalystcenter_authentication_policy_server" "example" {
 
 ### Optional
 
+- `accounting_port` (Number) Accounting port of RADIUS server
+  - Range: `1`-`65535`
+- `authentication_port` (Number) Authentication port of RADIUS server
+  - Range: `1`-`65535`
 - `cisco_ise_dtos` (Attributes List) Cisco ISE Server DTOs (see [below for nested schema](#nestedatt--cisco_ise_dtos))
 - `encryption_key` (String) Encryption key used to encrypt shared secret
 - `encryption_scheme` (String) Type of encryption scheme for additional security
@@ -60,6 +58,8 @@ resource "catalystcenter_authentication_policy_server" "example" {
 - `external_cisco_ise_ip_addr_dtos` (Attributes List) For future use (see [below for nested schema](#nestedatt--external_cisco_ise_ip_addr_dtos))
 - `is_ise_enabled` (Boolean) Value true for Cisco ISE Server. Default value is false
 - `message_key` (String) Message key used to encrypt shared secret
+- `port` (Number) Port of TACACS server
+  - Range: `1`-`65535`
 - `pxgrid_enabled` (Boolean) Value true for enable, false for disable. Default value is true
 - `use_dnac_cert_for_pxgrid` (Boolean) Value true to use DNAC certificate for Pxgrid. Default value is false
 
