@@ -1,6 +1,7 @@
 ---
 name: Deploy Template
 rest_endpoint: /dna/intent/api/v2/template-programmer/template/deploy
+# manual changes in Create and update functions
 no_delete: true
 no_import: true
 no_data_source: true
@@ -125,7 +126,6 @@ attributes:
         type: Map
         description:  Template params/values to be provisioned
         exclude_test: true
-        requires_replace: true
       - model_name: resourceParams
         type: List
         description: Resource params to be provisioned
