@@ -281,7 +281,6 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 	// Perform deployment and monitor status using the new helper
 	deploymentSuccess := r.performDeploymentAndMonitorStatus(ctx, postPath, body, &resp.Diagnostics)
 	if !deploymentSuccess {
-		// The helper function already added warnings/errors to diagnostics
 		return
 	}
 
@@ -311,7 +310,6 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 	resp.Diagnostics.Append(diags...)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *DeployTemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state DeployTemplate
 
@@ -339,10 +337,10 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 		changed := false
 
 		for _, stateTarget := range state.TargetInfo {
-			if targetsMatch(ctx, planTarget, stateTarget) {
+			if targetsMatch(planTarget, stateTarget) {
 				found = true
 				// Check if any attributes changed
-				if targetChanged(ctx, planTarget, stateTarget) {
+				if targetChanged(planTarget, stateTarget) {
 					changed = true
 				}
 				break
@@ -364,7 +362,7 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 	for _, stateTarget := range state.TargetInfo {
 		found := false
 		for _, planTarget := range plan.TargetInfo {
-			if targetsMatch(ctx, planTarget, stateTarget) {
+			if targetsMatch(planTarget, stateTarget) {
 				found = true
 				break
 			}
@@ -390,8 +388,6 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end update
-
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *DeployTemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state DeployTemplate
@@ -413,7 +409,7 @@ func (r *DeployTemplateResource) Delete(ctx context.Context, req resource.Delete
 // End of section. //template:end delete
 
 // Helper function to check if two target_info items match (same device)
-func targetsMatch(ctx context.Context, target1, target2 DeployTemplateTargetInfo) bool {
+func targetsMatch(target1, target2 DeployTemplateTargetInfo) bool {
 	// Match by id (device UUID) or hostname
 	if !target1.Id.IsNull() && !target2.Id.IsNull() {
 		return target1.Id.Equal(target2.Id)
@@ -425,7 +421,7 @@ func targetsMatch(ctx context.Context, target1, target2 DeployTemplateTargetInfo
 }
 
 // Helper function to check if a target_info item has changed
-func targetChanged(ctx context.Context, planTarget, stateTarget DeployTemplateTargetInfo) bool {
+func targetChanged(planTarget, stateTarget DeployTemplateTargetInfo) bool {
 	// Check if params changed
 	if !planTarget.Params.Equal(stateTarget.Params) {
 		return true
@@ -462,9 +458,6 @@ func targetChanged(ctx context.Context, planTarget, stateTarget DeployTemplateTa
 
 // New helper function to perform template deployment and monitor its status
 func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, diag *diag.Diagnostics) bool {
-	// The `body` parameter is typed as `interface{}`, but based on the error message,
-	// `r.client.Post` seems to expect a `string` for the body.
-	// We assume that the `toBody` method (called by the caller) returns a string.
 	bodyString, ok := body.(string)
 	if !ok {
 		diag.AddError("Internal Error", "Failed to convert request body to string. The 'toBody' method is expected to return a string for the client.Post method.")
@@ -483,15 +476,13 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 
 	if len(matches) == 0 {
 		tflog.Warn(ctx, "Deployment Id was not found in response. Assuming immediate success or no deployment to track.")
-		// If no deployment ID is found, we assume the operation completed without a trackable deployment.
-		// This aligns with the original logic where if no ID was found, it proceeded.
 		return true
 	}
 
 	deploymentId := matches[1]
 	tflog.Debug(ctx, fmt.Sprintf("Deployment started with ID: %s", deploymentId))
 
-	maxRetries := 30 // e.g., wait up to 5 minutes (30*10s)
+	maxRetries := 30
 	statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
 
 	waitingStatuses := map[string]bool{
@@ -541,7 +532,6 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 
 // Helper function to deploy to specific target_info items
 func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, diag *diag.Diagnostics) bool {
-	// Create a temporary DeployTemplate with only the targets to redeploy
 	tempPlan := DeployTemplate{
 		TemplateId:        plan.TemplateId,
 		ForcePushTemplate: plan.ForcePushTemplate,
