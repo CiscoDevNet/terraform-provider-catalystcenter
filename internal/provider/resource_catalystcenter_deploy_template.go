@@ -30,7 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -202,9 +201,6 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 							MarkdownDescription: helpers.NewAttributeDescription("Template params/values to be provisioned").String,
 							ElementType:         types.StringType,
 							Optional:            true,
-							PlanModifiers: []planmodifier.Map{
-								mapplanmodifier.RequiresReplace(),
-							},
 						},
 						"resource_params": schema.ListNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Resource params to be provisioned").String,
@@ -396,6 +392,60 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
+	// Build list of target_info items that need redeployment
+	var targetInfoToRedeploy []DeployTemplateTargetInfo
+
+	// Check for changed or new target_info items
+	for _, planTarget := range plan.TargetInfo {
+		found := false
+		changed := false
+
+		for _, stateTarget := range state.TargetInfo {
+			if targetsMatch(ctx, planTarget, stateTarget) {
+				found = true
+				// Check if any attributes changed
+				if targetChanged(ctx, planTarget, stateTarget) {
+					changed = true
+				}
+				break
+			}
+		}
+
+		// Add to redeploy list if new or changed
+		if !found || changed {
+			targetInfoToRedeploy = append(targetInfoToRedeploy, planTarget)
+			if !found {
+				tflog.Debug(ctx, fmt.Sprintf("New target_info item detected: %s", planTarget.Id.ValueString()))
+			} else {
+				tflog.Debug(ctx, fmt.Sprintf("Changed target_info item detected: %s", planTarget.Id.ValueString()))
+			}
+		}
+	}
+
+	// Items removed from state are handled implicitly - they just won't be in the new state
+	for _, stateTarget := range state.TargetInfo {
+		found := false
+		for _, planTarget := range plan.TargetInfo {
+			if targetsMatch(ctx, planTarget, stateTarget) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			tflog.Debug(ctx, fmt.Sprintf("Removed target_info item (no-op): %s", stateTarget.Id.ValueString()))
+		}
+	}
+
+	// Deploy to changed/new targets
+	if len(targetInfoToRedeploy) > 0 {
+		success := r.deployTargets(ctx, &plan, targetInfoToRedeploy, resp)
+		if !success {
+			return
+		}
+	} else {
+		tflog.Debug(ctx, "No target_info items need redeployment")
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
@@ -423,6 +473,142 @@ func (r *DeployTemplateResource) Delete(ctx context.Context, req resource.Delete
 }
 
 // End of section. //template:end delete
+
+// Helper function to check if two target_info items match (same device)
+func targetsMatch(ctx context.Context, target1, target2 DeployTemplateTargetInfo) bool {
+	// Match by id (device UUID) or hostname
+	if !target1.Id.IsNull() && !target2.Id.IsNull() {
+		return target1.Id.Equal(target2.Id)
+	}
+	if !target1.HostName.IsNull() && !target2.HostName.IsNull() {
+		return target1.HostName.Equal(target2.HostName)
+	}
+	return false
+}
+
+// Helper function to check if a target_info item has changed
+func targetChanged(ctx context.Context, planTarget, stateTarget DeployTemplateTargetInfo) bool {
+	// Check if params changed
+	if !planTarget.Params.Equal(stateTarget.Params) {
+		return true
+	}
+
+	// Check if type changed
+	if !planTarget.Type.Equal(stateTarget.Type) {
+		return true
+	}
+
+	// Check if versioned_template_id changed
+	if !planTarget.VersionedTemplateId.Equal(stateTarget.VersionedTemplateId) {
+		return true
+	}
+
+	// Check if resource_params changed
+	if len(planTarget.ResourceParams) != len(stateTarget.ResourceParams) {
+		return true
+	}
+
+	for i := range planTarget.ResourceParams {
+		if i >= len(stateTarget.ResourceParams) {
+			return true
+		}
+		if !planTarget.ResourceParams[i].Type.Equal(stateTarget.ResourceParams[i].Type) ||
+			!planTarget.ResourceParams[i].Scope.Equal(stateTarget.ResourceParams[i].Scope) ||
+			!planTarget.ResourceParams[i].Value.Equal(stateTarget.ResourceParams[i].Value) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Helper function to deploy to specific target_info items
+func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, resp *resource.UpdateResponse) bool {
+	// Create a temporary DeployTemplate with only the targets to redeploy
+	tempPlan := DeployTemplate{
+		TemplateId:        plan.TemplateId,
+		ForcePushTemplate: plan.ForcePushTemplate,
+		CopyingConfig:     plan.CopyingConfig,
+		IsComposite:       plan.IsComposite,
+		MainTemplateId:    plan.MainTemplateId,
+		TargetInfo:        targets,
+	}
+
+	for _, v := range targets {
+		tflog.Debug(ctx, fmt.Sprintf("deploying id: %s", v.Id))
+	}
+
+	body := tempPlan.toBody(ctx, DeployTemplate{})
+	params := ""
+	res, err := r.client.Post(plan.getPath()+params, body)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to redeploy template (%s), got error: %s, %s", "POST", err, res.String()))
+		return false
+	}
+
+	progress := res.Get("response.progress").String()
+	re := regexp.MustCompile(`Template Deployemnt Id:\s*([a-f0-9-]+)`)
+	matches := re.FindStringSubmatch(progress)
+
+	if len(matches) > 1 {
+		deploymentId := matches[1]
+		tflog.Debug(ctx, fmt.Sprintf("Redeployment started with ID: %s", deploymentId))
+
+		// Check deployment status
+		maxRetries := 30
+		statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
+
+		waitingStatuses := map[string]bool{
+			"INIT": true,
+		}
+
+		for range maxRetries {
+			statusRes, err := r.client.Get(statusURL)
+			if err != nil {
+				tflog.Warn(ctx, fmt.Sprintf("Failed to retrieve deployment status for Id %s: %s", deploymentId, err))
+				time.Sleep(10 * time.Second)
+				continue
+			}
+
+			status := statusRes.Get("status").String()
+			devices := statusRes.Get("devices").String()
+
+			switch {
+			case status == "SUCCESS":
+				tflog.Debug(ctx, fmt.Sprintf("Template redeployment %s finished successfully", deploymentId))
+				return true
+
+			case status == "FAILURE":
+				resp.Diagnostics.AddWarning(
+					"Template Redeployment Failed",
+					fmt.Sprintf("Redeployment %s failed with status: %s, on devices: %s", deploymentId, status, devices),
+				)
+				return false
+
+			case waitingStatuses[status]:
+				time.Sleep(10 * time.Second)
+				continue
+
+			default:
+				resp.Diagnostics.AddWarning(
+					"Template Redeployment Unknown Status",
+					fmt.Sprintf("Redeployment %s ended with unexpected status: %s", deploymentId, status),
+				)
+				return false
+			}
+		}
+
+		// Timeout
+		resp.Diagnostics.AddWarning(
+			"Template Redeployment Timeout",
+			fmt.Sprintf("Redeployment %s did not complete within expected time", deploymentId),
+		)
+		return false
+	} else {
+		tflog.Warn(ctx, "Deployment Id was not found in response, assuming success")
+		return true
+	}
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 // End of section. //template:end import
