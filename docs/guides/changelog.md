@@ -9,6 +9,9 @@ description: |-
 
 ## 0.4.4 (unreleased)
 
+- Round `catalystcenter_floor` resource's length, width and height attributes to 3 decimal places
+- Fix issue with `catalystcenter_fabric_multicast_virtual_networks` when `rp_device_location` is `EXTERNAL`
+- Fix issue with `catalystcenter_virtual_network_to_fabric_site` resource destroy method
 - Fix issue with the destroy operation in the `catalystcenter_provision_devices` resource
 - Add `catalystcenter_integrate_ise` resource to accept Cisco ISE server certificate for Cisco ISE server integration
 
