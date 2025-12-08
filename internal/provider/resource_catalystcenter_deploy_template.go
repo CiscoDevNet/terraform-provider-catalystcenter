@@ -79,7 +79,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				},
 			},
 			"redeploy": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply").AddStringEnumDescription("ALWAYS", "ON_CHANGE", "NEVER").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Attribute that controls when the template should be redeployed. `ALWAYS` redeploys it on every Terraform apply, `ON_CHANGE` redeploys only when the template’s content changes, and `NEVER` prevents redeployment.").AddStringEnumDescription("ALWAYS", "ON_CHANGE", "NEVER").String,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("ALWAYS", "ON_CHANGE", "NEVER"),
@@ -136,7 +136,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 										Optional:            true,
 									},
 									"redeploy": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply").AddStringEnumDescription("ALWAYS", "ON_CHANGE", "NEVER").String,
+										MarkdownDescription: helpers.NewAttributeDescription("Attribute that controls when the template should be redeployed. `ALWAYS` redeploys it on every Terraform apply, `ON_CHANGE` redeploys only when the template’s content changes, and `NEVER` prevents redeployment.").AddStringEnumDescription("ALWAYS", "ON_CHANGE", "NEVER").String,
 										Optional:            true,
 										Validators: []validator.String{
 											stringvalidator.OneOf("ALWAYS", "ON_CHANGE", "NEVER"),

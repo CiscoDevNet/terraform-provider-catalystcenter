@@ -1,5 +1,6 @@
 ## 0.4.4 (unreleased)
 
+- Update the `redeploy` attribute in the `catalystcenter_deploy_template` resource to controls when a template is redeployed. `ALWAYS` redeploys it on every Terraform apply, `ON_CHANGE` redeploys only when the template content changes, and `NEVER` prevents redeployment.
 - Round `catalystcenter_floor` resource's length, width and height attributes to 3 decimal places
 - Fix issue with `catalystcenter_fabric_multicast_virtual_networks` when `rp_device_location` is `EXTERNAL`
 - Fix issue with `catalystcenter_virtual_network_to_fabric_site` resource destroy method
