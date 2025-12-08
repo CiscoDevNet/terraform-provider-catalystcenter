@@ -1,4 +1,4 @@
-## 0.4.4 (unreleased)
+## 0.4.4
 
 - Fix `catalystcenter_discovery` resource to use discovery ID for read operations and avoid waiting for discovery completion during creation
 - Update the `redeploy` attribute in the `catalystcenter_deploy_template` resource to controls when a template is redeployed. `ALWAYS` redeploys it on every Terraform apply, `ON_CHANGE` redeploys only when the template content changes, and `NEVER` prevents redeployment.
