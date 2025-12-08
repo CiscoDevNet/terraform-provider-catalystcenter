@@ -71,6 +71,14 @@ func (data Discovery) getPath() string {
 
 // End of section. //template:end getPath
 
+// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
+
+// End of section. //template:end getFallbackPath
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
+
+// End of section. //template:end getPathDelete
+
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Discovery) toBody(ctx context.Context, state Discovery) string {
 	body := ""
@@ -180,122 +188,127 @@ func (data Discovery) toBody(ctx context.Context, state Discovery) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("cdpLevel"); value.Exists() {
+	if value := res.Get("response.cdpLevel"); value.Exists() {
 		data.CdpLevel = types.Int64Value(value.Int())
 	} else {
 		data.CdpLevel = types.Int64Null()
 	}
-	if value := res.Get("discoveryType"); value.Exists() {
+	if value := res.Get("response.discoveryType"); value.Exists() {
 		data.DiscoveryType = types.StringValue(value.String())
 	} else {
 		data.DiscoveryType = types.StringNull()
 	}
-	if value := res.Get("enablePasswordList"); value.Exists() && len(value.Array()) > 0 {
+	if value := res.Get("response.enablePasswordList"); value.Exists() && len(value.Array()) > 0 {
 		data.EnablePasswordList = helpers.GetStringSet(value.Array())
 	} else {
 		data.EnablePasswordList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("globalCredentialIdList"); value.Exists() && len(value.Array()) > 0 {
+	if value := res.Get("response.globalCredentialIdList"); value.Exists() && len(value.Array()) > 0 {
 		data.GlobalCredentialIdList = helpers.GetStringSet(value.Array())
 	} else {
 		data.GlobalCredentialIdList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("httpReadCredential"); value.Exists() {
+	if value := res.Get("response.httpReadCredential"); value.Exists() {
 		data.HttpReadCredential = types.StringValue(value.String())
 	} else {
 		data.HttpReadCredential = types.StringNull()
 	}
-	if value := res.Get("httpWriteCredential"); value.Exists() {
+	if value := res.Get("response.httpWriteCredential"); value.Exists() {
 		data.HttpWriteCredential = types.StringValue(value.String())
 	} else {
 		data.HttpWriteCredential = types.StringNull()
 	}
-	if value := res.Get("ipAddressList"); value.Exists() {
+	if value := res.Get("response.ipAddressList"); value.Exists() {
 		data.IpAddressList = types.StringValue(value.String())
 	} else {
 		data.IpAddressList = types.StringNull()
 	}
-	if value := res.Get("ipFilterList"); value.Exists() && len(value.Array()) > 0 {
+	if value := res.Get("response.ipFilterList"); value.Exists() && len(value.Array()) > 0 {
 		data.IpFilterList = helpers.GetStringSet(value.Array())
 	} else {
 		data.IpFilterList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("lldpLevel"); value.Exists() {
+	if value := res.Get("response.lldpLevel"); value.Exists() {
 		data.LldpLevel = types.Int64Value(value.Int())
 	} else {
 		data.LldpLevel = types.Int64Null()
 	}
-	if value := res.Get("name"); value.Exists() {
+	if value := res.Get("response.name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("netconfPort"); value.Exists() {
+	if value := res.Get("response.netconfPort"); value.Exists() {
 		data.NetconfPort = types.StringValue(value.String())
 	} else {
 		data.NetconfPort = types.StringNull()
 	}
-	if value := res.Get("passwordList"); value.Exists() && len(value.Array()) > 0 {
+	if value := res.Get("response.passwordList"); value.Exists() && len(value.Array()) > 0 {
 		data.PasswordList = helpers.GetStringSet(value.Array())
 	} else {
 		data.PasswordList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("preferredMgmtIPMethod"); value.Exists() {
+	if value := res.Get("response.preferredMgmtIPMethod"); value.Exists() {
 		data.PreferredMgmtIpMethod = types.StringValue(value.String())
 	} else {
 		data.PreferredMgmtIpMethod = types.StringValue("None")
 	}
-	if value := res.Get("protocolOrder"); value.Exists() {
+	if value := res.Get("response.protocolOrder"); value.Exists() {
 		data.ProtocolOrder = types.StringValue(value.String())
 	} else {
 		data.ProtocolOrder = types.StringNull()
 	}
-	if value := res.Get("retryCount"); value.Exists() {
+	if value := res.Get("respone.retryCount"); value.Exists() {
 		data.Retry = types.Int64Value(value.Int())
 	} else {
 		data.Retry = types.Int64Null()
 	}
-	if value := res.Get("snmpAuthProtocol"); value.Exists() {
+	if value := res.Get("response.snmpAuthProtocol"); value.Exists() {
 		data.SnmpAuthProtocol = types.StringValue(value.String())
 	} else {
 		data.SnmpAuthProtocol = types.StringNull()
 	}
-	if value := res.Get("snmpMode"); value.Exists() {
+	if value := res.Get("response.snmpMode"); value.Exists() {
 		data.SnmpMode = types.StringValue(value.String())
 	} else {
 		data.SnmpMode = types.StringNull()
 	}
-	if value := res.Get("snmpPrivProtocol"); value.Exists() {
+	if value := res.Get("response.snmpPrivProtocol"); value.Exists() {
 		data.SnmpPrivProtocol = types.StringValue(value.String())
 	} else {
 		data.SnmpPrivProtocol = types.StringNull()
 	}
-	if value := res.Get("snmpRoCommunity"); value.Exists() {
+	if value := res.Get("response.snmpRoCommunity"); value.Exists() {
 		data.SnmpRoCommunity = types.StringValue(value.String())
 	} else {
 		data.SnmpRoCommunity = types.StringNull()
 	}
-	if value := res.Get("snmpRoCommunityDesc"); value.Exists() {
+	if value := res.Get("response.snmpRoCommunityDesc"); value.Exists() {
 		data.SnmpRoCommunityDesc = types.StringValue(value.String())
 	} else {
 		data.SnmpRoCommunityDesc = types.StringNull()
 	}
-	if value := res.Get("snmpRwCommunity"); value.Exists() {
+	if value := res.Get("response.snmpRwCommunity"); value.Exists() {
 		data.SnmpRwCommunity = types.StringValue(value.String())
 	} else {
 		data.SnmpRwCommunity = types.StringNull()
 	}
-	if value := res.Get("snmpRwCommunityDesc"); value.Exists() {
+	if value := res.Get("response.snmpRwCommunityDesc"); value.Exists() {
 		data.SnmpRwCommunityDesc = types.StringValue(value.String())
 	} else {
 		data.SnmpRwCommunityDesc = types.StringNull()
 	}
-	if value := res.Get("snmpUserName"); value.Exists() {
+	if value := res.Get("response.snmpUserName"); value.Exists() {
 		data.SnmpUserName = types.StringValue(value.String())
 	} else {
 		data.SnmpUserName = types.StringNull()
 	}
-	if value := res.Get("userNameList"); value.Exists() && len(value.Array()) > 0 {
+	if value := res.Get("response.timeOut"); value.Exists() {
+		data.TimeoutSeconds = types.Int64Value(value.Int())
+	} else {
+		data.TimeoutSeconds = types.Int64Null()
+	}
+	if value := res.Get("response.userNameList"); value.Exists() && len(value.Array()) > 0 {
 		data.UserNameList = helpers.GetStringSet(value.Array())
 	} else {
 		data.UserNameList = types.SetNull(types.StringType)
@@ -306,122 +319,127 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("cdpLevel"); value.Exists() && !data.CdpLevel.IsNull() {
+	if value := res.Get("response.cdpLevel"); value.Exists() && !data.CdpLevel.IsNull() {
 		data.CdpLevel = types.Int64Value(value.Int())
 	} else {
 		data.CdpLevel = types.Int64Null()
 	}
-	if value := res.Get("discoveryType"); value.Exists() && !data.DiscoveryType.IsNull() {
+	if value := res.Get("response.discoveryType"); value.Exists() && !data.DiscoveryType.IsNull() {
 		data.DiscoveryType = types.StringValue(value.String())
 	} else {
 		data.DiscoveryType = types.StringNull()
 	}
-	if value := res.Get("enablePasswordList"); value.Exists() && !data.EnablePasswordList.IsNull() {
+	if value := res.Get("response.enablePasswordList"); value.Exists() && !data.EnablePasswordList.IsNull() {
 		data.EnablePasswordList = helpers.GetStringSet(value.Array())
 	} else {
 		data.EnablePasswordList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("globalCredentialIdList"); value.Exists() && !data.GlobalCredentialIdList.IsNull() {
+	if value := res.Get("response.globalCredentialIdList"); value.Exists() && !data.GlobalCredentialIdList.IsNull() {
 		data.GlobalCredentialIdList = helpers.GetStringSet(value.Array())
 	} else {
 		data.GlobalCredentialIdList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("httpReadCredential"); value.Exists() && !data.HttpReadCredential.IsNull() {
+	if value := res.Get("response.httpReadCredential"); value.Exists() && !data.HttpReadCredential.IsNull() {
 		data.HttpReadCredential = types.StringValue(value.String())
 	} else {
 		data.HttpReadCredential = types.StringNull()
 	}
-	if value := res.Get("httpWriteCredential"); value.Exists() && !data.HttpWriteCredential.IsNull() {
+	if value := res.Get("response.httpWriteCredential"); value.Exists() && !data.HttpWriteCredential.IsNull() {
 		data.HttpWriteCredential = types.StringValue(value.String())
 	} else {
 		data.HttpWriteCredential = types.StringNull()
 	}
-	if value := res.Get("ipAddressList"); value.Exists() && !data.IpAddressList.IsNull() {
+	if value := res.Get("response.ipAddressList"); value.Exists() && !data.IpAddressList.IsNull() {
 		data.IpAddressList = types.StringValue(value.String())
 	} else {
 		data.IpAddressList = types.StringNull()
 	}
-	if value := res.Get("ipFilterList"); value.Exists() && !data.IpFilterList.IsNull() {
+	if value := res.Get("response.ipFilterList"); value.Exists() && !data.IpFilterList.IsNull() {
 		data.IpFilterList = helpers.GetStringSet(value.Array())
 	} else {
 		data.IpFilterList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("lldpLevel"); value.Exists() && !data.LldpLevel.IsNull() {
+	if value := res.Get("response.lldpLevel"); value.Exists() && !data.LldpLevel.IsNull() {
 		data.LldpLevel = types.Int64Value(value.Int())
 	} else {
 		data.LldpLevel = types.Int64Null()
 	}
-	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
+	if value := res.Get("response.name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("netconfPort"); value.Exists() && !data.NetconfPort.IsNull() {
+	if value := res.Get("response.netconfPort"); value.Exists() && !data.NetconfPort.IsNull() {
 		data.NetconfPort = types.StringValue(value.String())
 	} else {
 		data.NetconfPort = types.StringNull()
 	}
-	if value := res.Get("passwordList"); value.Exists() && !data.PasswordList.IsNull() {
+	if value := res.Get("response.passwordList"); value.Exists() && !data.PasswordList.IsNull() {
 		data.PasswordList = helpers.GetStringSet(value.Array())
 	} else {
 		data.PasswordList = types.SetNull(types.StringType)
 	}
-	if value := res.Get("preferredMgmtIPMethod"); value.Exists() && !data.PreferredMgmtIpMethod.IsNull() {
+	if value := res.Get("response.preferredMgmtIPMethod"); value.Exists() && !data.PreferredMgmtIpMethod.IsNull() {
 		data.PreferredMgmtIpMethod = types.StringValue(value.String())
 	} else if data.PreferredMgmtIpMethod.ValueString() != "None" {
 		data.PreferredMgmtIpMethod = types.StringNull()
 	}
-	if value := res.Get("protocolOrder"); value.Exists() && !data.ProtocolOrder.IsNull() {
+	if value := res.Get("response.protocolOrder"); value.Exists() && !data.ProtocolOrder.IsNull() {
 		data.ProtocolOrder = types.StringValue(value.String())
 	} else {
 		data.ProtocolOrder = types.StringNull()
 	}
-	if value := res.Get("retryCount"); value.Exists() && !data.Retry.IsNull() {
+	if value := res.Get("response.retryCount"); value.Exists() && !data.Retry.IsNull() {
 		data.Retry = types.Int64Value(value.Int())
 	} else {
 		data.Retry = types.Int64Null()
 	}
-	if value := res.Get("snmpAuthProtocol"); value.Exists() && !data.SnmpAuthProtocol.IsNull() {
+	if value := res.Get("response.snmpAuthProtocol"); value.Exists() && !data.SnmpAuthProtocol.IsNull() {
 		data.SnmpAuthProtocol = types.StringValue(value.String())
 	} else {
 		data.SnmpAuthProtocol = types.StringNull()
 	}
-	if value := res.Get("snmpMode"); value.Exists() && !data.SnmpMode.IsNull() {
+	if value := res.Get("response.snmpMode"); value.Exists() && !data.SnmpMode.IsNull() {
 		data.SnmpMode = types.StringValue(value.String())
 	} else {
 		data.SnmpMode = types.StringNull()
 	}
-	if value := res.Get("snmpPrivProtocol"); value.Exists() && !data.SnmpPrivProtocol.IsNull() {
+	if value := res.Get("response.snmpPrivProtocol"); value.Exists() && !data.SnmpPrivProtocol.IsNull() {
 		data.SnmpPrivProtocol = types.StringValue(value.String())
 	} else {
 		data.SnmpPrivProtocol = types.StringNull()
 	}
-	if value := res.Get("snmpRoCommunity"); value.Exists() && !data.SnmpRoCommunity.IsNull() {
+	if value := res.Get("response.snmpRoCommunity"); value.Exists() && !data.SnmpRoCommunity.IsNull() {
 		data.SnmpRoCommunity = types.StringValue(value.String())
 	} else {
 		data.SnmpRoCommunity = types.StringNull()
 	}
-	if value := res.Get("snmpRoCommunityDesc"); value.Exists() && !data.SnmpRoCommunityDesc.IsNull() {
+	if value := res.Get("response.snmpRoCommunityDesc"); value.Exists() && !data.SnmpRoCommunityDesc.IsNull() {
 		data.SnmpRoCommunityDesc = types.StringValue(value.String())
 	} else {
 		data.SnmpRoCommunityDesc = types.StringNull()
 	}
-	if value := res.Get("snmpRwCommunity"); value.Exists() && !data.SnmpRwCommunity.IsNull() {
+	if value := res.Get("response.snmpRwCommunity"); value.Exists() && !data.SnmpRwCommunity.IsNull() {
 		data.SnmpRwCommunity = types.StringValue(value.String())
 	} else {
 		data.SnmpRwCommunity = types.StringNull()
 	}
-	if value := res.Get("snmpRwCommunityDesc"); value.Exists() && !data.SnmpRwCommunityDesc.IsNull() {
+	if value := res.Get("response.snmpRwCommunityDesc"); value.Exists() && !data.SnmpRwCommunityDesc.IsNull() {
 		data.SnmpRwCommunityDesc = types.StringValue(value.String())
 	} else {
 		data.SnmpRwCommunityDesc = types.StringNull()
 	}
-	if value := res.Get("snmpUserName"); value.Exists() && !data.SnmpUserName.IsNull() {
+	if value := res.Get("response.snmpUserName"); value.Exists() && !data.SnmpUserName.IsNull() {
 		data.SnmpUserName = types.StringValue(value.String())
 	} else {
 		data.SnmpUserName = types.StringNull()
 	}
-	if value := res.Get("userNameList"); value.Exists() && !data.UserNameList.IsNull() {
+	if value := res.Get("response.timeOut"); value.Exists() && !data.TimeoutSeconds.IsNull() {
+		data.TimeoutSeconds = types.Int64Value(value.Int())
+	} else {
+		data.TimeoutSeconds = types.Int64Null()
+	}
+	if value := res.Get("response.userNameList"); value.Exists() && !data.UserNameList.IsNull() {
 		data.UserNameList = helpers.GetStringSet(value.Array())
 	} else {
 		data.UserNameList = types.SetNull(types.StringType)

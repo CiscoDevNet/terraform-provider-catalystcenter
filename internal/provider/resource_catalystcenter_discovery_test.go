@@ -34,6 +34,7 @@ func TestAccCcDiscovery(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "netconf_port", "830"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "protocol_order", "SSH"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "retry", "3"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "timeout_seconds", "5"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
