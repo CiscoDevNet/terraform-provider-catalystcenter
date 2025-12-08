@@ -43,7 +43,8 @@ resource "catalystcenter_deploy_template" "example" {
 - `is_composite` (Boolean) Composite template flag
 - `main_template_id` (String) Composite Template ID
 - `member_template_deployment_info` (Attributes List) Member Template Deployment Info (see [below for nested schema](#nestedatt--member_template_deployment_info))
-- `redeploy` (Boolean) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+- `redeploy` (String) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+  - Choices: `ALWAYS`, `ON_CHANGE`, `NEVER`
 
 ### Read-Only
 
@@ -62,7 +63,8 @@ Optional:
 - `host_name` (String) Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
 - `id` (String) ID of device is required if `type` is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
-- `redeploy` (Boolean) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+- `redeploy` (String) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+  - Choices: `ALWAYS`, `ON_CHANGE`, `NEVER`
 - `resource_params` (Attributes List) Resource params to be provisioned (see [below for nested schema](#nestedatt--target_info--resource_params))
 - `versioned_template_id` (String) Versioned template ID to be provisioned
 
@@ -106,7 +108,8 @@ Optional:
 - `host_name` (String) Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
 - `id` (String) ID of device is required if targetType is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
-- `redeploy` (Boolean) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+- `redeploy` (String) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+  - Choices: `ALWAYS`, `ON_CHANGE`, `NEVER`
 - `resource_params` (Attributes List) Resource params to be provisioned (see [below for nested schema](#nestedatt--member_template_deployment_info--target_info--resource_params))
 - `versioned_template_id` (String) Versioned template ID to be provisioned
 
