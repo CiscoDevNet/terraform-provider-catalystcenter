@@ -258,7 +258,7 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.ProtocolOrder = types.StringNull()
 	}
-	if value := res.Get("respone.retryCount"); value.Exists() {
+	if value := res.Get("response.retryCount"); value.Exists() {
 		data.Retry = types.Int64Value(value.Int())
 	} else {
 		data.Retry = types.Int64Null()

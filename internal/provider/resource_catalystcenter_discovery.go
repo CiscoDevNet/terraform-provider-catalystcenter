@@ -310,7 +310,6 @@ func (r *DiscoveryResource) Configure(_ context.Context, req resource.ConfigureR
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Discovery
 
@@ -408,8 +407,6 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
