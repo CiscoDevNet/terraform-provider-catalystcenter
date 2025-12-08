@@ -20,10 +20,10 @@ attributes:
     example: 12345678-1234-1234-1234-123456789012
   - tf_name: redeploy
     description: Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
-    type: Bool
+    type: String
+    enum_values: [ALWAYS, ON_CHANGE, NEVER]
     example: false
     exclude_test: true
-    requires_replace: true
   - model_name: forcePushTemplate
     type: Bool
     description: Force Push Template
@@ -62,13 +62,19 @@ attributes:
         type: String
         description: Template ID
       - model_name: targetInfo
-        type: List
+        type: Set
         mandatory: true
         description: Target info to deploy template
         attributes:
           - model_name: hostName
             type: String
             description: Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
+          - tf_name: redeploy
+            description: Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+            type: String
+            enum_values: [ALWAYS, ON_CHANGE, NEVER]
+            example: false
+            exclude_test: true
           - model_name: id
             type: String
             description: ID of device is required if targetType is MANAGED_DEVICE_UUID
@@ -110,7 +116,7 @@ attributes:
             type: String
             description: Versioned template ID to be provisioned
   - model_name: targetInfo
-    type: List
+    type: Set
     mandatory: true
     description: Target info to deploy template
     attributes:
@@ -118,6 +124,12 @@ attributes:
         type: String
         description: Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
         example: SW01
+      - tf_name: redeploy
+        description: Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+        type: String
+        enum_values: [ALWAYS, ON_CHANGE, NEVER]
+        example: false
+        exclude_test: true
       - model_name: id
         type: String
         description: ID of device is required if `type` is MANAGED_DEVICE_UUID

@@ -33,7 +33,7 @@ import (
 type DeployTemplate struct {
 	Id                           types.String                                 `tfsdk:"id"`
 	TemplateId                   types.String                                 `tfsdk:"template_id"`
-	Redeploy                     types.Bool                                   `tfsdk:"redeploy"`
+	Redeploy                     types.String                                 `tfsdk:"redeploy"`
 	ForcePushTemplate            types.Bool                                   `tfsdk:"force_push_template"`
 	CopyingConfig                types.Bool                                   `tfsdk:"copying_config"`
 	IsComposite                  types.Bool                                   `tfsdk:"is_composite"`
@@ -53,6 +53,7 @@ type DeployTemplateMemberTemplateDeploymentInfo struct {
 
 type DeployTemplateTargetInfo struct {
 	HostName            types.String                             `tfsdk:"host_name"`
+	Redeploy            types.String                             `tfsdk:"redeploy"`
 	Id                  types.String                             `tfsdk:"id"`
 	Params              types.Map                                `tfsdk:"params"`
 	ResourceParams      []DeployTemplateTargetInfoResourceParams `tfsdk:"resource_params"`
@@ -62,6 +63,7 @@ type DeployTemplateTargetInfo struct {
 
 type DeployTemplateMemberTemplateDeploymentInfoTargetInfo struct {
 	HostName            types.String                                                         `tfsdk:"host_name"`
+	Redeploy            types.String                                                         `tfsdk:"redeploy"`
 	Id                  types.String                                                         `tfsdk:"id"`
 	Params              types.Map                                                            `tfsdk:"params"`
 	ResourceParams      []DeployTemplateMemberTemplateDeploymentInfoTargetInfoResourceParams `tfsdk:"resource_params"`
@@ -106,7 +108,7 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 		body, _ = sjson.Set(body, "templateId", data.TemplateId.ValueString())
 	}
 	if !data.Redeploy.IsNull() {
-		body, _ = sjson.Set(body, "", data.Redeploy.ValueBool())
+		body, _ = sjson.Set(body, "", data.Redeploy.ValueString())
 	}
 	if !data.ForcePushTemplate.IsNull() {
 		body, _ = sjson.Set(body, "forcePushTemplate", data.ForcePushTemplate.ValueBool())
@@ -145,6 +147,9 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 					itemChildBody := ""
 					if !childItem.HostName.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "hostName", childItem.HostName.ValueString())
+					}
+					if !childItem.Redeploy.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "", childItem.Redeploy.ValueString())
 					}
 					if !childItem.Id.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
@@ -188,6 +193,9 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 			itemBody := ""
 			if !item.HostName.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "hostName", item.HostName.ValueString())
+			}
+			if !item.Redeploy.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "", item.Redeploy.ValueString())
 			}
 			if !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
@@ -235,9 +243,9 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 		data.TemplateId = types.StringNull()
 	}
 	if value := res.Get(""); value.Exists() {
-		data.Redeploy = types.BoolValue(value.Bool())
+		data.Redeploy = types.StringValue(value.String())
 	} else {
-		data.Redeploy = types.BoolNull()
+		data.Redeploy = types.StringNull()
 	}
 	if value := res.Get("forcePushTemplate"); value.Exists() {
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
@@ -296,6 +304,11 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 						cItem.HostName = types.StringValue(ccValue.String())
 					} else {
 						cItem.HostName = types.StringNull()
+					}
+					if ccValue := cv.Get(""); ccValue.Exists() {
+						cItem.Redeploy = types.StringValue(ccValue.String())
+					} else {
+						cItem.Redeploy = types.StringNull()
 					}
 					if ccValue := cv.Get("id"); ccValue.Exists() {
 						cItem.Id = types.StringValue(ccValue.String())
@@ -357,6 +370,11 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.HostName = types.StringNull()
 			}
+			if cValue := v.Get(""); cValue.Exists() {
+				item.Redeploy = types.StringValue(cValue.String())
+			} else {
+				item.Redeploy = types.StringNull()
+			}
 			if cValue := v.Get("id"); cValue.Exists() {
 				item.Id = types.StringValue(cValue.String())
 			} else {
@@ -416,9 +434,9 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 		data.TemplateId = types.StringNull()
 	}
 	if value := res.Get(""); value.Exists() && !data.Redeploy.IsNull() {
-		data.Redeploy = types.BoolValue(value.Bool())
+		data.Redeploy = types.StringValue(value.String())
 	} else {
-		data.Redeploy = types.BoolNull()
+		data.Redeploy = types.StringNull()
 	}
 	if value := res.Get("forcePushTemplate"); value.Exists() && !data.ForcePushTemplate.IsNull() {
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
@@ -489,8 +507,8 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 			data.MemberTemplateDeploymentInfo[i].MainTemplateId = types.StringNull()
 		}
 		for ci := range data.MemberTemplateDeploymentInfo[i].TargetInfo {
-			keys := [...]string{"hostName", "id", "type", "versionedTemplateId"}
-			keyValues := [...]string{data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].HostName.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Id.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Type.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].VersionedTemplateId.ValueString()}
+			keys := [...]string{"hostName", "", "id", "type", "versionedTemplateId"}
+			keyValues := [...]string{data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].HostName.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Redeploy.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Id.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Type.ValueString(), data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].VersionedTemplateId.ValueString()}
 
 			var cr gjson.Result
 			r.Get("targetInfo").ForEach(
@@ -515,6 +533,11 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].HostName = types.StringValue(value.String())
 			} else {
 				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].HostName = types.StringNull()
+			}
+			if value := cr.Get(""); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Redeploy.IsNull() {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Redeploy = types.StringValue(value.String())
+			} else {
+				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Redeploy = types.StringNull()
 			}
 			if value := cr.Get("id"); value.Exists() && !data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Id.IsNull() {
 				data.MemberTemplateDeploymentInfo[i].TargetInfo[ci].Id = types.StringValue(value.String())
@@ -578,8 +601,8 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 		}
 	}
 	for i := range data.TargetInfo {
-		keys := [...]string{"hostName", "id", "type", "versionedTemplateId"}
-		keyValues := [...]string{data.TargetInfo[i].HostName.ValueString(), data.TargetInfo[i].Id.ValueString(), data.TargetInfo[i].Type.ValueString(), data.TargetInfo[i].VersionedTemplateId.ValueString()}
+		keys := [...]string{"hostName", "", "id", "type", "versionedTemplateId"}
+		keyValues := [...]string{data.TargetInfo[i].HostName.ValueString(), data.TargetInfo[i].Redeploy.ValueString(), data.TargetInfo[i].Id.ValueString(), data.TargetInfo[i].Type.ValueString(), data.TargetInfo[i].VersionedTemplateId.ValueString()}
 
 		var r gjson.Result
 		res.Get("targetInfo").ForEach(
@@ -604,6 +627,11 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 			data.TargetInfo[i].HostName = types.StringValue(value.String())
 		} else {
 			data.TargetInfo[i].HostName = types.StringNull()
+		}
+		if value := r.Get(""); value.Exists() && !data.TargetInfo[i].Redeploy.IsNull() {
+			data.TargetInfo[i].Redeploy = types.StringValue(value.String())
+		} else {
+			data.TargetInfo[i].Redeploy = types.StringNull()
 		}
 		if value := r.Get("id"); value.Exists() && !data.TargetInfo[i].Id.IsNull() {
 			data.TargetInfo[i].Id = types.StringValue(value.String())

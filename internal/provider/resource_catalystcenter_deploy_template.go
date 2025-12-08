@@ -30,7 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -79,11 +78,11 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"redeploy": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply").String,
+			"redeploy": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply").AddStringEnumDescription("ALWAYS", "ON_CHANGE", "NEVER").String,
 				Optional:            true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.RequiresReplace(),
+				Validators: []validator.String{
+					stringvalidator.OneOf("ALWAYS", "ON_CHANGE", "NEVER"),
 				},
 			},
 			"force_push_template": schema.BoolAttribute{
@@ -127,7 +126,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 							MarkdownDescription: helpers.NewAttributeDescription("Template ID").String,
 							Optional:            true,
 						},
-						"target_info": schema.ListNestedAttribute{
+						"target_info": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Target info to deploy template").String,
 							Required:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -135,6 +134,13 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 									"host_name": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME").String,
 										Optional:            true,
+									},
+									"redeploy": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply").AddStringEnumDescription("ALWAYS", "ON_CHANGE", "NEVER").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("ALWAYS", "ON_CHANGE", "NEVER"),
+										},
 									},
 									"id": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("ID of device is required if targetType is MANAGED_DEVICE_UUID").String,
@@ -185,7 +191,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 					},
 				},
 			},
-			"target_info": schema.ListNestedAttribute{
+			"target_info": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Target info to deploy template").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -193,6 +199,13 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 						"host_name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME").String,
 							Optional:            true,
+						},
+						"redeploy": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply").AddStringEnumDescription("ALWAYS", "ON_CHANGE", "NEVER").String,
+							Optional:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("ALWAYS", "ON_CHANGE", "NEVER"),
+							},
 						},
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("ID of device is required if `type` is MANAGED_DEVICE_UUID").String,
@@ -302,8 +315,6 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	state.Redeploy = types.BoolValue(false)
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
@@ -346,9 +357,16 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 				break
 			}
 		}
+		redeploy := "NEVER"
+		if !planTarget.Redeploy.IsNull() {
+			redeploy = planTarget.Redeploy.ValueString()
+		} else if !plan.Redeploy.IsNull() {
+			redeploy = plan.Redeploy.ValueString()
+		}
 
+		tflog.Debug(ctx, fmt.Sprintf("redeployaa: %s: %v", planTarget.Id.ValueString(), redeploy))
 		// Add to redeploy list if new or changed
-		if !found || changed {
+		if !found || changed && redeploy == "ON_CHANGE" || redeploy == "ALWAYS" {
 			targetInfoToRedeploy = append(targetInfoToRedeploy, planTarget)
 			if !found {
 				tflog.Debug(ctx, fmt.Sprintf("New target_info item detected: %s", planTarget.Id.ValueString()))

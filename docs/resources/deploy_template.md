@@ -33,7 +33,7 @@ resource "catalystcenter_deploy_template" "example" {
 
 ### Required
 
-- `target_info` (Attributes List) Target info to deploy template (see [below for nested schema](#nestedatt--target_info))
+- `target_info` (Attributes Set) Target info to deploy template (see [below for nested schema](#nestedatt--target_info))
 - `template_id` (String) ID of template to be provisioned
 
 ### Optional
@@ -62,6 +62,7 @@ Optional:
 - `host_name` (String) Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
 - `id` (String) ID of device is required if `type` is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
+- `redeploy` (Boolean) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
 - `resource_params` (Attributes List) Resource params to be provisioned (see [below for nested schema](#nestedatt--target_info--resource_params))
 - `versioned_template_id` (String) Versioned template ID to be provisioned
 
@@ -82,7 +83,7 @@ Optional:
 
 Required:
 
-- `target_info` (Attributes List) Target info to deploy template (see [below for nested schema](#nestedatt--member_template_deployment_info--target_info))
+- `target_info` (Attributes Set) Target info to deploy template (see [below for nested schema](#nestedatt--member_template_deployment_info--target_info))
 - `template_id` (String) Versioned Template ID
 
 Optional:
@@ -105,6 +106,7 @@ Optional:
 - `host_name` (String) Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
 - `id` (String) ID of device is required if targetType is MANAGED_DEVICE_UUID
 - `params` (Map of String) Template params/values to be provisioned
+- `redeploy` (Boolean) Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
 - `resource_params` (Attributes List) Resource params to be provisioned (see [below for nested schema](#nestedatt--member_template_deployment_info--target_info--resource_params))
 - `versioned_template_id` (String) Versioned template ID to be provisioned
 
