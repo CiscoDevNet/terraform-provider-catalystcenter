@@ -313,6 +313,20 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
+	// read always as on_change to create drift and push template every apply
+	for i, s := range state.TargetInfo {
+		if s.Redeploy.ValueString() == "ALWAYS" {
+			state.TargetInfo[i].Redeploy = types.StringValue("NEVER")
+		}
+	}
+	for i, s := range state.MemberTemplateDeploymentInfo {
+		for k, d := range s.TargetInfo {
+			if d.Redeploy.ValueString() == "ALWAYS" {
+				state.MemberTemplateDeploymentInfo[i].TargetInfo[k].Redeploy = types.StringValue("NEVER")
+			}
+		}
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
