@@ -20,9 +20,11 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -308,7 +310,6 @@ func (r *DiscoveryResource) Configure(_ context.Context, req resource.ConfigureR
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Discovery
 
@@ -325,26 +326,87 @@ func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateReque
 	body := plan.toBody(ctx, Discovery{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.NoWait)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
-	params = ""
-	res, err = r.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+
+	var taskPath string
+
+	if taskId := res.Get("response.taskId").String(); taskId != "" {
+		tflog.Debug(ctx, fmt.Sprintf("POST returned taskId: %s", taskId))
+		taskPath = fmt.Sprintf("/api/v1/task/%s", url.QueryEscape(taskId))
+	} else {
+		resp.Diagnostics.AddError("Client Error",
+			fmt.Sprintf("Failed to fetch task: %s", err))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(name==\"" + plan.Name.ValueString() + "\").id").String())
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	const maxRetries = 60
+	sleepTime := 10 * time.Second
+	maxSleep := 2 * time.Minute
+
+	for i := range maxRetries {
+		tflog.Debug(ctx, fmt.Sprintf("Polling task status... attempt %d", i+1))
+		res, err := r.client.Get(taskPath, cc.NoWait)
+
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error",
+				fmt.Sprintf("Failed to fetch task status: %s", err))
+			return
+		}
+
+		isError := res.Get("response.isError").Bool()
+
+		if isError {
+			resp.Diagnostics.AddError("Task Failed",
+				fmt.Sprintf("Task failed: %s", res.String()))
+			return
+		}
+
+		progress := res.Get("response.progress").String()
+		data := res.Get("response.data").String()
+		tflog.Debug(ctx, fmt.Sprintf("Task progress: %s", progress))
+
+		extractedData := data
+		var parsedData map[string]any
+		if json.Unmarshal([]byte(data), &parsedData) == nil {
+			if discoveryID, ok := parsedData["discoveryId"]; ok {
+				switch v := discoveryID.(type) {
+				case float64:
+					extractedData = fmt.Sprintf("%.0f", v)
+				case string:
+					extractedData = v
+				}
+			}
+		}
+
+		if progress == extractedData {
+			plan.Id = types.StringValue(extractedData)
+			tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+			break
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Still running... sleeping %s", sleepTime))
+		time.Sleep(sleepTime)
+
+		// Exponential backoff
+		sleepTime *= 2
+		if sleepTime > maxSleep {
+			sleepTime = maxSleep
+		}
+	}
+
+	if plan.Id.IsNull() || plan.Id.ValueString() == "" {
+		resp.Diagnostics.AddError("Timeout Error",
+			fmt.Sprintf("Task did not complete within %d attempts", maxRetries))
+		return
+	}
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -360,7 +422,8 @@ func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	params := ""
-	res, err := r.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
+	params += "/" + url.QueryEscape(state.Id.ValueString())
+	res, err := r.client.Get("/dna/intent/api/v1/discovery" + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -368,7 +431,6 @@ func (r *DiscoveryResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {

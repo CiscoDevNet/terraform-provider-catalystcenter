@@ -34,6 +34,7 @@ func TestAccDataSourceCcDiscovery(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_discovery.test", "netconf_port", "830"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_discovery.test", "protocol_order", "SSH"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_discovery.test", "retry", "3"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_discovery.test", "timeout_seconds", "5"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

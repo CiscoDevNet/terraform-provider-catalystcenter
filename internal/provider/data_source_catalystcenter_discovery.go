@@ -21,6 +21,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -206,12 +207,12 @@ func (d *DiscoveryDataSource) Read(ctx context.Context, req datasource.ReadReque
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	res, err := d.client.Get("/dna/intent/api/v1/discovery/1/500" + params)
+	params += "/" + url.QueryEscape(config.Id.ValueString())
+	res, err := d.client.Get("/dna/intent/api/v1/discovery" + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
-	res = res.Get("response.#(id==\"" + config.Id.ValueString() + "\")")
 
 	config.fromBody(ctx, res)
 

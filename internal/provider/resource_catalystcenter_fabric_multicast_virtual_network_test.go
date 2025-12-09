@@ -78,6 +78,7 @@ resource "catalystcenter_fabric_site" "test" {
   site_id                     = catalystcenter_area.test.id
   pub_sub_enabled             = false
   authentication_profile_name = "No Authentication"
+  depends_on = [catalystcenter_ip_pool_reservation.test]
 }
 resource "catalystcenter_fabric_l3_virtual_network" "test" {
   virtual_network_name = "SDA_VN1"

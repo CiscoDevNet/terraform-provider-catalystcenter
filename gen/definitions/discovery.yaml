@@ -1,7 +1,7 @@
 ---
 name: Discovery
 rest_endpoint: /dna/intent/api/v1/discovery
-get_rest_endpoint: /dna/intent/api/v1/discovery/1/500
+get_rest_endpoint: /dna/intent/api/v1/discovery
 res_description:
   'After discovery resource has been created, the Catalyst Center would contain device entries (if discovered).
   All the device entries can be subsequently obtained from data source `catalystcenter_network_devices`. Terraform
@@ -16,18 +16,20 @@ ds_description:
   network devices, including the discovered ones.'
 skip_minimum_test: true
 no_update: true
+no_wait: true
 no_import: true
-get_from_all: true
 id_from_query_path: response
 doc_category: Discovery
 attributes:
   - model_name: cdpLevel
+    response_data_path: response.cdpLevel
     type: Int64
     description: CDP level is the number of hops across neighbor devices.
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: discoveryType
+    response_data_path: response.discoveryType
     type: String
     enum_values: [Single, Range, Multi Range, CDP, LLDP, CIDR]
     mandatory: true
@@ -35,6 +37,7 @@ attributes:
     example: Range
     requires_replace: true
   - model_name: enablePasswordList
+    response_data_path: response.enablePasswordList
     type: Set
     element_type: String
     description: Enable passwords of the devices to be discovered.
@@ -42,6 +45,7 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: globalCredentialIdList
+    response_data_path: response.globalCredentialIdList
     type: Set
     element_type: String
     description: A list of IDs, which must include SNMP credential and CLI credential.
@@ -49,21 +53,25 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: httpReadCredential
+    response_data_path: response.httpReadCredential
     type: String
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: httpWriteCredential
+    response_data_path: response.httpWriteCredential
     type: String
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: ipAddressList
+    response_data_path: response.ipAddressList
     type: String
     description: "A string of IP address ranges to discover.  E.g.: '172.30.0.1' for discovery_type Single, CDP and LLDP; '172.30.0.1-172.30.0.4' for Range; '72.30.0.1-172.30.0.4,172.31.0.1-172.31.0.4' for Multi Range; '172.30.0.1/20' for CIDR."
     example: 192.168.0.1-192.168.0.99
     requires_replace: true
   - model_name: ipFilterList
+    response_data_path: response.ipFilterList
     type: Set
     element_type: String
     description: A list of IP address ranges to exclude from the discovery.
@@ -72,12 +80,14 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: lldpLevel
+    response_data_path: response.lldpLevel
     type: Int64
     description: LLDP level to which neighbor devices to be discovered.
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: name
+    response_data_path: response.name
     type: String
     mandatory: true
     match_id: true
@@ -86,11 +96,13 @@ attributes:
     example: disco42
     requires_replace: true
   - model_name: netconfPort
+    response_data_path: response.netconfPort
     type: String
     description: Port number for netconf as a string. It requires SSH protocol to work.
     example: '830'
     requires_replace: true
   - model_name: passwordList
+    response_data_path: response.passwordList
     type: Set
     element_type: String
     description: Passwords of the devices to be discovered.
@@ -99,7 +111,7 @@ attributes:
     requires_replace: true
   - model_name: preferredMgmtIPMethod
     tf_name: preferred_mgmt_ip_method
-    response_data_path: preferredMgmtIPMethod
+    response_data_path: response.preferredMgmtIPMethod
     type: String
     enum_values: [None, UseLoopBack]
     default_value: None
@@ -108,18 +120,20 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: protocolOrder
+    response_data_path: response.protocolOrder
     type: String
     mandatory: true
     description: "A string of comma-separated protocols (SSH/Telnet), in the same order in which the connections to each device are attempted. E.g.: 'Telnet': only telnet; 'SSH,Telnet': ssh first, with telnet fallback."
     example: SSH
     requires_replace: true
   - model_name: retry
-    response_data_path: retryCount
+    response_data_path: response.retryCount
     type: Int64
     description: Number of times to try establishing SSH/Telnet connection to a device.
     example: 3
     requires_replace: true
   - model_name: snmpAuthPassphrase
+    response_data_path: response.snmpAuthPassphrase
     type: String
     description: Auth passphrase for SNMP.
     write_only: true
@@ -127,6 +141,7 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: snmpAuthProtocol
+    response_data_path: response.snmpAuthProtocol
     type: String
     description: SNMP auth protocol.
     enum_values: [SHA, MD5]
@@ -134,6 +149,7 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: snmpMode
+    response_data_path: response.snmpMode
     type: String
     description: Mode of SNMP. The `snmp_auth_protocol` and `snmp_auth_passphrase` are required for \"AuthNoPriv\" mode. Additionally, `snmp_priv_protocol` and `snmp_priv_passphrase` are required for \"AuthPriv\" mode.
     enum_values: [AuthPriv, AuthNoPriv, NoAuthNoPriv]
@@ -141,6 +157,7 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: snmpPrivPassphrase
+    response_data_path: response.snmpPrivPassphrase
     type: String
     description: Passphrase for SNMP privacy.
     write_only: true
@@ -148,6 +165,7 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: snmpPrivProtocol
+    response_data_path: response.snmpPrivProtocol
     type: String
     description: SNMP privacy protocol.
     test_value: '"AES128"'
@@ -155,36 +173,42 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: snmpRoCommunity
+    response_data_path: response.snmpRoCommunity
     type: String
     description: SNMP RO community of the devices to be discovered.
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: snmpRoCommunityDesc
+    response_data_path: response.snmpRoCommunityDesc
     type: String
     description: Description for snmp_ro_community.
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: snmpRwCommunity
+    response_data_path: response.snmpRwCommunity
     type: String
     description: SNMP RW community of the devices to be discovered.
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: snmpRwCommunityDesc
+    response_data_path: response.snmpRwCommunityDesc
     type: String
     description: Description for snmp_rw_community
     exclude_test: true
     exclude_example: true
     requires_replace: true
   - model_name: snmpUserName
+    response_data_path: response.snmpUserName
     type: String
     description: SNMP username of the devices to be discovered.
     test_value: '"testuser"'
     exclude_example: true
     requires_replace: true
   - model_name: snmpVersion
+    response_data_path: response.snmpVersion
     type: String
     description: SNMP version
     enum_values: [v2, v3]
@@ -193,14 +217,15 @@ attributes:
     exclude_example: true
     requires_replace: true
   - model_name: timeout
-    response_data_path: timeOut
+    response_data_path: response.timeOut
     tf_name: timeout_seconds
     type: Int64
     description: Number of seconds to wait for each SSH/Telnet connection to a device.
     example: 5
-    write_only: true
+    # write_only: true
     requires_replace: true
   - model_name: userNameList
+    response_data_path: response.userNameList
     type: Set
     element_type: String
     description: Usernames for the devices to be discovered.

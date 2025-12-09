@@ -1,7 +1,7 @@
 ---
 name: Deploy Template
 rest_endpoint: /dna/intent/api/v2/template-programmer/template/deploy
-# manual changes in Create and update functions
+# manual changes in Create and Update functions
 no_delete: true
 no_import: true
 no_data_source: true
@@ -19,7 +19,7 @@ attributes:
     test_value: catalystcenter_template_version.example.id
     example: 12345678-1234-1234-1234-123456789012
   - tf_name: redeploy
-    description: Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+    description: Attribute that controls when the template should be redeployed. `ALWAYS` redeploys it on every Terraform apply, `ON_CHANGE` redeploys only when the template’s content changes, and `NEVER` prevents redeployment.
     type: String
     enum_values: [ALWAYS, ON_CHANGE, NEVER]
     example: false
@@ -70,7 +70,7 @@ attributes:
             type: String
             description: Hostname of device is required if targetType is MANAGED_DEVICE_HOSTNAME
           - tf_name: redeploy
-            description: Flag to indicate whether the template should be redeployed. If set to `true`, template will be redeployed on every Terraform apply
+            description: Attribute that controls when the template should be redeployed. `ALWAYS` redeploys it on every Terraform apply, `ON_CHANGE` redeploys only when the template’s content changes, and `NEVER` prevents redeployment.
             type: String
             enum_values: [ALWAYS, ON_CHANGE, NEVER]
             example: false
