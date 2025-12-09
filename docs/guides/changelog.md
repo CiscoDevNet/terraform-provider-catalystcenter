@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.4.5
+
+- Fix `catalystcenter_deploy_template` resource to properly handle `redeploy` attribute when set to `ALWAYS` by creating drift on every apply
+
 ## 0.4.4
 
 - Fix `catalystcenter_discovery` resource to use discovery ID for read operations and avoid waiting for discovery completion during creation
