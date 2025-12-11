@@ -515,6 +515,9 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 			return
 		}
+
+		// Populate missing IDs using fromBodyUnknowns
+		plan.fromBodyUnknowns(ctx, res)
 	}
 
 	// UPDATE
