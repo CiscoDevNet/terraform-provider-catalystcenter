@@ -155,6 +155,7 @@ type YamlConfigAttribute struct {
 	ElementType           string                `yaml:"element_type"`
 	DataPath              string                `yaml:"data_path"`
 	ResponseDataPath      string                `yaml:"response_data_path"`
+	PutDataPath           string                `yaml:"put_data_path"`
 	Id                    bool                  `yaml:"id"`
 	MatchId               bool                  `yaml:"match_id"`
 	Reference             bool                  `yaml:"reference"`

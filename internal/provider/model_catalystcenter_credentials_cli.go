@@ -52,20 +52,36 @@ func (data CredentialsCLI) toBody(ctx context.Context, state CredentialsCLI) str
 	put := false
 	if state.Id.ValueString() != "" {
 		put = true
-		body, _ = sjson.Set(body, "cliCredential.0.id", state.Id.ValueString())
+		body, _ = sjson.Set(body, "cliCredential.id", state.Id.ValueString())
 	}
 	_ = put
 	if !data.Description.IsNull() {
-		body, _ = sjson.Set(body, "cliCredential.0.description", data.Description.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "cliCredential.description", data.Description.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "cliCredential.0.description", data.Description.ValueString())
+		}
 	}
 	if !data.Username.IsNull() {
-		body, _ = sjson.Set(body, "cliCredential.0.username", data.Username.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "cliCredential.username", data.Username.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "cliCredential.0.username", data.Username.ValueString())
+		}
 	}
 	if !data.Password.IsNull() {
-		body, _ = sjson.Set(body, "cliCredential.0.password", data.Password.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "cliCredential.password", data.Password.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "cliCredential.0.password", data.Password.ValueString())
+		}
 	}
 	if !data.EnablePassword.IsNull() {
-		body, _ = sjson.Set(body, "cliCredential.0.enablePassword", data.EnablePassword.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "cliCredential.enablePassword", data.EnablePassword.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "cliCredential.0.enablePassword", data.EnablePassword.ValueString())
+		}
 	}
 	return body
 }

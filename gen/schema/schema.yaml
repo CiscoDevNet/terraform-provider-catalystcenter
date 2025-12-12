@@ -58,6 +58,7 @@ attribute:
   element_type: enum('String', 'Int64', required=False) # only relevant if type is either 'List' or 'Set'
   data_path: str(required=False) # Path to the attribute in the model structure
   response_data_path: str(required=False) # Path to the attribute in the response model structure
+  put_data_path: str(required=False) # Path to the attribute in the put request
   id: bool(required=False) # Set to true if the attribute is part of the ID
   match_id: bool(required=False) # Set to true if the attribute is used to identify the right element using "get_from_all" option
   reference: bool(required=False) # Set to true if the attribute is a reference being used in the path (URL) of the REST endpoint
