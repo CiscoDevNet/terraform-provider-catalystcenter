@@ -7,6 +7,11 @@ description: |-
 
 # Changelog
 
+## 0.4.6 (unreleased)
+
+- Fix `catalystcenter_credentials_cli` resource update operation to use correct API endpoint and payload structure
+- Fix `catalystcenter_provision_devices` resource to properly populate missing IDs during update operation
+
 ## 0.4.5
 
 - Fix `catalystcenter_deploy_template` resource to properly handle `redeploy` attribute when set to `ALWAYS` by creating drift on every apply
