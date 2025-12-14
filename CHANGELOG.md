@@ -1,4 +1,4 @@
-## 0.4.6 (unreleased)
+## 0.4.6
 
 - Fix `catalystcenter_credentials_cli` resource update operation to use correct API endpoint and payload structure
 - Fix `catalystcenter_provision_devices` resource to properly populate missing IDs during update operation
