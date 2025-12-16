@@ -35,7 +35,7 @@ attributes:
     mandatory: true
     description: Type of Discovery.
     example: Range
-    requires_replace: true
+    write_only: true
   - model_name: enablePasswordList
     response_data_path: response.enablePasswordList
     type: Set

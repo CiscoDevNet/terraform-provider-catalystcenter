@@ -193,11 +193,6 @@ func (data *Discovery) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.CdpLevel = types.Int64Null()
 	}
-	if value := res.Get("response.discoveryType"); value.Exists() {
-		data.DiscoveryType = types.StringValue(value.String())
-	} else {
-		data.DiscoveryType = types.StringNull()
-	}
 	if value := res.Get("response.enablePasswordList"); value.Exists() && len(value.Array()) > 0 {
 		data.EnablePasswordList = helpers.GetStringSet(value.Array())
 	} else {
@@ -323,11 +318,6 @@ func (data *Discovery) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.CdpLevel = types.Int64Value(value.Int())
 	} else {
 		data.CdpLevel = types.Int64Null()
-	}
-	if value := res.Get("response.discoveryType"); value.Exists() && !data.DiscoveryType.IsNull() {
-		data.DiscoveryType = types.StringValue(value.String())
-	} else {
-		data.DiscoveryType = types.StringNull()
 	}
 	if value := res.Get("response.enablePasswordList"); value.Exists() && !data.EnablePasswordList.IsNull() {
 		data.EnablePasswordList = helpers.GetStringSet(value.Array())

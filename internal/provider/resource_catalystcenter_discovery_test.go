@@ -29,7 +29,6 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcDiscovery(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "discovery_type", "Range"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "ip_address_list", "192.168.0.1-192.168.0.99"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "netconf_port", "830"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_discovery.test", "protocol_order", "SSH"))
