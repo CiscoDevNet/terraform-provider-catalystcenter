@@ -87,9 +87,6 @@ func (r *DiscoveryResource) Schema(ctx context.Context, req resource.SchemaReque
 				Validators: []validator.String{
 					stringvalidator.OneOf("Single", "Range", "Multi Range", "CDP", "LLDP", "CIDR"),
 				},
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"enable_password_list": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable passwords of the devices to be discovered.").String,

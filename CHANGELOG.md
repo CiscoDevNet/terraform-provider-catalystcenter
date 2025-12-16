@@ -1,3 +1,7 @@
+## 0.4.7 (unreleased)
+
+- Fix `catalystcenter_discovery` resource to handle API issue where discovery type response is identical for Range and Multi Range types by making `discovery_type` write-only
+
 ## 0.4.6
 
 - Fix `catalystcenter_credentials_cli` resource update operation to use correct API endpoint and payload structure
