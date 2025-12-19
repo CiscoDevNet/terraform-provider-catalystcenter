@@ -51,6 +51,7 @@ func NewCredentialsHTTPSReadResource() resource.Resource {
 type CredentialsHTTPSReadResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *CredentialsHTTPSReadResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -102,6 +103,7 @@ func (r *CredentialsHTTPSReadResource) Configure(_ context.Context, req resource
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model

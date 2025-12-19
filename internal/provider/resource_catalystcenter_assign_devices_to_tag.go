@@ -50,6 +50,7 @@ func NewAssignDevicesToTagResource() resource.Resource {
 type AssignDevicesToTagResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *AssignDevicesToTagResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -92,6 +93,7 @@ func (r *AssignDevicesToTagResource) Configure(_ context.Context, req resource.C
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model
