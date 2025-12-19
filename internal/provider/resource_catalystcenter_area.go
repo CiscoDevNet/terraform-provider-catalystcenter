@@ -99,7 +99,7 @@ func (r *AreaResource) Configure(_ context.Context, req resource.ConfigureReques
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Area
-	cacheKey := "Area"
+	cacheKey := "Area::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
@@ -194,7 +194,7 @@ func (r *AreaResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AreaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Area
-	cacheKey := "Area"
+	cacheKey := "Area::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
@@ -231,7 +231,7 @@ func (r *AreaResource) Update(ctx context.Context, req resource.UpdateRequest, r
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AreaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Area
-	cacheKey := "Area"
+	cacheKey := "Area::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read state
@@ -274,7 +274,7 @@ func (r *AreaResource) ImportState(ctx context.Context, req resource.ImportState
 // Section below is generated&owned by "gen/generator.go". //template:begin readcache
 func (r *AreaResource) ReadCache(ctx context.Context, req resource.ReadRequest, state Area, params string) (cc.Res, error) {
 	var err error
-	cacheKey := "Area"
+	cacheKey := "Area::"
 
 	_, cacheSuffix, found := strings.Cut(params, "?")
 	queryPart, err := url.ParseQuery(cacheSuffix)

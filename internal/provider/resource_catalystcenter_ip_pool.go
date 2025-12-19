@@ -127,7 +127,7 @@ func (r *IPPoolResource) Configure(_ context.Context, req resource.ConfigureRequ
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan IPPool
-	cacheKey := "IPPool"
+	cacheKey := "IPPool::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
@@ -222,7 +222,7 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *IPPoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state IPPool
-	cacheKey := "IPPool"
+	cacheKey := "IPPool::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
@@ -259,7 +259,7 @@ func (r *IPPoolResource) Update(ctx context.Context, req resource.UpdateRequest,
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *IPPoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state IPPool
-	cacheKey := "IPPool"
+	cacheKey := "IPPool::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read state
@@ -293,7 +293,7 @@ func (r *IPPoolResource) ImportState(ctx context.Context, req resource.ImportSta
 // Section below is generated&owned by "gen/generator.go". //template:begin readcache
 func (r *IPPoolResource) ReadCache(ctx context.Context, req resource.ReadRequest, state IPPool, params string) (cc.Res, error) {
 	var err error
-	cacheKey := "IPPool"
+	cacheKey := "IPPool::"
 
 	_, cacheSuffix, found := strings.Cut(params, "?")
 	queryPart, err := url.ParseQuery(cacheSuffix)

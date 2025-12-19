@@ -473,7 +473,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	var plan {{camelCase .Name}}
 
 	{{- if .UseCache}}
-	cacheKey := "{{camelCase .Name}}"
+	cacheKey := "{{camelCase .Name}}::"
 	r.cache.DeletePattern(cacheKey)
 	{{- end}}
 
@@ -812,7 +812,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- $name := camelCase .Name}}
 
 	{{- if .UseCache}}
-	cacheKey := "{{camelCase .Name}}"
+	cacheKey := "{{camelCase .Name}}::"
 	r.cache.DeletePattern(cacheKey)
 	{{- end}}
 
@@ -1309,7 +1309,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	var state {{camelCase .Name}}
 
 	{{- if .UseCache}}
-	cacheKey := "{{camelCase .Name}}"
+	cacheKey := "{{camelCase .Name}}::"
 	r.cache.DeletePattern(cacheKey)
 	{{- end}}
 
@@ -1453,7 +1453,7 @@ func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resou
 // Section below is generated&owned by "gen/generator.go". //template:begin readcache
 func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resource.ReadRequest, state {{camelCase .Name}}, params string) (cc.Res, error) {
 	var err error
-	cacheKey := "{{camelCase .Name}}"
+	cacheKey := "{{camelCase .Name}}::"
 
 	_, cacheSuffix, found := strings.Cut(params, "?")
 	queryPart, err := url.ParseQuery(cacheSuffix)

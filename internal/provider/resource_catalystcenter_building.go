@@ -115,7 +115,7 @@ func (r *BuildingResource) Configure(_ context.Context, req resource.ConfigureRe
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *BuildingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Building
-	cacheKey := "Building"
+	cacheKey := "Building::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
@@ -210,7 +210,7 @@ func (r *BuildingResource) Read(ctx context.Context, req resource.ReadRequest, r
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *BuildingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Building
-	cacheKey := "Building"
+	cacheKey := "Building::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
@@ -247,7 +247,7 @@ func (r *BuildingResource) Update(ctx context.Context, req resource.UpdateReques
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *BuildingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Building
-	cacheKey := "Building"
+	cacheKey := "Building::"
 	r.cache.DeletePattern(cacheKey)
 
 	// Read state
@@ -290,7 +290,7 @@ func (r *BuildingResource) ImportState(ctx context.Context, req resource.ImportS
 // Section below is generated&owned by "gen/generator.go". //template:begin readcache
 func (r *BuildingResource) ReadCache(ctx context.Context, req resource.ReadRequest, state Building, params string) (cc.Res, error) {
 	var err error
-	cacheKey := "Building"
+	cacheKey := "Building::"
 
 	_, cacheSuffix, found := strings.Cut(params, "?")
 	queryPart, err := url.ParseQuery(cacheSuffix)
