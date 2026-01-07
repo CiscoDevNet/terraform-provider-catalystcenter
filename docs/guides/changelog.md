@@ -9,6 +9,7 @@ description: |-
 
 ## 0.4.7 (unreleased)
 
+- Add `data_source` and `import` to `atalystcenter_virtual_network_to_fabric_site` resource
 - Fix `catalystcenter_discovery` resource to handle API issue where discovery type response is identical for Range and Multi Range types by making `discovery_type` write-only
 
 ## 0.4.6

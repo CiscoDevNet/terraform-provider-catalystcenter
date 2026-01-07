@@ -70,6 +70,12 @@ func (data VirtualNetworkToFabricSite) toBody(ctx context.Context, state Virtual
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *VirtualNetworkToFabricSite) fromBody(ctx context.Context, res gjson.Result) {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	if value := res.Get("response.0.fabricIds.0"); value.Exists() {
+		data.Id = types.StringValue(value.String())
+	} else {
+		data.Id = types.StringNull()
+	}
 	if value := res.Get("response.0.virtualNetworkName"); value.Exists() {
 		data.VirtualNetworkName = types.StringValue(value.String())
 	} else {
@@ -103,9 +109,6 @@ func (data *VirtualNetworkToFabricSite) updateFromBody(ctx context.Context, res 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *VirtualNetworkToFabricSite) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.VirtualNetworkId.IsNull() {
-		return false
-	}
-	if !data.FabricSiteId.IsNull() {
 		return false
 	}
 	return true
