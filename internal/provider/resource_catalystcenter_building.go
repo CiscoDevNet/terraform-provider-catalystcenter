@@ -33,8 +33,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -307,21 +305,20 @@ func (r *BuildingResource) ReadCache(ctx context.Context, req resource.ReadReque
 		ccRes, ok := cachedValue.(cc.Res)
 		if ok {
 			filteredValue := ccRes.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-			newJsonString, _ := sjson.Set("", "response", filteredValue.Value())
-			wrappedRes := gjson.Parse(newJsonString)
+			wrappedRes := cc.Body{}.SetRaw("response", filteredValue.Raw).Res()
 			return wrappedRes, nil
 		}
 		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
 		r.cache.Delete(cacheKey)
 	}
 	res, err := r.client.Get("/dna/intent/api/v1/sites?type=building" + strings.Replace(cacheSuffix, "?", "&", 1))
-	foundRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-	res = gjson.Parse(fmt.Sprintf(`{"response": %s}`, foundRes.Raw))
+	singleRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+	singleRes = cc.Body{}.SetRaw("response", singleRes.Raw).Res()
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
 		r.cache.Set(cacheKey, res)
 	}
-	return res, err
+	return singleRes, err
 }
 
 // End of section. //template:end readcache

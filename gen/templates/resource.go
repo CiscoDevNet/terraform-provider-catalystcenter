@@ -1472,8 +1472,7 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 		ccRes, ok := cachedValue.(cc.Res)
 		if ok {
 			filteredValue := ccRes.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-			newJsonString, _ := sjson.Set("", "response", filteredValue.Value())
-			wrappedRes := gjson.Parse(newJsonString)
+			wrappedRes := cc.Body{}.SetRaw("response", filteredValue.Raw).Res()
 			return wrappedRes, nil
 		}
 		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
@@ -1489,15 +1488,16 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 	}
 	{{- if .CacheRestEndpoint}}
 	res, err := r.client.Get("{{.CacheRestEndpoint}}" + strings.Replace(cacheSuffix, "?", "&", 1))
-	foundRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-	res = gjson.Parse(fmt.Sprintf(`{"response": %s}`, foundRes.Raw))
+	singleRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+	singleRes = cc.Body{}.SetRaw("response", singleRes.Raw).Res()
 	{{- else}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
+	singleRes := res
 	{{- end}}
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
 		r.cache.Set(cacheKey, res)
 	}
-	return res, err
+	return singleRes, err
 }
 // End of section. //template:end readcache
