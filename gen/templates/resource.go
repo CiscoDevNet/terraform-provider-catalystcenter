@@ -1484,7 +1484,6 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 	res = gjson.ParseBytes(jsonBytes)
 	{{- else}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
-	// singleRes := res
 	{{- end}}
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))

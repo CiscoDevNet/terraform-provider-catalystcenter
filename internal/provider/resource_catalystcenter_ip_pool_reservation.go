@@ -381,7 +381,6 @@ func (r *IPPoolReservationResource) ReadCache(ctx context.Context, req resource.
 		return cachedValue.(cc.Res), nil
 	}
 	res, err := r.client.Get(state.getPath() + params)
-	// singleRes := res
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
 		r.cache.Set(cacheKey, res)
