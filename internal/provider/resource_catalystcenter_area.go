@@ -20,7 +20,6 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -289,15 +288,19 @@ func (r *AreaResource) ReadCache(ctx context.Context, req resource.ReadRequest, 
 	cachedValue, found := r.cache.Get(cacheKey)
 	if found {
 		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
-		filteredValue := cachedValue.(cc.Res).Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-		newJsonString, _ := sjson.Set("", "response", filteredValue.Value())
-		wrappedRes := gjson.ParseBytes([]byte(newJsonString))
-		return wrappedRes, nil
+		ccRes, ok := cachedValue.(cc.Res)
+		if ok {
+			filteredValue := ccRes.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+			newJsonString, _ := sjson.Set("", "response", filteredValue.Value())
+			wrappedRes := gjson.Parse(newJsonString)
+			return wrappedRes, nil
+		}
+		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
+		r.cache.Delete(cacheKey)
 	}
 	res, err := r.client.Get("/dna/intent/api/v1/sites?type=area" + strings.Replace(cacheSuffix, "?", "&", 1))
 	foundRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-	jsonBytes, _ := json.Marshal(map[string]interface{}{"response": foundRes.Value()})
-	res = gjson.ParseBytes(jsonBytes)
+	res = gjson.Parse(fmt.Sprintf(`{"response": %s}`, foundRes.Raw))
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
 		r.cache.Set(cacheKey, res)

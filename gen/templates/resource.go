@@ -1469,19 +1469,28 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 	if found {
 		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
 		{{- if .CacheRestEndpoint}}
-		filteredValue := cachedValue.(cc.Res).Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-		newJsonString, _ := sjson.Set("", "response", filteredValue.Value())
-		wrappedRes := gjson.ParseBytes([]byte(newJsonString))
-		return wrappedRes, nil
+		ccRes, ok := cachedValue.(cc.Res)
+		if ok {
+			filteredValue := ccRes.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+			newJsonString, _ := sjson.Set("", "response", filteredValue.Value())
+			wrappedRes := gjson.Parse(newJsonString)
+			return wrappedRes, nil
+		}
+		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
+		r.cache.Delete(cacheKey) 
 		{{- else}}
-		return cachedValue.(cc.Res), nil
+		ccRes, ok := cachedValue.(cc.Res)
+		if ok {
+			return ccRes, nil
+		}
+		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
+		r.cache.Delete(cacheKey) 
 		{{- end}}
 	}
 	{{- if .CacheRestEndpoint}}
 	res, err := r.client.Get("{{.CacheRestEndpoint}}" + strings.Replace(cacheSuffix, "?", "&", 1))
 	foundRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-	jsonBytes, _ := json.Marshal(map[string]interface{}{"response": foundRes.Value()})
-	res = gjson.ParseBytes(jsonBytes)
+	res = gjson.Parse(fmt.Sprintf(`{"response": %s}`, foundRes.Raw))
 	{{- else}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
 	{{- end}}

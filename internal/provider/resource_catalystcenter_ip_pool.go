@@ -307,7 +307,12 @@ func (r *IPPoolResource) ReadCache(ctx context.Context, req resource.ReadRequest
 	cachedValue, found := r.cache.Get(cacheKey)
 	if found {
 		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
-		return cachedValue.(cc.Res), nil
+		ccRes, ok := cachedValue.(cc.Res)
+		if ok {
+			return ccRes, nil
+		}
+		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
+		r.cache.Delete(cacheKey)
 	}
 	res, err := r.client.Get(state.getPath() + params)
 	if err == nil {
