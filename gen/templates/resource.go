@@ -43,6 +43,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-catalystcenter"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -1469,8 +1470,8 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
 		{{- if .CacheRestEndpoint}}
 		filteredValue := cachedValue.(cc.Res).Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-		jsonBytes, _ := json.Marshal(map[string]interface{}{"response": filteredValue.Value()})
-		wrappedRes := gjson.ParseBytes(jsonBytes)
+		newJsonString, _ := sjson.Set("", "response", filteredValue.Value())
+		wrappedRes := gjson.ParseBytes([]byte(newJsonString))
 		return wrappedRes, nil
 		{{- else}}
 		return cachedValue.(cc.Res), nil
@@ -1480,15 +1481,15 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 	res, err := r.client.Get("{{.CacheRestEndpoint}}" + strings.Replace(cacheSuffix, "?", "&", 1))
 	foundRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 	jsonBytes, _ := json.Marshal(map[string]interface{}{"response": foundRes.Value()})
-	singleRes := gjson.ParseBytes(jsonBytes)
+	res = gjson.ParseBytes(jsonBytes)
 	{{- else}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
-	singleRes := res
+	// singleRes := res
 	{{- end}}
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
 		r.cache.Set(cacheKey, res)
 	}
-	return singleRes, err
+	return res, err
 }
 // End of section. //template:end readcache

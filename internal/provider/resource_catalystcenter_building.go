@@ -35,6 +35,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -305,19 +306,19 @@ func (r *BuildingResource) ReadCache(ctx context.Context, req resource.ReadReque
 	if found {
 		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
 		filteredValue := cachedValue.(cc.Res).Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-		jsonBytes, _ := json.Marshal(map[string]interface{}{"response": filteredValue.Value()})
-		wrappedRes := gjson.ParseBytes(jsonBytes)
+		newJsonString, _ := sjson.Set("", "response", filteredValue.Value())
+		wrappedRes := gjson.ParseBytes([]byte(newJsonString))
 		return wrappedRes, nil
 	}
 	res, err := r.client.Get("/dna/intent/api/v1/sites?type=building" + strings.Replace(cacheSuffix, "?", "&", 1))
 	foundRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
 	jsonBytes, _ := json.Marshal(map[string]interface{}{"response": foundRes.Value()})
-	singleRes := gjson.ParseBytes(jsonBytes)
+	res = gjson.ParseBytes(jsonBytes)
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
 		r.cache.Set(cacheKey, res)
 	}
-	return singleRes, err
+	return res, err
 }
 
 // End of section. //template:end readcache
