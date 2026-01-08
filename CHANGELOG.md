@@ -1,6 +1,7 @@
 ## 0.4.7 (unreleased)
 
-- Add `data_source` and `import` to `atalystcenter_virtual_network_to_fabric_site` resource
+- Add read cache to `catalystcenter_area`, `catalystcenter_building`, `catalystcenter_floor`, `catalystcenter_ip_pool`, and `catalystcenter_ip_pool_reservation` resources to improve performance with large state files
+- Add `data_source` and `import` to `catalystcenter_virtual_network_to_fabric_site` resource
 - Fix `catalystcenter_discovery` resource to handle API issue where discovery type response is identical for Range and Multi Range types by making `discovery_type` write-only
 
 ## 0.4.6
