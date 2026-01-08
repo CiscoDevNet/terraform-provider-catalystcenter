@@ -5,9 +5,9 @@ no_update: true
 put_create: true
 id_from_query_path: response.0
 id_from_query_path_attribute: fabricIds.0
-no_data_source: true
-no_import: true
 mutex: true
+data_source_no_id: true
+import_no_id: true
 skip_minimum_test: true
 res_description: Manage assignment of a virtual network (VN) to an SD-Access Fabric Site.
 doc_category: SDA
@@ -36,6 +36,7 @@ attributes:
     tf_name: fabric_site_id
     data_path: "0"
     mandatory: true
+    query_param: true
     response_data_path: response.0.fabricIds
     description: ID of the fabric this Layer 3 Virtual Network is to be assigned to.
     type: String

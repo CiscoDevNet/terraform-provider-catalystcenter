@@ -441,6 +441,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewTransitNetworkDataSource,
 		NewUpdateAuthenticationProfileDataSource,
 		NewUserDataSource,
+		NewVirtualNetworkToFabricSiteDataSource,
 		NewWirelessInterfaceDataSource,
 		NewWirelessProfileDataSource,
 		NewWirelessRFProfileDataSource,

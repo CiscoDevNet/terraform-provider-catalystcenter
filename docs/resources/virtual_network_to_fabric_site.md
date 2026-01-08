@@ -32,3 +32,13 @@ resource "catalystcenter_virtual_network_to_fabric_site" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
+
+## Import
+
+Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
+```shell
+terraform import catalystcenter_virtual_network_to_fabric_site.example "<virtual_network_name>,<fabric_site_id>"
+```

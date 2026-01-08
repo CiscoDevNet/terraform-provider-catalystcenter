@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -41,6 +42,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &VirtualNetworkToFabricSiteResource{}
+var _ resource.ResourceWithImportState = &VirtualNetworkToFabricSiteResource{}
 
 func NewVirtualNetworkToFabricSiteResource() resource.Resource {
 	return &VirtualNetworkToFabricSiteResource{}
@@ -180,7 +182,6 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 	resp.Diagnostics.Append(diags...)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state VirtualNetworkToFabricSite
 
@@ -195,6 +196,7 @@ func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resou
 
 	params := ""
 	params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
+	params += "&fabricId=" + url.QueryEscape(state.FabricSiteId.ValueString())
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
@@ -211,13 +213,30 @@ func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resou
 		state.updateFromBody(ctx, res)
 	}
 
+	// Verify that the requested fabric site ID is in the response and set the composite ID
+	fabricIds := res.Get("response.0.fabricIds").Array()
+	found := false
+	for _, id := range fabricIds {
+		if id.String() == state.FabricSiteId.ValueString() {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	// Ensure the composite ID is set correctly
+	compositeId := state.FabricSiteId.ValueString() + "--" + state.VirtualNetworkName.ValueString()
+	state.Id = basetypes.NewStringPointerValue(&compositeId)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *VirtualNetworkToFabricSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -325,4 +344,18 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *VirtualNetworkToFabricSiteResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: <virtual_network_name>,<fabric_site_id>. Got: %q", req.ID),
+		)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("virtual_network_name"), idParts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fabric_site_id"), idParts[1])...)
+}
+
 // End of section. //template:end import
