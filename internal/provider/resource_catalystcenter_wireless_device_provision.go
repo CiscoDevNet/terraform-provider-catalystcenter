@@ -50,6 +50,7 @@ func NewWirelessDeviceProvisionResource() resource.Resource {
 type WirelessDeviceProvisionResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *WirelessDeviceProvisionResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -149,6 +150,7 @@ func (r *WirelessDeviceProvisionResource) Configure(_ context.Context, req resou
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model
