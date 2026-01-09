@@ -1,0 +1,76 @@
+---
+name: Buildings
+rest_endpoint: /dna/intent/api/v1/sites/bulk
+get_rest_endpoint: /dna/intent/api/v1/sites
+put_rest_endpoint: /dna/intent/api/v2/buildings
+res_description: Manages multiple buildings within a single resource, specifying a list of buildings as input
+root_list: true
+update_computed: true
+doc_category: Sites
+get_query_param: type
+attributes:
+  - tf_name: buildings
+    type: List
+    response_data_path: response
+    max_elements_in_root_list: 1000
+    mandatory: true
+    description: List of buildings
+    attributes:
+      - model_name: id
+        response_data_path: id
+        type: String
+        computed: true
+        computed_refresh_value: true
+        description: The id of the building
+        exclude_test: true
+      - model_name: parentId
+        response_data_path: parentId
+        type: String
+        optional: true
+        computed: true
+        description: The parent ID of the building
+      - model_name: parentNameHierarchy
+        type: String
+        mandatory: true
+        description: Parent hierarchical name (e.g., Global/USA/San Jose)
+        example: Global/USA/San Jose
+      - model_name: name
+        response_data_path: name
+        type: String
+        mandatory: true
+        description: The name of the building
+        example: Building1
+      - model_name: type
+        type: String
+        value: building
+        write_only: true
+        description: Site type (always 'building' for buildings)
+      - model_name: country
+        response_data_path: country
+        type: String
+        description: The country of the building
+        mandatory: true
+        example: United States
+      - model_name: address
+        response_data_path: address
+        type: String
+        description: The address of the building
+        example: 150 W Tasman Dr, San Jose
+      - model_name: latitude
+        response_data_path: latitude
+        type: Float64
+        description: Latitude
+        example: 37.338
+      - model_name: longitude
+        response_data_path: longitude
+        type: Float64
+        description: Longitude
+        example: -121.832
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_area" "test" {
+    name       = "USA"
+    parent_id  = data.catalystcenter_site.test.id
+  }
