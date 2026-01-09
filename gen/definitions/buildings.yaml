@@ -10,7 +10,7 @@ doc_category: Sites
 get_query_param: type
 attributes:
   - tf_name: buildings
-    type: List
+    type: Set
     response_data_path: response
     max_elements_in_root_list: 1000
     mandatory: true
@@ -26,14 +26,14 @@ attributes:
       - model_name: parentId
         response_data_path: parentId
         type: String
-        optional: true
         computed: true
         description: The parent ID of the building
+        exclude_test: true
       - model_name: parentNameHierarchy
         type: String
         mandatory: true
         description: Parent hierarchical name (e.g., Global/USA/San Jose)
-        example: Global/USA/San Jose
+        example: Global/USA
       - model_name: name
         response_data_path: name
         type: String
@@ -54,6 +54,7 @@ attributes:
       - model_name: address
         response_data_path: address
         type: String
+        mandatory: true
         description: The address of the building
         example: 150 W Tasman Dr, San Jose
       - model_name: latitude
@@ -67,10 +68,11 @@ attributes:
         description: Longitude
         example: -121.832
 test_prerequisites: |
-  data "catalystcenter_site" "test" {
-    name_hierarchy = "Global"
-  }
-  resource "catalystcenter_area" "test" {
-    name       = "USA"
-    parent_id  = data.catalystcenter_site.test.id
+  resource "catalystcenter_areas" "test" {
+    areas = [
+      {
+        parent_name_hierarchy = "Global"
+        name                  = "USA"
+      }
+    ]
   }

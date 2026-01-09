@@ -61,13 +61,17 @@ func (d *AreasDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 				MarkdownDescription: "The id of the object",
 				Required:            true,
 			},
-			"areas": schema.ListNestedAttribute{
+			"areas": schema.SetNestedAttribute{
 				MarkdownDescription: "List of areas",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: "The id of the area",
+							Computed:            true,
+						},
+						"parent_id": schema.StringAttribute{
+							MarkdownDescription: "The parent ID of the area",
 							Computed:            true,
 						},
 						"parent_name_hierarchy": schema.StringAttribute{

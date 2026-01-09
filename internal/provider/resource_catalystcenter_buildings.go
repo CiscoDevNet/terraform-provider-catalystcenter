@@ -17,7 +17,6 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
 	"fmt"
@@ -36,10 +35,6 @@ import (
 	cc "github.com/netascode/go-catalystcenter"
 	"github.com/tidwall/gjson"
 )
-
-// End of section. //template:end imports
-
-// Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &BuildingsResource{}
@@ -71,7 +66,7 @@ func (r *BuildingsResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"buildings": schema.ListNestedAttribute{
+			"buildings": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of buildings").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -131,8 +126,6 @@ func (r *BuildingsResource) Configure(_ context.Context, req resource.ConfigureR
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
-
-// End of section. //template:end model
 
 func (r *BuildingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Buildings
@@ -307,7 +300,7 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 			// Exists in both, check if different (excluding computed fields)
 			// Compare only user-configurable fields
 			planItemCopy := planItem
-			planItemCopy.Id = stateItem.Id // Use state ID
+			planItemCopy.Id = stateItem.Id             // Use state ID
 			planItemCopy.ParentId = stateItem.ParentId // Use state ParentId
 
 			if !reflect.DeepEqual(planItemCopy, stateItem) {
@@ -478,11 +471,8 @@ func (r *BuildingsResource) Delete(ctx context.Context, req resource.DeleteReque
 	resp.State.RemoveResource(ctx)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *BuildingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// For bulk resources, use a constant ID
 	// Import command: terraform import catalystcenter_buildings.bulk_buildings buildings-bulk
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "buildings-bulk")...)
 }
-
-// End of section. //template:end import

@@ -17,7 +17,6 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"os"
 	"testing"
@@ -25,9 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// End of section. //template:end imports
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcAreas(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_areas.test", "areas.0.parent_name_hierarchy", "Global"))
@@ -55,9 +51,6 @@ func TestAccCcAreas(t *testing.T) {
 	})
 }
 
-// End of section. //template:end testAcc
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcAreasPrerequisitesConfig = `
 data "catalystcenter_site" "test" {
   name_hierarchy = "Global"
@@ -65,9 +58,6 @@ data "catalystcenter_site" "test" {
 
 `
 
-// End of section. //template:end testPrerequisites
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcAreasConfig_minimum() string {
 	config := `resource "catalystcenter_areas" "test" {` + "\n"
 	config += `	areas = [{` + "\n"
@@ -78,9 +68,6 @@ func testAccCcAreasConfig_minimum() string {
 	return config
 }
 
-// End of section. //template:end testAccConfigMinimal
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcAreasConfig_all() string {
 	config := `resource "catalystcenter_areas" "test" {` + "\n"
 	config += `	areas = [{` + "\n"
@@ -90,5 +77,3 @@ func testAccCcAreasConfig_all() string {
 	config += `}` + "\n"
 	return config
 }
-
-// End of section. //template:end testAccConfigAll

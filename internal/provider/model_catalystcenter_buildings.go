@@ -17,7 +17,6 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
 
@@ -26,9 +25,6 @@ import (
 	"github.com/tidwall/sjson"
 )
 
-// End of section. //template:end imports
-
-// Section below is generated&owned by "gen/generator.go". //template:begin types
 type Buildings struct {
 	Id        types.String         `tfsdk:"id"`
 	Buildings []BuildingsBuildings `tfsdk:"buildings"`
@@ -45,24 +41,10 @@ type BuildingsBuildings struct {
 	Longitude           types.Float64 `tfsdk:"longitude"`
 }
 
-// End of section. //template:end types
-
-// Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data Buildings) getPath() string {
 	return "/dna/intent/api/v1/sites/bulk"
 }
 
-// End of section. //template:end getPath
-
-// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
-
-// End of section. //template:end getFallbackPath
-
-// Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
-
-// End of section. //template:end getPathDelete
-
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Buildings) toBody(ctx context.Context, state Buildings) string {
 	body := "[]"
 	put := false
@@ -107,9 +89,6 @@ func (data Buildings) toBody(ctx context.Context, state Buildings) string {
 	return body
 }
 
-// End of section. //template:end toBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Buildings) fromBody(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
@@ -177,9 +156,6 @@ func (data *Buildings) fromBody(ctx context.Context, res gjson.Result) {
 	}
 }
 
-// End of section. //template:end fromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Buildings) updateFromBody(ctx context.Context, res gjson.Result) {
 	var final []BuildingsBuildings
 
@@ -253,10 +229,6 @@ func (data *Buildings) updateFromBody(ctx context.Context, res gjson.Result) {
 	data.Buildings = final
 }
 
-// End of section. //template:end updateFromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
-
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *Buildings) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
@@ -312,14 +284,9 @@ func (data *Buildings) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 	}
 }
 
-// End of section. //template:end fromBodyUnknowns
-
-// Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Buildings) isNull(ctx context.Context, res gjson.Result) bool {
 	if len(data.Buildings) > 0 {
 		return false
 	}
 	return true
 }
-
-// End of section. //template:end isNull

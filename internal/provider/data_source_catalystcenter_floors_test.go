@@ -29,7 +29,7 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcFloors(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floors.test", "floors.0.parent_name_hierarchy", "Global/USA/San Jose/Building1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floors.test", "floors.0.parent_name_hierarchy", "Global/USA/Building1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floors.test", "floors.0.name", "Floor1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floors.test", "floors.0.floor_number", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_floors.test", "floors.0.rf_model", "Drywall Office Only"))
@@ -53,20 +53,26 @@ func TestAccDataSourceCcFloors(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcFloorsPrerequisitesConfig = `
-data "catalystcenter_site" "test" {
-  name_hierarchy = "Global"
+resource "catalystcenter_areas" "test" {
+  areas = [
+    {
+      parent_name_hierarchy = "Global"
+      name                  = "USA"
+    }
+  ]
 }
-resource "catalystcenter_area" "test" {
-  name       = "USA"
-  parent_id  = data.catalystcenter_site.test.id
-}
-resource "catalystcenter_building" "test" {
-  name        = "Building1"
-  parent_id   = catalystcenter_area.test.id
-  country     = "United States"
-  address     = "150 W Tasman Dr, San Jose"
-  latitude    = 37.338
-  longitude   = -121.832
+resource "catalystcenter_buildings" "test" {
+  buildings = [
+    {
+      parent_name_hierarchy = "Global/USA"
+      name                  = "Building1"
+      country               = "United States"
+      address               = "150 W Tasman Dr, San Jose"
+      latitude              = 37.338
+      longitude             = -121.832
+    }
+  ]
+  depends_on = [catalystcenter_areas.test]
 }
 
 `
@@ -77,7 +83,7 @@ resource "catalystcenter_building" "test" {
 func testAccDataSourceCcFloorsConfig() string {
 	config := `resource "catalystcenter_floors" "test" {` + "\n"
 	config += `	floors = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA/San Jose/Building1"` + "\n"
+	config += `	  parent_name_hierarchy = "Global/USA/Building1"` + "\n"
 	config += `	  name = "Floor1"` + "\n"
 	config += `	  floor_number = 1` + "\n"
 	config += `	  rf_model = "Drywall Office Only"` + "\n"

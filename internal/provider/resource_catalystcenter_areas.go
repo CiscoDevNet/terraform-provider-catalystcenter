@@ -17,7 +17,6 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
 	"fmt"
@@ -36,10 +35,6 @@ import (
 	cc "github.com/netascode/go-catalystcenter"
 	"github.com/tidwall/gjson"
 )
-
-// End of section. //template:end imports
-
-// Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &AreasResource{}
@@ -71,7 +66,7 @@ func (r *AreasResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"areas": schema.ListNestedAttribute{
+			"areas": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of areas").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -115,8 +110,6 @@ func (r *AreasResource) Configure(_ context.Context, req resource.ConfigureReque
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
-
-// End of section. //template:end model
 
 func (r *AreasResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Areas
@@ -291,7 +284,7 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 			// Exists in both, check if different (excluding computed fields)
 			// Compare only user-configurable fields
 			planItemCopy := planItem
-			planItemCopy.Id = stateItem.Id // Use state ID
+			planItemCopy.Id = stateItem.Id             // Use state ID
 			planItemCopy.ParentId = stateItem.ParentId // Use state ParentId
 
 			if !reflect.DeepEqual(planItemCopy, stateItem) {
@@ -462,11 +455,8 @@ func (r *AreasResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	resp.State.RemoveResource(ctx)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *AreasResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// For bulk resources, use a constant ID
 	// Import command: terraform import catalystcenter_areas.bulk_areas areas-bulk
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "areas-bulk")...)
 }
-
-// End of section. //template:end import

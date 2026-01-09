@@ -17,7 +17,6 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"os"
 	"testing"
@@ -25,12 +24,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// End of section. //template:end imports
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcFloors(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.parent_name_hierarchy", "Global/USA/San Jose/Building1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.parent_name_hierarchy", "Global/USA/Building1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.name", "Floor1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.floor_number", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.rf_model", "Drywall Office Only"))
@@ -61,35 +57,35 @@ func TestAccCcFloors(t *testing.T) {
 	})
 }
 
-// End of section. //template:end testAcc
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcFloorsPrerequisitesConfig = `
-data "catalystcenter_site" "test" {
-  name_hierarchy = "Global"
+resource "catalystcenter_areas" "test" {
+  areas = [
+    {
+      parent_name_hierarchy = "Global"
+      name                  = "USA"
+    }
+  ]
 }
-resource "catalystcenter_area" "test" {
-  name       = "USA"
-  parent_id  = data.catalystcenter_site.test.id
-}
-resource "catalystcenter_building" "test" {
-  name        = "Building1"
-  parent_id   = catalystcenter_area.test.id
-  country     = "United States"
-  address     = "150 W Tasman Dr, San Jose"
-  latitude    = 37.338
-  longitude   = -121.832
+resource "catalystcenter_buildings" "test" {
+  buildings = [
+    {
+      parent_name_hierarchy = "Global/USA"
+      name                  = "Building1"
+      country               = "United States"
+      address               = "150 W Tasman Dr, San Jose"
+      latitude              = 37.338
+      longitude             = -121.832
+    }
+  ]
+  depends_on = [catalystcenter_areas.test]
 }
 
 `
 
-// End of section. //template:end testPrerequisites
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcFloorsConfig_minimum() string {
 	config := `resource "catalystcenter_floors" "test" {` + "\n"
 	config += `	floors = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA/San Jose/Building1"` + "\n"
+	config += `	  parent_name_hierarchy = "Global/USA/Building1"` + "\n"
 	config += `	  name = "Floor1"` + "\n"
 	config += `	  floor_number = 1` + "\n"
 	config += `	  rf_model = "Drywall Office Only"` + "\n"
@@ -98,17 +94,15 @@ func testAccCcFloorsConfig_minimum() string {
 	config += `	  height = 3.5` + "\n"
 	config += `	  units_of_measure = "meters"` + "\n"
 	config += `	}]` + "\n"
+	config += `	depends_on = [catalystcenter_buildings.test]` + "\n"
 	config += `}` + "\n"
 	return config
 }
 
-// End of section. //template:end testAccConfigMinimal
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcFloorsConfig_all() string {
 	config := `resource "catalystcenter_floors" "test" {` + "\n"
 	config += `	floors = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA/San Jose/Building1"` + "\n"
+	config += `	  parent_name_hierarchy = "Global/USA/Building1"` + "\n"
 	config += `	  name = "Floor1"` + "\n"
 	config += `	  floor_number = 1` + "\n"
 	config += `	  rf_model = "Drywall Office Only"` + "\n"
@@ -117,8 +111,7 @@ func testAccCcFloorsConfig_all() string {
 	config += `	  height = 3.5` + "\n"
 	config += `	  units_of_measure = "meters"` + "\n"
 	config += `	}]` + "\n"
+	config += `	depends_on = [catalystcenter_buildings.test]` + "\n"
 	config += `}` + "\n"
 	return config
 }
-
-// End of section. //template:end testAccConfigAll

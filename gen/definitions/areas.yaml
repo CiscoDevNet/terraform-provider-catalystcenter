@@ -10,7 +10,7 @@ doc_category: Sites
 get_query_param: type
 attributes:
   - tf_name: areas
-    type: List
+    type: Set
     response_data_path: response
     max_elements_in_root_list: 1000
     mandatory: true
@@ -26,9 +26,9 @@ attributes:
       - model_name: parentId
         response_data_path: parentId
         type: String
-        optional: true
         computed: true
         description: The parent ID of the area
+        exclude_test: true
       - model_name: parentNameHierarchy
         type: String
         mandatory: true

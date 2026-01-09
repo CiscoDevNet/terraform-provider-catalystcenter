@@ -17,7 +17,6 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"os"
 	"testing"
@@ -25,12 +24,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// End of section. //template:end imports
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcBuildings(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.parent_name_hierarchy", "Global/USA/San Jose"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.parent_name_hierarchy", "Global/USA"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.name", "Building1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.country", "United States"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.address", "150 W Tasman Dr, San Jose"))
@@ -59,49 +55,42 @@ func TestAccCcBuildings(t *testing.T) {
 	})
 }
 
-// End of section. //template:end testAcc
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccCcBuildingsPrerequisitesConfig = `
-data "catalystcenter_site" "test" {
-  name_hierarchy = "Global"
-}
-resource "catalystcenter_area" "test" {
-  name       = "USA"
-  parent_id  = data.catalystcenter_site.test.id
+resource "catalystcenter_areas" "test" {
+  areas = [
+    {
+      parent_name_hierarchy = "Global"
+      name                  = "USA"
+    }
+  ]
 }
 
 `
 
-// End of section. //template:end testPrerequisites
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcBuildingsConfig_minimum() string {
 	config := `resource "catalystcenter_buildings" "test" {` + "\n"
 	config += `	buildings = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA/San Jose"` + "\n"
+	config += `	  parent_name_hierarchy = "Global/USA"` + "\n"
 	config += `	  name = "Building1"` + "\n"
 	config += `	  country = "United States"` + "\n"
+	config += `	  address = "150 W Tasman Dr, San Jose"` + "\n"
 	config += `	}]` + "\n"
+	config += `	depends_on = [catalystcenter_areas.test]` + "\n"
 	config += `}` + "\n"
 	return config
 }
 
-// End of section. //template:end testAccConfigMinimal
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcBuildingsConfig_all() string {
 	config := `resource "catalystcenter_buildings" "test" {` + "\n"
 	config += `	buildings = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA/San Jose"` + "\n"
+	config += `	  parent_name_hierarchy = "Global/USA"` + "\n"
 	config += `	  name = "Building1"` + "\n"
 	config += `	  country = "United States"` + "\n"
 	config += `	  address = "150 W Tasman Dr, San Jose"` + "\n"
 	config += `	  latitude = 37.338` + "\n"
 	config += `	  longitude = -121.832` + "\n"
 	config += `	}]` + "\n"
+	config += `	depends_on = [catalystcenter_areas.test]` + "\n"
 	config += `}` + "\n"
 	return config
 }
-
-// End of section. //template:end testAccConfigAll

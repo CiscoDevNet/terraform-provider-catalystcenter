@@ -29,7 +29,7 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcBuildings(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_buildings.test", "buildings.0.parent_name_hierarchy", "Global/USA/San Jose"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_buildings.test", "buildings.0.parent_name_hierarchy", "Global/USA"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_buildings.test", "buildings.0.name", "Building1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_buildings.test", "buildings.0.country", "United States"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_buildings.test", "buildings.0.address", "150 W Tasman Dr, San Jose"))
@@ -51,12 +51,13 @@ func TestAccDataSourceCcBuildings(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcBuildingsPrerequisitesConfig = `
-data "catalystcenter_site" "test" {
-  name_hierarchy = "Global"
-}
-resource "catalystcenter_area" "test" {
-  name       = "USA"
-  parent_id  = data.catalystcenter_site.test.id
+resource "catalystcenter_areas" "test" {
+  areas = [
+    {
+      parent_name_hierarchy = "Global"
+      name                  = "USA"
+    }
+  ]
 }
 
 `
@@ -67,7 +68,7 @@ resource "catalystcenter_area" "test" {
 func testAccDataSourceCcBuildingsConfig() string {
 	config := `resource "catalystcenter_buildings" "test" {` + "\n"
 	config += `	buildings = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA/San Jose"` + "\n"
+	config += `	  parent_name_hierarchy = "Global/USA"` + "\n"
 	config += `	  name = "Building1"` + "\n"
 	config += `	  country = "United States"` + "\n"
 	config += `	  address = "150 W Tasman Dr, San Jose"` + "\n"

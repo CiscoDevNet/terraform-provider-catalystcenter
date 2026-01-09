@@ -17,7 +17,6 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
 	"fmt"
@@ -38,10 +37,6 @@ import (
 	cc "github.com/netascode/go-catalystcenter"
 	"github.com/tidwall/gjson"
 )
-
-// End of section. //template:end imports
-
-// Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &FloorsResource{}
@@ -73,7 +68,7 @@ func (r *FloorsResource) Schema(ctx context.Context, req resource.SchemaRequest,
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"floors": schema.ListNestedAttribute{
+			"floors": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of floors").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -147,8 +142,6 @@ func (r *FloorsResource) Configure(_ context.Context, req resource.ConfigureRequ
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 }
-
-// End of section. //template:end model
 
 func (r *FloorsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Floors
@@ -225,6 +218,14 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Get all floors with type=floor query parameter
 	params := "?type=floor"
+
+	// Add unitsOfMeasure query param if we have floors in state with units defined
+	// This ensures API returns values in the same units we're tracking
+	if len(state.Floors) > 0 && !state.Floors[0].UnitsOfMeasure.IsNull() {
+		unitsOfMeasure := state.Floors[0].UnitsOfMeasure.ValueString()
+		params += "&_unitsOfMeasure=" + unitsOfMeasure
+	}
+
 	res, err := r.client.Get("/dna/intent/api/v1/sites" + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
@@ -323,7 +324,7 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 			// Exists in both, check if different (excluding computed fields)
 			// Compare only user-configurable fields
 			planItemCopy := planItem
-			planItemCopy.Id = stateItem.Id // Use state ID
+			planItemCopy.Id = stateItem.Id             // Use state ID
 			planItemCopy.ParentId = stateItem.ParentId // Use state ParentId
 
 			if !reflect.DeepEqual(planItemCopy, stateItem) {
@@ -493,11 +494,8 @@ func (r *FloorsResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	resp.State.RemoveResource(ctx)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// For bulk resources, use a constant ID
 	// Import command: terraform import catalystcenter_floors.bulk_floors floors-bulk
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
 }
-
-// End of section. //template:end import

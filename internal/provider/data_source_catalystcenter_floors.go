@@ -61,7 +61,7 @@ func (d *FloorsDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "The id of the object",
 				Required:            true,
 			},
-			"floors": schema.ListNestedAttribute{
+			"floors": schema.SetNestedAttribute{
 				MarkdownDescription: "List of floors",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -70,8 +70,12 @@ func (d *FloorsDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 							MarkdownDescription: "The id of the floor",
 							Computed:            true,
 						},
+						"parent_id": schema.StringAttribute{
+							MarkdownDescription: "The parent ID of the floor",
+							Computed:            true,
+						},
 						"parent_name_hierarchy": schema.StringAttribute{
-							MarkdownDescription: "Parent hierarchical name (e.g., Global/USA/San Jose/Building1)",
+							MarkdownDescription: "Parent hierarchical name (e.g., Global/USA/Building1)",
 							Computed:            true,
 						},
 						"name": schema.StringAttribute{
