@@ -8,6 +8,7 @@ root_list: true
 update_computed: true
 doc_category: Sites
 get_query_param: type
+no_data_source: true
 attributes:
   - tf_name: buildings
     type: Set
