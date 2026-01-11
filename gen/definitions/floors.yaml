@@ -3,7 +3,7 @@ name: Floors
 rest_endpoint: /dna/intent/api/v1/sites/bulk
 get_rest_endpoint: /dna/intent/api/v1/sites
 put_rest_endpoint: /dna/intent/api/v2/floors
-res_description: Manages multiple floors within a single resource, specifying a list of floors as input
+res_description: Manages multiple floors within a single resource, specifying a list of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'building'
 root_list: true
 update_computed: true
 doc_category: Sites
@@ -11,7 +11,7 @@ get_query_param: type
 no_data_source: true
 attributes:
   - tf_name: floors
-    type: Set
+    type: List
     response_data_path: response
     max_elements_in_root_list: 1000
     mandatory: true

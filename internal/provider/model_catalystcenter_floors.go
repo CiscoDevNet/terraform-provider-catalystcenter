@@ -178,81 +178,78 @@ func (data *Floors) updateFromBody(ctx context.Context, res gjson.Result) {
 	var final []FloorsFloors
 
 	res = res.Get("response")
+
+	// Build a lookup map
+	responseMap := make(map[string]gjson.Result)
+	res.ForEach(func(_, v gjson.Result) bool {
+		if v.Get("type").String() == "floor" {
+			nameHierarchy := v.Get("nameHierarchy").String()
+			responseMap[nameHierarchy] = v
+		}
+		return true
+	})
+
 	for i := range data.Floors {
-		keys := [...]string{"nameHierarchy", "type"}
 		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
 		fullHierarchy := data.Floors[i].ParentNameHierarchy.ValueString() + "/" + data.Floors[i].Name.ValueString()
-		keyValues := [...]string{fullHierarchy, "floor"}
 
-		var r gjson.Result
-		res.ForEach(
-			func(_, v gjson.Result) bool {
-				found := false
-				for ik := range keys {
-					if v.Get(keys[ik]).String() == keyValues[ik] {
-						found = true
-						continue
-					}
-					found = false
-					break
-				}
-				if found {
-					r = v
-					return false
-				}
-				return true
-			},
-		)
-		if value := r.Get("id"); value.Exists() {
-			data.Floors[i].Id = types.StringValue(value.String())
-		} else if data.Floors[i].Id.IsNull() {
-			data.Floors[i].Id = types.StringNull()
+		r, found := responseMap[fullHierarchy]
+
+		if found {
+			if value := r.Get("id"); value.Exists() {
+				data.Floors[i].Id = types.StringValue(value.String())
+			} else if data.Floors[i].Id.IsNull() {
+				data.Floors[i].Id = types.StringNull()
+			}
+			// Read parentId from response
+			if value := r.Get("parentId"); value.Exists() {
+				data.Floors[i].ParentId = types.StringValue(value.String())
+			} else {
+				data.Floors[i].ParentId = types.StringNull()
+			}
+			// ParentNameHierarchy is not updated from response - it's user-specified and stays as-is
+			if value := r.Get("name"); value.Exists() && !data.Floors[i].Name.IsNull() {
+				data.Floors[i].Name = types.StringValue(value.String())
+			} else {
+				data.Floors[i].Name = types.StringNull()
+			}
+			if value := r.Get("floorNumber"); value.Exists() && !data.Floors[i].FloorNumber.IsNull() {
+				data.Floors[i].FloorNumber = types.Int64Value(value.Int())
+			} else {
+				data.Floors[i].FloorNumber = types.Int64Null()
+			}
+			if value := r.Get("rfModel"); value.Exists() && !data.Floors[i].RfModel.IsNull() {
+				data.Floors[i].RfModel = types.StringValue(value.String())
+			} else {
+				data.Floors[i].RfModel = types.StringNull()
+			}
+			if value := r.Get("width"); value.Exists() && !data.Floors[i].Width.IsNull() {
+				data.Floors[i].Width = types.Float64Value(value.Float())
+			} else {
+				data.Floors[i].Width = types.Float64Null()
+			}
+			if value := r.Get("length"); value.Exists() && !data.Floors[i].Length.IsNull() {
+				data.Floors[i].Length = types.Float64Value(value.Float())
+			} else {
+				data.Floors[i].Length = types.Float64Null()
+			}
+			if value := r.Get("height"); value.Exists() && !data.Floors[i].Height.IsNull() {
+				data.Floors[i].Height = types.Float64Value(value.Float())
+			} else {
+				data.Floors[i].Height = types.Float64Null()
+			}
+			if value := r.Get("unitsOfMeasure"); value.Exists() && !data.Floors[i].UnitsOfMeasure.IsNull() {
+				data.Floors[i].UnitsOfMeasure = types.StringValue(value.String())
+			} else {
+				data.Floors[i].UnitsOfMeasure = types.StringNull()
+			}
+
+			// Only add to final if found in API response and has valid ID to enable drift detection
+			if data.Floors[i].Id != types.StringNull() {
+				final = append(final, data.Floors[i])
+			}
 		}
-		// Read parentId from response
-		if value := r.Get("parentId"); value.Exists() {
-			data.Floors[i].ParentId = types.StringValue(value.String())
-		} else {
-			data.Floors[i].ParentId = types.StringNull()
-		}
-		// ParentNameHierarchy is not updated from response - it's user-specified and stays as-is
-		if value := r.Get("name"); value.Exists() && !data.Floors[i].Name.IsNull() {
-			data.Floors[i].Name = types.StringValue(value.String())
-		} else {
-			data.Floors[i].Name = types.StringNull()
-		}
-		if value := r.Get("floorNumber"); value.Exists() && !data.Floors[i].FloorNumber.IsNull() {
-			data.Floors[i].FloorNumber = types.Int64Value(value.Int())
-		} else {
-			data.Floors[i].FloorNumber = types.Int64Null()
-		}
-		if value := r.Get("rfModel"); value.Exists() && !data.Floors[i].RfModel.IsNull() {
-			data.Floors[i].RfModel = types.StringValue(value.String())
-		} else {
-			data.Floors[i].RfModel = types.StringNull()
-		}
-		if value := r.Get("width"); value.Exists() && !data.Floors[i].Width.IsNull() {
-			data.Floors[i].Width = types.Float64Value(value.Float())
-		} else {
-			data.Floors[i].Width = types.Float64Null()
-		}
-		if value := r.Get("length"); value.Exists() && !data.Floors[i].Length.IsNull() {
-			data.Floors[i].Length = types.Float64Value(value.Float())
-		} else {
-			data.Floors[i].Length = types.Float64Null()
-		}
-		if value := r.Get("height"); value.Exists() && !data.Floors[i].Height.IsNull() {
-			data.Floors[i].Height = types.Float64Value(value.Float())
-		} else {
-			data.Floors[i].Height = types.Float64Null()
-		}
-		if value := r.Get("unitsOfMeasure"); value.Exists() && !data.Floors[i].UnitsOfMeasure.IsNull() {
-			data.Floors[i].UnitsOfMeasure = types.StringValue(value.String())
-		} else {
-			data.Floors[i].UnitsOfMeasure = types.StringNull()
-		}
-		if data.Floors[i].Id != types.StringNull() {
-			final = append(final, data.Floors[i])
-		}
+		// If not found in API response, item is not added to final
 	}
 	data.Floors = final
 }
@@ -262,51 +259,37 @@ func (data *Floors) updateFromBody(ctx context.Context, res gjson.Result) {
 func (data *Floors) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
-	for i := range data.Floors {
-		var r gjson.Result
-		res.ForEach(
-			func(_, v gjson.Result) bool {
-				// Match by name and type
-				if v.Get("name").String() != data.Floors[i].Name.ValueString() {
-					return true
-				}
-				if v.Get("type").String() != "floor" {
-					return true
-				}
-				// Match by parent hierarchy - strip last part from nameHierarchy
-				nameHierarchy := v.Get("nameHierarchy").String()
-				// Find last slash and take everything before it
-				lastSlash := -1
-				for idx := len(nameHierarchy) - 1; idx >= 0; idx-- {
-					if nameHierarchy[idx] == '/' {
-						lastSlash = idx
-						break
-					}
-				}
-				parentHierarchy := ""
-				if lastSlash > 0 {
-					parentHierarchy = nameHierarchy[:lastSlash]
-				}
-				if parentHierarchy != data.Floors[i].ParentNameHierarchy.ValueString() {
-					return true
-				}
-				// Found match
-				r = v
-				return false
-			},
-		)
-		if data.Floors[i].Id.IsUnknown() {
-			if value := r.Get("id"); value.Exists() && !data.Floors[i].Id.IsNull() {
-				data.Floors[i].Id = types.StringValue(value.String())
-			} else {
-				data.Floors[i].Id = types.StringNull()
-			}
+
+	// Build a lookup map
+	responseMap := make(map[string]gjson.Result)
+	res.ForEach(func(_, v gjson.Result) bool {
+		if v.Get("type").String() == "floor" {
+			nameHierarchy := v.Get("nameHierarchy").String()
+			responseMap[nameHierarchy] = v
 		}
-		if data.Floors[i].ParentId.IsUnknown() {
-			if value := r.Get("parentId"); value.Exists() {
-				data.Floors[i].ParentId = types.StringValue(value.String())
-			} else {
-				data.Floors[i].ParentId = types.StringNull()
+		return true
+	})
+
+	for i := range data.Floors {
+		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
+		fullHierarchy := data.Floors[i].ParentNameHierarchy.ValueString() + "/" + data.Floors[i].Name.ValueString()
+
+		r, found := responseMap[fullHierarchy]
+
+		if found {
+			if data.Floors[i].Id.IsUnknown() {
+				if value := r.Get("id"); value.Exists() && !data.Floors[i].Id.IsNull() {
+					data.Floors[i].Id = types.StringValue(value.String())
+				} else {
+					data.Floors[i].Id = types.StringNull()
+				}
+			}
+			if data.Floors[i].ParentId.IsUnknown() {
+				if value := r.Get("parentId"); value.Exists() {
+					data.Floors[i].ParentId = types.StringValue(value.String())
+				} else {
+					data.Floors[i].ParentId = types.StringNull()
+				}
 			}
 		}
 	}

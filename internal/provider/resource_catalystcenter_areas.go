@@ -56,7 +56,7 @@ func (r *AreasResource) Metadata(ctx context.Context, req resource.MetadataReque
 func (r *AreasResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple areas within a single resource, specifying a list of areas as input").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple areas within a single resource, specifying a list of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source `catalystcenter_sites` with type filter set to 'area'").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -66,7 +66,7 @@ func (r *AreasResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"areas": schema.SetNestedAttribute{
+			"areas": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of areas").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -438,14 +438,44 @@ func (r *AreasResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	// Delete all areas in the list
+	// Sort areas by hierarchy depth (most slashes first) to delete children before parents
+	// This prevents "cannot delete parent before children" errors
+	type areaWithDepth struct {
+		area  AreasAreas
+		depth int
+	}
+
+	areasToDelete := make([]areaWithDepth, 0, len(state.Areas))
 	for _, area := range state.Areas {
 		if area.Id.IsNull() {
 			continue // Skip if id is null
 		}
-		res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(area.Id.ValueString()))
-		if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete area %s (DELETE), got error: %s, %s", area.Name.ValueString(), err, res.String()))
+		// Calculate hierarchy depth by counting slashes
+		fullHierarchy := area.ParentNameHierarchy.ValueString() + "/" + area.Name.ValueString()
+		depth := strings.Count(fullHierarchy, "/")
+		areasToDelete = append(areasToDelete, areaWithDepth{area: area, depth: depth})
+	}
+
+	// Sort by depth descending (deepest first)
+	for i := 0; i < len(areasToDelete); i++ {
+		for j := i + 1; j < len(areasToDelete); j++ {
+			if areasToDelete[i].depth < areasToDelete[j].depth {
+				areasToDelete[i], areasToDelete[j] = areasToDelete[j], areasToDelete[i]
+			}
+		}
+	}
+
+	// Delete areas in sorted order (children first)
+	for _, item := range areasToDelete {
+		res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(item.area.Id.ValueString()))
+		if err != nil {
+			// Ignore if already deleted (404 or NCGR10008 "does not exist")
+			if strings.Contains(err.Error(), "StatusCode 404") ||
+				strings.Contains(res.String(), "NCGR10008") ||
+				strings.Contains(res.String(), "does not exist") {
+				continue // Already deleted, skip
+			}
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete area %s (DELETE), got error: %s, %s", item.area.Name.ValueString(), err, res.String()))
 			return
 		}
 	}

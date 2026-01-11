@@ -56,7 +56,7 @@ func (r *BuildingsResource) Metadata(ctx context.Context, req resource.MetadataR
 func (r *BuildingsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple buildings within a single resource, specifying a list of buildings as input").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple buildings within a single resource, specifying a list of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source `catalystcenter_sites` with type filter set to 'building'").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -66,7 +66,7 @@ func (r *BuildingsResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"buildings": schema.SetNestedAttribute{
+			"buildings": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of buildings").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -454,14 +454,44 @@ func (r *BuildingsResource) Delete(ctx context.Context, req resource.DeleteReque
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	// Delete all buildings in the list
+	// Sort buildings by hierarchy depth (most slashes first) to delete children before parents
+	// This prevents "cannot delete parent before children" errors
+	type buildingWithDepth struct {
+		building BuildingsBuildings
+		depth    int
+	}
+
+	buildingsToDelete := make([]buildingWithDepth, 0, len(state.Buildings))
 	for _, building := range state.Buildings {
 		if building.Id.IsNull() {
 			continue // Skip if id is null
 		}
-		res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(building.Id.ValueString()))
-		if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete building %s (DELETE), got error: %s, %s", building.Name.ValueString(), err, res.String()))
+		// Calculate hierarchy depth by counting slashes
+		fullHierarchy := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
+		depth := strings.Count(fullHierarchy, "/")
+		buildingsToDelete = append(buildingsToDelete, buildingWithDepth{building: building, depth: depth})
+	}
+
+	// Sort by depth descending (deepest first)
+	for i := 0; i < len(buildingsToDelete); i++ {
+		for j := i + 1; j < len(buildingsToDelete); j++ {
+			if buildingsToDelete[i].depth < buildingsToDelete[j].depth {
+				buildingsToDelete[i], buildingsToDelete[j] = buildingsToDelete[j], buildingsToDelete[i]
+			}
+		}
+	}
+
+	// Delete buildings in sorted order (children first)
+	for _, item := range buildingsToDelete {
+		res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(item.building.Id.ValueString()))
+		if err != nil {
+			// Ignore if already deleted (404 or NCGR10008 "does not exist")
+			if strings.Contains(err.Error(), "StatusCode 404") ||
+				strings.Contains(res.String(), "NCGR10008") ||
+				strings.Contains(res.String(), "does not exist") {
+				continue // Already deleted, skip
+			}
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete building %s (DELETE), got error: %s, %s", item.building.Name.ValueString(), err, res.String()))
 			return
 		}
 	}

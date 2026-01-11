@@ -124,51 +124,48 @@ func (data *Areas) updateFromBody(ctx context.Context, res gjson.Result) {
 	var final []AreasAreas
 
 	res = res.Get("response")
+
+	// Build a lookup map
+	responseMap := make(map[string]gjson.Result)
+	res.ForEach(func(_, v gjson.Result) bool {
+		if v.Get("type").String() == "area" {
+			nameHierarchy := v.Get("nameHierarchy").String()
+			responseMap[nameHierarchy] = v
+		}
+		return true
+	})
+
 	for i := range data.Areas {
-		keys := [...]string{"nameHierarchy", "type"}
 		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
 		fullHierarchy := data.Areas[i].ParentNameHierarchy.ValueString() + "/" + data.Areas[i].Name.ValueString()
-		keyValues := [...]string{fullHierarchy, "area"}
 
-		var r gjson.Result
-		res.ForEach(
-			func(_, v gjson.Result) bool {
-				found := false
-				for ik := range keys {
-					if v.Get(keys[ik]).String() == keyValues[ik] {
-						found = true
-						continue
-					}
-					found = false
-					break
-				}
-				if found {
-					r = v
-					return false
-				}
-				return true
-			},
-		)
-		if value := r.Get("id"); value.Exists() {
-			data.Areas[i].Id = types.StringValue(value.String())
-		} else if data.Areas[i].Id.IsNull() {
-			data.Areas[i].Id = types.StringNull()
+		r, found := responseMap[fullHierarchy]
+
+		if found {
+			if value := r.Get("id"); value.Exists() {
+				data.Areas[i].Id = types.StringValue(value.String())
+			} else if data.Areas[i].Id.IsNull() {
+				data.Areas[i].Id = types.StringNull()
+			}
+			// Read parentId from response
+			if value := r.Get("parentId"); value.Exists() {
+				data.Areas[i].ParentId = types.StringValue(value.String())
+			} else {
+				data.Areas[i].ParentId = types.StringNull()
+			}
+			// ParentNameHierarchy is not updated from response - it's user-specified and stays as-is
+			if value := r.Get("name"); value.Exists() && !data.Areas[i].Name.IsNull() {
+				data.Areas[i].Name = types.StringValue(value.String())
+			} else {
+				data.Areas[i].Name = types.StringNull()
+			}
+
+			// Only add to final if found in API response and has valid ID to enable drift detection
+			if data.Areas[i].Id != types.StringNull() {
+				final = append(final, data.Areas[i])
+			}
 		}
-		// Read parentId from response
-		if value := r.Get("parentId"); value.Exists() {
-			data.Areas[i].ParentId = types.StringValue(value.String())
-		} else {
-			data.Areas[i].ParentId = types.StringNull()
-		}
-		// ParentNameHierarchy is not updated from response - it's user-specified and stays as-is
-		if value := r.Get("name"); value.Exists() && !data.Areas[i].Name.IsNull() {
-			data.Areas[i].Name = types.StringValue(value.String())
-		} else {
-			data.Areas[i].Name = types.StringNull()
-		}
-		if data.Areas[i].Id != types.StringNull() {
-			final = append(final, data.Areas[i])
-		}
+		// If not found in API response, item is not added to final
 	}
 	data.Areas = final
 }
@@ -178,51 +175,37 @@ func (data *Areas) updateFromBody(ctx context.Context, res gjson.Result) {
 func (data *Areas) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
-	for i := range data.Areas {
-		var r gjson.Result
-		res.ForEach(
-			func(_, v gjson.Result) bool {
-				// Match by name and type
-				if v.Get("name").String() != data.Areas[i].Name.ValueString() {
-					return true
-				}
-				if v.Get("type").String() != "area" {
-					return true
-				}
-				// Match by parent hierarchy - strip last part from nameHierarchy
-				nameHierarchy := v.Get("nameHierarchy").String()
-				// Find last slash and take everything before it
-				lastSlash := -1
-				for idx := len(nameHierarchy) - 1; idx >= 0; idx-- {
-					if nameHierarchy[idx] == '/' {
-						lastSlash = idx
-						break
-					}
-				}
-				parentHierarchy := ""
-				if lastSlash > 0 {
-					parentHierarchy = nameHierarchy[:lastSlash]
-				}
-				if parentHierarchy != data.Areas[i].ParentNameHierarchy.ValueString() {
-					return true
-				}
-				// Found match
-				r = v
-				return false
-			},
-		)
-		if data.Areas[i].Id.IsUnknown() {
-			if value := r.Get("id"); value.Exists() && !data.Areas[i].Id.IsNull() {
-				data.Areas[i].Id = types.StringValue(value.String())
-			} else {
-				data.Areas[i].Id = types.StringNull()
-			}
+
+	// Build a lookup map
+	responseMap := make(map[string]gjson.Result)
+	res.ForEach(func(_, v gjson.Result) bool {
+		if v.Get("type").String() == "area" {
+			nameHierarchy := v.Get("nameHierarchy").String()
+			responseMap[nameHierarchy] = v
 		}
-		if data.Areas[i].ParentId.IsUnknown() {
-			if value := r.Get("parentId"); value.Exists() {
-				data.Areas[i].ParentId = types.StringValue(value.String())
-			} else {
-				data.Areas[i].ParentId = types.StringNull()
+		return true
+	})
+
+	for i := range data.Areas {
+		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
+		fullHierarchy := data.Areas[i].ParentNameHierarchy.ValueString() + "/" + data.Areas[i].Name.ValueString()
+
+		r, found := responseMap[fullHierarchy]
+
+		if found {
+			if data.Areas[i].Id.IsUnknown() {
+				if value := r.Get("id"); value.Exists() && !data.Areas[i].Id.IsNull() {
+					data.Areas[i].Id = types.StringValue(value.String())
+				} else {
+					data.Areas[i].Id = types.StringNull()
+				}
+			}
+			if data.Areas[i].ParentId.IsUnknown() {
+				if value := r.Get("parentId"); value.Exists() {
+					data.Areas[i].ParentId = types.StringValue(value.String())
+				} else {
+					data.Areas[i].ParentId = types.StringNull()
+				}
 			}
 		}
 	}

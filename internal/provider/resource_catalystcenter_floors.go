@@ -58,7 +58,7 @@ func (r *FloorsResource) Metadata(ctx context.Context, req resource.MetadataRequ
 func (r *FloorsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple floors within a single resource, specifying a list of floors as input").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple floors within a single resource, specifying a list of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'floor'").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,7 +68,7 @@ func (r *FloorsResource) Schema(ctx context.Context, req resource.SchemaRequest,
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"floors": schema.SetNestedAttribute{
+			"floors": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of floors").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -477,14 +477,44 @@ func (r *FloorsResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	// Delete all floors in the list
+	// Sort floors by hierarchy depth (most slashes first) to delete children before parents
+	// This prevents "cannot delete parent before children" errors
+	type floorWithDepth struct {
+		floor FloorsFloors
+		depth int
+	}
+
+	floorsToDelete := make([]floorWithDepth, 0, len(state.Floors))
 	for _, floor := range state.Floors {
 		if floor.Id.IsNull() {
 			continue // Skip if id is null
 		}
-		res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(floor.Id.ValueString()))
-		if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete floor %s (DELETE), got error: %s, %s", floor.Name.ValueString(), err, res.String()))
+		// Calculate hierarchy depth by counting slashes
+		fullHierarchy := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+		depth := strings.Count(fullHierarchy, "/")
+		floorsToDelete = append(floorsToDelete, floorWithDepth{floor: floor, depth: depth})
+	}
+
+	// Sort by depth descending (deepest first)
+	for i := 0; i < len(floorsToDelete); i++ {
+		for j := i + 1; j < len(floorsToDelete); j++ {
+			if floorsToDelete[i].depth < floorsToDelete[j].depth {
+				floorsToDelete[i], floorsToDelete[j] = floorsToDelete[j], floorsToDelete[i]
+			}
+		}
+	}
+
+	// Delete floors in sorted order (children first)
+	for _, item := range floorsToDelete {
+		res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(item.floor.Id.ValueString()))
+		if err != nil {
+			// Ignore if already deleted (404 or NCGR10008 "does not exist")
+			if strings.Contains(err.Error(), "StatusCode 404") ||
+				strings.Contains(res.String(), "NCGR10008") ||
+				strings.Contains(res.String(), "does not exist") {
+				continue // Already deleted, skip
+			}
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete floor %s (DELETE), got error: %s, %s", item.floor.Name.ValueString(), err, res.String()))
 			return
 		}
 	}

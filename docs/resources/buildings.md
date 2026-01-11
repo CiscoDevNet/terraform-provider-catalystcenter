@@ -3,12 +3,12 @@
 page_title: "catalystcenter_buildings Resource - terraform-provider-catalystcenter"
 subcategory: "Sites"
 description: |-
-  Manages multiple buildings within a single resource, specifying a list of buildings as input
+  Manages multiple buildings within a single resource, specifying a list of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source catalystcenter_sites with type filter set to 'building'
 ---
 
 # catalystcenter_buildings (Resource)
 
-Manages multiple buildings within a single resource, specifying a list of buildings as input
+Manages multiple buildings within a single resource, specifying a list of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source `catalystcenter_sites` with type filter set to 'building'
 
 ## Example Usage
 
@@ -32,7 +32,7 @@ resource "catalystcenter_buildings" "example" {
 
 ### Required
 
-- `buildings` (Attributes Set) List of buildings (see [below for nested schema](#nestedatt--buildings))
+- `buildings` (Attributes List) List of buildings (see [below for nested schema](#nestedatt--buildings))
 
 ### Read-Only
 
