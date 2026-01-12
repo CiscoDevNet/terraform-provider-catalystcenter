@@ -7,7 +7,6 @@ res_description: Manages multiple floors within a single resource, specifying a 
 root_list: true
 update_computed: true
 doc_category: Sites
-get_query_param: type
 no_data_source: true
 attributes:
   - tf_name: floors
