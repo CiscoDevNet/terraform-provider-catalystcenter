@@ -26,7 +26,7 @@ import (
 )
 
 type Areas struct {
-	Id    types.String            `tfsdk:"id"`
+	Id    types.String          `tfsdk:"id"`
 	Areas map[string]AreasAreas `tfsdk:"areas"`
 }
 

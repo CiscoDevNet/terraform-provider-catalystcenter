@@ -1,6 +1,6 @@
 resource "catalystcenter_floors" "example" {
-  floors = [
-    {
+  floors = {
+    "Global/USA/Building1/Floor1" = {
       parent_name_hierarchy = "Global/USA/Building1"
       name                  = "Floor1"
       floor_number          = 1
@@ -10,5 +10,5 @@ resource "catalystcenter_floors" "example" {
       height                = 3.5
       units_of_measure      = "meters"
     }
-  ]
+  }
 }

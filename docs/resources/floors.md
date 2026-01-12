@@ -3,19 +3,19 @@
 page_title: "catalystcenter_floors Resource - terraform-provider-catalystcenter"
 subcategory: "Sites"
 description: |-
-  Manages multiple floors within a single resource, specifying a list of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source catalystcenter_sites with type filter set to 'floor'
+  Manages multiple floors within a single resource, specifying a map of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source catalystcenter_sites with type filter set to 'floor'
 ---
 
 # catalystcenter_floors (Resource)
 
-Manages multiple floors within a single resource, specifying a list of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'floor'
+Manages multiple floors within a single resource, specifying a map of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'floor'
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_floors" "example" {
-  floors = [
-    {
+  floors = {
+    "Global/USA/Building1/Floor1" = {
       parent_name_hierarchy = "Global/USA/Building1"
       name                  = "Floor1"
       floor_number          = 1
@@ -25,7 +25,7 @@ resource "catalystcenter_floors" "example" {
       height                = 3.5
       units_of_measure      = "meters"
     }
-  ]
+  }
 }
 ```
 
@@ -34,7 +34,7 @@ resource "catalystcenter_floors" "example" {
 
 ### Required
 
-- `floors` (Attributes List) List of floors (see [below for nested schema](#nestedatt--floors))
+- `floors` (Attributes Map) Map of floors, keyed by parent_name_hierarchy/name (see [below for nested schema](#nestedatt--floors))
 
 ### Read-Only
 

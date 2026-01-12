@@ -33,12 +33,14 @@ attributes:
       - model_name: parentNameHierarchy
         type: String
         mandatory: true
+        key_part: true
         description: Parent hierarchical name (e.g., Global/USA/Building1)
         example: Global/USA/Building1
       - model_name: name
         response_data_path: name
         type: String
         mandatory: true
+        key_part: true
         description: Floor name
         example: Floor1
       - model_name: type
