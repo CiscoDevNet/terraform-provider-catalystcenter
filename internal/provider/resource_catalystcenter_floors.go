@@ -525,7 +525,45 @@ func (r *FloorsResource) Delete(ctx context.Context, req resource.DeleteRequest,
 }
 
 func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// For bulk resources, use a constant ID
-	// Import command: terraform import catalystcenter_floors.bulk_floors floors-bulk
+	// For bulk resources, use a constant ID with optional units parameter
+	// Import command: terraform import catalystcenter_floors.bulk_floors "floors-bulk,meters"
+	//            or: terraform import catalystcenter_floors.bulk_floors "floors-bulk,feet"
+	//            or: terraform import catalystcenter_floors.bulk_floors "floors-bulk" (defaults to feet)
+
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != 1 && len(idParts) != 2 {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: floors-bulk or floors-bulk,<units>. Got: %q", req.ID),
+		)
+		return
+	}
+
+	if idParts[0] != "floors-bulk" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier to start with 'floors-bulk'. Got: %q", idParts[0]),
+		)
+		return
+	}
+
+	// Validate units if provided
+	if len(idParts) == 2 {
+		units := idParts[1]
+		if units != "feet" && units != "meters" {
+			resp.Diagnostics.AddError(
+				"Invalid Units Parameter",
+				fmt.Sprintf("Units must be 'feet' or 'meters'. Got: %q", units),
+			)
+			return
+		}
+
+		// Create a dummy floor entry with units to guide the Read function
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("floors"), []map[string]interface{}{
+			{"units_of_measure": units},
+		})...)
+	}
+
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
 }
