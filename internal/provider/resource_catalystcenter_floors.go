@@ -221,8 +221,18 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Add unitsOfMeasure query param if we have floors in state with units defined
 	// This ensures API returns values in the same units we're tracking
+	// During import, units may be encoded in the ID as "floors-bulk:meters"
+	unitsOfMeasure := ""
 	if len(state.Floors) > 0 && !state.Floors[0].UnitsOfMeasure.IsNull() {
-		unitsOfMeasure := state.Floors[0].UnitsOfMeasure.ValueString()
+		unitsOfMeasure = state.Floors[0].UnitsOfMeasure.ValueString()
+	} else if strings.Contains(state.Id.ValueString(), ":") {
+		// Parse units from ID during import (format: "floors-bulk:meters")
+		parts := strings.Split(state.Id.ValueString(), ":")
+		if len(parts) == 2 {
+			unitsOfMeasure = parts[1]
+		}
+	}
+	if unitsOfMeasure != "" {
 		params += "&_unitsOfMeasure=" + unitsOfMeasure
 	}
 
@@ -548,7 +558,7 @@ func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportSta
 		return
 	}
 
-	// Validate units if provided
+	// Validate and encode units in the ID if provided
 	if len(idParts) == 2 {
 		units := idParts[1]
 		if units != "feet" && units != "meters" {
@@ -558,12 +568,9 @@ func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportSta
 			)
 			return
 		}
-
-		// Create a dummy floor entry with units to guide the Read function
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("floors"), []map[string]interface{}{
-			{"units_of_measure": units},
-		})...)
+		// Store ID with units encoded temporarily (Read function will parse and normalize it back)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), fmt.Sprintf("floors-bulk:%s", units))...)
+	} else {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
 	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
 }
