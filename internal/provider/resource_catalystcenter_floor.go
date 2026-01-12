@@ -52,6 +52,7 @@ func NewFloorResource() resource.Resource {
 type FloorResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *FloorResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -120,6 +121,7 @@ func (r *FloorResource) Configure(_ context.Context, req resource.ConfigureReque
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model
@@ -127,6 +129,8 @@ func (r *FloorResource) Configure(_ context.Context, req resource.ConfigureReque
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FloorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Floor
+	cacheKey := "Floor::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -194,7 +198,7 @@ func (r *FloorResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	params := ""
 	params += "/" + url.QueryEscape(state.Id.ValueString())
 	params += "?_unitsOfMeasure=" + url.QueryEscape(state.UnitsOfMeasure.ValueString())
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.ReadCache(ctx, req, state, params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -221,6 +225,8 @@ func (r *FloorResource) Read(ctx context.Context, req resource.ReadRequest, resp
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FloorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Floor
+	cacheKey := "Floor::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -256,6 +262,8 @@ func (r *FloorResource) Update(ctx context.Context, req resource.UpdateRequest, 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FloorResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Floor
+	cacheKey := "Floor::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -294,3 +302,41 @@ func (r *FloorResource) ImportState(ctx context.Context, req resource.ImportStat
 }
 
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin readcache
+func (r *FloorResource) ReadCache(ctx context.Context, req resource.ReadRequest, state Floor, params string) (cc.Res, error) {
+	var err error
+	cacheKey := "Floor::"
+
+	_, cacheSuffix, found := strings.Cut(params, "?")
+	queryPart, err := url.ParseQuery(cacheSuffix)
+	if err == nil {
+		delete(queryPart, "id")
+		newQuery := queryPart.Encode()
+		cacheSuffix = "?" + newQuery
+		cacheKey += cacheSuffix
+	}
+
+	cachedValue, found := r.cache.Get(cacheKey)
+	if found {
+		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
+		ccRes, ok := cachedValue.(cc.Res)
+		if ok {
+			filteredValue := ccRes.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+			wrappedRes := cc.Body{}.SetRaw("response", filteredValue.Raw).Res()
+			return wrappedRes, nil
+		}
+		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
+		r.cache.Delete(cacheKey)
+	}
+	res, err := r.client.Get("/dna/intent/api/v1/sites?type=floor" + strings.Replace(cacheSuffix, "?", "&", 1))
+	singleRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+	singleRes = cc.Body{}.SetRaw("response", singleRes.Raw).Res()
+	if err == nil {
+		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
+		r.cache.Set(cacheKey, res)
+	}
+	return singleRes, err
+}
+
+// End of section. //template:end readcache

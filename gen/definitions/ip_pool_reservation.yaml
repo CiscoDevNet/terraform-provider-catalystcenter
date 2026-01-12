@@ -10,6 +10,7 @@ import_no_id: true
 allow_existing_on_create: true
 res_description: This resource manages an IP reserve subpool using the new API schema.
 doc_category: Network Settings
+use_cache: true
 attributes:
 - model_name: name
   type: String

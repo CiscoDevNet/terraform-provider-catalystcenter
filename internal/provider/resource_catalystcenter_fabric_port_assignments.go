@@ -53,6 +53,7 @@ func NewFabricPortAssignmentsResource() resource.Resource {
 type FabricPortAssignmentsResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *FabricPortAssignmentsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -151,6 +152,7 @@ func (r *FabricPortAssignmentsResource) Configure(_ context.Context, req resourc
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model

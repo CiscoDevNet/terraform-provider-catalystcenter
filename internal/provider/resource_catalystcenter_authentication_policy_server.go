@@ -53,6 +53,7 @@ func NewAuthenticationPolicyServerResource() resource.Resource {
 type AuthenticationPolicyServerResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *AuthenticationPolicyServerResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -230,6 +231,7 @@ func (r *AuthenticationPolicyServerResource) Configure(_ context.Context, req re
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model

@@ -50,6 +50,7 @@ func NewCredentialsSNMPv2WriteResource() resource.Resource {
 type CredentialsSNMPv2WriteResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
+	cache                 *ThreadSafeCache
 }
 
 func (r *CredentialsSNMPv2WriteResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -91,6 +92,7 @@ func (r *CredentialsSNMPv2WriteResource) Configure(_ context.Context, req resour
 
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
+	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
 // End of section. //template:end model
