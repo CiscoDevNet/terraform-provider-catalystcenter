@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.4.7 (unreleased)
+## 0.4.7
 
 - Add `catalystcenter_areas`, `catalystcenter_buildings`, `catalystcenter_floors` bulk resources for efficiently managing multiple sites at scale with a single resource declaration
 - Add read cache to `catalystcenter_area`, `catalystcenter_building`, `catalystcenter_floor`, `catalystcenter_ip_pool`, and `catalystcenter_ip_pool_reservation` resources to improve performance with large state files
