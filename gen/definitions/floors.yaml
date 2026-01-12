@@ -3,18 +3,19 @@ name: Floors
 rest_endpoint: /dna/intent/api/v1/sites/bulk
 get_rest_endpoint: /dna/intent/api/v1/sites
 put_rest_endpoint: /dna/intent/api/v2/floors
-res_description: Manages multiple floors within a single resource, specifying a list of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'building'
+res_description: Manages multiple floors within a single resource, specifying a map of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'floor'
 root_list: true
 update_computed: true
 doc_category: Sites
 no_data_source: true
 attributes:
   - tf_name: floors
-    type: List
+    type: Map
     response_data_path: response
     max_elements_in_root_list: 1000
     mandatory: true
-    description: List of floors
+    description: Map of floors, keyed by parent_name_hierarchy/name (e.g., "Global/USA/Building1/Floor1")
+    map_key_example: Global/USA/Building1/Floor1
     attributes:
       - model_name: id
         response_data_path: id
@@ -92,16 +93,16 @@ attributes:
         example: meters
 test_prerequisites: |
   resource "catalystcenter_areas" "test" {
-    areas = [
-      {
+    areas = {
+      "Global/USA" = {
         parent_name_hierarchy = "Global"
         name                  = "USA"
       }
-    ]
+    }
   }
   resource "catalystcenter_buildings" "test" {
-    buildings = [
-      {
+    buildings = {
+      "Global/USA/Building1" = {
         parent_name_hierarchy = "Global/USA"
         name                  = "Building1"
         country               = "United States"
@@ -109,6 +110,6 @@ test_prerequisites: |
         latitude              = 37.338
         longitude             = -121.832
       }
-    ]
+    }
     depends_on = [catalystcenter_areas.test]
   }

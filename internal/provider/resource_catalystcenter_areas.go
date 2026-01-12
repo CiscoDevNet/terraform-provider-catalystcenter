@@ -56,7 +56,7 @@ func (r *AreasResource) Metadata(ctx context.Context, req resource.MetadataReque
 func (r *AreasResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple areas within a single resource, specifying a list of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source `catalystcenter_sites` with type filter set to 'area'").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple areas within a single resource, specifying a map of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source `catalystcenter_sites` with type filter set to 'area'").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -66,8 +66,8 @@ func (r *AreasResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"areas": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of areas").String,
+			"areas": schema.MapNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Map of areas, keyed by parent_name_hierarchy/name").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -130,17 +130,30 @@ func (r *AreasResource) Create(ctx context.Context, req resource.CreateRequest, 
 	body := plan.toBody(ctx, Areas{})
 	var planList []Areas
 	maxElementsPerShard := 1000
-	originalList := plan.Areas
+
+	// Convert map to slice for sharding
+	originalList := make([]AreasAreas, 0, len(plan.Areas))
+	for _, area := range plan.Areas {
+		originalList = append(originalList, area)
+	}
+
 	for i := 0; i < len(originalList); i += maxElementsPerShard {
 		end := i + maxElementsPerShard
 		if end > len(originalList) {
 			end = len(originalList)
 		}
 		chunk := originalList[i:end]
-		currentPlanForShard := plan
-		currentPlanForShard.Areas = chunk
-		planList = append(planList, currentPlanForShard)
 
+		// Convert chunk back to map for this shard
+		chunkMap := make(map[string]AreasAreas)
+		for _, area := range chunk {
+			key := area.ParentNameHierarchy.ValueString() + "/" + area.Name.ValueString()
+			chunkMap[key] = area
+		}
+
+		currentPlanForShard := plan
+		currentPlanForShard.Areas = chunkMap
+		planList = append(planList, currentPlanForShard)
 	}
 
 	params := ""
@@ -203,13 +216,11 @@ func (r *AreasResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	// Filter out any areas without a name
-	filteredAreas := []AreasAreas{}
-	for _, area := range state.Areas {
-		if !area.Name.IsNull() && area.Name.ValueString() != "" {
-			filteredAreas = append(filteredAreas, area)
+	for key, area := range state.Areas {
+		if area.Name.IsNull() || area.Name.ValueString() == "" {
+			delete(state.Areas, key)
 		}
 	}
-	state.Areas = filteredAreas
 
 	// Set resource-level ID for bulk resource
 	state.Id = types.StringValue("areas-bulk")
@@ -241,18 +252,18 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty maps
 	var toDelete = Areas{
-		Areas: []AreasAreas{},
+		Areas: make(map[string]AreasAreas),
 	}
 	var toCreate = Areas{
-		Areas: []AreasAreas{},
+		Areas: make(map[string]AreasAreas),
 	}
 	var toUpdate = Areas{
-		Areas: []AreasAreas{},
+		Areas: make(map[string]AreasAreas),
 	}
 	var toReplace = Areas{
-		Areas: []AreasAreas{},
+		Areas: make(map[string]AreasAreas),
 	}
 
 	planMap := make(map[string]AreasAreas)
@@ -274,7 +285,7 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	for stateKey, stateItem := range stateMap {
 		if _, exists := planMap[stateKey]; !exists {
 			// Exists only in state → Needs to be deleted
-			toDelete.Areas = append(toDelete.Areas, stateItem)
+			toDelete.Areas[stateKey] = stateItem
 		}
 	}
 
@@ -293,11 +304,11 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 				planItem.ParentId = stateItem.ParentId
 				planMap[planKey] = planItem // Store back in planMap
 				// Check if any field marked as requires_replace differs
-				toUpdate.Areas = append(toUpdate.Areas, planItem)
+				toUpdate.Areas[planKey] = planItem
 			}
 		} else {
 			// Exists only in plan → New item
-			toCreate.Areas = append(toCreate.Areas, planItem)
+			toCreate.Areas[planKey] = planItem
 		}
 	}
 
@@ -306,17 +317,12 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	if len(toReplace.Areas) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.Areas)))
 		// Clear IDs before recreating
-		var toReplaceNoId = Areas{
-			Areas: []AreasAreas{},
-		}
-		for _, item := range toReplace.Areas {
+		for key, item := range toReplace.Areas {
 			item.Id = types.StringNull()
-			toReplaceNoId.Areas = append(toReplaceNoId.Areas, item)
+			// Add to delete and create maps
+			toDelete.Areas[key] = toReplace.Areas[key]
+			toCreate.Areas[key] = item
 		}
-
-		// Replace is done by delete + create
-		toDelete.Areas = append(toDelete.Areas, toReplace.Areas...)
-		toCreate.Areas = append(toCreate.Areas, toReplaceNoId.Areas...)
 	}
 
 	// DELETE
@@ -342,13 +348,27 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 		maxElementsPerShard := 1000
 		var createList []Areas
-		for i := 0; i < len(toCreate.Areas); i += maxElementsPerShard {
-			end := min(i+maxElementsPerShard, len(toCreate.Areas))
-			chunk := toCreate.Areas[i:end]
-			currentPlanForShard := plan
-			currentPlanForShard.Areas = chunk
-			createList = append(createList, currentPlanForShard)
 
+		// Convert map to slice for sharding
+		createSlice := make([]AreasAreas, 0, len(toCreate.Areas))
+		for _, area := range toCreate.Areas {
+			createSlice = append(createSlice, area)
+		}
+
+		for i := 0; i < len(createSlice); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(createSlice))
+			chunk := createSlice[i:end]
+
+			// Convert chunk back to map for this shard
+			chunkMap := make(map[string]AreasAreas)
+			for _, area := range chunk {
+				key := area.ParentNameHierarchy.ValueString() + "/" + area.Name.ValueString()
+				chunkMap[key] = area
+			}
+
+			currentPlanForShard := plan
+			currentPlanForShard.Areas = chunkMap
+			createList = append(createList, currentPlanForShard)
 		}
 
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.Areas)))
@@ -388,12 +408,13 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.Areas)))
 
 		// Update each area individually using PUT endpoint
-		for _, item := range toUpdate.Areas {
+		for key, item := range toUpdate.Areas {
 			if item.Id.IsNull() {
 				continue // Skip if id is null
 			}
 			// Create a temporary Areas structure with single item for toBody
-			tempAreas := Areas{Areas: []AreasAreas{item}}
+			tempAreas := Areas{Areas: make(map[string]AreasAreas)}
+			tempAreas.Areas[key] = item
 			tempAreas.Id = types.StringValue("dummy") // Set to trigger PUT mode in toBody
 			body := tempAreas.toBody(ctx, tempAreas)
 

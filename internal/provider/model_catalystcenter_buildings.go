@@ -26,8 +26,8 @@ import (
 )
 
 type Buildings struct {
-	Id        types.String         `tfsdk:"id"`
-	Buildings []BuildingsBuildings `tfsdk:"buildings"`
+	Id        types.String                    `tfsdk:"id"`
+	Buildings map[string]BuildingsBuildings `tfsdk:"buildings"`
 }
 
 type BuildingsBuildings struct {
@@ -93,7 +93,7 @@ func (data *Buildings) fromBody(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
 	if value := res; value.Exists() && len(value.Array()) > 0 {
-		data.Buildings = make([]BuildingsBuildings, 0)
+		data.Buildings = make(map[string]BuildingsBuildings)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := BuildingsBuildings{}
 			if cValue := v.Get("id"); cValue.Exists() {
@@ -150,15 +150,17 @@ func (data *Buildings) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Longitude = types.Float64Null()
 			}
-			data.Buildings = append(data.Buildings, item)
+			// Use parentNameHierarchy/name as map key
+			if !item.ParentNameHierarchy.IsNull() && !item.Name.IsNull() {
+				key := item.ParentNameHierarchy.ValueString() + "/" + item.Name.ValueString()
+				data.Buildings[key] = item
+			}
 			return true
 		})
 	}
 }
 
 func (data *Buildings) updateFromBody(ctx context.Context, res gjson.Result) {
-	var final []BuildingsBuildings
-
 	res = res.Get("response")
 
 	// Build a lookup map
@@ -171,59 +173,63 @@ func (data *Buildings) updateFromBody(ctx context.Context, res gjson.Result) {
 		return true
 	})
 
-	for i := range data.Buildings {
+	for key, building := range data.Buildings {
 		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
-		fullHierarchy := data.Buildings[i].ParentNameHierarchy.ValueString() + "/" + data.Buildings[i].Name.ValueString()
+		fullHierarchy := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
 
 		r, found := responseMap[fullHierarchy]
 
 		if found {
 			if value := r.Get("id"); value.Exists() {
-				data.Buildings[i].Id = types.StringValue(value.String())
-			} else if data.Buildings[i].Id.IsNull() {
-				data.Buildings[i].Id = types.StringNull()
+				building.Id = types.StringValue(value.String())
+			} else if building.Id.IsNull() {
+				building.Id = types.StringNull()
 			}
 			// Read parentId from response
 			if value := r.Get("parentId"); value.Exists() {
-				data.Buildings[i].ParentId = types.StringValue(value.String())
+				building.ParentId = types.StringValue(value.String())
 			} else {
-				data.Buildings[i].ParentId = types.StringNull()
+				building.ParentId = types.StringNull()
 			}
 			// ParentNameHierarchy is not updated from response - it's user-specified and stays as-is
-			if value := r.Get("name"); value.Exists() && !data.Buildings[i].Name.IsNull() {
-				data.Buildings[i].Name = types.StringValue(value.String())
+			if value := r.Get("name"); value.Exists() && !building.Name.IsNull() {
+				building.Name = types.StringValue(value.String())
 			} else {
-				data.Buildings[i].Name = types.StringNull()
+				building.Name = types.StringNull()
 			}
-			if value := r.Get("country"); value.Exists() && !data.Buildings[i].Country.IsNull() {
-				data.Buildings[i].Country = types.StringValue(value.String())
+			if value := r.Get("country"); value.Exists() && !building.Country.IsNull() {
+				building.Country = types.StringValue(value.String())
 			} else {
-				data.Buildings[i].Country = types.StringNull()
+				building.Country = types.StringNull()
 			}
-			if value := r.Get("address"); value.Exists() && !data.Buildings[i].Address.IsNull() {
-				data.Buildings[i].Address = types.StringValue(value.String())
+			if value := r.Get("address"); value.Exists() && !building.Address.IsNull() {
+				building.Address = types.StringValue(value.String())
 			} else {
-				data.Buildings[i].Address = types.StringNull()
+				building.Address = types.StringNull()
 			}
-			if value := r.Get("latitude"); value.Exists() && !data.Buildings[i].Latitude.IsNull() {
-				data.Buildings[i].Latitude = types.Float64Value(value.Float())
+			if value := r.Get("latitude"); value.Exists() && !building.Latitude.IsNull() {
+				building.Latitude = types.Float64Value(value.Float())
 			} else {
-				data.Buildings[i].Latitude = types.Float64Null()
+				building.Latitude = types.Float64Null()
 			}
-			if value := r.Get("longitude"); value.Exists() && !data.Buildings[i].Longitude.IsNull() {
-				data.Buildings[i].Longitude = types.Float64Value(value.Float())
+			if value := r.Get("longitude"); value.Exists() && !building.Longitude.IsNull() {
+				building.Longitude = types.Float64Value(value.Float())
 			} else {
-				data.Buildings[i].Longitude = types.Float64Null()
+				building.Longitude = types.Float64Null()
 			}
 
-			// Only add to final if found in API response and has valid ID to enable drift detection
-			if data.Buildings[i].Id != types.StringNull() {
-				final = append(final, data.Buildings[i])
+			// Update map with modified building if it has a valid ID
+			if building.Id != types.StringNull() {
+				data.Buildings[key] = building
+			} else {
+				// Remove from map if no valid ID (drift detection)
+				delete(data.Buildings, key)
 			}
+		} else {
+			// If not found in API response, remove from map (drift detection)
+			delete(data.Buildings, key)
 		}
-		// If not found in API response, item is not added to final
 	}
-	data.Buildings = final
 }
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
@@ -242,27 +248,29 @@ func (data *Buildings) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 		return true
 	})
 
-	for i := range data.Buildings {
+	for key, building := range data.Buildings {
 		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
-		fullHierarchy := data.Buildings[i].ParentNameHierarchy.ValueString() + "/" + data.Buildings[i].Name.ValueString()
+		fullHierarchy := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
 
 		r, found := responseMap[fullHierarchy]
 
 		if found {
-			if data.Buildings[i].Id.IsUnknown() {
-				if value := r.Get("id"); value.Exists() && !data.Buildings[i].Id.IsNull() {
-					data.Buildings[i].Id = types.StringValue(value.String())
+			if building.Id.IsUnknown() {
+				if value := r.Get("id"); value.Exists() && !building.Id.IsNull() {
+					building.Id = types.StringValue(value.String())
 				} else {
-					data.Buildings[i].Id = types.StringNull()
+					building.Id = types.StringNull()
 				}
 			}
-			if data.Buildings[i].ParentId.IsUnknown() {
+			if building.ParentId.IsUnknown() {
 				if value := r.Get("parentId"); value.Exists() {
-					data.Buildings[i].ParentId = types.StringValue(value.String())
+					building.ParentId = types.StringValue(value.String())
 				} else {
-					data.Buildings[i].ParentId = types.StringNull()
+					building.ParentId = types.StringNull()
 				}
 			}
+			// Update map with modified building
+			data.Buildings[key] = building
 		}
 	}
 }

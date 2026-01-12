@@ -58,7 +58,7 @@ func (r *FloorsResource) Metadata(ctx context.Context, req resource.MetadataRequ
 func (r *FloorsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple floors within a single resource, specifying a list of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'floor'").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple floors within a single resource, specifying a map of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'floor'").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,8 +68,8 @@ func (r *FloorsResource) Schema(ctx context.Context, req resource.SchemaRequest,
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"floors": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of floors").String,
+			"floors": schema.MapNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Map of floors, keyed by parent_name_hierarchy/name").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -162,17 +162,30 @@ func (r *FloorsResource) Create(ctx context.Context, req resource.CreateRequest,
 	body := plan.toBody(ctx, Floors{})
 	var planList []Floors
 	maxElementsPerShard := 1000
-	originalList := plan.Floors
+
+	// Convert map to slice for sharding
+	originalList := make([]FloorsFloors, 0, len(plan.Floors))
+	for _, floor := range plan.Floors {
+		originalList = append(originalList, floor)
+	}
+
 	for i := 0; i < len(originalList); i += maxElementsPerShard {
 		end := i + maxElementsPerShard
 		if end > len(originalList) {
 			end = len(originalList)
 		}
 		chunk := originalList[i:end]
-		currentPlanForShard := plan
-		currentPlanForShard.Floors = chunk
-		planList = append(planList, currentPlanForShard)
 
+		// Convert chunk back to map for this shard
+		chunkMap := make(map[string]FloorsFloors)
+		for _, floor := range chunk {
+			key := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+			chunkMap[key] = floor
+		}
+
+		currentPlanForShard := plan
+		currentPlanForShard.Floors = chunkMap
+		planList = append(planList, currentPlanForShard)
 	}
 
 	params := ""
@@ -221,9 +234,15 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Add unitsOfMeasure query param if we have floors in state with units defined
 	// This ensures API returns values in the same units we're tracking
-	if len(state.Floors) > 0 && !state.Floors[0].UnitsOfMeasure.IsNull() {
-		unitsOfMeasure := state.Floors[0].UnitsOfMeasure.ValueString()
-		params += "&_unitsOfMeasure=" + unitsOfMeasure
+	if len(state.Floors) > 0 {
+		// Get first floor from map
+		for _, floor := range state.Floors {
+			if !floor.UnitsOfMeasure.IsNull() {
+				unitsOfMeasure := floor.UnitsOfMeasure.ValueString()
+				params += "&_unitsOfMeasure=" + unitsOfMeasure
+				break
+			}
+		}
 	}
 
 	res, err := r.client.Get("/dna/intent/api/v1/sites" + params)
@@ -243,13 +262,11 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Filter out any floors without a name
-	filteredFloors := []FloorsFloors{}
-	for _, floor := range state.Floors {
-		if !floor.Name.IsNull() && floor.Name.ValueString() != "" {
-			filteredFloors = append(filteredFloors, floor)
+	for key, floor := range state.Floors {
+		if floor.Name.IsNull() || floor.Name.ValueString() == "" {
+			delete(state.Floors, key)
 		}
 	}
-	state.Floors = filteredFloors
 
 	// Set resource-level ID for bulk resource
 	state.Id = types.StringValue("floors-bulk")
@@ -281,18 +298,18 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty maps
 	var toDelete = Floors{
-		Floors: []FloorsFloors{},
+		Floors: make(map[string]FloorsFloors),
 	}
 	var toCreate = Floors{
-		Floors: []FloorsFloors{},
+		Floors: make(map[string]FloorsFloors),
 	}
 	var toUpdate = Floors{
-		Floors: []FloorsFloors{},
+		Floors: make(map[string]FloorsFloors),
 	}
 	var toReplace = Floors{
-		Floors: []FloorsFloors{},
+		Floors: make(map[string]FloorsFloors),
 	}
 
 	planMap := make(map[string]FloorsFloors)
@@ -314,7 +331,7 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 	for stateKey, stateItem := range stateMap {
 		if _, exists := planMap[stateKey]; !exists {
 			// Exists only in state → Needs to be deleted
-			toDelete.Floors = append(toDelete.Floors, stateItem)
+			toDelete.Floors[stateKey] = stateItem
 		}
 	}
 
@@ -333,11 +350,11 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 				planItem.ParentId = stateItem.ParentId
 				planMap[planKey] = planItem // Store back in planMap
 				// Check if any field marked as requires_replace differs
-				toUpdate.Floors = append(toUpdate.Floors, planItem)
+				toUpdate.Floors[planKey] = planItem
 			}
 		} else {
 			// Exists only in plan → New item
-			toCreate.Floors = append(toCreate.Floors, planItem)
+			toCreate.Floors[planKey] = planItem
 		}
 	}
 
@@ -347,16 +364,20 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.Floors)))
 		// Clear IDs before recreating
 		var toReplaceNoId = Floors{
-			Floors: []FloorsFloors{},
+			Floors: make(map[string]FloorsFloors),
 		}
-		for _, item := range toReplace.Floors {
+		for key, item := range toReplace.Floors {
 			item.Id = types.StringNull()
-			toReplaceNoId.Floors = append(toReplaceNoId.Floors, item)
+			toReplaceNoId.Floors[key] = item
 		}
 
 		// Replace is done by delete + create
-		toDelete.Floors = append(toDelete.Floors, toReplace.Floors...)
-		toCreate.Floors = append(toCreate.Floors, toReplaceNoId.Floors...)
+		for key, item := range toReplace.Floors {
+			toDelete.Floors[key] = item
+		}
+		for key, item := range toReplaceNoId.Floors {
+			toCreate.Floors[key] = item
+		}
 	}
 
 	// DELETE
@@ -381,14 +402,24 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if len(toCreate.Floors) > 0 {
 
 		maxElementsPerShard := 1000
+		// Convert map to slice for sharding
+		originalList := make([]FloorsFloors, 0, len(toCreate.Floors))
+		for _, floor := range toCreate.Floors {
+			originalList = append(originalList, floor)
+		}
 		var createList []Floors
-		for i := 0; i < len(toCreate.Floors); i += maxElementsPerShard {
-			end := min(i+maxElementsPerShard, len(toCreate.Floors))
-			chunk := toCreate.Floors[i:end]
+		for i := 0; i < len(originalList); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(originalList))
+			chunk := originalList[i:end]
+			// Convert chunk back to map
+			chunkMap := make(map[string]FloorsFloors)
+			for _, floor := range chunk {
+				key := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+				chunkMap[key] = floor
+			}
 			currentPlanForShard := plan
-			currentPlanForShard.Floors = chunk
+			currentPlanForShard.Floors = chunkMap
 			createList = append(createList, currentPlanForShard)
-
 		}
 
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.Floors)))
@@ -428,12 +459,13 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.Floors)))
 
 		// Update each floor individually using PUT endpoint
-		for _, item := range toUpdate.Floors {
+		for key, item := range toUpdate.Floors {
 			if item.Id.IsNull() {
 				continue // Skip if id is null
 			}
 			// Create a temporary Floors structure with single item for toBody
-			tempFloors := Floors{Floors: []FloorsFloors{item}}
+			tempFloors := Floors{Floors: make(map[string]FloorsFloors)}
+			tempFloors.Floors[key] = item
 			tempFloors.Id = types.StringValue("dummy") // Set to trigger PUT mode in toBody
 			body := tempFloors.toBody(ctx, tempFloors)
 
