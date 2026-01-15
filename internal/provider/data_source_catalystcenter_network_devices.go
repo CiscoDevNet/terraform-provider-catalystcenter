@@ -87,6 +87,14 @@ func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.Sc
 							MarkdownDescription: "Type of software",
 							Computed:            true,
 						},
+						"reachability_status": schema.StringAttribute{
+							MarkdownDescription: "Device reachability status as `Reachable` or `Unreachable`.",
+							Computed:            true,
+						},
+						"reachability_failure_reason": schema.StringAttribute{
+							MarkdownDescription: "Failure reason for unreachable devices.",
+							Computed:            true,
+						},
 					},
 				},
 			},

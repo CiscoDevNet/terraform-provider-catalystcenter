@@ -33,13 +33,15 @@ type NetworkDevices struct {
 }
 
 type NetworkDevicesDevices struct {
-	Id                  types.String `tfsdk:"id"`
-	Hostname            types.String `tfsdk:"hostname"`
-	ManagementIpAddress types.String `tfsdk:"management_ip_address"`
-	ManagementState     types.String `tfsdk:"management_state"`
-	PlatformId          types.String `tfsdk:"platform_id"`
-	Role                types.String `tfsdk:"role"`
-	SoftwareType        types.String `tfsdk:"software_type"`
+	Id                        types.String `tfsdk:"id"`
+	Hostname                  types.String `tfsdk:"hostname"`
+	ManagementIpAddress       types.String `tfsdk:"management_ip_address"`
+	ManagementState           types.String `tfsdk:"management_state"`
+	PlatformId                types.String `tfsdk:"platform_id"`
+	Role                      types.String `tfsdk:"role"`
+	SoftwareType              types.String `tfsdk:"software_type"`
+	ReachabilityStatus        types.String `tfsdk:"reachability_status"`
+	ReachabilityFailureReason types.String `tfsdk:"reachability_failure_reason"`
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
@@ -123,6 +125,16 @@ func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.SoftwareType = types.StringNull()
 			}
+			if cValue := v.Get("reachabilityStatus"); cValue.Exists() {
+				item.ReachabilityStatus = types.StringValue(cValue.String())
+			} else {
+				item.ReachabilityStatus = types.StringNull()
+			}
+			if cValue := v.Get("reachabilityFailureReason"); cValue.Exists() {
+				item.ReachabilityFailureReason = types.StringValue(cValue.String())
+			} else {
+				item.ReachabilityFailureReason = types.StringNull()
+			}
 			data.Devices = append(data.Devices, item)
 			return true
 		})
@@ -190,6 +202,16 @@ func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result
 			data.Devices[i].SoftwareType = types.StringValue(value.String())
 		} else {
 			data.Devices[i].SoftwareType = types.StringNull()
+		}
+		if value := r.Get("reachabilityStatus"); value.Exists() && !data.Devices[i].ReachabilityStatus.IsNull() {
+			data.Devices[i].ReachabilityStatus = types.StringValue(value.String())
+		} else {
+			data.Devices[i].ReachabilityStatus = types.StringNull()
+		}
+		if value := r.Get("reachabilityFailureReason"); value.Exists() && !data.Devices[i].ReachabilityFailureReason.IsNull() {
+			data.Devices[i].ReachabilityFailureReason = types.StringValue(value.String())
+		} else {
+			data.Devices[i].ReachabilityFailureReason = types.StringNull()
 		}
 	}
 }

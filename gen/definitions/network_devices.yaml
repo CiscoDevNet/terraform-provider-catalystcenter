@@ -32,3 +32,11 @@ attributes:
       - model_name: softwareType
         type: String
         example: IOS-XE
+      - model_name: reachabilityStatus
+        type: String
+        description: Device reachability status as "Reachable" or "Unreachable".
+        example: Reachable
+      - model_name: reachabilityFailureReason
+        type: String
+        description: Failure reason for unreachable devices.
+        example: ""
