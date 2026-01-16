@@ -580,7 +580,7 @@ func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportSta
 		return
 	}
 
-	// Validate units if provided
+	// Validate and encode units in the ID if provided
 	if len(idParts) == 2 {
 		units := idParts[1]
 		if units != "feet" && units != "meters" {
@@ -590,12 +590,9 @@ func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportSta
 			)
 			return
 		}
-
-		// Create a dummy floor entry with units to guide the Read function
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("floors"), []map[string]interface{}{
-			{"units_of_measure": units},
-		})...)
+		// Store ID with units encoded temporarily (Read function will parse and normalize it back)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), fmt.Sprintf("floors-bulk:%s", units))...)
+	} else {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
 	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
 }
