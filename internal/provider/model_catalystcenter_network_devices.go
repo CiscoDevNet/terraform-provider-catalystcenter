@@ -146,8 +146,8 @@ func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result) {
 	for i := range data.Devices {
-		keys := [...]string{"id", "hostname", "managementIpAddress", "managementState", "platformId", "role", "softwareType"}
-		keyValues := [...]string{data.Devices[i].Id.ValueString(), data.Devices[i].Hostname.ValueString(), data.Devices[i].ManagementIpAddress.ValueString(), data.Devices[i].ManagementState.ValueString(), data.Devices[i].PlatformId.ValueString(), data.Devices[i].Role.ValueString(), data.Devices[i].SoftwareType.ValueString()}
+		keys := [...]string{"id", "hostname", "managementIpAddress", "managementState", "platformId", "role", "softwareType", "reachabilityStatus", "reachabilityFailureReason"}
+		keyValues := [...]string{data.Devices[i].Id.ValueString(), data.Devices[i].Hostname.ValueString(), data.Devices[i].ManagementIpAddress.ValueString(), data.Devices[i].ManagementState.ValueString(), data.Devices[i].PlatformId.ValueString(), data.Devices[i].Role.ValueString(), data.Devices[i].SoftwareType.ValueString(), data.Devices[i].ReachabilityStatus.ValueString(), data.Devices[i].ReachabilityFailureReason.ValueString()}
 
 		var r gjson.Result
 		res.Get("response").ForEach(
