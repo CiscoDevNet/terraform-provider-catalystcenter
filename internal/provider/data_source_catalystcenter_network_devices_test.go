@@ -35,6 +35,7 @@ func TestAccDataSourceCcNetworkDevices(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.platform_id", "C9KV-UADP-8P"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.role", "CORE"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.software_type", "IOS-XE"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_devices.test", "devices.0.reachability_status", "Reachable"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

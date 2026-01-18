@@ -41,5 +41,7 @@ Read-Only:
 - `management_ip_address` (String) Management IP address
 - `management_state` (String) Management state of a network device. If it is not "Managed" for a device, then the `catalystcenter_device_detail` may fail for that device.
 - `platform_id` (String) Platform identifier
+- `reachability_failure_reason` (String) Failure reason for unreachable devices.
+- `reachability_status` (String) Device reachability status as `Reachable` or `Unreachable`.
 - `role` (String) Role of the network device, such as `ACCESS` or `DISTRIBUTION`.
 - `software_type` (String) Type of software
