@@ -202,6 +202,8 @@ type YamlConfigAttribute struct {
 	TestTags              []string              `yaml:"test_tags"`
 	Attributes            []YamlConfigAttribute `yaml:"attributes"`
 	MaxElementsInRootList int64                 `yaml:"max_elements_in_root_list"`
+	MapKeyExample         string                `yaml:"map_key_example"`
+	KeyPart               bool                  `yaml:"key_part"`
 	NoPut                 bool                  `yaml:"no_put"`
 	CustomModifier        string                `yaml:"custom_modifier"`
 }
@@ -639,7 +641,7 @@ func augmentAttribute(attr *YamlConfigAttribute) {
 		}
 		attr.TfName = strings.Join(words, "_")
 	}
-	if attr.Type == "List" || attr.Type == "Set" {
+	if attr.Type == "List" || attr.Type == "Set" || attr.Type == "Map" {
 		for a := range attr.Attributes {
 			augmentAttribute(&attr.Attributes[a])
 		}

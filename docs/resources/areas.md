@@ -3,23 +3,23 @@
 page_title: "catalystcenter_areas Resource - terraform-provider-catalystcenter"
 subcategory: "Sites"
 description: |-
-  Manages multiple areas within a single resource, specifying a list of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source catalystcenter_sites with type filter set to 'area'
+  Manages multiple areas within a single resource, specifying a map of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source catalystcenter_sites with type filter set to 'area'
 ---
 
 # catalystcenter_areas (Resource)
 
-Manages multiple areas within a single resource, specifying a list of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source `catalystcenter_sites` with type filter set to 'area'
+Manages multiple areas within a single resource, specifying a map of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source `catalystcenter_sites` with type filter set to 'area'
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_areas" "example" {
-  areas = [
-    {
+  areas = {
+    "Global/Area1" = {
       parent_name_hierarchy = "Global"
       name                  = "Area1"
     }
-  ]
+  }
 }
 ```
 
@@ -28,7 +28,7 @@ resource "catalystcenter_areas" "example" {
 
 ### Required
 
-- `areas` (Attributes List) List of areas (see [below for nested schema](#nestedatt--areas))
+- `areas` (Attributes Map) Map of areas, keyed by parent_name_hierarchy/name (see [below for nested schema](#nestedatt--areas))
 
 ### Read-Only
 
