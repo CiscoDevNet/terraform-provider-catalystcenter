@@ -188,7 +188,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	{{- else}}
 	{{- if .PutDataPath}}
 	if put {
+		{{- if eq .PutDataPath "_"}}
+		body, _ = sjson.Set(body, "{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
+		{{- else}}
 		body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
+		{{- end}}
 	} else {
 		body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 	}
@@ -201,7 +205,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	if {{- if .Computed}} data.{{toGoName .TfName}}.Value{{if eq .Type "Int64"}}Int64() != 0{{else}}String() != ""{{end}} &&{{- end}} !data.{{toGoName .TfName}}.IsNull() {{if .ExcludeFromPut}}&& put == false{{end}} {
 		{{- if .PutDataPath}}
 		if put {
+			{{- if eq .PutDataPath "_"}}
+			body, _ = sjson.Set(body, "{{.ModelName}}", data.{{toGoName .TfName}}.Value{{.Type}}())
+			{{- else}}
 			body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", data.{{toGoName .TfName}}.Value{{.Type}}())
+			{{- end}}
 		} else {
 			body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", data.{{toGoName .TfName}}.Value{{.Type}}())
 		}
