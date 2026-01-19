@@ -1,4 +1,5 @@
 resource "catalystcenter_floors" "example" {
+  scope = "Global/Poland"
   floors = {
     "Global/USA/Building1/Floor1" = {
       parent_name_hierarchy = "Global/USA/Building1"

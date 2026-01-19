@@ -1,4 +1,5 @@
 resource "catalystcenter_buildings" "example" {
+  scope = "Global/Poland"
   buildings = {
     "Global/USA/Building1" = {
       parent_name_hierarchy = "Global/USA"

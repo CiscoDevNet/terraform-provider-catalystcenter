@@ -9,6 +9,16 @@ update_computed: true
 doc_category: Sites
 no_data_source: true
 attributes:
+  - tf_name: scope
+    type: String
+    description: >-
+      Optional scope to limit management to specific floors under a site hierarchy.
+      When specified, only floors under this hierarchy will be managed by this resource.
+      This allows multiple resource instances to manage floors in different hierarchies
+      independently (e.g., "Global/Poland/Warsaw/Building1" for Building1 floors,
+      "Global/Germany/Berlin/Building2" for Building2 floors). If not specified, all
+      floors are managed (backward compatible).
+    example: Global/Poland
   - tf_name: floors
     type: Map
     response_data_path: response

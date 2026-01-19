@@ -9,6 +9,15 @@ update_computed: true
 doc_category: Sites
 no_data_source: true
 attributes:
+  - tf_name: scope
+    type: String
+    description: >-
+      Optional scope to limit management to specific areas under a site hierarchy.
+      When specified, only areas under this hierarchy will be managed by this resource.
+      This allows multiple resource instances to manage different area hierarchies
+      independently (e.g., "Global/Poland" for Polish areas, "Global/Germany" for
+      German areas). If not specified, all areas are managed (backward compatible).
+    example: Global/Poland
   - tf_name: areas
     type: Map
     response_data_path: response

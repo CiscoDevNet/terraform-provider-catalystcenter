@@ -14,6 +14,7 @@ Manages multiple floors within a single resource, specifying a map of floors as 
 
 ```terraform
 resource "catalystcenter_floors" "example" {
+  scope = "Global/Poland"
   floors = {
     "Global/USA/Building1/Floor1" = {
       parent_name_hierarchy = "Global/USA/Building1"
@@ -35,6 +36,10 @@ resource "catalystcenter_floors" "example" {
 ### Required
 
 - `floors` (Attributes Map) Map of floors, keyed by parent_name_hierarchy/name (see [below for nested schema](#nestedatt--floors))
+
+### Optional
+
+- `scope` (String) Optional scope to limit which floors are managed by this resource. When specified, only floors under this hierarchy path will be included. The resource ID will use this scope value. Example: 'Global/Poland/Krakow/Building1' to manage only Building1 floors
 
 ### Read-Only
 

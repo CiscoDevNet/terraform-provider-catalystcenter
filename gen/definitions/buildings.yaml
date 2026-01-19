@@ -9,6 +9,15 @@ update_computed: true
 doc_category: Sites
 no_data_source: true
 attributes:
+  - tf_name: scope
+    type: String
+    description: >-
+      Optional scope to limit management to specific buildings under a site hierarchy.
+      When specified, only buildings under this hierarchy will be managed by this resource.
+      This allows multiple resource instances to manage buildings in different hierarchies
+      independently (e.g., "Global/Poland/Warsaw" for Warsaw buildings, "Global/Germany/Berlin"
+      for Berlin buildings). If not specified, all buildings are managed (backward compatible).
+    example: Global/Poland
   - tf_name: buildings
     type: Map
     response_data_path: response

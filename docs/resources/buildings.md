@@ -14,6 +14,7 @@ Manages multiple buildings within a single resource, specifying a map of buildin
 
 ```terraform
 resource "catalystcenter_buildings" "example" {
+  scope = "Global/Poland"
   buildings = {
     "Global/USA/Building1" = {
       parent_name_hierarchy = "Global/USA"
@@ -33,6 +34,10 @@ resource "catalystcenter_buildings" "example" {
 ### Required
 
 - `buildings` (Attributes Map) Map of buildings, keyed by parent_name_hierarchy/name (see [below for nested schema](#nestedatt--buildings))
+
+### Optional
+
+- `scope` (String) Optional scope to limit which buildings are managed by this resource. When specified, only buildings under this hierarchy path will be included. The resource ID will use this scope value. Example: 'Global/Poland' to manage only Polish sites
 
 ### Read-Only
 

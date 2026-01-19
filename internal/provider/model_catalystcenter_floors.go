@@ -27,6 +27,7 @@ import (
 
 type Floors struct {
 	Id     types.String            `tfsdk:"id"`
+	Scope  types.String            `tfsdk:"scope"`
 	Floors map[string]FloorsFloors `tfsdk:"floors"`
 }
 
@@ -171,6 +172,16 @@ func (data *Floors) fromBody(ctx context.Context, res gjson.Result) {
 			// Use parentNameHierarchy/name as map key
 			if !item.ParentNameHierarchy.IsNull() && !item.Name.IsNull() {
 				key := item.ParentNameHierarchy.ValueString() + "/" + item.Name.ValueString()
+
+				// Apply scope filtering if scope is specified
+				if !data.Scope.IsNull() && data.Scope.ValueString() != "" {
+					scope := data.Scope.ValueString()
+					// Only include items within the scope (exact match or children)
+					if !isWithinScope(key, scope) {
+						return true // Skip this item
+					}
+				}
+
 				data.Floors[key] = item
 			}
 			return true
@@ -181,11 +192,21 @@ func (data *Floors) fromBody(ctx context.Context, res gjson.Result) {
 func (data *Floors) updateFromBody(ctx context.Context, res gjson.Result) {
 	res = res.Get("response")
 
-	// Build a lookup map
+	// Build a lookup map with scope filtering
 	responseMap := make(map[string]gjson.Result)
 	res.ForEach(func(_, v gjson.Result) bool {
 		if v.Get("type").String() == "floor" {
 			nameHierarchy := v.Get("nameHierarchy").String()
+
+			// Apply scope filtering if scope is specified
+			if !data.Scope.IsNull() && data.Scope.ValueString() != "" {
+				scope := data.Scope.ValueString()
+				// Only include items within the scope (exact match or children)
+				if !isWithinScope(nameHierarchy, scope) {
+					return true // Skip this item
+				}
+			}
+
 			responseMap[nameHierarchy] = v
 		}
 		return true

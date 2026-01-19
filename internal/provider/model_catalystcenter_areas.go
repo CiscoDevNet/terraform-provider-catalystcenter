@@ -27,6 +27,7 @@ import (
 
 type Areas struct {
 	Id    types.String          `tfsdk:"id"`
+	Scope types.String          `tfsdk:"scope"`
 	Areas map[string]AreasAreas `tfsdk:"areas"`
 }
 
@@ -117,6 +118,16 @@ func (data *Areas) fromBody(ctx context.Context, res gjson.Result) {
 			// Use parentNameHierarchy/name as map key
 			if !item.ParentNameHierarchy.IsNull() && !item.Name.IsNull() {
 				key := item.ParentNameHierarchy.ValueString() + "/" + item.Name.ValueString()
+
+				// Apply scope filtering if scope is specified
+				if !data.Scope.IsNull() && data.Scope.ValueString() != "" {
+					scope := data.Scope.ValueString()
+					// Only include items within the scope (exact match or children)
+					if !isWithinScope(key, scope) {
+						return true // Skip this item
+					}
+				}
+
 				data.Areas[key] = item
 			}
 			return true
@@ -127,11 +138,21 @@ func (data *Areas) fromBody(ctx context.Context, res gjson.Result) {
 func (data *Areas) updateFromBody(ctx context.Context, res gjson.Result) {
 	res = res.Get("response")
 
-	// Build a lookup map
+	// Build a lookup map with scope filtering
 	responseMap := make(map[string]gjson.Result)
 	res.ForEach(func(_, v gjson.Result) bool {
 		if v.Get("type").String() == "area" {
 			nameHierarchy := v.Get("nameHierarchy").String()
+
+			// Apply scope filtering if scope is specified
+			if !data.Scope.IsNull() && data.Scope.ValueString() != "" {
+				scope := data.Scope.ValueString()
+				// Only include items within the scope (exact match or children)
+				if !isWithinScope(nameHierarchy, scope) {
+					return true // Skip this item
+				}
+			}
+
 			responseMap[nameHierarchy] = v
 		}
 		return true
@@ -224,4 +245,17 @@ func (data *Areas) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	return true
+}
+
+// isWithinScope checks if a hierarchy path is within the specified scope.
+// Scope matches if:
+// 1. fullPath == scope (exact match)
+// 2. fullPath starts with scope + "/" (child of scope)
+// This ensures proper boundary checking and prevents matching sibling hierarchies
+// that start with the same prefix (e.g., "Global/AreaBulk2" when scope is "Global/AreaBulk").
+func isWithinScope(fullPath, scope string) bool {
+	if fullPath == scope {
+		return true
+	}
+	return len(fullPath) > len(scope) && fullPath[:len(scope)+1] == scope+"/"
 }

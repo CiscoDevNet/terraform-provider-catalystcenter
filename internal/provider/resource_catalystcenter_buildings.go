@@ -66,6 +66,10 @@ func (r *BuildingsResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"scope": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Optional scope to limit which buildings are managed by this resource. When specified, only buildings under this hierarchy path will be included. The resource ID will use this scope value. Example: 'Global/Poland' to manage only Polish sites").String,
+				Optional:            true,
+			},
 			"buildings": schema.MapNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Map of buildings, keyed by parent_name_hierarchy/name").String,
 				Required:            true,
@@ -137,10 +141,31 @@ func (r *BuildingsResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	// Set resource-level ID for bulk resource at the start
-	plan.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+
+	// Validate that all buildings are within scope if scope is specified
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		scope := plan.Scope.ValueString()
+		for _, building := range plan.Buildings {
+			fullPath := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
+			if !strings.HasPrefix(fullPath, scope) {
+				resp.Diagnostics.AddError(
+					"Building outside scope",
+					fmt.Sprintf("Building '%s' is not under scope '%s'", fullPath, scope),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 
 	// Create object
 	body := plan.toBody(ctx, Buildings{})
@@ -192,8 +217,12 @@ func (r *BuildingsResource) Create(ctx context.Context, req resource.CreateReque
 	}
 	plan.fromBodyUnknowns(ctx, res)
 
-	// Set resource-level ID for bulk resource (use constant since this manages multiple items)
-	plan.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -238,8 +267,12 @@ func (r *BuildingsResource) Read(ctx context.Context, req resource.ReadRequest, 
 		}
 	}
 
-	// Set resource-level ID for bulk resource
-	state.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !state.Scope.IsNull() && state.Scope.ValueString() != "" {
+		state.Id = state.Scope
+	} else {
+		state.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
@@ -263,10 +296,31 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	// Set resource-level ID for bulk resource at the start
-	plan.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+
+	// Validate that all buildings are within scope if scope is specified
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		scope := plan.Scope.ValueString()
+		for _, building := range plan.Buildings {
+			fullPath := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
+			if !strings.HasPrefix(fullPath, scope) {
+				resp.Diagnostics.AddError(
+					"Building outside scope",
+					fmt.Sprintf("Building '%s' is not under scope '%s'", fullPath, scope),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 
 	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty maps
 	var toDelete = Buildings{
@@ -454,8 +508,12 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 		plan.fromBodyUnknowns(ctx, res)
 	}
 
-	// Set resource-level ID for bulk resource
-	plan.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
@@ -523,7 +581,21 @@ func (r *BuildingsResource) Delete(ctx context.Context, req resource.DeleteReque
 }
 
 func (r *BuildingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// For bulk resources, use a constant ID
-	// Import command: terraform import catalystcenter_buildings.bulk_buildings buildings-bulk
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "buildings-bulk")...)
+	// For bulk resources, import ID can be:
+	// - "buildings-bulk" for backward compatibility (no scope filtering)
+	// - A scope path like "Global/Poland" to filter by hierarchy
+	// Import commands:
+	//   terraform import catalystcenter_buildings.bulk_buildings buildings-bulk
+	//   terraform import catalystcenter_buildings.poland "Global/Poland"
+
+	importID := req.ID
+
+	if importID == "buildings-bulk" {
+		// Backward compatible: no scope
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "buildings-bulk")...)
+	} else {
+		// Scope-based import
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importID)...)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scope"), importID)...)
+	}
 }

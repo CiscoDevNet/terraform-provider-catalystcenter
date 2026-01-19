@@ -14,6 +14,7 @@ Manages multiple areas within a single resource, specifying a map of areas as in
 
 ```terraform
 resource "catalystcenter_areas" "example" {
+  scope = "Global/Poland"
   areas = {
     "Global/Area1" = {
       parent_name_hierarchy = "Global"
@@ -29,6 +30,10 @@ resource "catalystcenter_areas" "example" {
 ### Required
 
 - `areas` (Attributes Map) Map of areas, keyed by parent_name_hierarchy/name (see [below for nested schema](#nestedatt--areas))
+
+### Optional
+
+- `scope` (String) Optional scope to limit which areas are managed by this resource. When specified, only areas under this hierarchy path will be included. The resource ID will use this scope value. Example: 'Global/Poland' to manage only Polish sites
 
 ### Read-Only
 

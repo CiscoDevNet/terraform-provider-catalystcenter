@@ -68,6 +68,10 @@ func (r *FloorsResource) Schema(ctx context.Context, req resource.SchemaRequest,
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"scope": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Optional scope to limit which floors are managed by this resource. When specified, only floors under this hierarchy path will be included. The resource ID will use this scope value. Example: 'Global/Poland/Krakow/Building1' to manage only Building1 floors").String,
+				Optional:            true,
+			},
 			"floors": schema.MapNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Map of floors, keyed by parent_name_hierarchy/name").String,
 				Required:            true,
@@ -153,10 +157,31 @@ func (r *FloorsResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Set resource-level ID for bulk resource at the start
-	plan.Id = types.StringValue("floors-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+
+	// Validate that all floors are within scope if scope is specified
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		scope := plan.Scope.ValueString()
+		for _, floor := range plan.Floors {
+			fullPath := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+			if !strings.HasPrefix(fullPath, scope) {
+				resp.Diagnostics.AddError(
+					"Floor outside scope",
+					fmt.Sprintf("Floor '%s' is not under scope '%s'", fullPath, scope),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 
 	// Create object
 	body := plan.toBody(ctx, Floors{})
@@ -208,8 +233,12 @@ func (r *FloorsResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 	plan.fromBodyUnknowns(ctx, res)
 
-	// Set resource-level ID for bulk resource (use constant since this manages multiple items)
-	plan.Id = types.StringValue("floors-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -234,15 +263,31 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Add unitsOfMeasure query param if we have floors in state with units defined
 	// This ensures API returns values in the same units we're tracking
+	unitsOfMeasure := ""
 	if len(state.Floors) > 0 {
 		// Get first floor from map
 		for _, floor := range state.Floors {
 			if !floor.UnitsOfMeasure.IsNull() {
-				unitsOfMeasure := floor.UnitsOfMeasure.ValueString()
-				params += "&_unitsOfMeasure=" + unitsOfMeasure
+				unitsOfMeasure = floor.UnitsOfMeasure.ValueString()
 				break
 			}
 		}
+	}
+
+	// If we didn't find units in floors (e.g., during import), try to extract from ID
+	// ID format: "floors-bulk", "floors-bulk:meters", "Global/Area", "Global/Area:meters"
+	if unitsOfMeasure == "" && !state.Id.IsNull() {
+		idStr := state.Id.ValueString()
+		if strings.Contains(idStr, ":") {
+			parts := strings.Split(idStr, ":")
+			if len(parts) == 2 {
+				unitsOfMeasure = parts[1]
+			}
+		}
+	}
+
+	if unitsOfMeasure != "" {
+		params += "&_unitsOfMeasure=" + unitsOfMeasure
 	}
 
 	res, err := r.client.Get("/dna/intent/api/v1/sites" + params)
@@ -268,8 +313,12 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 		}
 	}
 
-	// Set resource-level ID for bulk resource
-	state.Id = types.StringValue("floors-bulk")
+	// Set resource-level ID based on scope
+	if !state.Scope.IsNull() && state.Scope.ValueString() != "" {
+		state.Id = state.Scope
+	} else {
+		state.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
@@ -293,10 +342,31 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	// Set resource-level ID for bulk resource at the start
-	plan.Id = types.StringValue("floors-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+
+	// Validate that all floors are within scope if scope is specified
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		scope := plan.Scope.ValueString()
+		for _, floor := range plan.Floors {
+			fullPath := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+			if !strings.HasPrefix(fullPath, scope) {
+				resp.Diagnostics.AddError(
+					"Floor outside scope",
+					fmt.Sprintf("Floor '%s' is not under scope '%s'", fullPath, scope),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 
 	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty maps
 	var toDelete = Floors{
@@ -488,8 +558,13 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 		plan.fromBodyUnknowns(ctx, res)
 	}
-	// Set resource-level ID for bulk resource
-	plan.Id = types.StringValue("floors-bulk")
+
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
@@ -557,32 +632,31 @@ func (r *FloorsResource) Delete(ctx context.Context, req resource.DeleteRequest,
 }
 
 func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// For bulk resources, use a constant ID with optional units parameter
-	// Import command: terraform import catalystcenter_floors.bulk_floors "floors-bulk,meters"
-	//            or: terraform import catalystcenter_floors.bulk_floors "floors-bulk,feet"
-	//            or: terraform import catalystcenter_floors.bulk_floors "floors-bulk" (defaults to feet)
+	// For bulk resources, import ID can be:
+	// - "floors-bulk" for backward compatibility (no scope filtering, defaults to feet)
+	// - "floors-bulk,<units>" for backward compatibility with units (e.g., "floors-bulk,meters")
+	// - A scope path like "Global/Poland/Krakow/Building1" to filter by hierarchy (defaults to feet)
+	// - A scope path with units like "Global/Poland/Krakow/Building1,meters"
+	// Import commands:
+	//   terraform import catalystcenter_floors.bulk_floors floors-bulk
+	//   terraform import catalystcenter_floors.bulk_floors "floors-bulk,meters"
+	//   terraform import catalystcenter_floors.building1 "Global/Poland/Krakow/Building1"
+	//   terraform import catalystcenter_floors.building1 "Global/Poland/Krakow/Building1,meters"
 
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 1 && len(idParts) != 2 {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: floors-bulk or floors-bulk,<units>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: floors-bulk, floors-bulk,<units>, <scope>, or <scope>,<units>. Got: %q", req.ID),
 		)
 		return
 	}
 
-	if idParts[0] != "floors-bulk" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier to start with 'floors-bulk'. Got: %q", idParts[0]),
-		)
-		return
-	}
-
-	// Validate and encode units in the ID if provided
+	importID := idParts[0]
+	units := ""
 	if len(idParts) == 2 {
-		units := idParts[1]
+		units = idParts[1]
 		if units != "feet" && units != "meters" {
 			resp.Diagnostics.AddError(
 				"Invalid Units Parameter",
@@ -590,9 +664,22 @@ func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportSta
 			)
 			return
 		}
-		// Store ID with units encoded temporarily (Read function will parse and normalize it back)
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), fmt.Sprintf("floors-bulk:%s", units))...)
+	}
+
+	if importID == "floors-bulk" {
+		// Backward compatible: no scope
+		if units != "" {
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), fmt.Sprintf("floors-bulk:%s", units))...)
+		} else {
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
+		}
 	} else {
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
+		// Scope-based import
+		if units != "" {
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), fmt.Sprintf("%s:%s", importID, units))...)
+		} else {
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importID)...)
+		}
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scope"), importID)...)
 	}
 }
