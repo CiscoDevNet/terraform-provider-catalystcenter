@@ -26,14 +26,14 @@ import (
 
 func TestAccCcFloors(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.parent_name_hierarchy", "Global/USA/Building1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.name", "Floor1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.floor_number", "1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.rf_model", "Drywall Office Only"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.width", "40"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.length", "50.5"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.height", "3.5"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.0.units_of_measure", "meters"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.Global/USA/Building1/Floor1.parent_name_hierarchy", "Global/USA/Building1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.Global/USA/Building1/Floor1.name", "Floor1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.Global/USA/Building1/Floor1.floor_number", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.Global/USA/Building1/Floor1.rf_model", "Drywall Office Only"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.Global/USA/Building1/Floor1.width", "40"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.Global/USA/Building1/Floor1.length", "50.5"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.Global/USA/Building1/Floor1.height", "3.5"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_floors.test", "floors.Global/USA/Building1/Floor1.units_of_measure", "meters"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -59,16 +59,16 @@ func TestAccCcFloors(t *testing.T) {
 
 const testAccCcFloorsPrerequisitesConfig = `
 resource "catalystcenter_areas" "test" {
-  areas = [
-    {
+  areas = {
+    "Global/USA" = {
       parent_name_hierarchy = "Global"
       name                  = "USA"
     }
-  ]
+  }
 }
 resource "catalystcenter_buildings" "test" {
-  buildings = [
-    {
+  buildings = {
+    "Global/USA/Building1" = {
       parent_name_hierarchy = "Global/USA"
       name                  = "Building1"
       country               = "United States"
@@ -76,7 +76,7 @@ resource "catalystcenter_buildings" "test" {
       latitude              = 37.338
       longitude             = -121.832
     }
-  ]
+  }
   depends_on = [catalystcenter_areas.test]
 }
 
@@ -84,16 +84,18 @@ resource "catalystcenter_buildings" "test" {
 
 func testAccCcFloorsConfig_minimum() string {
 	config := `resource "catalystcenter_floors" "test" {` + "\n"
-	config += `	floors = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA/Building1"` + "\n"
-	config += `	  name = "Floor1"` + "\n"
-	config += `	  floor_number = 1` + "\n"
-	config += `	  rf_model = "Drywall Office Only"` + "\n"
-	config += `	  width = 40` + "\n"
-	config += `	  length = 50.5` + "\n"
-	config += `	  height = 3.5` + "\n"
-	config += `	  units_of_measure = "meters"` + "\n"
-	config += `	}]` + "\n"
+	config += `	floors = {` + "\n"
+	config += `	  "Global/USA/Building1/Floor1" = {` + "\n"
+	config += `	    parent_name_hierarchy = "Global/USA/Building1"` + "\n"
+	config += `	    name = "Floor1"` + "\n"
+	config += `	    floor_number = 1` + "\n"
+	config += `	    rf_model = "Drywall Office Only"` + "\n"
+	config += `	    width = 40` + "\n"
+	config += `	    length = 50.5` + "\n"
+	config += `	    height = 3.5` + "\n"
+	config += `	    units_of_measure = "meters"` + "\n"
+	config += `	  }` + "\n"
+	config += `	}` + "\n"
 	config += `	depends_on = [catalystcenter_buildings.test]` + "\n"
 	config += `}` + "\n"
 	return config
@@ -101,16 +103,18 @@ func testAccCcFloorsConfig_minimum() string {
 
 func testAccCcFloorsConfig_all() string {
 	config := `resource "catalystcenter_floors" "test" {` + "\n"
-	config += `	floors = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA/Building1"` + "\n"
-	config += `	  name = "Floor1"` + "\n"
-	config += `	  floor_number = 1` + "\n"
-	config += `	  rf_model = "Drywall Office Only"` + "\n"
-	config += `	  width = 40` + "\n"
-	config += `	  length = 50.5` + "\n"
-	config += `	  height = 3.5` + "\n"
-	config += `	  units_of_measure = "meters"` + "\n"
-	config += `	}]` + "\n"
+	config += `	floors = {` + "\n"
+	config += `	  "Global/USA/Building1/Floor1" = {` + "\n"
+	config += `	    parent_name_hierarchy = "Global/USA/Building1"` + "\n"
+	config += `	    name = "Floor1"` + "\n"
+	config += `	    floor_number = 1` + "\n"
+	config += `	    rf_model = "Drywall Office Only"` + "\n"
+	config += `	    width = 40` + "\n"
+	config += `	    length = 50.5` + "\n"
+	config += `	    height = 3.5` + "\n"
+	config += `	    units_of_measure = "meters"` + "\n"
+	config += `	  }` + "\n"
+	config += `	}` + "\n"
 	config += `	depends_on = [catalystcenter_buildings.test]` + "\n"
 	config += `}` + "\n"
 	return config

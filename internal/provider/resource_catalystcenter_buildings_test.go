@@ -26,12 +26,12 @@ import (
 
 func TestAccCcBuildings(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.parent_name_hierarchy", "Global/USA"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.name", "Building1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.country", "United States"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.address", "150 W Tasman Dr, San Jose"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.latitude", "37.338"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.0.longitude", "-121.832"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.Global/USA/Building1.parent_name_hierarchy", "Global/USA"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.Global/USA/Building1.name", "Building1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.Global/USA/Building1.country", "United States"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.Global/USA/Building1.address", "150 W Tasman Dr, San Jose"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.Global/USA/Building1.latitude", "37.338"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_buildings.test", "buildings.Global/USA/Building1.longitude", "-121.832"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -57,24 +57,26 @@ func TestAccCcBuildings(t *testing.T) {
 
 const testAccCcBuildingsPrerequisitesConfig = `
 resource "catalystcenter_areas" "test" {
-  areas = [
-    {
+  areas = {
+    "Global/USA" = {
       parent_name_hierarchy = "Global"
       name                  = "USA"
     }
-  ]
+  }
 }
 
 `
 
 func testAccCcBuildingsConfig_minimum() string {
 	config := `resource "catalystcenter_buildings" "test" {` + "\n"
-	config += `	buildings = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA"` + "\n"
-	config += `	  name = "Building1"` + "\n"
-	config += `	  country = "United States"` + "\n"
-	config += `	  address = "150 W Tasman Dr, San Jose"` + "\n"
-	config += `	}]` + "\n"
+	config += `	buildings = {` + "\n"
+	config += `	  "Global/USA/Building1" = {` + "\n"
+	config += `	    parent_name_hierarchy = "Global/USA"` + "\n"
+	config += `	    name = "Building1"` + "\n"
+	config += `	    country = "United States"` + "\n"
+	config += `	    address = "150 W Tasman Dr, San Jose"` + "\n"
+	config += `	  }` + "\n"
+	config += `	}` + "\n"
 	config += `	depends_on = [catalystcenter_areas.test]` + "\n"
 	config += `}` + "\n"
 	return config
@@ -82,14 +84,16 @@ func testAccCcBuildingsConfig_minimum() string {
 
 func testAccCcBuildingsConfig_all() string {
 	config := `resource "catalystcenter_buildings" "test" {` + "\n"
-	config += `	buildings = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global/USA"` + "\n"
-	config += `	  name = "Building1"` + "\n"
-	config += `	  country = "United States"` + "\n"
-	config += `	  address = "150 W Tasman Dr, San Jose"` + "\n"
-	config += `	  latitude = 37.338` + "\n"
-	config += `	  longitude = -121.832` + "\n"
-	config += `	}]` + "\n"
+	config += `	buildings = {` + "\n"
+	config += `	  "Global/USA/Building1" = {` + "\n"
+	config += `	    parent_name_hierarchy = "Global/USA"` + "\n"
+	config += `	    name = "Building1"` + "\n"
+	config += `	    country = "United States"` + "\n"
+	config += `	    address = "150 W Tasman Dr, San Jose"` + "\n"
+	config += `	    latitude = 37.338` + "\n"
+	config += `	    longitude = -121.832` + "\n"
+	config += `	  }` + "\n"
+	config += `	}` + "\n"
 	config += `	depends_on = [catalystcenter_areas.test]` + "\n"
 	config += `}` + "\n"
 	return config
