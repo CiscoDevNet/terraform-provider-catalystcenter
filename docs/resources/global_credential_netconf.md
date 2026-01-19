@@ -26,11 +26,11 @@ resource "catalystcenter_global_credential_netconf" "example" {
 
 ### Required
 
-- `comments` (String) Comments to identify the netconf credential
 - `netconf_port` (String) Netconf port on the device. Valid port should be in the range of 1 to 65535.
 
 ### Optional
 
+- `comments` (String) Comments to identify the netconf credential
 - `credential_type` (String) Credential type to identify the application that uses the netconf credential
   - Choices: `GLOBAL`, `APP`
 - `description` (String) Description for Netconf Credentials

@@ -75,13 +75,13 @@ func (r *GlobalCredentialNETCONFResource) Schema(ctx context.Context, req resour
 			"netconf_port": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Netconf port on the device. Valid port should be in the range of 1 to 65535.").String,
 				Required:            true,
-			},
-			"comments": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Comments to identify the netconf credential").String,
-				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			"comments": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Comments to identify the netconf credential").String,
+				Optional:            true,
 			},
 			"credential_type": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Credential type to identify the application that uses the netconf credential").AddStringEnumDescription("GLOBAL", "APP").String,
@@ -143,7 +143,7 @@ func (r *GlobalCredentialNETCONFResource) Create(ctx context.Context, req resour
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(comments==\"" + plan.Comments.ValueString() + "\").id").String())
+	plan.Id = types.StringValue(res.Get("response.#(netconfPort==\"" + plan.NetconfPort.ValueString() + "\").id").String())
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {

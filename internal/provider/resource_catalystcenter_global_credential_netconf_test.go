@@ -60,7 +60,6 @@ func TestAccCcGlobalCredentialNETCONF(t *testing.T) {
 func testAccCcGlobalCredentialNETCONFConfig_minimum() string {
 	config := `resource "catalystcenter_global_credential_netconf" "test" {` + "\n"
 	config += `	netconf_port = "830"` + "\n"
-	config += `	comments = "My NETCONF Credential"` + "\n"
 	config += `}` + "\n"
 	return config
 }
