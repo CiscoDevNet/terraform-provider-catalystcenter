@@ -233,16 +233,26 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	}
 	{{- else if eq .Type "Map"}}
 	if !data.{{toGoName .TfName}}.IsNull() {
-		var values map[string]string
-		data.{{toGoName .TfName}}.ElementsAs(ctx, &values, false)
+		var listValues map[string]types.List
+		data.{{toGoName .TfName}}.ElementsAs(ctx, &listValues, false)
+		params := make(map[string]any)
+		for k, v := range listValues {
+			var strList []string
+			v.ElementsAs(ctx, &strList, false)
+			if len(strList) == 1 {
+				params[k] = strList[0]
+			} else {
+				params[k] = strList
+			}
+		}
 		{{- if .PutDataPath}}
 		if put {
-			body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", values)
+			body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", params)
 		} else {
-			body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
+			body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 		}
 		{{- else}}
-		body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
+		body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 		{{- end}}
 	}
 	{{- else if isNestedListSet .}}
@@ -312,16 +322,26 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 			}
 			{{- else if eq .Type "Map"}}
 			if !item.{{toGoName .TfName}}.IsNull() {
-				var values map[string]string
-				item.{{toGoName .TfName}}.ElementsAs(ctx, &values, false)
+				var listValues map[string]types.List
+				item.{{toGoName .TfName}}.ElementsAs(ctx, &listValues, false)
+				params := make(map[string]any)
+				for k, v := range listValues {
+					var strList []string
+					v.ElementsAs(ctx, &strList, false)
+					if len(strList) == 1 {
+						params[k] = strList[0]
+					} else {
+						params[k] = strList
+					}
+				}
 				{{- if .PutDataPath}}
 				if put {
-					itemBody, _ = sjson.Set(itemBody, "{{.PutDataPath}}.{{.ModelName}}", values)
+					itemBody, _ = sjson.Set(itemBody, "{{.PutDataPath}}.{{.ModelName}}", params)
 				} else {
-					itemBody, _ = sjson.Set(itemBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
+					itemBody, _ = sjson.Set(itemBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 				}
 				{{- else}}
-				itemBody, _ = sjson.Set(itemBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
+				itemBody, _ = sjson.Set(itemBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 				{{- end}}
 			}
 			{{- else if isNestedListSet .}}
@@ -391,16 +411,26 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 					}
 					{{- else if eq .Type "Map"}}
 					if !childItem.{{toGoName .TfName}}.IsNull() {
-						var values map[string]string
-						childItem.{{toGoName .TfName}}.ElementsAs(ctx, &values, false)
+						var listValues map[string]types.List
+						childItem.{{toGoName .TfName}}.ElementsAs(ctx, &listValues, false)
+						params := make(map[string]any)
+						for k, v := range listValues {
+							var strList []string
+							v.ElementsAs(ctx, &strList, false)
+							if len(strList) == 1 {
+								params[k] = strList[0]
+							} else {
+								params[k] = strList
+							}
+						}
 						{{- if .PutDataPath}}
 						if put {
-							itemChildBody, _ = sjson.Set(itemChildBody, "{{.PutDataPath}}.{{.ModelName}}", values)
+							itemChildBody, _ = sjson.Set(itemChildBody, "{{.PutDataPath}}.{{.ModelName}}", params)
 						} else {
-							itemChildBody, _ = sjson.Set(itemChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
+							itemChildBody, _ = sjson.Set(itemChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 						}
 						{{- else}}
-						itemChildBody, _ = sjson.Set(itemChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
+						itemChildBody, _ = sjson.Set(itemChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 						{{- end}}
 					}
 					{{- else if isNestedListSet .}}
@@ -470,16 +500,26 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 							}
 							{{- else if eq .Type "Map"}}
 							if !childChildItem.{{toGoName .TfName}}.IsNull() {
-								var values map[string]string
-								childChildItem.{{toGoName .TfName}}.ElementsAs(ctx, &values, false)
+								var listValues map[string]types.List
+								childChildItem.{{toGoName .TfName}}.ElementsAs(ctx, &listValues, false)
+								params := make(map[string]any)
+								for k, v := range listValues {
+									var strList []string
+									v.ElementsAs(ctx, &strList, false)
+									if len(strList) == 1 {
+										params[k] = strList[0]
+									} else {
+										params[k] = strList
+									}
+								}
 								{{- if .PutDataPath}}
 								if put {
-									itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{.PutDataPath}}.{{.ModelName}}", values)
+									itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{.PutDataPath}}.{{.ModelName}}", params)
 								} else {
-									itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
+									itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 								}
 								{{- else}}
-								itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
+								itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 								{{- end}}
 							}
 							{{- end}}
