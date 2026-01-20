@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.4.8 (unreleased)
+
+- BREAKING CHANGE: Convert `catalystcenter_areas`, `catalystcenter_buildings`, and `catalystcenter_floors` resources from List to Map type for clearer resource identification using `parent_name_hierarchy/name` keys instead of position-based indexing
+
 ## 0.4.7
 
 - Add `catalystcenter_areas`, `catalystcenter_buildings`, `catalystcenter_floors` bulk resources for efficiently managing multiple sites at scale with a single resource declaration

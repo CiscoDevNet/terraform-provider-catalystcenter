@@ -56,7 +56,7 @@ func (r *BuildingsResource) Metadata(ctx context.Context, req resource.MetadataR
 func (r *BuildingsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple buildings within a single resource, specifying a list of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source `catalystcenter_sites` with type filter set to 'building'").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple buildings within a single resource, specifying a map of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source `catalystcenter_sites` with type filter set to 'building'").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -66,8 +66,12 @@ func (r *BuildingsResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"buildings": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of buildings").String,
+			"scope": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Optional scope to limit which buildings are managed by this resource. When specified, only buildings under this hierarchy path will be included. The resource ID will use this scope value. Example: 'Global/Poland' to manage only Polish sites").String,
+				Optional:            true,
+			},
+			"buildings": schema.MapNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Map of buildings, keyed by parent_name_hierarchy/name").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -137,26 +141,60 @@ func (r *BuildingsResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	// Set resource-level ID for bulk resource at the start
-	plan.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+
+	// Validate that all buildings are within scope if scope is specified
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		scope := plan.Scope.ValueString()
+		for _, building := range plan.Buildings {
+			fullPath := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
+			if !strings.HasPrefix(fullPath, scope) {
+				resp.Diagnostics.AddError(
+					"Building outside scope",
+					fmt.Sprintf("Building '%s' is not under scope '%s'", fullPath, scope),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 
 	// Create object
 	body := plan.toBody(ctx, Buildings{})
 	var planList []Buildings
 	maxElementsPerShard := 1000
-	originalList := plan.Buildings
+
+	// Convert map to slice for sharding
+	originalList := make([]BuildingsBuildings, 0, len(plan.Buildings))
+	for _, building := range plan.Buildings {
+		originalList = append(originalList, building)
+	}
+
 	for i := 0; i < len(originalList); i += maxElementsPerShard {
 		end := i + maxElementsPerShard
 		if end > len(originalList) {
 			end = len(originalList)
 		}
 		chunk := originalList[i:end]
-		currentPlanForShard := plan
-		currentPlanForShard.Buildings = chunk
-		planList = append(planList, currentPlanForShard)
 
+		// Convert chunk back to map for this shard
+		chunkMap := make(map[string]BuildingsBuildings)
+		for _, building := range chunk {
+			key := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
+			chunkMap[key] = building
+		}
+
+		currentPlanForShard := plan
+		currentPlanForShard.Buildings = chunkMap
+		planList = append(planList, currentPlanForShard)
 	}
 
 	params := ""
@@ -179,8 +217,12 @@ func (r *BuildingsResource) Create(ctx context.Context, req resource.CreateReque
 	}
 	plan.fromBodyUnknowns(ctx, res)
 
-	// Set resource-level ID for bulk resource (use constant since this manages multiple items)
-	plan.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -219,16 +261,18 @@ func (r *BuildingsResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	// Filter out any buildings without a name
-	filteredBuildings := []BuildingsBuildings{}
-	for _, building := range state.Buildings {
-		if !building.Name.IsNull() && building.Name.ValueString() != "" {
-			filteredBuildings = append(filteredBuildings, building)
+	for key, building := range state.Buildings {
+		if building.Name.IsNull() || building.Name.ValueString() == "" {
+			delete(state.Buildings, key)
 		}
 	}
-	state.Buildings = filteredBuildings
 
-	// Set resource-level ID for bulk resource
-	state.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !state.Scope.IsNull() && state.Scope.ValueString() != "" {
+		state.Id = state.Scope
+	} else {
+		state.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
@@ -252,23 +296,44 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	// Set resource-level ID for bulk resource at the start
-	plan.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
+	// Validate that all buildings are within scope if scope is specified
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		scope := plan.Scope.ValueString()
+		for _, building := range plan.Buildings {
+			fullPath := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
+			if !strings.HasPrefix(fullPath, scope) {
+				resp.Diagnostics.AddError(
+					"Building outside scope",
+					fmt.Sprintf("Building '%s' is not under scope '%s'", fullPath, scope),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty maps
 	var toDelete = Buildings{
-		Buildings: []BuildingsBuildings{},
+		Buildings: make(map[string]BuildingsBuildings),
 	}
 	var toCreate = Buildings{
-		Buildings: []BuildingsBuildings{},
+		Buildings: make(map[string]BuildingsBuildings),
 	}
 	var toUpdate = Buildings{
-		Buildings: []BuildingsBuildings{},
+		Buildings: make(map[string]BuildingsBuildings),
 	}
 	var toReplace = Buildings{
-		Buildings: []BuildingsBuildings{},
+		Buildings: make(map[string]BuildingsBuildings),
 	}
 
 	planMap := make(map[string]BuildingsBuildings)
@@ -290,7 +355,7 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 	for stateKey, stateItem := range stateMap {
 		if _, exists := planMap[stateKey]; !exists {
 			// Exists only in state → Needs to be deleted
-			toDelete.Buildings = append(toDelete.Buildings, stateItem)
+			toDelete.Buildings[stateKey] = stateItem
 		}
 	}
 
@@ -309,11 +374,11 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 				planItem.ParentId = stateItem.ParentId
 				planMap[planKey] = planItem // Store back in planMap
 				// Check if any field marked as requires_replace differs
-				toUpdate.Buildings = append(toUpdate.Buildings, planItem)
+				toUpdate.Buildings[planKey] = planItem
 			}
 		} else {
 			// Exists only in plan → New item
-			toCreate.Buildings = append(toCreate.Buildings, planItem)
+			toCreate.Buildings[planKey] = planItem
 		}
 	}
 
@@ -322,17 +387,12 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 	if len(toReplace.Buildings) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.Buildings)))
 		// Clear IDs before recreating
-		var toReplaceNoId = Buildings{
-			Buildings: []BuildingsBuildings{},
-		}
-		for _, item := range toReplace.Buildings {
+		for key, item := range toReplace.Buildings {
 			item.Id = types.StringNull()
-			toReplaceNoId.Buildings = append(toReplaceNoId.Buildings, item)
+			// Add to delete and create maps
+			toDelete.Buildings[key] = toReplace.Buildings[key]
+			toCreate.Buildings[key] = item
 		}
-
-		// Replace is done by delete + create
-		toDelete.Buildings = append(toDelete.Buildings, toReplace.Buildings...)
-		toCreate.Buildings = append(toCreate.Buildings, toReplaceNoId.Buildings...)
 	}
 
 	// DELETE
@@ -358,13 +418,27 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 
 		maxElementsPerShard := 1000
 		var createList []Buildings
-		for i := 0; i < len(toCreate.Buildings); i += maxElementsPerShard {
-			end := min(i+maxElementsPerShard, len(toCreate.Buildings))
-			chunk := toCreate.Buildings[i:end]
-			currentPlanForShard := plan
-			currentPlanForShard.Buildings = chunk
-			createList = append(createList, currentPlanForShard)
 
+		// Convert map to slice for sharding
+		createSlice := make([]BuildingsBuildings, 0, len(toCreate.Buildings))
+		for _, building := range toCreate.Buildings {
+			createSlice = append(createSlice, building)
+		}
+
+		for i := 0; i < len(createSlice); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(createSlice))
+			chunk := createSlice[i:end]
+
+			// Convert chunk back to map for this shard
+			chunkMap := make(map[string]BuildingsBuildings)
+			for _, building := range chunk {
+				key := building.ParentNameHierarchy.ValueString() + "/" + building.Name.ValueString()
+				chunkMap[key] = building
+			}
+
+			currentPlanForShard := plan
+			currentPlanForShard.Buildings = chunkMap
+			createList = append(createList, currentPlanForShard)
 		}
 
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.Buildings)))
@@ -404,12 +478,13 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.Buildings)))
 
 		// Update each building individually using PUT endpoint
-		for _, item := range toUpdate.Buildings {
+		for key, item := range toUpdate.Buildings {
 			if item.Id.IsNull() {
 				continue // Skip if id is null
 			}
 			// Create a temporary Buildings structure with single item for toBody
-			tempBuildings := Buildings{Buildings: []BuildingsBuildings{item}}
+			tempBuildings := Buildings{Buildings: make(map[string]BuildingsBuildings)}
+			tempBuildings.Buildings[key] = item
 			tempBuildings.Id = types.StringValue("dummy") // Set to trigger PUT mode in toBody
 			body := tempBuildings.toBody(ctx, tempBuildings)
 
@@ -433,8 +508,12 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 		plan.fromBodyUnknowns(ctx, res)
 	}
 
-	// Set resource-level ID for bulk resource
-	plan.Id = types.StringValue("buildings-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("buildings-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
@@ -502,7 +581,21 @@ func (r *BuildingsResource) Delete(ctx context.Context, req resource.DeleteReque
 }
 
 func (r *BuildingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// For bulk resources, use a constant ID
-	// Import command: terraform import catalystcenter_buildings.bulk_buildings buildings-bulk
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "buildings-bulk")...)
+	// For bulk resources, import ID can be:
+	// - "buildings-bulk" for backward compatibility (no scope filtering)
+	// - A scope path like "Global/Poland" to filter by hierarchy
+	// Import commands:
+	//   terraform import catalystcenter_buildings.bulk_buildings buildings-bulk
+	//   terraform import catalystcenter_buildings.poland "Global/Poland"
+
+	importID := req.ID
+
+	if importID == "buildings-bulk" {
+		// Backward compatible: no scope
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "buildings-bulk")...)
+	} else {
+		// Scope-based import
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importID)...)
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scope"), importID)...)
+	}
 }

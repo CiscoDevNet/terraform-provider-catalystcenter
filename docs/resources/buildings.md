@@ -3,19 +3,20 @@
 page_title: "catalystcenter_buildings Resource - terraform-provider-catalystcenter"
 subcategory: "Sites"
 description: |-
-  Manages multiple buildings within a single resource, specifying a list of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source catalystcenter_sites with type filter set to 'building'
+  Manages multiple buildings within a single resource, specifying a map of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source catalystcenter_sites with type filter set to 'building'
 ---
 
 # catalystcenter_buildings (Resource)
 
-Manages multiple buildings within a single resource, specifying a list of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source `catalystcenter_sites` with type filter set to 'building'
+Manages multiple buildings within a single resource, specifying a map of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source `catalystcenter_sites` with type filter set to 'building'
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_buildings" "example" {
-  buildings = [
-    {
+  scope = "Global/Poland"
+  buildings = {
+    "Global/USA/Building1" = {
       parent_name_hierarchy = "Global/USA"
       name                  = "Building1"
       country               = "United States"
@@ -23,7 +24,7 @@ resource "catalystcenter_buildings" "example" {
       latitude              = 37.338
       longitude             = -121.832
     }
-  ]
+  }
 }
 ```
 
@@ -32,7 +33,11 @@ resource "catalystcenter_buildings" "example" {
 
 ### Required
 
-- `buildings` (Attributes List) List of buildings (see [below for nested schema](#nestedatt--buildings))
+- `buildings` (Attributes Map) Map of buildings, keyed by parent_name_hierarchy/name (see [below for nested schema](#nestedatt--buildings))
+
+### Optional
+
+- `scope` (String) Optional scope to limit which buildings are managed by this resource. When specified, only buildings under this hierarchy path will be included. The resource ID will use this scope value. Example: 'Global/Poland' to manage only Polish sites
 
 ### Read-Only
 

@@ -26,8 +26,8 @@ import (
 
 func TestAccCcAreas(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_areas.test", "areas.0.parent_name_hierarchy", "Global"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_areas.test", "areas.0.name", "Area1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_areas.test", "areas.Global/Area1.parent_name_hierarchy", "Global"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_areas.test", "areas.Global/Area1.name", "Area1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -60,20 +60,24 @@ data "catalystcenter_site" "test" {
 
 func testAccCcAreasConfig_minimum() string {
 	config := `resource "catalystcenter_areas" "test" {` + "\n"
-	config += `	areas = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global"` + "\n"
-	config += `	  name = "Area1"` + "\n"
-	config += `	}]` + "\n"
+	config += `	areas = {` + "\n"
+	config += `	  "Global/Area1" = {` + "\n"
+	config += `	    parent_name_hierarchy = "Global"` + "\n"
+	config += `	    name = "Area1"` + "\n"
+	config += `	  }` + "\n"
+	config += `	}` + "\n"
 	config += `}` + "\n"
 	return config
 }
 
 func testAccCcAreasConfig_all() string {
 	config := `resource "catalystcenter_areas" "test" {` + "\n"
-	config += `	areas = [{` + "\n"
-	config += `	  parent_name_hierarchy = "Global"` + "\n"
-	config += `	  name = "Area1"` + "\n"
-	config += `	}]` + "\n"
+	config += `	areas = {` + "\n"
+	config += `	  "Global/Area1" = {` + "\n"
+	config += `	    parent_name_hierarchy = "Global"` + "\n"
+	config += `	    name = "Area1"` + "\n"
+	config += `	  }` + "\n"
+	config += `	}` + "\n"
 	config += `}` + "\n"
 	return config
 }

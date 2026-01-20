@@ -1,6 +1,7 @@
 resource "catalystcenter_buildings" "example" {
-  buildings = [
-    {
+  scope = "Global/Poland"
+  buildings = {
+    "Global/USA/Building1" = {
       parent_name_hierarchy = "Global/USA"
       name                  = "Building1"
       country               = "United States"
@@ -8,5 +9,5 @@ resource "catalystcenter_buildings" "example" {
       latitude              = 37.338
       longitude             = -121.832
     }
-  ]
+  }
 }

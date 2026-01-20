@@ -3,18 +3,28 @@ name: Areas
 rest_endpoint: /dna/intent/api/v1/sites/bulk
 get_rest_endpoint: /dna/intent/api/v1/sites
 put_rest_endpoint: /dna/intent/api/v1/areas
-res_description: Manages multiple areas within a single resource, specifying a list of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source `catalystcenter_sites` with type filter set to 'area'
+res_description: Manages multiple areas within a single resource, specifying a map of areas as input. This resource is designed for bulk operations to efficiently create multiple areas at once. To retrieve existing areas, use the data source `catalystcenter_sites` with type filter set to 'area'
 root_list: true
 update_computed: true
 doc_category: Sites
 no_data_source: true
 attributes:
+  - tf_name: scope
+    type: String
+    description: >-
+      Optional scope to limit management to specific areas under a site hierarchy.
+      When specified, only areas under this hierarchy will be managed by this resource.
+      This allows multiple resource instances to manage different area hierarchies
+      independently (e.g., "Global/Poland" for Polish areas, "Global/Germany" for
+      German areas). If not specified, all areas are managed (backward compatible).
+    example: Global/Poland
   - tf_name: areas
-    type: List
+    type: Map
     response_data_path: response
     max_elements_in_root_list: 1000
     mandatory: true
-    description: List of areas
+    description: Map of areas, keyed by parent_name_hierarchy/name (e.g., "Global/Area1")
+    map_key_example: Global/Area1
     attributes:
       - model_name: id
         response_data_path: id
@@ -32,12 +42,14 @@ attributes:
       - model_name: parentNameHierarchy
         type: String
         mandatory: true
+        key_part: true
         description: Parent hierarchical name (e.g., Global/USA)
         example: Global
       - model_name: name
         response_data_path: name
         type: String
         mandatory: true
+        key_part: true
         description: The name of the area
         example: Area1
       - model_name: type

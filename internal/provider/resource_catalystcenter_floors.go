@@ -58,7 +58,7 @@ func (r *FloorsResource) Metadata(ctx context.Context, req resource.MetadataRequ
 func (r *FloorsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple floors within a single resource, specifying a list of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'floor'").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages multiple floors within a single resource, specifying a map of floors as input. This resource is designed for bulk operations to efficiently create multiple floors at once. To retrieve existing floors, use the data source `catalystcenter_sites` with type filter set to 'floor'").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -68,8 +68,12 @@ func (r *FloorsResource) Schema(ctx context.Context, req resource.SchemaRequest,
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"floors": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of floors").String,
+			"scope": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Optional scope to limit which floors are managed by this resource. When specified, only floors under this hierarchy path will be included. The resource ID will use this scope value. Example: 'Global/Poland/Krakow/Building1' to manage only Building1 floors").String,
+				Optional:            true,
+			},
+			"floors": schema.MapNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Map of floors, keyed by parent_name_hierarchy/name").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -153,26 +157,60 @@ func (r *FloorsResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Set resource-level ID for bulk resource at the start
-	plan.Id = types.StringValue("floors-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+
+	// Validate that all floors are within scope if scope is specified
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		scope := plan.Scope.ValueString()
+		for _, floor := range plan.Floors {
+			fullPath := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+			if !strings.HasPrefix(fullPath, scope) {
+				resp.Diagnostics.AddError(
+					"Floor outside scope",
+					fmt.Sprintf("Floor '%s' is not under scope '%s'", fullPath, scope),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 
 	// Create object
 	body := plan.toBody(ctx, Floors{})
 	var planList []Floors
 	maxElementsPerShard := 1000
-	originalList := plan.Floors
+
+	// Convert map to slice for sharding
+	originalList := make([]FloorsFloors, 0, len(plan.Floors))
+	for _, floor := range plan.Floors {
+		originalList = append(originalList, floor)
+	}
+
 	for i := 0; i < len(originalList); i += maxElementsPerShard {
 		end := i + maxElementsPerShard
 		if end > len(originalList) {
 			end = len(originalList)
 		}
 		chunk := originalList[i:end]
-		currentPlanForShard := plan
-		currentPlanForShard.Floors = chunk
-		planList = append(planList, currentPlanForShard)
 
+		// Convert chunk back to map for this shard
+		chunkMap := make(map[string]FloorsFloors)
+		for _, floor := range chunk {
+			key := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+			chunkMap[key] = floor
+		}
+
+		currentPlanForShard := plan
+		currentPlanForShard.Floors = chunkMap
+		planList = append(planList, currentPlanForShard)
 	}
 
 	params := ""
@@ -195,8 +233,12 @@ func (r *FloorsResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 	plan.fromBodyUnknowns(ctx, res)
 
-	// Set resource-level ID for bulk resource (use constant since this manages multiple items)
-	plan.Id = types.StringValue("floors-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -221,17 +263,29 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Add unitsOfMeasure query param if we have floors in state with units defined
 	// This ensures API returns values in the same units we're tracking
-	// During import, units may be encoded in the ID as "floors-bulk:meters"
 	unitsOfMeasure := ""
-	if len(state.Floors) > 0 && !state.Floors[0].UnitsOfMeasure.IsNull() {
-		unitsOfMeasure = state.Floors[0].UnitsOfMeasure.ValueString()
-	} else if strings.Contains(state.Id.ValueString(), ":") {
-		// Parse units from ID during import (format: "floors-bulk:meters")
-		parts := strings.Split(state.Id.ValueString(), ":")
-		if len(parts) == 2 {
-			unitsOfMeasure = parts[1]
+	if len(state.Floors) > 0 {
+		// Get first floor from map
+		for _, floor := range state.Floors {
+			if !floor.UnitsOfMeasure.IsNull() {
+				unitsOfMeasure = floor.UnitsOfMeasure.ValueString()
+				break
+			}
 		}
 	}
+
+	// If we didn't find units in floors (e.g., during import), try to extract from ID
+	// ID format: "floors-bulk", "floors-bulk:meters", "Global/Area", "Global/Area:meters"
+	if unitsOfMeasure == "" && !state.Id.IsNull() {
+		idStr := state.Id.ValueString()
+		if strings.Contains(idStr, ":") {
+			parts := strings.Split(idStr, ":")
+			if len(parts) == 2 {
+				unitsOfMeasure = parts[1]
+			}
+		}
+	}
+
 	if unitsOfMeasure != "" {
 		params += "&_unitsOfMeasure=" + unitsOfMeasure
 	}
@@ -253,16 +307,18 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Filter out any floors without a name
-	filteredFloors := []FloorsFloors{}
-	for _, floor := range state.Floors {
-		if !floor.Name.IsNull() && floor.Name.ValueString() != "" {
-			filteredFloors = append(filteredFloors, floor)
+	for key, floor := range state.Floors {
+		if floor.Name.IsNull() || floor.Name.ValueString() == "" {
+			delete(state.Floors, key)
 		}
 	}
-	state.Floors = filteredFloors
 
-	// Set resource-level ID for bulk resource
-	state.Id = types.StringValue("floors-bulk")
+	// Set resource-level ID based on scope
+	if !state.Scope.IsNull() && state.Scope.ValueString() != "" {
+		state.Id = state.Scope
+	} else {
+		state.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
@@ -286,23 +342,44 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	// Set resource-level ID for bulk resource at the start
-	plan.Id = types.StringValue("floors-bulk")
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
+	// Validate that all floors are within scope if scope is specified
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		scope := plan.Scope.ValueString()
+		for _, floor := range plan.Floors {
+			fullPath := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+			if !strings.HasPrefix(fullPath, scope) {
+				resp.Diagnostics.AddError(
+					"Floor outside scope",
+					fmt.Sprintf("Floor '%s' is not under scope '%s'", fullPath, scope),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty maps
 	var toDelete = Floors{
-		Floors: []FloorsFloors{},
+		Floors: make(map[string]FloorsFloors),
 	}
 	var toCreate = Floors{
-		Floors: []FloorsFloors{},
+		Floors: make(map[string]FloorsFloors),
 	}
 	var toUpdate = Floors{
-		Floors: []FloorsFloors{},
+		Floors: make(map[string]FloorsFloors),
 	}
 	var toReplace = Floors{
-		Floors: []FloorsFloors{},
+		Floors: make(map[string]FloorsFloors),
 	}
 
 	planMap := make(map[string]FloorsFloors)
@@ -324,7 +401,7 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 	for stateKey, stateItem := range stateMap {
 		if _, exists := planMap[stateKey]; !exists {
 			// Exists only in state → Needs to be deleted
-			toDelete.Floors = append(toDelete.Floors, stateItem)
+			toDelete.Floors[stateKey] = stateItem
 		}
 	}
 
@@ -343,11 +420,11 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 				planItem.ParentId = stateItem.ParentId
 				planMap[planKey] = planItem // Store back in planMap
 				// Check if any field marked as requires_replace differs
-				toUpdate.Floors = append(toUpdate.Floors, planItem)
+				toUpdate.Floors[planKey] = planItem
 			}
 		} else {
 			// Exists only in plan → New item
-			toCreate.Floors = append(toCreate.Floors, planItem)
+			toCreate.Floors[planKey] = planItem
 		}
 	}
 
@@ -357,16 +434,20 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.Floors)))
 		// Clear IDs before recreating
 		var toReplaceNoId = Floors{
-			Floors: []FloorsFloors{},
+			Floors: make(map[string]FloorsFloors),
 		}
-		for _, item := range toReplace.Floors {
+		for key, item := range toReplace.Floors {
 			item.Id = types.StringNull()
-			toReplaceNoId.Floors = append(toReplaceNoId.Floors, item)
+			toReplaceNoId.Floors[key] = item
 		}
 
 		// Replace is done by delete + create
-		toDelete.Floors = append(toDelete.Floors, toReplace.Floors...)
-		toCreate.Floors = append(toCreate.Floors, toReplaceNoId.Floors...)
+		for key, item := range toReplace.Floors {
+			toDelete.Floors[key] = item
+		}
+		for key, item := range toReplaceNoId.Floors {
+			toCreate.Floors[key] = item
+		}
 	}
 
 	// DELETE
@@ -391,14 +472,24 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if len(toCreate.Floors) > 0 {
 
 		maxElementsPerShard := 1000
+		// Convert map to slice for sharding
+		originalList := make([]FloorsFloors, 0, len(toCreate.Floors))
+		for _, floor := range toCreate.Floors {
+			originalList = append(originalList, floor)
+		}
 		var createList []Floors
-		for i := 0; i < len(toCreate.Floors); i += maxElementsPerShard {
-			end := min(i+maxElementsPerShard, len(toCreate.Floors))
-			chunk := toCreate.Floors[i:end]
+		for i := 0; i < len(originalList); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(originalList))
+			chunk := originalList[i:end]
+			// Convert chunk back to map
+			chunkMap := make(map[string]FloorsFloors)
+			for _, floor := range chunk {
+				key := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
+				chunkMap[key] = floor
+			}
 			currentPlanForShard := plan
-			currentPlanForShard.Floors = chunk
+			currentPlanForShard.Floors = chunkMap
 			createList = append(createList, currentPlanForShard)
-
 		}
 
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.Floors)))
@@ -438,12 +529,13 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.Floors)))
 
 		// Update each floor individually using PUT endpoint
-		for _, item := range toUpdate.Floors {
+		for key, item := range toUpdate.Floors {
 			if item.Id.IsNull() {
 				continue // Skip if id is null
 			}
 			// Create a temporary Floors structure with single item for toBody
-			tempFloors := Floors{Floors: []FloorsFloors{item}}
+			tempFloors := Floors{Floors: make(map[string]FloorsFloors)}
+			tempFloors.Floors[key] = item
 			tempFloors.Id = types.StringValue("dummy") // Set to trigger PUT mode in toBody
 			body := tempFloors.toBody(ctx, tempFloors)
 
@@ -466,8 +558,13 @@ func (r *FloorsResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 		plan.fromBodyUnknowns(ctx, res)
 	}
-	// Set resource-level ID for bulk resource
-	plan.Id = types.StringValue("floors-bulk")
+
+	// Set resource-level ID based on scope
+	if !plan.Scope.IsNull() && plan.Scope.ValueString() != "" {
+		plan.Id = plan.Scope
+	} else {
+		plan.Id = types.StringValue("floors-bulk")
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
@@ -535,32 +632,31 @@ func (r *FloorsResource) Delete(ctx context.Context, req resource.DeleteRequest,
 }
 
 func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// For bulk resources, use a constant ID with optional units parameter
-	// Import command: terraform import catalystcenter_floors.bulk_floors "floors-bulk,meters"
-	//            or: terraform import catalystcenter_floors.bulk_floors "floors-bulk,feet"
-	//            or: terraform import catalystcenter_floors.bulk_floors "floors-bulk" (defaults to feet)
+	// For bulk resources, import ID can be:
+	// - "floors-bulk" for backward compatibility (no scope filtering, defaults to feet)
+	// - "floors-bulk,<units>" for backward compatibility with units (e.g., "floors-bulk,meters")
+	// - A scope path like "Global/Poland/Krakow/Building1" to filter by hierarchy (defaults to feet)
+	// - A scope path with units like "Global/Poland/Krakow/Building1,meters"
+	// Import commands:
+	//   terraform import catalystcenter_floors.bulk_floors floors-bulk
+	//   terraform import catalystcenter_floors.bulk_floors "floors-bulk,meters"
+	//   terraform import catalystcenter_floors.building1 "Global/Poland/Krakow/Building1"
+	//   terraform import catalystcenter_floors.building1 "Global/Poland/Krakow/Building1,meters"
 
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 1 && len(idParts) != 2 {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: floors-bulk or floors-bulk,<units>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: floors-bulk, floors-bulk,<units>, <scope>, or <scope>,<units>. Got: %q", req.ID),
 		)
 		return
 	}
 
-	if idParts[0] != "floors-bulk" {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier to start with 'floors-bulk'. Got: %q", idParts[0]),
-		)
-		return
-	}
-
-	// Validate and encode units in the ID if provided
+	importID := idParts[0]
+	units := ""
 	if len(idParts) == 2 {
-		units := idParts[1]
+		units = idParts[1]
 		if units != "feet" && units != "meters" {
 			resp.Diagnostics.AddError(
 				"Invalid Units Parameter",
@@ -568,9 +664,22 @@ func (r *FloorsResource) ImportState(ctx context.Context, req resource.ImportSta
 			)
 			return
 		}
-		// Store ID with units encoded temporarily (Read function will parse and normalize it back)
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), fmt.Sprintf("floors-bulk:%s", units))...)
+	}
+
+	if importID == "floors-bulk" {
+		// Backward compatible: no scope
+		if units != "" {
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), fmt.Sprintf("floors-bulk:%s", units))...)
+		} else {
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
+		}
 	} else {
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "floors-bulk")...)
+		// Scope-based import
+		if units != "" {
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), fmt.Sprintf("%s:%s", importID, units))...)
+		} else {
+			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importID)...)
+		}
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scope"), importID)...)
 	}
 }

@@ -26,8 +26,9 @@ import (
 )
 
 type Floors struct {
-	Id     types.String   `tfsdk:"id"`
-	Floors []FloorsFloors `tfsdk:"floors"`
+	Id     types.String            `tfsdk:"id"`
+	Scope  types.String            `tfsdk:"scope"`
+	Floors map[string]FloorsFloors `tfsdk:"floors"`
 }
 
 type FloorsFloors struct {
@@ -101,7 +102,7 @@ func (data *Floors) fromBody(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
 	if value := res; value.Exists() && len(value.Array()) > 0 {
-		data.Floors = make([]FloorsFloors, 0)
+		data.Floors = make(map[string]FloorsFloors)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := FloorsFloors{}
 			if cValue := v.Get("id"); cValue.Exists() {
@@ -168,90 +169,116 @@ func (data *Floors) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.UnitsOfMeasure = types.StringNull()
 			}
-			data.Floors = append(data.Floors, item)
+			// Use parentNameHierarchy/name as map key
+			if !item.ParentNameHierarchy.IsNull() && !item.Name.IsNull() {
+				key := item.ParentNameHierarchy.ValueString() + "/" + item.Name.ValueString()
+
+				// Apply scope filtering if scope is specified
+				if !data.Scope.IsNull() && data.Scope.ValueString() != "" {
+					scope := data.Scope.ValueString()
+					// Only include items within the scope (exact match or children)
+					if !isWithinScope(key, scope) {
+						return true // Skip this item
+					}
+				}
+
+				data.Floors[key] = item
+			}
 			return true
 		})
 	}
 }
 
 func (data *Floors) updateFromBody(ctx context.Context, res gjson.Result) {
-	var final []FloorsFloors
-
 	res = res.Get("response")
 
-	// Build a lookup map
+	// Build a lookup map with scope filtering
 	responseMap := make(map[string]gjson.Result)
 	res.ForEach(func(_, v gjson.Result) bool {
 		if v.Get("type").String() == "floor" {
 			nameHierarchy := v.Get("nameHierarchy").String()
+
+			// Apply scope filtering if scope is specified
+			if !data.Scope.IsNull() && data.Scope.ValueString() != "" {
+				scope := data.Scope.ValueString()
+				// Only include items within the scope (exact match or children)
+				if !isWithinScope(nameHierarchy, scope) {
+					return true // Skip this item
+				}
+			}
+
 			responseMap[nameHierarchy] = v
 		}
 		return true
 	})
 
-	for i := range data.Floors {
+	for key, floor := range data.Floors {
 		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
-		fullHierarchy := data.Floors[i].ParentNameHierarchy.ValueString() + "/" + data.Floors[i].Name.ValueString()
+		fullHierarchy := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
 
 		r, found := responseMap[fullHierarchy]
 
 		if found {
 			if value := r.Get("id"); value.Exists() {
-				data.Floors[i].Id = types.StringValue(value.String())
-			} else if data.Floors[i].Id.IsNull() {
-				data.Floors[i].Id = types.StringNull()
+				floor.Id = types.StringValue(value.String())
+			} else if floor.Id.IsNull() {
+				floor.Id = types.StringNull()
 			}
 			// Read parentId from response
 			if value := r.Get("parentId"); value.Exists() {
-				data.Floors[i].ParentId = types.StringValue(value.String())
+				floor.ParentId = types.StringValue(value.String())
 			} else {
-				data.Floors[i].ParentId = types.StringNull()
+				floor.ParentId = types.StringNull()
 			}
 			// ParentNameHierarchy is not updated from response - it's user-specified and stays as-is
-			if value := r.Get("name"); value.Exists() && !data.Floors[i].Name.IsNull() {
-				data.Floors[i].Name = types.StringValue(value.String())
+			if value := r.Get("name"); value.Exists() && !floor.Name.IsNull() {
+				floor.Name = types.StringValue(value.String())
 			} else {
-				data.Floors[i].Name = types.StringNull()
+				floor.Name = types.StringNull()
 			}
-			if value := r.Get("floorNumber"); value.Exists() && !data.Floors[i].FloorNumber.IsNull() {
-				data.Floors[i].FloorNumber = types.Int64Value(value.Int())
+			if value := r.Get("floorNumber"); value.Exists() && !floor.FloorNumber.IsNull() {
+				floor.FloorNumber = types.Int64Value(value.Int())
 			} else {
-				data.Floors[i].FloorNumber = types.Int64Null()
+				floor.FloorNumber = types.Int64Null()
 			}
-			if value := r.Get("rfModel"); value.Exists() && !data.Floors[i].RfModel.IsNull() {
-				data.Floors[i].RfModel = types.StringValue(value.String())
+			if value := r.Get("rfModel"); value.Exists() && !floor.RfModel.IsNull() {
+				floor.RfModel = types.StringValue(value.String())
 			} else {
-				data.Floors[i].RfModel = types.StringNull()
+				floor.RfModel = types.StringNull()
 			}
-			if value := r.Get("width"); value.Exists() && !data.Floors[i].Width.IsNull() {
-				data.Floors[i].Width = types.Float64Value(value.Float())
+			if value := r.Get("width"); value.Exists() && !floor.Width.IsNull() {
+				floor.Width = types.Float64Value(value.Float())
 			} else {
-				data.Floors[i].Width = types.Float64Null()
+				floor.Width = types.Float64Null()
 			}
-			if value := r.Get("length"); value.Exists() && !data.Floors[i].Length.IsNull() {
-				data.Floors[i].Length = types.Float64Value(value.Float())
+			if value := r.Get("length"); value.Exists() && !floor.Length.IsNull() {
+				floor.Length = types.Float64Value(value.Float())
 			} else {
-				data.Floors[i].Length = types.Float64Null()
+				floor.Length = types.Float64Null()
 			}
-			if value := r.Get("height"); value.Exists() && !data.Floors[i].Height.IsNull() {
-				data.Floors[i].Height = types.Float64Value(value.Float())
+			if value := r.Get("height"); value.Exists() && !floor.Height.IsNull() {
+				floor.Height = types.Float64Value(value.Float())
 			} else {
-				data.Floors[i].Height = types.Float64Null()
+				floor.Height = types.Float64Null()
 			}
-			if value := r.Get("unitsOfMeasure"); value.Exists() && !data.Floors[i].UnitsOfMeasure.IsNull() {
-				data.Floors[i].UnitsOfMeasure = types.StringValue(value.String())
+			if value := r.Get("unitsOfMeasure"); value.Exists() && !floor.UnitsOfMeasure.IsNull() {
+				floor.UnitsOfMeasure = types.StringValue(value.String())
 			} else {
-				data.Floors[i].UnitsOfMeasure = types.StringNull()
+				floor.UnitsOfMeasure = types.StringNull()
 			}
 
-			// Only add to final if found in API response and has valid ID to enable drift detection
-			if data.Floors[i].Id != types.StringNull() {
-				final = append(final, data.Floors[i])
+			// Update map with modified floor if it has a valid ID
+			if floor.Id != types.StringNull() {
+				data.Floors[key] = floor
+			} else {
+				// Remove from map if no valid ID (drift detection)
+				delete(data.Floors, key)
 			}
+		} else {
+			// If not found in API response, remove from map (drift detection)
+			delete(data.Floors, key)
 		}
-		// If not found in API response, item is not added to final
 	}
-	data.Floors = final
 }
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
@@ -270,27 +297,29 @@ func (data *Floors) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 		return true
 	})
 
-	for i := range data.Floors {
+	for key, floor := range data.Floors {
 		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
-		fullHierarchy := data.Floors[i].ParentNameHierarchy.ValueString() + "/" + data.Floors[i].Name.ValueString()
+		fullHierarchy := floor.ParentNameHierarchy.ValueString() + "/" + floor.Name.ValueString()
 
 		r, found := responseMap[fullHierarchy]
 
 		if found {
-			if data.Floors[i].Id.IsUnknown() {
-				if value := r.Get("id"); value.Exists() && !data.Floors[i].Id.IsNull() {
-					data.Floors[i].Id = types.StringValue(value.String())
+			if floor.Id.IsUnknown() {
+				if value := r.Get("id"); value.Exists() && !floor.Id.IsNull() {
+					floor.Id = types.StringValue(value.String())
 				} else {
-					data.Floors[i].Id = types.StringNull()
+					floor.Id = types.StringNull()
 				}
 			}
-			if data.Floors[i].ParentId.IsUnknown() {
+			if floor.ParentId.IsUnknown() {
 				if value := r.Get("parentId"); value.Exists() {
-					data.Floors[i].ParentId = types.StringValue(value.String())
+					floor.ParentId = types.StringValue(value.String())
 				} else {
-					data.Floors[i].ParentId = types.StringNull()
+					floor.ParentId = types.StringNull()
 				}
 			}
+			// Update map with modified floor
+			data.Floors[key] = floor
 		}
 	}
 }

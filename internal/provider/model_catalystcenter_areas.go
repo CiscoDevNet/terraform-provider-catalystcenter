@@ -26,8 +26,9 @@ import (
 )
 
 type Areas struct {
-	Id    types.String `tfsdk:"id"`
-	Areas []AreasAreas `tfsdk:"areas"`
+	Id    types.String          `tfsdk:"id"`
+	Scope types.String          `tfsdk:"scope"`
+	Areas map[string]AreasAreas `tfsdk:"areas"`
 }
 
 type AreasAreas struct {
@@ -77,7 +78,7 @@ func (data *Areas) fromBody(ctx context.Context, res gjson.Result) {
 
 	res = res.Get("response")
 	if value := res; value.Exists() && len(value.Array()) > 0 {
-		data.Areas = make([]AreasAreas, 0)
+		data.Areas = make(map[string]AreasAreas)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := AreasAreas{}
 			if cValue := v.Get("id"); cValue.Exists() {
@@ -114,60 +115,86 @@ func (data *Areas) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Name = types.StringNull()
 			}
-			data.Areas = append(data.Areas, item)
+			// Use parentNameHierarchy/name as map key
+			if !item.ParentNameHierarchy.IsNull() && !item.Name.IsNull() {
+				key := item.ParentNameHierarchy.ValueString() + "/" + item.Name.ValueString()
+
+				// Apply scope filtering if scope is specified
+				if !data.Scope.IsNull() && data.Scope.ValueString() != "" {
+					scope := data.Scope.ValueString()
+					// Only include items within the scope (exact match or children)
+					if !isWithinScope(key, scope) {
+						return true // Skip this item
+					}
+				}
+
+				data.Areas[key] = item
+			}
 			return true
 		})
 	}
 }
 
 func (data *Areas) updateFromBody(ctx context.Context, res gjson.Result) {
-	var final []AreasAreas
-
 	res = res.Get("response")
 
-	// Build a lookup map
+	// Build a lookup map with scope filtering
 	responseMap := make(map[string]gjson.Result)
 	res.ForEach(func(_, v gjson.Result) bool {
 		if v.Get("type").String() == "area" {
 			nameHierarchy := v.Get("nameHierarchy").String()
+
+			// Apply scope filtering if scope is specified
+			if !data.Scope.IsNull() && data.Scope.ValueString() != "" {
+				scope := data.Scope.ValueString()
+				// Only include items within the scope (exact match or children)
+				if !isWithinScope(nameHierarchy, scope) {
+					return true // Skip this item
+				}
+			}
+
 			responseMap[nameHierarchy] = v
 		}
 		return true
 	})
 
-	for i := range data.Areas {
+	for key, area := range data.Areas {
 		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
-		fullHierarchy := data.Areas[i].ParentNameHierarchy.ValueString() + "/" + data.Areas[i].Name.ValueString()
+		fullHierarchy := area.ParentNameHierarchy.ValueString() + "/" + area.Name.ValueString()
 
 		r, found := responseMap[fullHierarchy]
 
 		if found {
 			if value := r.Get("id"); value.Exists() {
-				data.Areas[i].Id = types.StringValue(value.String())
-			} else if data.Areas[i].Id.IsNull() {
-				data.Areas[i].Id = types.StringNull()
+				area.Id = types.StringValue(value.String())
+			} else if area.Id.IsNull() {
+				area.Id = types.StringNull()
 			}
 			// Read parentId from response
 			if value := r.Get("parentId"); value.Exists() {
-				data.Areas[i].ParentId = types.StringValue(value.String())
+				area.ParentId = types.StringValue(value.String())
 			} else {
-				data.Areas[i].ParentId = types.StringNull()
+				area.ParentId = types.StringNull()
 			}
 			// ParentNameHierarchy is not updated from response - it's user-specified and stays as-is
-			if value := r.Get("name"); value.Exists() && !data.Areas[i].Name.IsNull() {
-				data.Areas[i].Name = types.StringValue(value.String())
+			if value := r.Get("name"); value.Exists() && !area.Name.IsNull() {
+				area.Name = types.StringValue(value.String())
 			} else {
-				data.Areas[i].Name = types.StringNull()
+				area.Name = types.StringNull()
 			}
 
-			// Only add to final if found in API response and has valid ID to enable drift detection
-			if data.Areas[i].Id != types.StringNull() {
-				final = append(final, data.Areas[i])
+			// Update map with modified area if it has a valid ID
+			if area.Id != types.StringNull() {
+				data.Areas[key] = area
+			} else {
+				// Remove from map if no valid ID (drift detection)
+				delete(data.Areas, key)
 			}
+		} else {
+			// If not found in API response, remove from map (drift detection)
+			delete(data.Areas, key)
 		}
-		// If not found in API response, item is not added to final
 	}
-	data.Areas = final
 }
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
@@ -186,27 +213,29 @@ func (data *Areas) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 		return true
 	})
 
-	for i := range data.Areas {
+	for key, area := range data.Areas {
 		// Construct full nameHierarchy as parentNameHierarchy + "/" + name
-		fullHierarchy := data.Areas[i].ParentNameHierarchy.ValueString() + "/" + data.Areas[i].Name.ValueString()
+		fullHierarchy := area.ParentNameHierarchy.ValueString() + "/" + area.Name.ValueString()
 
 		r, found := responseMap[fullHierarchy]
 
 		if found {
-			if data.Areas[i].Id.IsUnknown() {
-				if value := r.Get("id"); value.Exists() && !data.Areas[i].Id.IsNull() {
-					data.Areas[i].Id = types.StringValue(value.String())
+			if area.Id.IsUnknown() {
+				if value := r.Get("id"); value.Exists() && !area.Id.IsNull() {
+					area.Id = types.StringValue(value.String())
 				} else {
-					data.Areas[i].Id = types.StringNull()
+					area.Id = types.StringNull()
 				}
 			}
-			if data.Areas[i].ParentId.IsUnknown() {
+			if area.ParentId.IsUnknown() {
 				if value := r.Get("parentId"); value.Exists() {
-					data.Areas[i].ParentId = types.StringValue(value.String())
+					area.ParentId = types.StringValue(value.String())
 				} else {
-					data.Areas[i].ParentId = types.StringNull()
+					area.ParentId = types.StringNull()
 				}
 			}
+			// Update map with modified area
+			data.Areas[key] = area
 		}
 	}
 }
@@ -216,4 +245,17 @@ func (data *Areas) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	return true
+}
+
+// isWithinScope checks if a hierarchy path is within the specified scope.
+// Scope matches if:
+// 1. fullPath == scope (exact match)
+// 2. fullPath starts with scope + "/" (child of scope)
+// This ensures proper boundary checking and prevents matching sibling hierarchies
+// that start with the same prefix (e.g., "Global/AreaBulk2" when scope is "Global/AreaBulk").
+func isWithinScope(fullPath, scope string) bool {
+	if fullPath == scope {
+		return true
+	}
+	return len(fullPath) > len(scope) && fullPath[:len(scope)+1] == scope+"/"
 }

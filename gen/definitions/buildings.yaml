@@ -3,18 +3,28 @@ name: Buildings
 rest_endpoint: /dna/intent/api/v1/sites/bulk
 get_rest_endpoint: /dna/intent/api/v1/sites
 put_rest_endpoint: /dna/intent/api/v2/buildings
-res_description: Manages multiple buildings within a single resource, specifying a list of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source `catalystcenter_sites` with type filter set to 'building'
+res_description: Manages multiple buildings within a single resource, specifying a map of buildings as input. This resource is designed for bulk operations to efficiently create multiple buildings at once. To retrieve existing buildings, use the data source `catalystcenter_sites` with type filter set to 'building'
 root_list: true
 update_computed: true
 doc_category: Sites
 no_data_source: true
 attributes:
+  - tf_name: scope
+    type: String
+    description: >-
+      Optional scope to limit management to specific buildings under a site hierarchy.
+      When specified, only buildings under this hierarchy will be managed by this resource.
+      This allows multiple resource instances to manage buildings in different hierarchies
+      independently (e.g., "Global/Poland/Warsaw" for Warsaw buildings, "Global/Germany/Berlin"
+      for Berlin buildings). If not specified, all buildings are managed (backward compatible).
+    example: Global/Poland
   - tf_name: buildings
-    type: List
+    type: Map
     response_data_path: response
     max_elements_in_root_list: 1000
     mandatory: true
-    description: List of buildings
+    description: Map of buildings, keyed by parent_name_hierarchy/name (e.g., "Global/USA/Building1")
+    map_key_example: Global/USA/Building1
     attributes:
       - model_name: id
         response_data_path: id
@@ -32,12 +42,14 @@ attributes:
       - model_name: parentNameHierarchy
         type: String
         mandatory: true
+        key_part: true
         description: Parent hierarchical name (e.g., Global/USA/San Jose)
         example: Global/USA
       - model_name: name
         response_data_path: name
         type: String
         mandatory: true
+        key_part: true
         description: The name of the building
         example: Building1
       - model_name: type
@@ -69,10 +81,10 @@ attributes:
         example: -121.832
 test_prerequisites: |
   resource "catalystcenter_areas" "test" {
-    areas = [
-      {
+    areas = {
+      "USA" = {
         parent_name_hierarchy = "Global"
         name                  = "USA"
       }
-    ]
+    }
   }
