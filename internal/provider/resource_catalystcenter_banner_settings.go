@@ -122,7 +122,7 @@ func (r *BannerSettingsResource) Create(ctx context.Context, req resource.Create
 	body := plan.toBody(ctx, BannerSettings{})
 
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
@@ -197,7 +197,7 @@ func (r *BannerSettingsResource) Update(ctx context.Context, req resource.Update
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -223,7 +223,7 @@ func (r *BannerSettingsResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Put(state.getPath(), `{"banner": {}}`)
+	res, err := r.client.Put(state.getPath(), `{"banner": {"type": "Builtin"}}`, cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
 		if strings.HasPrefix(errorCode, "NCND") {

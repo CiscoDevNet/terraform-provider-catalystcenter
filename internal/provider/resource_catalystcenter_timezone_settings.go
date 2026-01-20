@@ -113,7 +113,7 @@ func (r *TimeZoneSettingsResource) Create(ctx context.Context, req resource.Crea
 	body := plan.toBody(ctx, TimeZoneSettings{})
 
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
@@ -188,7 +188,7 @@ func (r *TimeZoneSettingsResource) Update(ctx context.Context, req resource.Upda
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -214,7 +214,7 @@ func (r *TimeZoneSettingsResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Put(state.getPath(), `{"timeZone": {}}`)
+	res, err := r.client.Put(state.getPath(), `{"timeZone": {"identifier": "GMT"}}`, cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
 		if strings.HasPrefix(errorCode, "NCND") {

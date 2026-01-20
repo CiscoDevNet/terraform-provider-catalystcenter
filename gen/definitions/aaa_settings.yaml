@@ -10,6 +10,7 @@ get_extra_query_params: "?_inherited=true"
 put_create: true
 put_delete: true
 delete_body: '{"aaaNetwork": {}, "aaaClient": {}}'
+mutex: true
 test_tags: [AAA]
 doc_category: Network Settings
 attributes:
