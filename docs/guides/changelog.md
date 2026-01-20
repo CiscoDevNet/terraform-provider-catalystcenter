@@ -9,6 +9,8 @@ description: |-
 
 ## 0.4.8 (unreleased)
 
+- Add `catalystcenter_global_credential_netconf` resource and data source for managing NETCONF device credentials
+- Fix issue where failed API task errors were silently ignored during resource creation, causing resources to be saved in state with null IDs and leading to idempotency issues on subsequent applies
 - BREAKING CHANGE: Convert `catalystcenter_areas`, `catalystcenter_buildings`, and `catalystcenter_floors` resources from List to Map type for clearer resource identification using `parent_name_hierarchy/name` keys instead of position-based indexing
 
 ## 0.4.7

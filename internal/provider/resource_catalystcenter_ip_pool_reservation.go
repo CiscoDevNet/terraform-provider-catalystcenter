@@ -221,6 +221,11 @@ func (r *IPPoolReservationResource) Create(ctx context.Context, req resource.Cre
 			if strings.Contains(err.Error(), "StatusCode 404") {
 				res, err = r.client.Post(plan.getFallbackPath()+params, body)
 			}
+			// Check if error persists after fallback attempt
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+				return
+			}
 		}
 	}
 	params = ""
