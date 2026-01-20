@@ -9,6 +9,7 @@ delete_no_id: true
 get_extra_query_params: "?_inherited=true"
 put_create: true
 put_delete: true
+delete_body: '{"ntp": {}}'
 skip_minimum_test: true
 doc_category: Network Settings
 attributes:

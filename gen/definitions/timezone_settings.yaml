@@ -8,7 +8,8 @@ import_no_id: true
 delete_no_id: true
 get_extra_query_params: "?_inherited=true"
 put_create: true
-no_delete: true
+put_delete: true
+delete_body: '{"timeZone": {}}'
 skip_minimum_test: true
 doc_category: Network Settings
 attributes:

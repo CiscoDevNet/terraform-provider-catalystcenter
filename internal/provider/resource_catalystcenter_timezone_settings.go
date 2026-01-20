@@ -214,6 +214,18 @@ func (r *TimeZoneSettingsResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	res, err := r.client.Put(state.getPath(), `{"timeZone": {}}`)
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+		errorCode := res.Get("response.errorCode").String()
+		if strings.HasPrefix(errorCode, "NCND") {
+			// Log a warning and continue execution when NCND**** error is detected
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Empty input Warning", fmt.Sprintf("Empty input detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 

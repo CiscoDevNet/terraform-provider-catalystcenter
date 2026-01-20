@@ -261,7 +261,7 @@ func (r *TelemetrySettingsResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Put(state.getPath(), "{}")
+	res, err := r.client.Put(state.getPath(), `{"wiredDataCollection": {}, "wirelessTelemetry": {}, "snmpTraps": {}, "syslogs": {}, "applicationVisibility": {}}`)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
 		if strings.HasPrefix(errorCode, "NCND") {
