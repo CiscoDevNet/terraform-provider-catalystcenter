@@ -225,18 +225,10 @@ func (r *NetworkProfileForSitesAssignmentsResource) Update(ctx context.Context, 
 	}
 
 	// Unassign sites that are not in the plan
-	if len(siteIdsToDelete) > 0 {
-
-		// Construct query: siteId=...&siteId=...
-		var queryParts []string
-		for _, id := range siteIdsToDelete {
-			queryParts = append(queryParts, "siteId="+url.QueryEscape(id))
-		}
-		query := "/bulk?" + strings.Join(queryParts, "&")
-
-		res, err := r.client.Delete(state.getPath() + "/" + query)
+	for _, siteId := range siteIdsToDelete {
+		res, err := r.client.Delete(state.getPath() + "/" + url.PathEscape(siteId))
 		if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to unassign site %s (DELETE), got error: %s, %s", siteId, err, res.String()))
 			return
 		}
 	}
@@ -270,25 +262,16 @@ func (r *NetworkProfileForSitesAssignmentsResource) Delete(ctx context.Context, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	// Extract site IDs from items
-	var siteIds []string
+	// Unassign all sites from the network profile
 	for _, item := range state.Items {
 		if !item.Id.IsNull() {
-			siteIds = append(siteIds, item.Id.ValueString())
+			siteId := item.Id.ValueString()
+			res, err := r.client.Delete(state.getPath() + "/" + url.PathEscape(siteId))
+			if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to unassign site %s (DELETE), got error: %s, %s", siteId, err, res.String()))
+				return
+			}
 		}
-	}
-
-	// Construct query: siteId=...&siteId=...
-	var queryParts []string
-	for _, id := range siteIds {
-		queryParts = append(queryParts, "siteId="+url.QueryEscape(id))
-	}
-	query := "/bulk?" + strings.Join(queryParts, "&")
-
-	res, err := r.client.Delete(state.getPath() + "/" + query)
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
-		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
