@@ -150,14 +150,16 @@ type YamlConfig struct {
 }
 
 type YamlConfigAttribute struct {
-	ModelName             string                `yaml:"model_name"`
-	ResponseModelName     string                `yaml:"response_model_name"`
-	TfName                string                `yaml:"tf_name"`
-	Type                  string                `yaml:"type"`
-	ElementType           string                `yaml:"element_type"`
-	DataPath              string                `yaml:"data_path"`
-	ResponseDataPath      string                `yaml:"response_data_path"`
-	PutDataPath           string                `yaml:"put_data_path"`
+	ModelName                   string                `yaml:"model_name"`
+	ResponseModelName           string                `yaml:"response_model_name"`
+	FallbackResponseModelName   string                `yaml:"fallback_response_model_name"`
+	TfName                      string                `yaml:"tf_name"`
+	Type                        string                `yaml:"type"`
+	ElementType                 string                `yaml:"element_type"`
+	DataPath                    string                `yaml:"data_path"`
+	ResponseDataPath            string                `yaml:"response_data_path"`
+	FallbackResponseDataPath    string                `yaml:"fallback_response_data_path"`
+	PutDataPath                 string                `yaml:"put_data_path"`
 	Id                    bool                  `yaml:"id"`
 	MatchId               bool                  `yaml:"match_id"`
 	Reference             bool                  `yaml:"reference"`

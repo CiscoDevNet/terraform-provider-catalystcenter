@@ -55,11 +55,13 @@ cache_rest_endpoint: str(required=False) # Override GET REST endpoint path for c
 attribute:
   model_name: str(required=False) # Name of the attribute in the model (payload)
   response_model_name: str(required=False) # Name of the attribute in the model (response payload)
+  fallback_response_model_name: str(required=False) # Name of the attribute in the fallback response model (if fallback endpoint returns different field names)
   tf_name: str(required=False) # Name of the attribute in the Terraform resource, by default derived from model_name
   type: enum('String', 'Int64', 'Float64', 'Bool', 'List', 'Set', 'Map', required=False) # Type of the attribute
   element_type: enum('String', 'Int64', required=False) # only relevant if type is either 'List' or 'Set'
   data_path: str(required=False) # Path to the attribute in the model structure
   response_data_path: str(required=False) # Path to the attribute in the response model structure
+  fallback_response_data_path: str(required=False) # Path to the attribute in the fallback response model structure (if fallback endpoint returns different structure)
   put_data_path: str(required=False) # Path to the attribute in the put request
   id: bool(required=False) # Set to true if the attribute is part of the ID
   match_id: bool(required=False) # Set to true if the attribute is used to identify the right element using "get_from_all" option
