@@ -204,19 +204,9 @@ func (data Template) toBody(ctx context.Context, state Template) string {
 				itemBody, _ = sjson.Set(itemBody, "selection.selectionType", item.SelectionType.ValueString())
 			}
 			if !item.SelectionValues.IsNull() {
-				var listValues map[string]types.List
-				item.SelectionValues.ElementsAs(ctx, &listValues, false)
-				params := make(map[string]any)
-				for k, v := range listValues {
-					var strList []string
-					v.ElementsAs(ctx, &strList, false)
-					if len(strList) == 1 {
-						params[k] = strList[0]
-					} else {
-						params[k] = strList
-					}
-				}
-				itemBody, _ = sjson.Set(itemBody, "selection.selectionValues", params)
+				var values map[string]string
+				item.SelectionValues.ElementsAs(ctx, &values, false)
+				itemBody, _ = sjson.Set(itemBody, "selection.selectionValues", values)
 			}
 			body, _ = sjson.SetRaw(body, "templateParams.-1", itemBody)
 		}
