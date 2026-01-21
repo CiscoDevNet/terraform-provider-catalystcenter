@@ -9,8 +9,11 @@ description: |-
 
 ## 0.4.8 (unreleased)
 
+- BREAKING CHANGE: Modify `params` and `selection_values` attributes in `catalystcenter_deploy_template` and `catalystcenter_template` resources from `Map of String` to `Map of List of String` to support both single and multiple values. Single-element lists are automatically converted to strings when sent to the API for backward compatibility with existing templates
 - Add `catalystcenter_global_credential_netconf` resource and data source for managing NETCONF device credentials
+- Fix DELETE operation for `catalystcenter_aaa_settings`, `catalystcenter_banner_settings`, `catalystcenter_dhcp_settings`, `catalystcenter_dns_settings`, `catalystcenter_ntp_settings`, `catalystcenter_telemetry_settings`, and `catalystcenter_timezone_settings` resources to send properly structured empty bodies instead of `{}`, resolving NCND* empty input errors
 - Fix issue where failed API task errors were silently ignored during resource creation, causing resources to be saved in state with null IDs and leading to idempotency issues on subsequent applies
+- Fix DELETE operation for `catalystcenter_network_profile_for_sites_assignments` resource to use individual site unassignment endpoint instead of bulk endpoint, avoiding API limitations and improving reliability when managing large numbers of site assignments
 - BREAKING CHANGE: Convert `catalystcenter_areas`, `catalystcenter_buildings`, and `catalystcenter_floors` resources from List to Map type for clearer resource identification using `parent_name_hierarchy/name` keys instead of position-based indexing
 
 ## 0.4.7

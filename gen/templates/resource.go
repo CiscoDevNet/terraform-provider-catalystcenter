@@ -106,7 +106,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
 				{{- else if eq .Type "Map"}}
+				{{- if $.NoRead}}
 				ElementType:         types.ListType{ElemType: types.StringType},
+				{{- else}}
+				ElementType:         types.StringType,
+				{{- end}}
 				{{- end}}
 				{{- if or .Id .MatchId .Reference .Mandatory}}
 				Required:            true,
@@ -190,7 +194,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
 							{{- else if eq .Type "Map"}}
+							{{- if $.NoRead}}
 							ElementType:         types.ListType{ElemType: types.StringType},
+							{{- else}}
+							ElementType:         types.StringType,
+							{{- end}}
 							{{- end}}
 							{{- if or (and .Id (not .ComputedRefreshValue)) .Reference .Mandatory }}
 							Required:            true,
@@ -270,7 +278,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
 										{{- else if eq .Type "Map"}}
+										{{- if $.NoRead}}
 										ElementType:         types.ListType{ElemType: types.StringType},
+										{{- else}}
+										ElementType:         types.StringType,
+										{{- end}}
 										{{- end}}
 										{{- if or .Id .Reference .Mandatory}}
 										Required:            true,
@@ -348,7 +360,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
 													{{- else if eq .Type "Map"}}
+													{{- if $.NoRead}}
 													ElementType:         types.ListType{ElemType: types.StringType},
+													{{- else}}
+													ElementType:         types.StringType,
+													{{- end}}
 													{{- end}}
 													{{- if or .Id .Reference .Mandatory}}
 													Required:            true,
@@ -1339,17 +1355,17 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- if not .NoDelete}}
 	{{- if .PutDelete}}
 	{{- if .DeleteNoId}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, `{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), `{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if hasDeleteQueryParam .Attributes }}
 	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
 	{{- if $queryParams }}
 	params := {{$queryParams}}
 	{{- end}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, "{}"{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, `{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), "{}"){{- if .Mutex }}, cc.UseMutex{{- end}}
+	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), `{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`){{- if .Mutex }}, cc.UseMutex{{- end}}
 	{{- end}}
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 	{{- if .PutDelete}}

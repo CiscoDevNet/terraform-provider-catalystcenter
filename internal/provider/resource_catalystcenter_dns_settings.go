@@ -118,7 +118,7 @@ func (r *DNSSettingsResource) Create(ctx context.Context, req resource.CreateReq
 	body := plan.toBody(ctx, DNSSettings{})
 
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
@@ -193,7 +193,7 @@ func (r *DNSSettingsResource) Update(ctx context.Context, req resource.UpdateReq
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -219,7 +219,7 @@ func (r *DNSSettingsResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Put(state.getPath(), "{}")
+	res, err := r.client.Put(state.getPath(), `{"dns": {}}`, cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
 		if strings.HasPrefix(errorCode, "NCND") {

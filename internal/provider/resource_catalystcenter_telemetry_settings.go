@@ -160,7 +160,7 @@ func (r *TelemetrySettingsResource) Create(ctx context.Context, req resource.Cre
 	body := plan.toBody(ctx, TelemetrySettings{})
 
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return
@@ -235,7 +235,7 @@ func (r *TelemetrySettingsResource) Update(ctx context.Context, req resource.Upd
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -249,7 +249,9 @@ func (r *TelemetrySettingsResource) Update(ctx context.Context, req resource.Upd
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
+// Manual override: Different delete body needed for Global site vs other sites
+// For Global site: Full structured body with defaults
+// For other sites: {}
 func (r *TelemetrySettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state TelemetrySettings
 
@@ -261,7 +263,26 @@ func (r *TelemetrySettingsResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Put(state.getPath(), "{}")
+
+	// Determine the appropriate delete body based on whether this is the Global site
+	deleteBody := `{}`
+
+	// Query for the Global site and check if the current site ID matches
+	siteRes, err := r.client.Get("/dna/intent/api/v1/sites?nameHierarchy=Global")
+	if err == nil {
+		globalSiteId := siteRes.Get("response.0.id").String()
+		if globalSiteId == state.SiteId.ValueString() {
+			deleteBody = `{"applicationVisibility":{"collector":{"collectorType":"Builtin"},"enableOnWiredAccessDevices":false},"wiredDataCollection":{"enableWiredDataCollection":false},"wirelessTelemetry":{"enableWirelessTelemetry":false},"snmpTraps":{"useBuiltinTrapServer":false,"externalTrapServers":[]},"syslogs":{"useBuiltinSyslogServer":false,"externalSyslogServers":[]}}`
+			tflog.Debug(ctx, "Using Global site delete body for telemetry settings")
+		} else {
+			tflog.Debug(ctx, "Using standard delete body for non-Global site")
+		}
+	} else {
+		// If we can't determine the site, use empty body as fallback
+		tflog.Warn(ctx, fmt.Sprintf("Failed to fetch Global site information, using default delete body: %s", err))
+	}
+
+	res, err := r.client.Put(state.getPath(), deleteBody, cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
 		if strings.HasPrefix(errorCode, "NCND") {
@@ -278,8 +299,6 @@ func (r *TelemetrySettingsResource) Delete(ctx context.Context, req resource.Del
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *TelemetrySettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
