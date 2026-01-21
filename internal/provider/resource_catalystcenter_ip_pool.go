@@ -148,8 +148,14 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		if r.AllowExistingOnCreate {
 			tflog.Info(ctx, fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. allow_existing_on_create is true, beginning update", "POST", err, res.String()))
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-			return
+			if strings.Contains(err.Error(), "StatusCode 404") {
+				res, err = r.client.Post(plan.getFallbackPath()+params, body)
+			}
+			// Check if error persists after fallback attempt
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+				return
+			}
 		}
 	}
 	params = ""
@@ -195,6 +201,12 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	params := ""
 	res, err := r.ReadCache(ctx, req, state, params)
+
+	// Try fallback endpoint if primary fails with 404 or 500
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404, trying fallback endpoint", state.Id.ValueString()))
+		res, err = r.client.Get(state.getFallbackPath() + params)
+	}
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return

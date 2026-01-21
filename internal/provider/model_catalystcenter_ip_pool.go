@@ -20,6 +20,8 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -49,6 +51,14 @@ func (data IPPool) getPath() string {
 }
 
 // End of section. //template:end getPath
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
+
+func (data IPPool) getFallbackPath() string {
+	return "/dna/intent/api/v1/global-pool"
+}
+
+// End of section. //template:end getFallbackPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 
@@ -92,87 +102,167 @@ func (data IPPool) toBody(ctx context.Context, state IPPool) string {
 
 // End of section. //template:end toBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *IPPool) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() {
+		data.Name = types.StringValue(value.String())
+	} else if value := res.Get("ipPoolName"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
 	}
 	if value := res.Get("poolType"); value.Exists() {
 		data.PoolType = types.StringValue(value.String())
+	} else if value := res.Get("ipPoolType"); value.Exists() {
+		// Normalize type case: "generic" -> "Generic", "tunnel" -> "Tunnel"
+		poolType := value.String()
+		if poolType != "" {
+			poolType = strings.ToUpper(poolType[:1]) + strings.ToLower(poolType[1:])
+		}
+		data.PoolType = types.StringValue(poolType)
 	} else {
 		data.PoolType = types.StringNull()
 	}
+	// Handle subnet - parse from CIDR if needed
 	if value := res.Get("addressSpace.subnet"); value.Exists() {
 		data.AddressSpaceSubnet = types.StringValue(value.String())
+	} else if value := res.Get("ipPoolCidr"); value.Exists() {
+		// Parse CIDR notation: "192.168.0.0/16" -> "192.168.0.0"
+		cidr := value.String()
+		if parts := strings.Split(cidr, "/"); len(parts) >= 1 {
+			data.AddressSpaceSubnet = types.StringValue(parts[0])
+		} else {
+			data.AddressSpaceSubnet = types.StringValue(cidr)
+		}
 	} else {
 		data.AddressSpaceSubnet = types.StringNull()
 	}
+	// Handle prefix length - parse from CIDR if needed
 	if value := res.Get("addressSpace.prefixLength"); value.Exists() {
 		data.AddressSpacePrefixLength = types.Int64Value(value.Int())
+	} else if value := res.Get("ipPoolCidr"); value.Exists() {
+		// Parse CIDR notation: "192.168.0.0/16" -> 16
+		cidr := value.String()
+		if parts := strings.Split(cidr, "/"); len(parts) == 2 {
+			if prefix, err := strconv.ParseInt(parts[1], 10, 64); err == nil {
+				data.AddressSpacePrefixLength = types.Int64Value(prefix)
+			} else {
+				data.AddressSpacePrefixLength = types.Int64Null()
+			}
+		} else {
+			data.AddressSpacePrefixLength = types.Int64Null()
+		}
 	} else {
 		data.AddressSpacePrefixLength = types.Int64Null()
 	}
+	// Handle gateway - extract first element from array if needed
 	if value := res.Get("addressSpace.gatewayIpAddress"); value.Exists() {
 		data.AddressSpaceGateway = types.StringValue(value.String())
+	} else if value := res.Get("gateways"); value.Exists() {
+		// Extract first gateway from array
+		if value.IsArray() && len(value.Array()) > 0 {
+			data.AddressSpaceGateway = types.StringValue(value.Array()[0].String())
+		} else {
+			data.AddressSpaceGateway = types.StringNull()
+		}
 	} else {
 		data.AddressSpaceGateway = types.StringNull()
 	}
 	if value := res.Get("addressSpace.dhcpServers"); value.Exists() && len(value.Array()) > 0 {
+		data.AddressSpaceDhcpServers = helpers.GetStringSet(value.Array())
+	} else if value := res.Get("dhcpServerIps"); value.Exists() && len(value.Array()) > 0 {
 		data.AddressSpaceDhcpServers = helpers.GetStringSet(value.Array())
 	} else {
 		data.AddressSpaceDhcpServers = types.SetNull(types.StringType)
 	}
 	if value := res.Get("addressSpace.dnsServers"); value.Exists() && len(value.Array()) > 0 {
 		data.AddressSpaceDnsServers = helpers.GetStringSet(value.Array())
-	} else {
-		data.AddressSpaceDnsServers = types.SetNull(types.StringType)
-	}
-}
-
-// End of section. //template:end fromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *IPPool) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
-		data.Name = types.StringValue(value.String())
-	} else {
-		data.Name = types.StringNull()
-	}
-	if value := res.Get("poolType"); value.Exists() && !data.PoolType.IsNull() {
-		data.PoolType = types.StringValue(value.String())
-	} else {
-		data.PoolType = types.StringNull()
-	}
-	if value := res.Get("addressSpace.subnet"); value.Exists() && !data.AddressSpaceSubnet.IsNull() {
-		data.AddressSpaceSubnet = types.StringValue(value.String())
-	} else {
-		data.AddressSpaceSubnet = types.StringNull()
-	}
-	if value := res.Get("addressSpace.prefixLength"); value.Exists() && !data.AddressSpacePrefixLength.IsNull() {
-		data.AddressSpacePrefixLength = types.Int64Value(value.Int())
-	} else {
-		data.AddressSpacePrefixLength = types.Int64Null()
-	}
-	if value := res.Get("addressSpace.gatewayIpAddress"); value.Exists() && !data.AddressSpaceGateway.IsNull() {
-		data.AddressSpaceGateway = types.StringValue(value.String())
-	} else {
-		data.AddressSpaceGateway = types.StringNull()
-	}
-	if value := res.Get("addressSpace.dhcpServers"); value.Exists() && !data.AddressSpaceDhcpServers.IsNull() {
-		data.AddressSpaceDhcpServers = helpers.GetStringSet(value.Array())
-	} else {
-		data.AddressSpaceDhcpServers = types.SetNull(types.StringType)
-	}
-	if value := res.Get("addressSpace.dnsServers"); value.Exists() && !data.AddressSpaceDnsServers.IsNull() {
+	} else if value := res.Get("dnsServerIps"); value.Exists() && len(value.Array()) > 0 {
 		data.AddressSpaceDnsServers = helpers.GetStringSet(value.Array())
 	} else {
 		data.AddressSpaceDnsServers = types.SetNull(types.StringType)
 	}
 }
 
-// End of section. //template:end updateFromBody
+func (data *IPPool) updateFromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
+		data.Name = types.StringValue(value.String())
+	} else if value := res.Get("ipPoolName"); value.Exists() && !data.Name.IsNull() {
+		data.Name = types.StringValue(value.String())
+	} else {
+		data.Name = types.StringNull()
+	}
+	if value := res.Get("poolType"); value.Exists() && !data.PoolType.IsNull() {
+		data.PoolType = types.StringValue(value.String())
+	} else if value := res.Get("ipPoolType"); value.Exists() && !data.PoolType.IsNull() {
+		// Normalize type case: "generic" -> "Generic", "tunnel" -> "Tunnel"
+		poolType := value.String()
+		if poolType != "" {
+			poolType = strings.ToUpper(poolType[:1]) + strings.ToLower(poolType[1:])
+		}
+		data.PoolType = types.StringValue(poolType)
+	} else {
+		data.PoolType = types.StringNull()
+	}
+	// Handle subnet - parse from CIDR if needed
+	if value := res.Get("addressSpace.subnet"); value.Exists() && !data.AddressSpaceSubnet.IsNull() {
+		data.AddressSpaceSubnet = types.StringValue(value.String())
+	} else if value := res.Get("ipPoolCidr"); value.Exists() && !data.AddressSpaceSubnet.IsNull() {
+		// Parse CIDR notation: "192.168.0.0/16" -> "192.168.0.0"
+		cidr := value.String()
+		if parts := strings.Split(cidr, "/"); len(parts) >= 1 {
+			data.AddressSpaceSubnet = types.StringValue(parts[0])
+		} else {
+			data.AddressSpaceSubnet = types.StringValue(cidr)
+		}
+	} else {
+		data.AddressSpaceSubnet = types.StringNull()
+	}
+	// Handle prefix length - parse from CIDR if needed
+	if value := res.Get("addressSpace.prefixLength"); value.Exists() && !data.AddressSpacePrefixLength.IsNull() {
+		data.AddressSpacePrefixLength = types.Int64Value(value.Int())
+	} else if value := res.Get("ipPoolCidr"); value.Exists() && !data.AddressSpacePrefixLength.IsNull() {
+		// Parse CIDR notation: "192.168.0.0/16" -> 16
+		cidr := value.String()
+		if parts := strings.Split(cidr, "/"); len(parts) == 2 {
+			if prefix, err := strconv.ParseInt(parts[1], 10, 64); err == nil {
+				data.AddressSpacePrefixLength = types.Int64Value(prefix)
+			} else {
+				data.AddressSpacePrefixLength = types.Int64Null()
+			}
+		} else {
+			data.AddressSpacePrefixLength = types.Int64Null()
+		}
+	} else {
+		data.AddressSpacePrefixLength = types.Int64Null()
+	}
+	// Handle gateway - extract first element from array if needed
+	if value := res.Get("addressSpace.gatewayIpAddress"); value.Exists() && !data.AddressSpaceGateway.IsNull() {
+		data.AddressSpaceGateway = types.StringValue(value.String())
+	} else if value := res.Get("gateways"); value.Exists() && !data.AddressSpaceGateway.IsNull() {
+		// Extract first gateway from array
+		if value.IsArray() && len(value.Array()) > 0 {
+			data.AddressSpaceGateway = types.StringValue(value.Array()[0].String())
+		} else {
+			data.AddressSpaceGateway = types.StringNull()
+		}
+	} else {
+		data.AddressSpaceGateway = types.StringNull()
+	}
+	if value := res.Get("addressSpace.dhcpServers"); value.Exists() && !data.AddressSpaceDhcpServers.IsNull() {
+		data.AddressSpaceDhcpServers = helpers.GetStringSet(value.Array())
+	} else if value := res.Get("dhcpServerIps"); value.Exists() && !data.AddressSpaceDhcpServers.IsNull() {
+		data.AddressSpaceDhcpServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.AddressSpaceDhcpServers = types.SetNull(types.StringType)
+	}
+	if value := res.Get("addressSpace.dnsServers"); value.Exists() && !data.AddressSpaceDnsServers.IsNull() {
+		data.AddressSpaceDnsServers = helpers.GetStringSet(value.Array())
+	} else if value := res.Get("dnsServerIps"); value.Exists() && !data.AddressSpaceDnsServers.IsNull() {
+		data.AddressSpaceDnsServers = helpers.GetStringSet(value.Array())
+	} else {
+		data.AddressSpaceDnsServers = types.SetNull(types.StringType)
+	}
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *IPPool) isNull(ctx context.Context, res gjson.Result) bool {
