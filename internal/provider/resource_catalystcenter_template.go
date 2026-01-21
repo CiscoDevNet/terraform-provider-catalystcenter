@@ -209,7 +209,7 @@ func (r *TemplateResource) Schema(ctx context.Context, req resource.SchemaReques
 						},
 						"selection_values": schema.MapAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Selection values").String,
-							ElementType:         types.StringType,
+							ElementType:         types.ListType{ElemType: types.StringType},
 							Optional:            true,
 						},
 					},

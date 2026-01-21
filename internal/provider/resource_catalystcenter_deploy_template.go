@@ -149,7 +149,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 									},
 									"params": schema.MapAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Template params/values to be provisioned").String,
-										ElementType:         types.StringType,
+										ElementType:         types.ListType{ElemType: types.StringType},
 										Optional:            true,
 									},
 									"resource_params": schema.ListNestedAttribute{
@@ -214,7 +214,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 						},
 						"params": schema.MapAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Template params/values to be provisioned").String,
-							ElementType:         types.StringType,
+							ElementType:         types.ListType{ElemType: types.StringType},
 							Optional:            true,
 						},
 						"resource_params": schema.ListNestedAttribute{

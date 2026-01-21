@@ -126,7 +126,7 @@ Optional:
 - `required` (Boolean) Is parameter required
 - `selection_type` (String) Type of selection
   - Choices: `SINGLE_SELECT`, `MULTI_SELECT`
-- `selection_values` (Map of String) Selection values
+- `selection_values` (Map of List of String) Selection values
 
 <a id="nestedatt--template_params--ranges"></a>
 ### Nested Schema for `template_params.ranges`

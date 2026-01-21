@@ -155,9 +155,19 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
 					}
 					if !childItem.Params.IsNull() {
-						var values map[string]string
-						childItem.Params.ElementsAs(ctx, &values, false)
-						itemChildBody, _ = sjson.Set(itemChildBody, "params", values)
+						var listValues map[string]types.List
+						childItem.Params.ElementsAs(ctx, &listValues, false)
+						params := make(map[string]any)
+						for k, v := range listValues {
+							var strList []string
+							v.ElementsAs(ctx, &strList, false)
+							if len(strList) == 1 {
+								params[k] = strList[0]
+							} else {
+								params[k] = strList
+							}
+						}
+						itemChildBody, _ = sjson.Set(itemChildBody, "params", params)
 					}
 					if len(childItem.ResourceParams) > 0 {
 						itemChildBody, _ = sjson.Set(itemChildBody, "resourceParams", []interface{}{})
@@ -201,9 +211,19 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
 			if !item.Params.IsNull() {
-				var values map[string]string
-				item.Params.ElementsAs(ctx, &values, false)
-				itemBody, _ = sjson.Set(itemBody, "params", values)
+				var listValues map[string]types.List
+				item.Params.ElementsAs(ctx, &listValues, false)
+				params := make(map[string]any)
+				for k, v := range listValues {
+					var strList []string
+					v.ElementsAs(ctx, &strList, false)
+					if len(strList) == 1 {
+						params[k] = strList[0]
+					} else {
+						params[k] = strList
+					}
+				}
+				itemBody, _ = sjson.Set(itemBody, "params", params)
 			}
 			if len(item.ResourceParams) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "resourceParams", []interface{}{})
