@@ -247,8 +247,8 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	res, err := d.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}config.getPath(){{end}} + params)
 	{{- if .FallbackRestEndpoint}}
 	// Try fallback endpoint if primary fails with 404 or 500
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")  ){
-		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404, trying fallback endpoint", config.Id.ValueString()))
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", config.Id.ValueString()))
 		res, err = d.client.Get(config.getFallbackPath() + params)
 	}
 	{{- end}}
