@@ -654,6 +654,14 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
 	res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
+	{{- if .FallbackRestEndpoint }}
+
+	// Try fallback endpoint if primary fails with 404 or 500
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
+		res, err = r.client.Get(plan.getFallbackPath() + params)
+	}
+	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -686,6 +694,14 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
 	res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
+	{{- if .FallbackRestEndpoint }}
+
+	// Try fallback endpoint if primary fails with 404 or 500
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
+		res, err = r.client.Get(plan.getFallbackPath() + params)
+	}
+	{{- end}}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -795,6 +811,14 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	res, err := r.ReadCache(ctx, req, state, params)
 	{{- else}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
+	{{- end}}
+	{{- if .FallbackRestEndpoint }}
+
+	// Try fallback endpoint if primary fails with 404 or 500
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", state.Id.ValueString()))
+		res, err = r.client.Get(state.getFallbackPath() + params)
+	}
 	{{- end}}
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
@@ -1143,12 +1167,20 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		params += "{{.GetExtraQueryParams}}"
 		{{- end}}
 		res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
+		{{- if .FallbackRestEndpoint }}
+
+		// Try fallback endpoint if primary fails with 404 or 500
+		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
+			res, err = r.client.Get(plan.getFallbackPath() + params)
+		}
+		{{- end}}
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 			return
 		}
 
-		
+
 		// Populate missing IDs using fromBodyUnknowns
 		plan.fromBodyUnknowns(ctx, res)
 	}
@@ -1232,6 +1264,14 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		getParams += "{{.GetExtraQueryParams}}"
 		{{- end}}
 		getRes, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + getParams)
+		{{- if .FallbackRestEndpoint }}
+
+		// Try fallback endpoint if primary fails with 404 or 500
+		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", state.Id.ValueString()))
+			getRes, err = r.client.Get(state.getFallbackPath() + getParams)
+		}
+		{{- end}}
 		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 			resp.State.RemoveResource(ctx)
 			return

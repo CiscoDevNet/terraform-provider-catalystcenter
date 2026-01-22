@@ -1,5 +1,6 @@
 name: IP Pool
 rest_endpoint: /dna/intent/api/v1/ipam/globalIpAddressPools
+fallback_rest_endpoint: /dna/intent/api/v1/global-pool
 id_from_query_path: response
 id_from_query_path_attribute: id
 get_from_all: true
@@ -15,12 +16,14 @@ attributes:
   type: String
   mandatory: true
   match_id: true
+  fallback_response_model_name: ipPoolName
   description: The name for this global IP pool. Only letters, numbers, '-', '_', '.', and '/' are allowed.
   example: MyPool1
 - model_name: poolType
   type: String
   mandatory: true
   enum_values: [Generic, Tunnel]
+  fallback_response_model_name: ipPoolType
   description: The type of the global IP pool. Once created, this cannot be changed.
   example: Generic
 - model_name: subnet
@@ -31,6 +34,7 @@ attributes:
   description: The IP address component of the CIDR notation for this subnet.
   example: 192.168.0.0
   response_data_path: addressSpace.subnet
+  fallback_response_data_path: ipPoolCidr
 - model_name: prefixLength
   tf_name: address_space_prefix_length
   data_path: addressSpace
@@ -39,6 +43,7 @@ attributes:
   description: The network mask component, as a decimal, for the CIDR notation of this subnet.
   example: 16
   response_data_path: addressSpace.prefixLength
+  fallback_response_data_path: ipPoolCidr
 - model_name: gatewayIpAddress
   tf_name: address_space_gateway
   data_path: addressSpace
@@ -46,6 +51,7 @@ attributes:
   description: The gateway IP address for this subnet.
   example: 192.168.0.1
   response_data_path: addressSpace.gatewayIpAddress
+  fallback_response_model_name: gateways
 - model_name: dhcpServers
   tf_name: address_space_dhcp_servers
   data_path: addressSpace
@@ -54,6 +60,7 @@ attributes:
   description: The DHCP server(s) for this subnet.
   example: 192.168.0.10
   response_data_path: addressSpace.dhcpServers
+  fallback_response_model_name: dhcpServerIps
 - model_name: dnsServers
   tf_name: address_space_dns_servers
   data_path: addressSpace
@@ -62,3 +69,4 @@ attributes:
   description: The DNS server(s) for this subnet.
   example: 192.168.0.53
   response_data_path: addressSpace.dnsServers
+  fallback_response_model_name: dnsServerIps
