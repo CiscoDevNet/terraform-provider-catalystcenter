@@ -1,5 +1,6 @@
-## 0.4.8 (unreleased)
+## 0.5.0
 
+- Add workaround for inconsistent Catalyst Center API behavior in `catalystcenter_ip_pool` and `catalystcenter_ip_pool_reservation` resources. The provider retries with an alternative endpoint when the primary returns 404 or 500 errors
 - BREAKING CHANGE: Modify `params` and `selection_values` attributes in `catalystcenter_deploy_template` and `catalystcenter_template` resources from `Map of String` to `Map of List of String` to support both single and multiple values. Single-element lists are automatically converted to strings when sent to the API for backward compatibility with existing templates
 - Add `catalystcenter_global_credential_netconf` resource and data source for managing NETCONF device credentials
 - Fix DELETE operation for `catalystcenter_aaa_settings`, `catalystcenter_banner_settings`, `catalystcenter_dhcp_settings`, `catalystcenter_dns_settings`, `catalystcenter_ntp_settings`, `catalystcenter_telemetry_settings`, and `catalystcenter_timezone_settings` resources to send properly structured empty bodies instead of `{}`, resolving NCND* empty input errors
