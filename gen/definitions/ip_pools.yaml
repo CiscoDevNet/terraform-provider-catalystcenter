@@ -1,6 +1,7 @@
 ---
 name: IP Pools
 rest_endpoint: /dna/intent/api/v1/ipam/globalIpAddressPools
+fallback_rest_endpoint: /dna/intent/api/v1/global-pool
 # manually managed data source
 ds_description:
   "This data source fetches all global ip pools defined on the Catalyst Center.
