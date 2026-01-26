@@ -1,7 +1,7 @@
 ## 0.5.1 (unreleased)
 
 - Update `go-catalystcenter` SDK dependency to `v0.1.10` to support automatic reauthentication of expired tokens
-
+- Add workaround for inconsistent Catalyst Center API behavior in `catalystcenter_ip_pools` data source. The provider retries with an alternative endpoint when the primary returns 404 or 500 errors
 
 ## 0.5.0
 
