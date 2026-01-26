@@ -20,6 +20,8 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -50,6 +52,14 @@ func (data IPPools) getPath() string {
 
 // End of section. //template:end getPath
 
+// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
+
+func (data IPPools) getFallbackPath() string {
+	return "/dna/intent/api/v1/global-pool"
+}
+
+// End of section. //template:end getFallbackPath
+
 func (data *IPPools) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response"); value.Exists() && len(value.Array()) > 0 {
 		data.Pools = make([]IPPoolsPools, 0)
@@ -62,35 +72,71 @@ func (data *IPPools) fromBody(ctx context.Context, res gjson.Result) {
 			}
 			if cValue := v.Get("name"); cValue.Exists() {
 				item.Name = types.StringValue(cValue.String())
+			} else if cValue := v.Get("ipPoolName"); cValue.Exists() {
+				item.Name = types.StringValue(cValue.String())
 			} else {
 				item.Name = types.StringNull()
 			}
 			if cValue := v.Get("poolType"); cValue.Exists() {
 				item.PoolType = types.StringValue(cValue.String())
+			} else if cValue := v.Get("ipPoolType"); cValue.Exists() {
+				poolType := cValue.String()
+				if poolType != "" {
+					poolType = strings.ToUpper(poolType[:1]) + strings.ToLower(poolType[1:])
+				}
+				item.PoolType = types.StringValue(poolType)
 			} else {
 				item.PoolType = types.StringValue("generic")
 			}
 			if cValue := v.Get("addressSpace.gatewayIpAddress"); cValue.Exists() {
 				item.GatewayIpAddress = types.StringValue(cValue.String())
+			} else if cValue := v.Get("gateways"); cValue.Exists() {
+				if cValue.IsArray() && len(cValue.Array()) > 0 {
+					item.GatewayIpAddress = types.StringValue(cValue.Array()[0].String())
+				} else {
+					item.GatewayIpAddress = types.StringNull()
+				}
 			} else {
 				item.GatewayIpAddress = types.StringNull()
 			}
 			if cValue := v.Get("addressSpace.subnet"); cValue.Exists() {
 				item.Subnet = types.StringValue(cValue.String())
+			} else if cValue := v.Get("ipPoolCidr"); cValue.Exists() {
+				cidr := cValue.String()
+				if parts := strings.Split(cidr, "/"); len(parts) >= 1 {
+					item.Subnet = types.StringValue(parts[0])
+				} else {
+					item.Subnet = types.StringValue(cidr)
+				}
 			} else {
 				item.Subnet = types.StringNull()
 			}
 			if cValue := v.Get("addressSpace.prefixLength"); cValue.Exists() {
 				item.PrefixLength = types.StringValue(cValue.String())
+			} else if cValue := v.Get("ipPoolCidr"); cValue.Exists() {
+				cidr := cValue.String()
+				if parts := strings.Split(cidr, "/"); len(parts) == 2 {
+					if _, err := strconv.ParseInt(parts[1], 10, 64); err == nil {
+						item.PrefixLength = types.StringValue(parts[1])
+					} else {
+						item.PrefixLength = types.StringNull()
+					}
+				} else {
+					item.PrefixLength = types.StringNull()
+				}
 			} else {
 				item.PrefixLength = types.StringNull()
 			}
 			if cValue := v.Get("addressSpace.dhcpServers"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.DhcpServers = helpers.GetStringSet(cValue.Array())
+			} else if cValue := v.Get("dhcpServerIps"); cValue.Exists() && len(cValue.Array()) > 0 {
+				item.DhcpServers = helpers.GetStringSet(cValue.Array())
 			} else {
 				item.DhcpServers = types.SetNull(types.StringType)
 			}
 			if cValue := v.Get("addressSpace.dnsServers"); cValue.Exists() && len(cValue.Array()) > 0 {
+				item.DnsServers = helpers.GetStringSet(cValue.Array())
+			} else if cValue := v.Get("dnsServerIps"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.DnsServers = helpers.GetStringSet(cValue.Array())
 			} else {
 				item.DnsServers = types.SetNull(types.StringType)

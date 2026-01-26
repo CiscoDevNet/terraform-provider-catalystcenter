@@ -21,6 +21,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -127,6 +128,10 @@ func (d *IPPoolsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	params := ""
 	res, err := d.client.Get(config.getPath() + params)
+	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
+		tflog.Debug(ctx, "Primary endpoint returned 404 or 500, trying fallback endpoint")
+		res, err = d.client.Get(config.getFallbackPath() + params)
+	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
