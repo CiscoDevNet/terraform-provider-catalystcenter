@@ -73,6 +73,9 @@ func (r *TemplateVersionResource) Schema(ctx context.Context, req resource.Schem
 			"template_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("UUID of template").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"comments": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Template version comments").String,

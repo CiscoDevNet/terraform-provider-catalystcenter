@@ -9,6 +9,7 @@ doc_category: Templates
 attributes:
   - model_name: templateId
     type: String
+    requires_replace: true
     query_param: true
     data_source_query: true
     response_data_path: 0.templateId
