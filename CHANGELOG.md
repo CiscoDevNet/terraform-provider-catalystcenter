@@ -1,4 +1,4 @@
-## 0.5.1 (unreleased)
+## 0.5.1
 
 - Fix `catalystcenter_template_version` resource to properly replace the resource when `template_id` is changed
 - Update `go-catalystcenter` SDK dependency to `v0.1.11` to support automatic reauthentication of expired tokens
