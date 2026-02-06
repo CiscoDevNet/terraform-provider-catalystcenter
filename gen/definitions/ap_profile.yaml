@@ -1,0 +1,438 @@
+---
+name: AP Profile
+rest_endpoint: /dna/intent/api/v1/wirelessSettings/apProfiles
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+data_source_no_id: true
+import_no_id: true
+put_id: true
+res_description: This resource manages an Access Point (AP) Profile in wireless settings.
+doc_category: Wireless
+attributes:
+  - model_name: apProfileName
+    type: String
+    query_param: true
+    mandatory: true
+    string_max_length: 32
+    description: Name of the Access Point profile. Max length is 32 characters.
+    response_data_path: response.0.apProfileName
+    example: AP_Profile_1
+  - model_name: description
+    type: String
+    string_max_length: 241
+    description: Description of the AP profile. Max length is 241 characters
+    response_data_path: response.0.description
+    example: My AP Profile Description
+  - model_name: remoteWorkerEnabled
+    type: Bool
+    default_value: false
+    description: Indicates if remote worker mode is enabled on the AP. Remote teleworker enabled profile cannot support security features like aWIPS, Forensic Capture Enablement, Rogue Detection and Rogue Containment.
+    response_data_path: response.0.remoteWorkerEnabled
+    example: false
+  - model_name: authType
+    data_path: managementSetting
+    type: String
+    default_value: "NO-AUTH"
+    enum_values:
+      - NO-AUTH
+      - EAP-TLS
+      - EAP-PEAP
+      - EAP-FAST
+    description: Authentication type used in the AP profile. These settings are applicable during PnP claim and for day-N authentication of AP. Changing these settings will be service impacting for the PnP onboarded APs and will need a factory-reset for those APs.
+    response_data_path: response.0.managementSetting.authType
+    exclude_test: true
+  - model_name: dot1xUsername
+    data_path: managementSetting
+    type: String
+    string_min_length: 1
+    string_max_length: 32
+    description: Username for 802.1X authentication. dot1xUsername must have a minimum of 1 character and a maximum of 32 characters.
+    response_data_path: response.0.managementSetting.dot1xUsername
+    exclude_test: true
+  - model_name: dot1xPassword
+    data_path: managementSetting
+    type: String
+    string_max_length: 120
+    description: Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+    response_data_path: response.0.managementSetting.dot1xPassword
+    write_only: true
+    exclude_test: true
+  - model_name: sshEnabled
+    data_path: managementSetting
+    type: Bool
+    default_value: false
+    description: Indicates if SSH is enabled on the AP. Enable SSH to add credentials for device management.
+    response_data_path: response.0.managementSetting.sshEnabled
+    exclude_test: true
+  - model_name: telnetEnabled
+    data_path: managementSetting
+    type: Bool
+    default_value: false
+    description: Indicates if Telnet is enabled on the AP. Enable Telnet to add credentials for device management.
+    response_data_path: response.0.managementSetting.telnetEnabled
+    exclude_test: true
+  - model_name: managementUserName
+    data_path: managementSetting
+    type: String
+    string_min_length: 1
+    string_max_length: 32
+    description: Management username must have a minimum of 1 character and a maximum of 32 characters.
+    response_data_path: response.0.managementSetting.managementUserName
+    exclude_test: true
+  - model_name: managementPassword
+    data_path: managementSetting
+    type: String
+    string_min_length: 8
+    string_max_length: 120
+    description: Management password for the AP. Length must be 8-120 characters.
+    response_data_path: response.0.managementSetting.managementPassword
+    write_only: true
+    exclude_test: true
+  - model_name: managementEnablePassword
+    data_path: managementSetting
+    type: String
+    string_min_length: 8
+    string_max_length: 120
+    description: Enable password for managing the AP. Length must be 8-120 characters.
+    response_data_path: response.0.managementSetting.managementEnablePassword
+    write_only: true
+    exclude_test: true
+  - model_name: cdpState
+    data_path: managementSetting
+    type: Bool
+    default_value: false
+    description: Indicates if CDP is enabled on the AP. Enable CDP in order to make Cisco Access Points known to its neighboring devices and vice-versa.
+    response_data_path: response.0.managementSetting.cdpState
+    exclude_test: true
+  - model_name: awipsEnabled
+    type: Bool
+    default_value: false
+    description: Indicates if AWIPS is enabled on the AP.
+    response_data_path: response.0.awipsEnabled
+    example: false
+  - model_name: awipsForensicEnabled
+    type: Bool
+    default_value: false
+    description: Indicates if AWIPS forensic is enabled on the AP. Forensic Capture is supported from IOS-XE version 17.4 and above. Forensic Capture can be activated only if aWIPS is enabled.
+    response_data_path: response.0.awipsForensicEnabled
+    example: false
+  - model_name: rogueDetection
+    data_path: rogueDetectionSetting
+    type: Bool
+    default_value: false
+    description: Indicates if rogue detection is enabled on the AP. Detect Access Points that have been installed on a secure network without explicit authorization from a system administrator and configure rogue general configuration parameters
+    response_data_path: response.0.rogueDetectionSetting.rogueDetection
+    exclude_test: true
+  - model_name: rogueDetectionMinRssi
+    data_path: rogueDetectionSetting
+    type: Int64
+    min_int: -128
+    max_int: -70
+    default_value: -90
+    description: Minimum RSSI for rogue detection. Value should be in range -128 decibel milliwatts and -70 decibel milliwatts
+    response_data_path: response.0.rogueDetectionSetting.rogueDetectionMinRssi
+    exclude_test: true
+  - model_name: rogueDetectionTransientInterval
+    data_path: rogueDetectionSetting
+    type: Int64
+    default_value: 0
+    description: Transient interval for rogue detection. Value should be 0 or from 120 to 1800.
+    response_data_path: response.0.rogueDetectionSetting.rogueDetectionTransientInterval
+    exclude_test: true
+  - model_name: rogueDetectionReportInterval
+    data_path: rogueDetectionSetting
+    type: Int64
+    min_int: 10
+    max_int: 300
+    default_value: 10
+    description: Report interval for rogue detection. Value should be in range 10 and 300.
+    response_data_path: response.0.rogueDetectionSetting.rogueDetectionReportInterval
+    exclude_test: true
+  - model_name: pmfDenialEnabled
+    type: Bool
+    default_value: false
+    description: Indicates if PMF denial is active on the AP. PMF Denial is supported from IOS-XE version 17.12 and above.
+    response_data_path: response.0.pmfDenialEnabled
+    example: false
+  - model_name: meshEnabled
+    type: Bool
+    default_value: false
+    description: This indicates whether mesh networking is enabled on the AP. For IOS-XE devices, when mesh networking is enabled, a custom mesh profile with the configured parameters will be created and mapped to the AP join profile on the device. When mesh networking is disabled, any existing custom mesh profile will be deleted from the device, and the AP join profile will be mapped to the default mesh profile on the device.
+    response_data_path: response.0.meshEnabled
+    example: false
+  - model_name: bridgeGroupName
+    data_path: meshSetting
+    type: String
+    description: Name of the bridge group for mesh settings. If not configured, 'Default' Bridge group name will be used in mesh profile.
+    response_data_path: response.0.meshSetting.bridgeGroupName
+    exclude_test: true
+  - model_name: backhaulClientAccess
+    data_path: meshSetting
+    type: Bool
+    description: Indicates if backhaul client access is enabled on the AP.
+    response_data_path: response.0.meshSetting.backhaulClientAccess
+    exclude_test: true
+  - model_name: range
+    data_path: meshSetting
+    type: Int64
+    min_int: 150
+    max_int: 132000
+    description: Range of the mesh network. Value should be between 150-132000
+    response_data_path: response.0.meshSetting.range
+    exclude_test: true
+  - model_name: ghz5BackhaulDataRates
+    data_path: meshSetting
+    type: String
+    enum_values:
+      - auto
+      - 802.11abg
+      - 802.12ac
+      - 802.11ax
+      - 802.11n
+    description: 5GHz backhaul data rates.
+    response_data_path: response.0.meshSetting.ghz5BackhaulDataRates
+    exclude_test: true
+  - model_name: ghz24BackhaulDataRates
+    data_path: meshSetting
+    type: String
+    enum_values:
+      - auto
+      - 802.11abg
+      - 802.11ax
+      - 802.11n
+    description: 2.4GHz backhaul data rates.
+    response_data_path: response.0.meshSetting.ghz24BackhaulDataRates
+    exclude_test: true
+  - model_name: rapDownlinkBackhaul
+    data_path: meshSetting
+    type: String
+    enum_values:
+      - 5 GHz
+      - 2.4 GHz
+    description: Type of downlink backhaul used.
+    response_data_path: response.0.meshSetting.rapDownlinkBackhaul
+    exclude_test: true
+  - model_name: apPowerProfileName
+    type: String
+    description: Name of the existing AP power profile.
+    response_data_path: response.0.apPowerProfileName
+    exclude_test: true
+  - model_name: powerProfileName
+    data_path: calendarPowerProfiles
+    type: String
+    description: Name of the existing AP power profile to be mapped to the calendar power profile. API-/intent/api/v1/wirelessSettings/powerProfiles.
+    response_data_path: response.0.calendarPowerProfiles.powerProfileName
+    exclude_test: true
+  - model_name: schedulerType
+    data_path: calendarPowerProfiles
+    type: String
+    enum_values:
+      - DAILY
+      - WEEKLY
+      - MONTHLY
+    description: Type of the scheduler.
+    response_data_path: response.0.calendarPowerProfiles.schedulerType
+    exclude_test: true
+  - model_name: schedulerStartTime
+    data_path: calendarPowerProfiles.duration
+    type: String
+    description: Start time of the duration setting.
+    response_data_path: response.0.calendarPowerProfiles.duration.schedulerStartTime
+    exclude_test: true
+  - model_name: schedulerEndTime
+    data_path: calendarPowerProfiles.duration
+    type: String
+    description: End time of the duration setting.
+    response_data_path: response.0.calendarPowerProfiles.duration.schedulerEndTime
+    exclude_test: true
+  - model_name: schedulerDay
+    data_path: calendarPowerProfiles.duration
+    type: String
+    description: Applies every week on the selected days
+    response_data_path: response.0.calendarPowerProfiles.duration.schedulerDay
+    exclude_test: true
+  - model_name: schedulerDate
+    data_path: calendarPowerProfiles.duration
+    type: String
+    description: Start and End date of the duration setting, applicable for MONTHLY schedulers.
+    response_data_path: response.0.calendarPowerProfiles.duration.schedulerDate
+    exclude_test: true
+  - model_name: countryCode
+    type: String
+    enum_values:
+      - AF
+      - AE
+      - AL
+      - AR
+      - AT
+      - AO
+      - AU
+      - BD
+      - BA
+      - BB
+      - BE
+      - BG
+      - BH
+      - BM
+      - BN
+      - BO
+      - BR
+      - BT
+      - BY
+      - CA
+      - CD
+      - CH
+      - CI
+      - CL
+      - CM
+      - CN
+      - CO
+      - CR
+      - CU
+      - CY
+      - CZ
+      - DE
+      - DK
+      - DO
+      - DZ
+      - EC
+      - EE
+      - EG
+      - EL
+      - ES
+      - ET
+      - FI
+      - FJ
+      - FR
+      - GB
+      - GH
+      - GI
+      - GE
+      - GR
+      - GT
+      - HK
+      - HN
+      - HR
+      - HU
+      - ID
+      - IE
+      - IL
+      - IN
+      - IQ
+      - IS
+      - IT
+      - J2
+      - J4
+      - JM
+      - JO
+      - KE
+      - KH
+      - KN
+      - KW
+      - KZ
+      - LA
+      - LB
+      - LI
+      - LK
+      - LT
+      - LU
+      - LV
+      - LY
+      - MA
+      - MC
+      - MD
+      - ME
+      - MK
+      - MN
+      - MM
+      - MO
+      - MT
+      - MX
+      - MY
+      - NG
+      - NI
+      - NL
+      - NO
+      - NP
+      - NZ
+      - OM
+      - PA
+      - PE
+      - PH
+      - PK
+      - PL
+      - PR
+      - PT
+      - PY
+      - QA
+      - RO
+      - RS
+      - RU
+      - SA
+      - SD
+      - SE
+      - SG
+      - SI
+      - SK
+      - SM
+      - TH
+      - TI
+      - TN
+      - TR
+      - TW
+      - TZ
+      - UA
+      - US
+      - UY
+      - VA
+      - VE
+      - VN
+      - XK
+      - YE
+      - ZA
+      - ZW
+      - MU
+      - ZM
+      - BI
+      - NA
+      - BW
+      - GA
+      - UG
+      - UZ
+    description: Country code for the AP profile.
+    response_data_path: response.0.countryCode
+    exclude_test: true
+  - model_name: timeZone
+    type: String
+    default_value: "NOT CONFIGURED"
+    enum_values:
+      - Not Configured
+      - Controller
+      - Delta from Controller
+    description: In the Time Zone area, choose one of the following options. Not Configured - APs operate in the UTC time zone. Controller - APs operate in the Cisco Wireless Controller time zone. Delta from Controller - APs operate in the offset time from the wireless controller time zone.
+    response_data_path: response.0.timeZone
+    exclude_test: true
+  - model_name: timeZoneOffsetHour
+    type: Int64
+    min_int: -12
+    max_int: 14
+    default_value: 0
+    description: Enter the hour value (HH). The valid range is from -12 through 14.
+    response_data_path: response.0.timeZoneOffsetHour
+    exclude_test: true
+  - model_name: timeZoneOffsetMinutes
+    type: Int64
+    min_int: 0
+    max_int: 59
+    default_value: 0
+    description: Enter the minute value (MM). The valid range is from 0 through 59.
+    response_data_path: response.0.timeZoneOffsetMinutes
+    exclude_test: true
+  - model_name: clientLimit
+    type: Int64
+    min_int: 0
+    max_int: 1200
+    default_value: 0
+    description: Number of clients. Value should be between 0-1200.
+    response_data_path: response.0.clientLimit
+    exclude_test: true
