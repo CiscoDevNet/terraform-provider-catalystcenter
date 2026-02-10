@@ -1,0 +1,51 @@
+---
+name: Dot11be Profile
+rest_endpoint: /dna/intent/api/v1/wirelessSettings/dot11beProfiles
+get_rest_endpoint: /dna/intent/api/v1/wirelessSettings/dot11beProfiles
+delete_rest_endpoint: /dna/intent/api/v1/wirelessSettings/dot11beProfiles
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+data_source_no_id: true
+put_id: true
+import_no_id: true
+mutex: true
+res_description: This resource manages an 802.11be Profile. These profiles configure WiFi 7 parameters such as OFDMA and MU-MIMO for downlink and uplink.
+doc_category: Wireless
+attributes:
+- model_name: profileName
+  type: String
+  query_param: true
+  mandatory: true
+  description: 802.11be Profile Name
+  example: dot11be_profile_1
+  response_data_path: response.0.profileName
+- model_name: ofdmaDownLink
+  type: Bool
+  default_value: true
+  description: OFDMA Downlink
+  example: true
+  response_data_path: response.0.ofdmaDownLink
+- model_name: ofdmaUpLink
+  type: Bool
+  default_value: true
+  description: OFDMA Uplink
+  example: true
+  response_data_path: response.0.ofdmaUpLink
+- model_name: muMimoDownLink
+  type: Bool
+  default_value: false
+  description: MU-MIMO Downlink
+  example: false
+  response_data_path: response.0.muMimoDownLink
+- model_name: muMimoUpLink
+  type: Bool
+  default_value: false
+  description: MU-MIMO Uplink
+  example: false
+  response_data_path: response.0.muMimoUpLink
+- model_name: ofdmaMultiRu
+  type: Bool
+  default_value: false
+  description: OFDMA Multi-RU
+  example: false
+  response_data_path: response.0.ofdmaMultiRu
