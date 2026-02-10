@@ -1,4 +1,4 @@
-## 0.5.2 (unreleased)
+## 0.5.2
 
 - Add `catalystcenter_dot11be_profile` resource and data source
 - Add `catalystcenter_ap_profile` resource and data source
