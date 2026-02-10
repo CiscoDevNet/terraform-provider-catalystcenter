@@ -1,3 +1,8 @@
+## 0.5.2 (unreleased)
+
+- Add `catalystcenter_dot11be_profile` resource and data source
+- Add `catalystcenter_ap_profile` resource and data source
+
 ## 0.5.1
 
 - Fix `catalystcenter_template_version` resource to properly replace the resource when `template_id` is changed
