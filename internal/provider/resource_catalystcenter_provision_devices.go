@@ -461,8 +461,11 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 					data.ForEach(func(_, device gjson.Result) bool {
 						dev := ProvisionDevicesProvisionDevices{}
 
-						if id := device.Get("id"); id.Exists() {
+						// Skip devices without valid IDs
+						if id := device.Get("id"); id.Exists() && id.String() != "" {
 							dev.Id = types.StringValue(id.String())
+						} else {
+							return true // skip this device
 						}
 						if site := device.Get("siteId"); site.Exists() {
 							dev.SiteId = types.StringValue(site.String())
