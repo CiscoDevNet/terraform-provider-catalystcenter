@@ -1058,9 +1058,17 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	if len(toDelete.{{toGoName $items}}) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.{{toGoName $items}})))
 		for _, v := range toDelete.{{toGoName $items}} {
+			{{- if .SkipDeleteOnEmptyId}}
+			// Skip delete if ID is empty or null to prevent sending DELETE to base endpoint
+			if v.Id.IsNull() || v.Id.IsUnknown() || v.Id.ValueString() == "" {
+				tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for item - ID is empty or null", state.Id.ValueString()))
+				continue
+			}
+			{{- else}}
 			if v.Id.IsNull() {
 				continue // Skip if id is null
 			}
+			{{- end}}
 			res, err := r.client.Delete(plan.getPath() + "/" + url.QueryEscape(v.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 			if err != nil {
 			{{- if .DeviceUnreachabilityWarning}}
@@ -1425,6 +1433,13 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- end}}
 	{{- end}}
 	for _, v := range state.{{toGoName $items}} {
+		{{- if $.SkipDeleteOnEmptyId}}
+		// Skip delete if ID is empty or null to prevent sending DELETE to base endpoint
+		if v.Id.IsNull() || v.Id.IsUnknown() || v.Id.ValueString() == "" {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for item - ID is empty or null", state.Id.ValueString()))
+			continue
+		}
+		{{- end}}
 		res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(v.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 		if err != nil {
 		{{- if .DeviceUnreachabilityWarning}}
@@ -1455,6 +1470,14 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- end}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
+	{{- if .SkipDeleteOnEmptyId}}
+	// Skip delete if ID is empty or null to prevent sending DELETE to base endpoint
+	if state.Id.IsNull() || state.Id.IsUnknown() || state.Id.ValueString() == "" {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete - ID is empty or null", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	{{- end}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	{{- if not .DeleteIterative }}

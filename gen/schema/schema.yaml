@@ -52,6 +52,7 @@ mutex: bool(required=False) # If true, adds a mutex to the resource to prevent m
 allow_existing_on_create: bool(required=False) # If true, creation of resource already existing in target does not fail, but update it to match datamodel instead.
 use_cache: bool(required=False) # Whether to use internal caching for get requests. Especially effective when state has many instances of this particular resource
 cache_rest_endpoint: str(required=False) # Override GET REST endpoint path for cached data
+skip_delete_on_empty_id: bool(required=False) # If true, skip DELETE request when ID is empty or null to prevent sending DELETE to base endpoint
 ---
 attribute:
   model_name: str(required=False) # Name of the attribute in the model (payload)

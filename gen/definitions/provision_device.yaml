@@ -10,6 +10,7 @@ put_id_include_path: "0.id"
 put_no_id: true
 device_unreachability_warning: true
 allow_existing_on_create: true
+skip_delete_on_empty_id: true
 doc_category: Inventory
 mutex: true
 test_tags: [INVENTORY]
