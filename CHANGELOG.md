@@ -1,7 +1,7 @@
 ## 0.5.3 (unreleased)
 
+- **CRITICAL FIX**: Prevent DELETE requests to base endpoint when device ID is empty or null in `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources. Previously, empty IDs could result in DELETE requests to `/sda/provisionDevices/`, which the API could interpret as deleting all provisioned devices. The provider now skips delete operations for resources with empty IDs and fails provisioning if device ID cannot be retrieved
 - BREAKING CHANGE: Update `auth_type` enum value from `OPEN_SECURED` to `OPEN-SECURED` in `catalystcenter_wireless_ssid` resource to match API specification
-- Fix to prevent DELETE requests to base endpoint when device ID is empty or null
 
 
 ## 0.5.2
