@@ -9,6 +9,7 @@ id_from_attribute: true
 delete_iterative: true
 device_unreachability_warning: true
 skip_minimum_test: true
+skip_delete_on_empty_id: true
 allow_existing_on_create: true
 doc_category: Inventory
 mutex: true
