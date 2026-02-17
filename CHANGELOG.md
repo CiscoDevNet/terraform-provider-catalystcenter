@@ -1,7 +1,7 @@
 ## 0.5.3 (unreleased)
 
+- Fix `catalystcenter_assign_credentials` resource with multiple improvements: automatically retry when encountering "Global Settings Save is in progress" error (NCND00010) by waiting 15 seconds and retrying once; include all credential types in request payload even when null to resolve API error when assigning credentials at global level
 - Fix `catalystcenter_deploy_template` resource to properly handle updates to composite template `member_template_deployment_info`, including `redeploy` parameter changes and template variable modifications. Previously, changes to member template configurations were ignored during updates, causing composite templates to not redeploy when member attributes changed
-- Fix `catalystcenter_assign_credentials` resource to include all credential types in request payload, even when null, to resolve API error when assigning credentials at global level
 - **CRITICAL FIX**: Prevent DELETE requests to base endpoint when device ID is empty or null in `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources. Previously, empty IDs could result in DELETE requests to `/sda/provisionDevices/`, which the API could interpret as deleting all provisioned devices. The provider now skips delete operations for resources with empty IDs and fails provisioning if device ID cannot be retrieved
 - BREAKING CHANGE: Update `auth_type` enum value from `OPEN_SECURED` to `OPEN-SECURED` in `catalystcenter_wireless_ssid` resource to match API specification
 
