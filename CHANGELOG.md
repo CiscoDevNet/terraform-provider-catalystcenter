@@ -1,3 +1,8 @@
+## 0.5.3 (unreleased)
+
+- BREAKING CHANGE: Update `auth_type` enum value from `OPEN_SECURED` to `OPEN-SECURED` in `catalystcenter_wireless_ssid` resource to match API specification
+
+
 ## 0.5.2
 
 - Add `catalystcenter_dot11be_profile` resource and data source
