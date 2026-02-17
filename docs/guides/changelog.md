@@ -9,6 +9,7 @@ description: |-
 
 ## 0.5.3 (unreleased)
 
+- Fix `catalystcenter_assign_credentials` resource to include all credential types in request payload, even when null, to resolve API error when assigning credentials at global level
 - BREAKING CHANGE: Update `auth_type` enum value from `OPEN_SECURED` to `OPEN-SECURED` in `catalystcenter_wireless_ssid` resource to match API specification
 
 
