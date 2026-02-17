@@ -10,6 +10,7 @@ description: |-
 ## 0.5.3 (unreleased)
 
 - BREAKING CHANGE: Update `auth_type` enum value from `OPEN_SECURED` to `OPEN-SECURED` in `catalystcenter_wireless_ssid` resource to match API specification
+- Fix to prevent DELETE requests to base endpoint when device ID is empty or null
 
 
 ## 0.5.2
