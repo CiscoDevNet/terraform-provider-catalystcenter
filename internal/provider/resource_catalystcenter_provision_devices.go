@@ -189,6 +189,7 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 						if id := device.Get("id"); id.Exists() && id.String() != "" {
 							dev.Id = types.StringValue(id.String())
 						} else {
+							tflog.Warn(ctx, fmt.Sprintf("Skipping device without valid ID during Create (networkDeviceId: %s, siteId: %s)", device.Get("networkDeviceId").String(), device.Get("siteId").String()))
 							return true // skip this device
 						}
 						if site := device.Get("siteId"); site.Exists() {
@@ -401,7 +402,7 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 			verifyParams := "?networkDeviceId=" + url.QueryEscape(v.NetworkDeviceId.ValueString())
 			verifyRes, verifyErr := r.client.Get(plan.getPath() + verifyParams)
 			if verifyErr != nil || !verifyRes.Get("response.0.id").Exists() || verifyRes.Get("response.0.id").String() != v.Id.ValueString() {
-				tflog.Debug(ctx, fmt.Sprintf("%s: Device %s not found or ID mismatch during delete verification, skipping delete", state.Id.ValueString(), v.Id.ValueString()))
+				tflog.Warn(ctx, "Device has empty ID during update - cannot delete from Catalyst Center. Device may still exist in Catalyst Center.")
 				continue
 			}
 			tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
@@ -475,6 +476,7 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 						if id := device.Get("id"); id.Exists() && id.String() != "" {
 							dev.Id = types.StringValue(id.String())
 						} else {
+							tflog.Warn(ctx, fmt.Sprintf("Skipping device without valid ID during Update (networkDeviceId: %s, siteId: %s)", device.Get("networkDeviceId").String(), device.Get("siteId").String()))
 							return true // skip this device
 						}
 						if site := device.Get("siteId"); site.Exists() {

@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -117,7 +118,7 @@ func (r *AssignCredentialsResource) Configure(_ context.Context, req resource.Co
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
+// Custom implementation with single retry for "Global Settings Save is in progress" error
 func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan AssignCredentials
 
@@ -132,13 +133,37 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 
 	// Create object
 	body := plan.toBody(ctx, AssignCredentials{})
-
 	params := ""
+
+	// First attempt
 	res, err := r.client.Put(plan.getPath()+params, body)
+
+	// Check if this is the "Global Settings Save is in progress" error and retry once
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
-		return
+		errorCode := res.Get("response.errorCode").String()
+		errorMessage := res.Get("response.failureReason").String()
+		progressMessage := res.Get("response.progress").String()
+
+		isGlobalSettingsError := errorCode == "NCND00010" ||
+			strings.Contains(errorMessage, "Global Settings Save is in progress") ||
+			strings.Contains(progressMessage, "Global Settings Save is in progress") ||
+			strings.Contains(err.Error(), "Global Settings Save is in progress")
+
+		if isGlobalSettingsError {
+			tflog.Warn(ctx, fmt.Sprintf("%s: Global Settings Save is in progress, waiting 15 seconds and retrying once", plan.Id.ValueString()))
+			time.Sleep(15 * time.Second)
+
+			// Second attempt
+			res, err = r.client.Put(plan.getPath()+params, body)
+		}
+
+		// If still error after retry (or not global settings error), fail
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
 	}
+
 	plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -146,8 +171,6 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
