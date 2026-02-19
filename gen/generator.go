@@ -149,6 +149,7 @@ type YamlConfig struct {
 	UseCache                    bool                  `yaml:"use_cache"`
 	CacheRestEndpoint           string                `yaml:"cache_rest_endpoint"`
 	SkipDeleteOnEmptyId         bool                  `yaml:"skip_delete_on_empty_id"`
+	GetBeforeDelete             bool                  `yaml:"get_before_delete"`
 }
 
 type YamlConfigAttribute struct {

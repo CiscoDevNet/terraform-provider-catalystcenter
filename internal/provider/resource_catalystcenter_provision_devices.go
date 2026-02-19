@@ -396,6 +396,16 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 				tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is empty or null", state.Id.ValueString()))
 				continue
 			}
+
+			// Verify item exists with GET before DELETE to prevent mass deletion from path traversal attacks
+			verifyParams := "?networkDeviceId=" + url.QueryEscape(v.NetworkDeviceId.ValueString())
+			verifyRes, verifyErr := r.client.Get(plan.getPath() + verifyParams)
+			if verifyErr != nil || !verifyRes.Get("response.0.id").Exists() || verifyRes.Get("response.0.id").String() != v.Id.ValueString() {
+				tflog.Debug(ctx, fmt.Sprintf("%s: Device %s not found or ID mismatch during delete verification, skipping delete", state.Id.ValueString(), v.Id.ValueString()))
+				continue
+			}
+			tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
+
 			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
@@ -578,7 +588,6 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 	resp.Diagnostics.Append(diags...)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state ProvisionDevices
 
@@ -593,9 +602,19 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 	for _, v := range state.ProvisionDevices {
 		// Skip delete if ID is empty or null to prevent sending DELETE to base endpoint
 		if v.Id.IsNull() || v.Id.IsUnknown() || v.Id.ValueString() == "" {
-			tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for item - ID is empty or null", state.Id.ValueString()))
+			tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is empty or null", state.Id.ValueString()))
 			continue
 		}
+
+		// Verify item exists with GET before DELETE to prevent mass deletion from path traversal attacks
+		verifyParams := "?networkDeviceId=" + url.QueryEscape(v.NetworkDeviceId.ValueString())
+		verifyRes, verifyErr := r.client.Get(state.getPath() + verifyParams)
+		if verifyErr != nil || !verifyRes.Get("response.0.id").Exists() || verifyRes.Get("response.0.id").String() != v.Id.ValueString() {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Device %s not found or ID mismatch during delete verification, skipping delete", state.Id.ValueString(), v.Id.ValueString()))
+			continue
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
+
 		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
@@ -614,8 +633,6 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *ProvisionDevicesResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
