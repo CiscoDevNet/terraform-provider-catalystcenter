@@ -1,3 +1,7 @@
+## 0.5.4 (Unreleased)
+
+- Additional verification for the critical fix from 0.5.3 adds a GET-before-DELETE check in the catalystcenter_provision_device and catalystcenter_provision_devices resources. The provider now verifies that a resource with the exact ID exists before deletion, offering further protection against accidental or path traversal-based mass deletions.
+
 ## 0.5.3
 
 - Fix `catalystcenter_assign_credentials` resource with multiple improvements: automatically retry when encountering "Global Settings Save is in progress" error (NCND00010) by waiting 15 seconds and retrying once; include all credential types in request payload even when null to resolve API error when assigning credentials at global level

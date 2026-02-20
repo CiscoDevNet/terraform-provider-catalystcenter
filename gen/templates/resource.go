@@ -1478,6 +1478,23 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 		return
 	}
 	{{- end}}
+	{{- if .GetBeforeDelete}}
+	// Verify resource exists with GET before DELETE to prevent mass deletion from path traversal attacks
+	verifyParams := ""
+	{{- $verifyQueryParams := generateQueryParamString "GET" "state" .Attributes }}
+	{{- if hasQueryParam .Attributes }}
+	{{- if $verifyQueryParams }}
+	verifyParams = {{$verifyQueryParams}}
+	{{- end}}
+	{{- end}}
+	verifyRes, verifyErr := r.client.Get(state.getPath() + verifyParams)
+	if verifyErr != nil || !verifyRes.Get("response.0.id").Exists() || verifyRes.Get("response.0.id").String() != state.Id.ValueString() {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Resource not found or ID mismatch during delete verification, removing from state only", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
+	{{- end}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	{{- if not .DeleteIterative }}
