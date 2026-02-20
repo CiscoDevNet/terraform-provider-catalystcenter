@@ -9,7 +9,7 @@ description: |-
 
 ## 0.5.4 (Unreleased)
 
-- Add GET-before-DELETE verification to `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources to prevent mass deletion from path traversal attacks. The provider now verifies a resource exists with the exact ID before attempting deletion
+- Additional verification for the critical fix from 0.5.3 adds a GET-before-DELETE check in the catalystcenter_provision_device and catalystcenter_provision_devices resources. The provider now verifies that a resource with the exact ID exists before deletion, offering further protection against accidental or path traversal-based mass deletions.
 
 ## 0.5.3
 
