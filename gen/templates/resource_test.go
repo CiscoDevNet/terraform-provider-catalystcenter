@@ -163,7 +163,7 @@ const testAccCc{{camelCase .Name}}PrerequisitesConfig = `
 func testAccCc{{camelCase .Name}}Config_minimum() string {
 	config := `resource "catalystcenter_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
-	{{- if or .Id .MatchId .Reference .Mandatory .MinimumTestValue .QueryParam}}
+	{{- if and (not .Computed) (or .Id .MatchId .Reference .Mandatory .MinimumTestValue .QueryParam)}}
 	{{- if isNestedListSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {

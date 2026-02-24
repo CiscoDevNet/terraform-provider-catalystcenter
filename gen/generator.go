@@ -124,6 +124,7 @@ type YamlConfig struct {
 	IdPath                      string                `yaml:"id_path"`
 	IdFromQueryPath             string                `yaml:"id_from_query_path"`
 	IdFromQueryPathAttribute    string                `yaml:"id_from_query_path_attribute"`
+	IdQueryRestEndpoint         string                `yaml:"id_query_rest_endpoint"`
 	IdQueryParam                string                `yaml:"id_query_param"`
 	IdFromAttribute             bool                  `yaml:"id_from_attribute"`
 	DeviceUnreachabilityWarning bool                  `yaml:"device_unreachability_warning"`
