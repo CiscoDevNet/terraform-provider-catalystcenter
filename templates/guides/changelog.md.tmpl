@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.4 (unreleased)
+
+- Add `catalystcenter_wireless_profile_site_tag` resource and data source
+
 ## 0.5.3
 
 - Fix `catalystcenter_assign_credentials` resource with multiple improvements: automatically retry when encountering "Global Settings Save is in progress" error (NCND00010) by waiting 15 seconds and retrying once; include all credential types in request payload even when null to resolve API error when assigning credentials at global level
