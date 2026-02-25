@@ -26,6 +26,9 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	{{- if .RetryOnErrorCodes}}
+	"time"
+	{{- end}}
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
@@ -584,6 +587,51 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
 	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
+	{{- end}}
+	{{- if .RetryOnErrorCodes}}
+	if err != nil {
+		retryErrorCodes := []string{ {{- range $i, $code := .RetryOnErrorCodes}}{{if $i}}, {{end}}"{{$code}}"{{- end}} }
+		errorCode := res.Get("response.errorCode").String()
+		
+		shouldRetry := false
+		for _, code := range retryErrorCodes {
+			if errorCode == code {
+				shouldRetry = true
+				break
+			}
+		}
+		
+		if shouldRetry {
+			maxWaitTime := time.Duration({{if .MaxAsyncWaitTime}}{{.MaxAsyncWaitTime}}{{else}}r.client.DefaultMaxAsyncWaitTime{{end}}) * time.Second
+			startTime := time.Now()
+			retryInterval := 15 * time.Second
+			
+			for shouldRetry && time.Since(startTime) < maxWaitTime {
+				tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)", 
+					plan.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
+				time.Sleep(retryInterval)
+				
+				{{- if .PutCreate}}
+				res, err = r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+				{{- else}}
+				res, err = r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
+				{{- end}}
+				
+				if err == nil {
+					shouldRetry = false
+				} else {
+					errorCode = res.Get("response.errorCode").String()
+					shouldRetry = false
+					for _, code := range retryErrorCodes {
+						if errorCode == code {
+							shouldRetry = true
+							break
+						}
+					}
+				}
+			}
+		}
+	}
 	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}

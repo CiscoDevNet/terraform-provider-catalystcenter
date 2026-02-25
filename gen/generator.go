@@ -145,6 +145,7 @@ type YamlConfig struct {
 	TestTags                    []string              `yaml:"test_tags"`
 	TestPrerequisites           string                `yaml:"test_prerequisites"`
 	MaxAsyncWaitTime            int64                 `yaml:"max_async_wait_time"`
+	RetryOnErrorCodes           []string              `yaml:"retry_on_error_codes"`
 	Mutex                       bool                  `yaml:"mutex"`
 	UseCache                    bool                  `yaml:"use_cache"`
 	CacheRestEndpoint           string                `yaml:"cache_rest_endpoint"`

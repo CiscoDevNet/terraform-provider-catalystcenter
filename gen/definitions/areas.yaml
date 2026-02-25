@@ -8,6 +8,7 @@ root_list: true
 update_computed: true
 doc_category: Sites
 no_data_source: true
+retry_on_error_codes: ["NCGR10083"]
 attributes:
   - tf_name: scope
     type: String
