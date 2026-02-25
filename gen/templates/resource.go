@@ -602,7 +602,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		}
 		
 		if shouldRetry {
-			maxWaitTime := time.Duration({{if .MaxAsyncWaitTime}}{{.MaxAsyncWaitTime}}{{else}}r.client.DefaultMaxAsyncWaitTime{{end}}) * time.Second
+			maxWaitTime := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
 			startTime := time.Now()
 			retryInterval := 15 * time.Second
 			
