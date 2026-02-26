@@ -104,6 +104,8 @@ resource "catalystcenter_wireless_profile" "test" {
     enable_fabric       = false
     enable_flex_connect = false
   }]
+
+  depends_on = [catalystcenter_wireless_ssid.test, catalystcenter_ap_profile.test]
 }
 resource "catalystcenter_ap_profile" "test" {
   ap_profile_name = "SiteTagTestAPProfile"
@@ -113,6 +115,8 @@ resource "catalystcenter_network_profile_for_sites_assignments" "test" {
   items = [{
     id = catalystcenter_building.test_building.id
   }]
+
+  depends_on = [catalystcenter_building.test_building]
 }
 
 `
@@ -122,7 +126,7 @@ resource "catalystcenter_network_profile_for_sites_assignments" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcWirelessProfileSiteTagConfig_minimum() string {
 	config := `resource "catalystcenter_wireless_profile_site_tag" "test" {` + "\n"
-	config += `	wireless_profile_id = catalystcenter_wireless_profile.test.id` + "\n"
+	config += `	wireless_profile_id = catalystcenter_network_profile_for_sites_assignments.test.network_profile_id` + "\n"
 	config += `	site_tag_name = "SiteTag1"` + "\n"
 	config += `	ap_profile_name = catalystcenter_ap_profile.test.ap_profile_name` + "\n"
 	config += `	site_ids = [catalystcenter_building.test_building.id]` + "\n"
@@ -135,7 +139,7 @@ func testAccCcWirelessProfileSiteTagConfig_minimum() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcWirelessProfileSiteTagConfig_all() string {
 	config := `resource "catalystcenter_wireless_profile_site_tag" "test" {` + "\n"
-	config += `	wireless_profile_id = catalystcenter_wireless_profile.test.id` + "\n"
+	config += `	wireless_profile_id = catalystcenter_network_profile_for_sites_assignments.test.network_profile_id` + "\n"
 	config += `	site_tag_name = "SiteTag1"` + "\n"
 	config += `	ap_profile_name = catalystcenter_ap_profile.test.ap_profile_name` + "\n"
 	config += `	site_ids = [catalystcenter_building.test_building.id]` + "\n"

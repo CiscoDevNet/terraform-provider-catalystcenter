@@ -17,7 +17,7 @@ attributes:
     reference: true
     description: The ID of the Wireless Profile
     example: 12345678-1234-1234-1234-123456789012
-    test_value: catalystcenter_wireless_profile.test.id
+    test_value: catalystcenter_network_profile_for_sites_assignments.test.network_profile_id
   - model_name: siteTagId
     tf_name: site_tag_id
     type: String
@@ -118,6 +118,8 @@ test_prerequisites: |
       enable_fabric       = false
       enable_flex_connect = false
     }]
+
+    depends_on = [catalystcenter_wireless_ssid.test, catalystcenter_ap_profile.test]
   }
   resource "catalystcenter_ap_profile" "test" {
     ap_profile_name = "SiteTagTestAPProfile"
@@ -127,4 +129,6 @@ test_prerequisites: |
     items = [{
       id = catalystcenter_building.test_building.id
     }]
+
+    depends_on = [catalystcenter_building.test_building]
   }
