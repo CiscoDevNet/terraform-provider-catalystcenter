@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -283,6 +284,12 @@ func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.Delet
 	// Skip delete if ID is empty or null to prevent sending DELETE to base endpoint
 	if state.Id.IsNull() || state.Id.IsUnknown() || state.Id.ValueString() == "" {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete - ID is empty or null", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	// Validate ID is a proper UUID to prevent path traversal attacks
+	if err := uuid.Validate(state.Id.ValueString()); err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete - ID is not a valid UUID", state.Id.ValueString()))
 		resp.State.RemoveResource(ctx)
 		return
 	}

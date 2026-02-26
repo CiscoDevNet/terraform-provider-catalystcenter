@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -398,6 +399,12 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 				continue
 			}
 
+			// Validate ID is a proper UUID to prevent path traversal attacks
+			if err := uuid.Validate(v.Id.ValueString()); err != nil {
+				tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is not a valid UUID: %s", state.Id.ValueString(), v.Id.ValueString()))
+				continue
+			}
+
 			// Verify item exists with GET before DELETE to prevent mass deletion from path traversal attacks
 			verifyParams := "?networkDeviceId=" + url.QueryEscape(v.NetworkDeviceId.ValueString())
 			verifyRes, verifyErr := r.client.Get(plan.getPath() + verifyParams)
@@ -605,6 +612,12 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 		// Skip delete if ID is empty or null to prevent sending DELETE to base endpoint
 		if v.Id.IsNull() || v.Id.IsUnknown() || v.Id.ValueString() == "" {
 			tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is empty or null", state.Id.ValueString()))
+			continue
+		}
+
+		// Validate ID is a proper UUID to prevent path traversal attacks
+		if err := uuid.Validate(v.Id.ValueString()); err != nil {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is not a valid UUID: %s", state.Id.ValueString(), v.Id.ValueString()))
 			continue
 		}
 

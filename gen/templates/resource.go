@@ -28,6 +28,7 @@ import (
 	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -1479,6 +1480,12 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	}
 	{{- end}}
 	{{- if .GetBeforeDelete}}
+	// Validate ID is a proper UUID to prevent path traversal attacks
+	if err := uuid.Validate(state.Id.ValueString()); err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete - ID is not a valid UUID", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	// Verify resource exists with GET before DELETE to prevent mass deletion from path traversal attacks
 	verifyParams := ""
 	{{- $verifyQueryParams := generateQueryParamString "GET" "state" .Attributes }}
