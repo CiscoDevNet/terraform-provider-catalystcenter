@@ -118,7 +118,7 @@ func (r *AssignCredentialsResource) Configure(_ context.Context, req resource.Co
 
 // End of section. //template:end model
 
-// Custom implementation with single retry for "Global Settings Save is in progress" error
+// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan AssignCredentials
 
@@ -133,37 +133,51 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 
 	// Create object
 	body := plan.toBody(ctx, AssignCredentials{})
+
 	params := ""
-
-	// First attempt
 	res, err := r.client.Put(plan.getPath()+params, body)
-
-	// Check if this is the "Global Settings Save is in progress" error and retry once
 	if err != nil {
+		retryErrorCodes := []string{"NCND00010"}
 		errorCode := res.Get("response.errorCode").String()
-		errorMessage := res.Get("response.failureReason").String()
-		progressMessage := res.Get("response.progress").String()
 
-		isGlobalSettingsError := errorCode == "NCND00010" ||
-			strings.Contains(errorMessage, "Global Settings Save is in progress") ||
-			strings.Contains(progressMessage, "Global Settings Save is in progress") ||
-			strings.Contains(err.Error(), "Global Settings Save is in progress")
-
-		if isGlobalSettingsError {
-			tflog.Warn(ctx, fmt.Sprintf("%s: Global Settings Save is in progress, waiting 15 seconds and retrying once", plan.Id.ValueString()))
-			time.Sleep(15 * time.Second)
-
-			// Second attempt
-			res, err = r.client.Put(plan.getPath()+params, body)
+		shouldRetry := false
+		for _, code := range retryErrorCodes {
+			if errorCode == code {
+				shouldRetry = true
+				break
+			}
 		}
 
-		// If still error after retry (or not global settings error), fail
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
-			return
+		if shouldRetry {
+			maxWaitTime := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
+			startTime := time.Now()
+			retryInterval := 15 * time.Second
+
+			for shouldRetry && time.Since(startTime) < maxWaitTime {
+				tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)",
+					plan.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
+				time.Sleep(retryInterval)
+				res, err = r.client.Put(plan.getPath()+params, body)
+
+				if err == nil {
+					shouldRetry = false
+				} else {
+					errorCode = res.Get("response.errorCode").String()
+					shouldRetry = false
+					for _, code := range retryErrorCodes {
+						if errorCode == code {
+							shouldRetry = true
+							break
+						}
+					}
+				}
+			}
 		}
 	}
-
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+		return
+	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -171,6 +185,8 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {

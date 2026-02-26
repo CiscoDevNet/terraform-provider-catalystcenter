@@ -23,6 +23,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -216,9 +217,48 @@ func (r *FloorsResource) Create(ctx context.Context, req resource.CreateRequest,
 	params := ""
 	var err error
 	var res gjson.Result
+	retryErrorCodes := []string{"NCGR10083"}
 	for _, pl := range planList {
 		body = pl.toBody(ctx, Floors{})
 		res, err = r.client.Post(plan.getPath()+params, body)
+		if err != nil {
+			errorCode := res.Get("response.errorCode").String()
+
+			shouldRetry := false
+			for _, code := range retryErrorCodes {
+				if errorCode == code {
+					shouldRetry = true
+					break
+				}
+			}
+
+			if shouldRetry {
+				maxWaitTime := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
+				startTime := time.Now()
+				retryInterval := 15 * time.Second
+
+				for shouldRetry && time.Since(startTime) < maxWaitTime {
+					tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)",
+						plan.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
+					time.Sleep(retryInterval)
+
+					res, err = r.client.Post(plan.getPath()+params, body)
+
+					if err == nil {
+						shouldRetry = false
+					} else {
+						errorCode = res.Get("response.errorCode").String()
+						shouldRetry = false
+						for _, code := range retryErrorCodes {
+							if errorCode == code {
+								shouldRetry = true
+								break
+							}
+						}
+					}
+				}
+			}
+		}
 		if err != nil {
 			resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 			break
