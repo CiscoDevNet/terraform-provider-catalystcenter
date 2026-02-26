@@ -113,7 +113,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				ElementType:         types.StringType,
 				{{- end}}
 				{{- end}}
-				{{- if or .Id .MatchId .Reference .Mandatory}}
+				{{- if or .Id .MatchId (and .Reference (not .Computed)) .Mandatory}}
 				Required:            true,
 				{{- else}}
 				Optional:            true,
@@ -161,12 +161,11 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					{{.CustomModifier}}{},
 				},
 				{{- else}}
-				{{- if or .Id .MatchId .Reference .RequiresReplace}}
+				{{- if or .Id .MatchId (and .Reference (not .Computed)) .RequiresReplace}}
 				PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 					{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 				},
-				{{- end}}
-				{{- if and .Computed (not (hasComputedRefreshValue .Attributes))}}
+				{{- else if and .Computed (not (hasComputedRefreshValue .Attributes))}}
 				PlanModifiers: []planmodifier.{{.Type}}{
 					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 				},
@@ -654,7 +653,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
-	res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
+	res, err = r.client.Get({{if .IdQueryRestEndpoint}}plan.getPathIdQuery(){{else if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params)
 	{{- if .FallbackRestEndpoint }}
 
 	// Try fallback endpoint if primary fails with 404 or 500
@@ -677,6 +676,13 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		{{- $id := getId .Attributes}}
 	plan.Id = types.StringValue(fmt.Sprint(plan.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
 	{{- end}}
+	{{- if .IdFromQueryPathAttribute}}
+	{{- range .Attributes}}
+	{{- if and .Reference .Computed (eq .ModelName $.IdFromQueryPathAttribute)}}
+	plan.{{toGoName .TfName}} = plan.Id
+	{{- end}}
+	{{- end}}
+	{{- end}}
 
 	{{- if and .UpdateComputed .RootList}}
 	params = ""
@@ -694,7 +700,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
-	res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
+	res, err = r.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params)
 	{{- if .FallbackRestEndpoint }}
 
 	// Try fallback endpoint if primary fails with 404 or 500
@@ -799,7 +805,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	{{- if $queryParams }}
 	params += {{$queryParams}}
 	{{- end}}
-	{{- else if and (not .GetNoId) (not .GetFromAll)}}
+	{{- else if and (not .GetNoId) (not .GetFromAll) (not (and .GetRestEndpoint (strContains .GetRestEndpoint "%v")))}}
 	params += "/" + url.QueryEscape(state.Id.ValueString())
 	{{- end}}
 	{{- if hasGetQueryParam .Attributes }}
@@ -811,7 +817,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	{{- if .UseCache}}
 	res, err := r.ReadCache(ctx, req, state, params)
 	{{- else}}
-	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
+	res, err := r.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}state.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}state.getPath(){{end}} + params)
 	{{- end}}
 	{{- if .FallbackRestEndpoint }}
 
@@ -894,11 +900,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- else if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if and (hasQueryParam .Attributes) (not .PutId)}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .PutNoId}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Put({{if .PutRestEndpoint}}"{{.PutRestEndpoint}}"{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Put({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}
@@ -1502,7 +1508,11 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	}
 	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
 	{{- end}}
+	{{- if and .DeleteRestEndpoint (strContains .DeleteRestEndpoint "%v")}}
+	res, err := r.client.Delete(state.getPathDelete(){{- if .Mutex }}, cc.UseMutex{{- end}})
+	{{- else}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
+	{{- end}}
 	{{- end}}
 	{{- if not .DeleteIterative }}
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {

@@ -10,6 +10,7 @@ description: |-
 ## 0.5.4 (Unreleased)
 
 - Additional verification for the critical fix from 0.5.3 adds a GET-before-DELETE check in the catalystcenter_provision_device and catalystcenter_provision_devices resources. The provider now verifies that a resource with the exact ID exists before deletion, offering further protection against accidental or path traversal-based mass deletions.
+- Add `catalystcenter_wireless_profile_site_tag` resource and data source
 
 ## 0.5.3
 
