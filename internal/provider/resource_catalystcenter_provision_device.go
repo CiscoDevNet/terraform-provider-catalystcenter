@@ -289,8 +289,7 @@ func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.Delet
 	}
 	// Validate ID is a proper UUID to prevent path traversal attacks
 	if err := uuid.Validate(state.Id.ValueString()); err != nil {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete - ID is not a valid UUID", state.Id.ValueString()))
-		resp.State.RemoveResource(ctx)
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object: ID is not a valid UUID: %s", state.Id.ValueString()))
 		return
 	}
 	// Verify resource exists with GET before DELETE to prevent mass deletion from path traversal attacks

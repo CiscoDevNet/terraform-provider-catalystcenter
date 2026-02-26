@@ -401,8 +401,8 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 
 			// Validate ID is a proper UUID to prevent path traversal attacks
 			if err := uuid.Validate(v.Id.ValueString()); err != nil {
-				tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is not a valid UUID: %s", state.Id.ValueString(), v.Id.ValueString()))
-				continue
+				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to delete object: ID is not a valid UUID: %s", v.Id.ValueString()))
+				return
 			}
 
 			// Verify item exists with GET before DELETE to prevent mass deletion from path traversal attacks
@@ -617,8 +617,8 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 
 		// Validate ID is a proper UUID to prevent path traversal attacks
 		if err := uuid.Validate(v.Id.ValueString()); err != nil {
-			tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is not a valid UUID: %s", state.Id.ValueString(), v.Id.ValueString()))
-			continue
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object: ID is not a valid UUID: %s", v.Id.ValueString()))
+			return
 		}
 
 		// Verify item exists with GET before DELETE to prevent mass deletion from path traversal attacks
