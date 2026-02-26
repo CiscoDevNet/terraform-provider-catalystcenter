@@ -28,6 +28,7 @@ import (
 	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -1483,6 +1484,28 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 		resp.State.RemoveResource(ctx)
 		return
 	}
+	{{- end}}
+	{{- if .GetBeforeDelete}}
+	// Validate ID is a proper UUID to prevent path traversal attacks
+	if err := uuid.Validate(state.Id.ValueString()); err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object: ID is not a valid UUID: %s", state.Id.ValueString()))
+		return
+	}
+	// Verify resource exists with GET before DELETE to prevent mass deletion from path traversal attacks
+	verifyParams := ""
+	{{- $verifyQueryParams := generateQueryParamString "GET" "state" .Attributes }}
+	{{- if hasQueryParam .Attributes }}
+	{{- if $verifyQueryParams }}
+	verifyParams = {{$verifyQueryParams}}
+	{{- end}}
+	{{- end}}
+	verifyRes, verifyErr := r.client.Get(state.getPath() + verifyParams)
+	if verifyErr != nil || !verifyRes.Get("response.0.id").Exists() || verifyRes.Get("response.0.id").String() != state.Id.ValueString() {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Resource not found or ID mismatch during delete verification, removing from state only", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
 	{{- end}}
 	{{- if and .DeleteRestEndpoint (strContains .DeleteRestEndpoint "%v")}}
 	res, err := r.client.Delete(state.getPathDelete(){{- if .Mutex }}, cc.UseMutex{{- end}})

@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -286,6 +287,21 @@ func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.Delet
 		resp.State.RemoveResource(ctx)
 		return
 	}
+	// Validate ID is a proper UUID to prevent path traversal attacks
+	if err := uuid.Validate(state.Id.ValueString()); err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object: ID is not a valid UUID: %s", state.Id.ValueString()))
+		return
+	}
+	// Verify resource exists with GET before DELETE to prevent mass deletion from path traversal attacks
+	verifyParams := ""
+	verifyParams = "?siteId=" + url.QueryEscape(state.SiteId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	verifyRes, verifyErr := r.client.Get(state.getPath() + verifyParams)
+	if verifyErr != nil || !verifyRes.Get("response.0.id").Exists() || verifyRes.Get("response.0.id").String() != state.Id.ValueString() {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Resource not found or ID mismatch during delete verification, removing from state only", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
 	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
