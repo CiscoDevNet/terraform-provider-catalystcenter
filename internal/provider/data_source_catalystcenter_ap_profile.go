@@ -166,32 +166,40 @@ func (d *APProfileDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"ap_power_profile_name": schema.StringAttribute{
-				MarkdownDescription: "Name of the existing AP power profile.",
+				MarkdownDescription: "Name of the existing AP power profile for always-on mode.",
 				Computed:            true,
 			},
-			"power_profile_name": schema.StringAttribute{
-				MarkdownDescription: "Name of the existing AP power profile to be mapped to the calendar power profile. API-/intent/api/v1/wirelessSettings/powerProfiles.",
+			"calendar_power_profiles": schema.ListNestedAttribute{
+				MarkdownDescription: "Calendar-based power profile settings. Supports multiple profiles with different schedules.",
 				Computed:            true,
-			},
-			"scheduler_type": schema.StringAttribute{
-				MarkdownDescription: "Type of the scheduler.",
-				Computed:            true,
-			},
-			"scheduler_start_time": schema.StringAttribute{
-				MarkdownDescription: "Start time of the duration setting.",
-				Computed:            true,
-			},
-			"scheduler_end_time": schema.StringAttribute{
-				MarkdownDescription: "End time of the duration setting.",
-				Computed:            true,
-			},
-			"scheduler_day": schema.StringAttribute{
-				MarkdownDescription: "Applies every week on the selected days",
-				Computed:            true,
-			},
-			"scheduler_date": schema.StringAttribute{
-				MarkdownDescription: "Start and End date of the duration setting, applicable for MONTHLY schedulers.",
-				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"power_profile_name": schema.StringAttribute{
+							MarkdownDescription: "Name of the existing AP power profile to be mapped to the calendar schedule.",
+							Computed:            true,
+						},
+						"scheduler_type": schema.StringAttribute{
+							MarkdownDescription: "Type of the scheduler.",
+							Computed:            true,
+						},
+						"scheduler_start_time": schema.StringAttribute{
+							MarkdownDescription: "Start time in 24-hour format (HH:MM, e.g., '22:00'). Provider converts to 12-hour AM/PM format for API.",
+							Computed:            true,
+						},
+						"scheduler_end_time": schema.StringAttribute{
+							MarkdownDescription: "End time in 24-hour format (HH:MM, e.g., '06:00'). Provider converts to 12-hour AM/PM format for API.",
+							Computed:            true,
+						},
+						"scheduler_day": schema.StringAttribute{
+							MarkdownDescription: "Days for WEEKLY scheduler (e.g., 'saturday,sunday'). Required when schedulerType is WEEKLY.",
+							Computed:            true,
+						},
+						"scheduler_date": schema.StringAttribute{
+							MarkdownDescription: "Dates for MONTHLY scheduler (e.g., '1,15'). Required when schedulerType is MONTHLY.",
+							Computed:            true,
+						},
+					},
+				},
 			},
 			"country_code": schema.StringAttribute{
 				MarkdownDescription: "Country code for the AP profile.",

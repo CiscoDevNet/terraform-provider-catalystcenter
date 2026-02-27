@@ -228,10 +228,10 @@ func (r *APProfileResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"ghz5_backhaul_data_rates": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("5GHz backhaul data rates.").AddStringEnumDescription("auto", "802.11abg", "802.12ac", "802.11ax", "802.11n").String,
+				MarkdownDescription: helpers.NewAttributeDescription("5GHz backhaul data rates.").AddStringEnumDescription("auto", "802.11abg", "802.11ac", "802.11ax", "802.11n").String,
 				Optional:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("auto", "802.11abg", "802.12ac", "802.11ax", "802.11n"),
+					stringvalidator.OneOf("auto", "802.11abg", "802.11ac", "802.11ax", "802.11n"),
 				},
 			},
 			"ghz24_backhaul_data_rates": schema.StringAttribute{
@@ -249,35 +249,43 @@ func (r *APProfileResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"ap_power_profile_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the existing AP power profile.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the existing AP power profile for always-on mode.").String,
 				Optional:            true,
 			},
-			"power_profile_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the existing AP power profile to be mapped to the calendar power profile. API-/intent/api/v1/wirelessSettings/powerProfiles.").String,
+			"calendar_power_profiles": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Calendar-based power profile settings. Supports multiple profiles with different schedules.").String,
 				Optional:            true,
-			},
-			"scheduler_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the scheduler.").AddStringEnumDescription("DAILY", "WEEKLY", "MONTHLY").String,
-				Optional:            true,
-				Validators: []validator.String{
-					stringvalidator.OneOf("DAILY", "WEEKLY", "MONTHLY"),
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"power_profile_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Name of the existing AP power profile to be mapped to the calendar schedule.").String,
+							Required:            true,
+						},
+						"scheduler_type": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the scheduler.").AddStringEnumDescription("DAILY", "WEEKLY", "MONTHLY").String,
+							Required:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("DAILY", "WEEKLY", "MONTHLY"),
+							},
+						},
+						"scheduler_start_time": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Start time in 24-hour format (HH:MM, e.g., '22:00'). Provider converts to 12-hour AM/PM format for API.").String,
+							Required:            true,
+						},
+						"scheduler_end_time": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("End time in 24-hour format (HH:MM, e.g., '06:00'). Provider converts to 12-hour AM/PM format for API.").String,
+							Required:            true,
+						},
+						"scheduler_day": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Days for WEEKLY scheduler (e.g., 'saturday,sunday'). Required when schedulerType is WEEKLY.").String,
+							Optional:            true,
+						},
+						"scheduler_date": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Dates for MONTHLY scheduler (e.g., '1,15'). Required when schedulerType is MONTHLY.").String,
+							Optional:            true,
+						},
+					},
 				},
-			},
-			"scheduler_start_time": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Start time of the duration setting.").String,
-				Optional:            true,
-			},
-			"scheduler_end_time": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("End time of the duration setting.").String,
-				Optional:            true,
-			},
-			"scheduler_day": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Applies every week on the selected days").String,
-				Optional:            true,
-			},
-			"scheduler_date": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Start and End date of the duration setting, applicable for MONTHLY schedulers.").String,
-				Optional:            true,
 			},
 			"country_code": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Country code for the AP profile.").AddStringEnumDescription("AF", "AE", "AL", "AR", "AT", "AO", "AU", "BD", "BA", "BB", "BE", "BG", "BH", "BM", "BN", "BO", "BR", "BT", "BY", "CA", "CD", "CH", "CI", "CL", "CM", "CN", "CO", "CR", "CU", "CY", "CZ", "DE", "DK", "DO", "DZ", "EC", "EE", "EG", "EL", "ES", "ET", "FI", "FJ", "FR", "GB", "GH", "GI", "GE", "GR", "GT", "HK", "HN", "HR", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "J2", "J4", "JM", "JO", "KE", "KH", "KN", "KW", "KZ", "LA", "LB", "LI", "LK", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MK", "MN", "MM", "MO", "MT", "MX", "MY", "NG", "NI", "NL", "NO", "NP", "NZ", "OM", "PA", "PE", "PH", "PK", "PL", "PR", "PT", "PY", "QA", "RO", "RS", "RU", "SA", "SD", "SE", "SG", "SI", "SK", "SM", "TH", "TI", "TN", "TR", "TW", "TZ", "UA", "US", "UY", "VA", "VE", "VN", "XK", "YE", "ZA", "ZW", "MU", "ZM", "BI", "NA", "BW", "GA", "UG", "UZ").String,
@@ -287,13 +295,13 @@ func (r *APProfileResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"time_zone": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("In the Time Zone area, choose one of the following options. Not Configured - APs operate in the UTC time zone. Controller - APs operate in the Cisco Wireless Controller time zone. Delta from Controller - APs operate in the offset time from the wireless controller time zone.").AddStringEnumDescription("Not Configured", "Controller", "Delta from Controller").AddDefaultValueDescription("NOT CONFIGURED").String,
+				MarkdownDescription: helpers.NewAttributeDescription("In the Time Zone area, choose one of the following options. Not Configured - APs operate in the UTC time zone. Controller - APs operate in the Cisco Wireless Controller time zone. Delta from Controller - APs operate in the offset time from the wireless controller time zone.").AddStringEnumDescription("Not Configured", "Controller", "Delta from Controller").AddDefaultValueDescription("Not Configured").String,
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("Not Configured", "Controller", "Delta from Controller"),
 				},
-				Default: stringdefault.StaticString("NOT CONFIGURED"),
+				Default: stringdefault.StaticString("Not Configured"),
 			},
 			"time_zone_offset_hour": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enter the hour value (HH). The valid range is from -12 through 14.").AddIntegerRangeDescription(-12, 14).AddDefaultValueDescription("0").String,

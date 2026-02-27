@@ -27,12 +27,13 @@ data "catalystcenter_ap_profile" "example" {
 
 ### Read-Only
 
-- `ap_power_profile_name` (String) Name of the existing AP power profile.
+- `ap_power_profile_name` (String) Name of the existing AP power profile for always-on mode.
 - `auth_type` (String) Authentication type used in the AP profile. These settings are applicable during PnP claim and for day-N authentication of AP. Changing these settings will be service impacting for the PnP onboarded APs and will need a factory-reset for those APs.
 - `awips_enabled` (Boolean) Indicates if AWIPS is enabled on the AP.
 - `awips_forensic_enabled` (Boolean) Indicates if AWIPS forensic is enabled on the AP. Forensic Capture is supported from IOS-XE version 17.4 and above. Forensic Capture can be activated only if aWIPS is enabled.
 - `backhaul_client_access` (Boolean) Indicates if backhaul client access is enabled on the AP.
 - `bridge_group_name` (String) Name of the bridge group for mesh settings. If not configured, 'Default' Bridge group name will be used in mesh profile.
+- `calendar_power_profiles` (Attributes List) Calendar-based power profile settings. Supports multiple profiles with different schedules. (see [below for nested schema](#nestedatt--calendar_power_profiles))
 - `cdp_state` (Boolean) Indicates if CDP is enabled on the AP. Enable CDP in order to make Cisco Access Points known to its neighboring devices and vice-versa.
 - `client_limit` (Number) Number of clients. Value should be between 0-1200.
 - `country_code` (String) Country code for the AP profile.
@@ -47,7 +48,6 @@ data "catalystcenter_ap_profile" "example" {
 - `management_user_name` (String) Management username must have a minimum of 1 character and a maximum of 32 characters.
 - `mesh_enabled` (Boolean) This indicates whether mesh networking is enabled on the AP. For IOS-XE devices, when mesh networking is enabled, a custom mesh profile with the configured parameters will be created and mapped to the AP join profile on the device. When mesh networking is disabled, any existing custom mesh profile will be deleted from the device, and the AP join profile will be mapped to the default mesh profile on the device.
 - `pmf_denial_enabled` (Boolean) Indicates if PMF denial is active on the AP. PMF Denial is supported from IOS-XE version 17.12 and above.
-- `power_profile_name` (String) Name of the existing AP power profile to be mapped to the calendar power profile. API-/intent/api/v1/wirelessSettings/powerProfiles.
 - `range` (Number) Range of the mesh network. Value should be between 150-132000
 - `rap_downlink_backhaul` (String) Type of downlink backhaul used.
 - `remote_worker_enabled` (Boolean) Indicates if remote worker mode is enabled on the AP. Remote teleworker enabled profile cannot support security features like aWIPS, Forensic Capture Enablement, Rogue Detection and Rogue Containment.
@@ -55,13 +55,20 @@ data "catalystcenter_ap_profile" "example" {
 - `rogue_detection_min_rssi` (Number) Minimum RSSI for rogue detection. Value should be in range -128 decibel milliwatts and -70 decibel milliwatts
 - `rogue_detection_report_interval` (Number) Report interval for rogue detection. Value should be in range 10 and 300.
 - `rogue_detection_transient_interval` (Number) Transient interval for rogue detection. Value should be 0 or from 120 to 1800.
-- `scheduler_date` (String) Start and End date of the duration setting, applicable for MONTHLY schedulers.
-- `scheduler_day` (String) Applies every week on the selected days
-- `scheduler_end_time` (String) End time of the duration setting.
-- `scheduler_start_time` (String) Start time of the duration setting.
-- `scheduler_type` (String) Type of the scheduler.
 - `ssh_enabled` (Boolean) Indicates if SSH is enabled on the AP. Enable SSH to add credentials for device management.
 - `telnet_enabled` (Boolean) Indicates if Telnet is enabled on the AP. Enable Telnet to add credentials for device management.
 - `time_zone` (String) In the Time Zone area, choose one of the following options. Not Configured - APs operate in the UTC time zone. Controller - APs operate in the Cisco Wireless Controller time zone. Delta from Controller - APs operate in the offset time from the wireless controller time zone.
 - `time_zone_offset_hour` (Number) Enter the hour value (HH). The valid range is from -12 through 14.
 - `time_zone_offset_minutes` (Number) Enter the minute value (MM). The valid range is from 0 through 59.
+
+<a id="nestedatt--calendar_power_profiles"></a>
+### Nested Schema for `calendar_power_profiles`
+
+Read-Only:
+
+- `power_profile_name` (String) Name of the existing AP power profile to be mapped to the calendar schedule.
+- `scheduler_date` (String) Dates for MONTHLY scheduler (e.g., '1,15'). Required when schedulerType is MONTHLY.
+- `scheduler_day` (String) Days for WEEKLY scheduler (e.g., 'saturday,sunday'). Required when schedulerType is WEEKLY.
+- `scheduler_end_time` (String) End time in 24-hour format (HH:MM, e.g., '06:00'). Provider converts to 12-hour AM/PM format for API.
+- `scheduler_start_time` (String) Start time in 24-hour format (HH:MM, e.g., '22:00'). Provider converts to 12-hour AM/PM format for API.
+- `scheduler_type` (String) Type of the scheduler.
