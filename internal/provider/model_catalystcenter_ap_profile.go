@@ -130,7 +130,7 @@ func normalizeCountryCode(apiValue string) string {
 
 // End of manually modified section
 
-// Section below is generated&owned by "gen/generator.go". //template:begin types
+// APProfile types
 type APProfile struct {
 	Id                              types.String                     `tfsdk:"id"`
 	ApProfileName                   types.String                     `tfsdk:"ap_profile_name"`
@@ -177,24 +177,10 @@ type APProfileCalendarPowerProfiles struct {
 	SchedulerDate      types.String `tfsdk:"scheduler_date"`
 }
 
-// End of section. //template:end types
-
-// Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data APProfile) getPath() string {
 	return "/dna/intent/api/v1/wirelessSettings/apProfiles"
 }
 
-// End of section. //template:end getPath
-
-// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
-
-// End of section. //template:end getFallbackPath
-
-// Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
-
-// End of section. //template:end getPathDelete
-
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 	body := ""
 	put := false
@@ -326,9 +312,6 @@ func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 	return body
 }
 
-// End of section. //template:end toBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
 	if value := res.Get("response.0.id"); value.Exists() {
@@ -526,9 +509,6 @@ func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 	}
 }
 
-// End of section. //template:end fromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.0.apProfileName"); value.Exists() && !data.ApProfileName.IsNull() {
 		data.ApProfileName = types.StringValue(value.String())
@@ -744,9 +724,6 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	}
 }
 
-// End of section. //template:end updateFromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *APProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Description.IsNull() {
 		return false
@@ -846,5 +823,3 @@ func (data *APProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	}
 	return true
 }
-
-// End of section. //template:end isNull

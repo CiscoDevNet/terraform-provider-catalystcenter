@@ -1,6 +1,7 @@
 ---
 name: AP Profile
 rest_endpoint: /dna/intent/api/v1/wirelessSettings/apProfiles
+# manual changes in Model file
 id_from_query_path: response.0
 id_from_query_path_attribute: id
 data_source_no_id: true
