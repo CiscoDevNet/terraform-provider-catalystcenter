@@ -325,6 +325,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewDHCPSettingsResource,
 		NewDiscoveryResource,
 		NewDNSSettingsResource,
+		NewDot11beProfileResource,
 		NewExtranetPolicyResource,
 		NewFabricDeviceResource,
 		NewFabricDevicesResource,
@@ -377,6 +378,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewWirelessDeviceProvisionResource,
 		NewWirelessInterfaceResource,
 		NewWirelessProfileResource,
+		NewWirelessProfileSiteTagResource,
 		NewWirelessRFProfileResource,
 		NewWirelessSSIDResource,
 	}
@@ -411,6 +413,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewDHCPSettingsDataSource,
 		NewDiscoveryDataSource,
 		NewDNSSettingsDataSource,
+		NewDot11beProfileDataSource,
 		NewExtranetPolicyDataSource,
 		NewFabricDeviceDataSource,
 		NewFabricDevicesDataSource,
@@ -451,6 +454,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewVirtualNetworkToFabricSiteDataSource,
 		NewWirelessInterfaceDataSource,
 		NewWirelessProfileDataSource,
+		NewWirelessProfileSiteTagDataSource,
 		NewWirelessRFProfileDataSource,
 		NewWirelessSSIDDataSource,
 	}

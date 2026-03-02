@@ -51,7 +51,6 @@ func (data AssignCredentials) getPath() string {
 
 // End of section. //template:end getPath
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data AssignCredentials) toBody(ctx context.Context, state AssignCredentials) string {
 	body := ""
 	put := false
@@ -59,28 +58,39 @@ func (data AssignCredentials) toBody(ctx context.Context, state AssignCredential
 		put = true
 	}
 	_ = put
+	// API requires all credential types to be present in the payload, even if null
 	if !data.CliId.IsNull() {
 		body, _ = sjson.Set(body, "cliCredentialsId.credentialsId", data.CliId.ValueString())
+	} else {
+		body, _ = sjson.Set(body, "cliCredentialsId.credentialsId", nil)
 	}
 	if !data.SnmpV2ReadId.IsNull() {
 		body, _ = sjson.Set(body, "snmpv2cReadCredentialsId.credentialsId", data.SnmpV2ReadId.ValueString())
+	} else {
+		body, _ = sjson.Set(body, "snmpv2cReadCredentialsId.credentialsId", nil)
 	}
 	if !data.SnmpV2WriteId.IsNull() {
 		body, _ = sjson.Set(body, "snmpv2cWriteCredentialsId.credentialsId", data.SnmpV2WriteId.ValueString())
+	} else {
+		body, _ = sjson.Set(body, "snmpv2cWriteCredentialsId.credentialsId", nil)
 	}
 	if !data.SnmpV3Id.IsNull() {
 		body, _ = sjson.Set(body, "snmpv3CredentialsId.credentialsId", data.SnmpV3Id.ValueString())
+	} else {
+		body, _ = sjson.Set(body, "snmpv3CredentialsId.credentialsId", nil)
 	}
 	if !data.HttpsReadId.IsNull() {
 		body, _ = sjson.Set(body, "httpReadCredentialsId.credentialsId", data.HttpsReadId.ValueString())
+	} else {
+		body, _ = sjson.Set(body, "httpReadCredentialsId.credentialsId", nil)
 	}
 	if !data.HttpsWriteId.IsNull() {
 		body, _ = sjson.Set(body, "httpWriteCredentialsId.credentialsId", data.HttpsWriteId.ValueString())
+	} else {
+		body, _ = sjson.Set(body, "httpWriteCredentialsId.credentialsId", nil)
 	}
 	return body
 }
-
-// End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *AssignCredentials) fromBody(ctx context.Context, res gjson.Result) {

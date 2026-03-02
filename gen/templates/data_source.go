@@ -235,7 +235,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	{{- if $queryParams }}
 	params += {{$queryParams}}
 	{{- end}}
-	{{- else if and (not .GetNoId) (not .GetFromAll)}}
+	{{- else if and (not .GetNoId) (not .GetFromAll) (not (strContains .GetRestEndpoint "%v"))}}
 	params += "/" + url.QueryEscape(config.Id.ValueString())
 	{{- end}}
 	{{- if hasGetQueryParam .Attributes }}
@@ -244,7 +244,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
-	res, err := d.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}config.getPath(){{end}} + params)
+	res, err := d.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}config.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}config.getPath(){{end}} + params)
 	{{- if .FallbackRestEndpoint}}
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {

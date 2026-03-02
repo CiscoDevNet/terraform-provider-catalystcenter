@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -135,6 +136,44 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body)
+	if err != nil {
+		retryErrorCodes := []string{"NCND00010"}
+		errorCode := res.Get("response.errorCode").String()
+
+		shouldRetry := false
+		for _, code := range retryErrorCodes {
+			if errorCode == code {
+				shouldRetry = true
+				break
+			}
+		}
+
+		if shouldRetry {
+			maxWaitTime := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
+			startTime := time.Now()
+			retryInterval := 15 * time.Second
+
+			for shouldRetry && time.Since(startTime) < maxWaitTime {
+				tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)",
+					plan.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
+				time.Sleep(retryInterval)
+				res, err = r.client.Put(plan.getPath()+params, body)
+
+				if err == nil {
+					shouldRetry = false
+				} else {
+					errorCode = res.Get("response.errorCode").String()
+					shouldRetry = false
+					for _, code := range retryErrorCodes {
+						if errorCode == code {
+							shouldRetry = true
+							break
+						}
+					}
+				}
+			}
+		}
+	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
 		return

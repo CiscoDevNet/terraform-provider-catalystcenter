@@ -91,10 +91,10 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"auth_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("L2 Authentication Type. If authType is not open, then at least one RSN Cipher Suite and corresponding valid AKM must be enabled.").AddStringEnumDescription("WPA2_ENTERPRISE", "WPA2_PERSONAL", "OPEN", "WPA3_ENTERPRISE", "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "WPA2_WPA3_ENTERPRISE", "OPEN_SECURED").String,
+				MarkdownDescription: helpers.NewAttributeDescription("L2 Authentication Type. If authType is not open, then at least one RSN Cipher Suite and corresponding valid AKM must be enabled.").AddStringEnumDescription("WPA2_ENTERPRISE", "WPA2_PERSONAL", "OPEN", "WPA3_ENTERPRISE", "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "WPA2_WPA3_ENTERPRISE", "OPEN-SECURED").String,
 				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("WPA2_ENTERPRISE", "WPA2_PERSONAL", "OPEN", "WPA3_ENTERPRISE", "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "WPA2_WPA3_ENTERPRISE", "OPEN_SECURED"),
+					stringvalidator.OneOf("WPA2_ENTERPRISE", "WPA2_PERSONAL", "OPEN", "WPA3_ENTERPRISE", "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "WPA2_WPA3_ENTERPRISE", "OPEN-SECURED"),
 				},
 			},
 			"passphrase": schema.StringAttribute{

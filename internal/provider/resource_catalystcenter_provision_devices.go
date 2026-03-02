@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -185,8 +186,12 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 					data.ForEach(func(_, device gjson.Result) bool {
 						dev := ProvisionDevicesProvisionDevices{}
 
-						if id := device.Get("id"); id.Exists() {
+						// Skip devices without valid IDs
+						if id := device.Get("id"); id.Exists() && id.String() != "" {
 							dev.Id = types.StringValue(id.String())
+						} else {
+							tflog.Warn(ctx, fmt.Sprintf("Skipping device without valid ID during Create (networkDeviceId: %s, siteId: %s)", device.Get("networkDeviceId").String(), device.Get("siteId").String()))
+							return true // skip this device
 						}
 						if site := device.Get("siteId"); site.Exists() {
 							dev.SiteId = types.StringValue(site.String())
@@ -228,6 +233,7 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 	plan.fromBodyUnknowns(ctx, res)
+
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {
@@ -387,9 +393,27 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 	if len(toDelete.ProvisionDevices) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.ProvisionDevices)))
 		for _, v := range toDelete.ProvisionDevices {
-			if v.Id.IsNull() {
-				continue // Skip if id is null
+			// Skip delete if ID is empty or null to prevent sending DELETE to /provisionDevices or /provisionDevices/
+			if v.Id.IsNull() || v.Id.IsUnknown() || v.Id.ValueString() == "" {
+				tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is empty or null", state.Id.ValueString()))
+				continue
 			}
+
+			// Validate ID is a proper UUID to prevent path traversal attacks
+			if err := uuid.Validate(v.Id.ValueString()); err != nil {
+				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to delete object: ID is not a valid UUID: %s", v.Id.ValueString()))
+				continue
+			}
+
+			// Verify item exists with GET before DELETE to prevent mass deletion from path traversal attacks
+			verifyParams := "?networkDeviceId=" + url.QueryEscape(v.NetworkDeviceId.ValueString())
+			verifyRes, verifyErr := r.client.Get(plan.getPath() + verifyParams)
+			if verifyErr != nil || !verifyRes.Get("response.0.id").Exists() || verifyRes.Get("response.0.id").String() != v.Id.ValueString() {
+				tflog.Warn(ctx, "Device has empty ID during update - cannot delete from Catalyst Center. Device may still exist in Catalyst Center.")
+				continue
+			}
+			tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
+
 			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
@@ -455,8 +479,12 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 					data.ForEach(func(_, device gjson.Result) bool {
 						dev := ProvisionDevicesProvisionDevices{}
 
-						if id := device.Get("id"); id.Exists() {
+						// Skip devices without valid IDs
+						if id := device.Get("id"); id.Exists() && id.String() != "" {
 							dev.Id = types.StringValue(id.String())
+						} else {
+							tflog.Warn(ctx, fmt.Sprintf("Skipping device without valid ID during Update (networkDeviceId: %s, siteId: %s)", device.Get("networkDeviceId").String(), device.Get("siteId").String()))
+							return true // skip this device
 						}
 						if site := device.Get("siteId"); site.Exists() {
 							dev.SiteId = types.StringValue(site.String())
@@ -569,7 +597,6 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 	resp.Diagnostics.Append(diags...)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state ProvisionDevices
 
@@ -582,6 +609,27 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	for _, v := range state.ProvisionDevices {
+		// Skip delete if ID is empty or null to prevent sending DELETE to base endpoint
+		if v.Id.IsNull() || v.Id.IsUnknown() || v.Id.ValueString() == "" {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete for device - ID is empty or null", state.Id.ValueString()))
+			continue
+		}
+
+		// Validate ID is a proper UUID to prevent path traversal attacks
+		if err := uuid.Validate(v.Id.ValueString()); err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object: ID is not a valid UUID: %s", v.Id.ValueString()))
+			continue
+		}
+
+		// Verify item exists with GET before DELETE to prevent mass deletion from path traversal attacks
+		verifyParams := "?networkDeviceId=" + url.QueryEscape(v.NetworkDeviceId.ValueString())
+		verifyRes, verifyErr := r.client.Get(state.getPath() + verifyParams)
+		if verifyErr != nil || !verifyRes.Get("response.0.id").Exists() || verifyRes.Get("response.0.id").String() != v.Id.ValueString() {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Device %s not found or ID mismatch during delete verification, skipping delete", state.Id.ValueString(), v.Id.ValueString()))
+			continue
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
+
 		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
@@ -600,8 +648,6 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *ProvisionDevicesResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

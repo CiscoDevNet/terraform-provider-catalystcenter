@@ -125,7 +125,7 @@ type {{$name}}{{$childName}}{{$childChildName}}{{toGoName .TfName}} struct {
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data {{camelCase .Name}}) getPath() string {
 	{{- if hasReference .Attributes}}
-		return fmt.Sprintf("{{.RestEndpoint}}"{{range .Attributes}}{{if .Reference}}, url.QueryEscape(data.{{toGoName .TfName}}.Value{{.Type}}()){{end}}{{end}})
+		return fmt.Sprintf("{{.RestEndpoint}}"{{range .Attributes}}{{if and .Reference (not .Computed)}}, url.QueryEscape(data.{{toGoName .TfName}}.Value{{.Type}}()){{end}}{{end}})
 	{{- else}}
 		return "{{.RestEndpoint}}"
 	{{- end}}
@@ -155,6 +155,42 @@ func (data {{camelCase .Name}}) getPathDelete() string {
 }
 {{end}}
 // End of section. //template:end getPathDelete
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathGet
+{{if .GetRestEndpoint}}
+func (data {{camelCase .Name}}) getPathGet() string {
+	{{- if and (hasReference .Attributes) (strContains .GetRestEndpoint "%v")}}
+		return fmt.Sprintf("{{.GetRestEndpoint}}"{{range .Attributes}}{{if .Reference}}, url.QueryEscape(data.{{toGoName .TfName}}.Value{{.Type}}()){{end}}{{end}})
+	{{- else}}
+		return "{{.GetRestEndpoint}}"
+	{{- end}}
+}
+{{end}}
+// End of section. //template:end getPathGet
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathPut
+{{if .PutRestEndpoint}}
+func (data {{camelCase .Name}}) getPathPut() string {
+	{{- if and (hasReference .Attributes) (strContains .PutRestEndpoint "%v")}}
+		return fmt.Sprintf("{{.PutRestEndpoint}}"{{range .Attributes}}{{if .Reference}}, url.QueryEscape(data.{{toGoName .TfName}}.Value{{.Type}}()){{end}}{{end}})
+	{{- else}}
+		return "{{.PutRestEndpoint}}"
+	{{- end}}
+}
+{{end}}
+// End of section. //template:end getPathPut
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathIdQuery
+{{if .IdQueryRestEndpoint}}
+func (data {{camelCase .Name}}) getPathIdQuery() string {
+	{{- if and (hasReference .Attributes) (strContains .IdQueryRestEndpoint "%v")}}
+		return fmt.Sprintf("{{.IdQueryRestEndpoint}}"{{range .Attributes}}{{if and .Reference (not .Computed)}}, url.QueryEscape(data.{{toGoName .TfName}}.Value{{.Type}}()){{end}}{{end}})
+	{{- else}}
+		return "{{.IdQueryRestEndpoint}}"
+	{{- end}}
+}
+{{end}}
+// End of section. //template:end getPathIdQuery
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .Name}}) string {
@@ -223,7 +259,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 		data.{{toGoName .TfName}}.ElementsAs(ctx, &values, false)
 		{{- if .PutDataPath}}
 		if put {
+			{{- if eq .PutDataPath "_"}}
+			body, _ = sjson.Set(body, "{{.ModelName}}", values)
+			{{- else}}
 			body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", values)
+			{{- end}}
 		} else {
 			body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
 		}
@@ -248,7 +288,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 		}
 		{{- if .PutDataPath}}
 		if put {
+			{{- if eq .PutDataPath "_"}}
+			body, _ = sjson.Set(body, "{{.ModelName}}", params)
+			{{- else}}
 			body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", params)
+			{{- end}}
 		} else {
 			body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", params)
 		}
@@ -260,7 +304,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 		data.{{toGoName .TfName}}.ElementsAs(ctx, &values, false)
 		{{- if .PutDataPath}}
 		if put {
+			{{- if eq .PutDataPath "_"}}
+			body, _ = sjson.Set(body, "{{.ModelName}}", values)
+			{{- else}}
 			body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", values)
+			{{- end}}
 		} else {
 			body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", values)
 		}

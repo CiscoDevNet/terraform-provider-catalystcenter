@@ -221,7 +221,11 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 			{{- end}}
 			{{- range  .Attributes}}
 			{{- if or .Reference .QueryParam .GetQueryParam}}
+			{{- if and .Computed .Reference}}
+			{{.TfName}} = catalystcenter_{{snakeCase $name}}.test.{{.TfName}}
+			{{- else}}
 			{{.TfName}} = {{if .TestValue}}{{.TestValue}}{{else}}{{if eq .Type "String"}}"{{.Example}}"{{else if isStringListSet .}}["{{.Example}}"]{{else if isInt64ListSet .}}[{{.Example}}]{{else}}{{.Example}}{{end}}{{end}}
+			{{- end}}
 			{{- end}}
 			{{- end}}
 			{{- if and .DataSourceNoId (not .NoResource)}}
