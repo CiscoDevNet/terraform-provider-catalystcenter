@@ -49,7 +49,7 @@ resource "catalystcenter_wireless_ssid" "example" {
 ### Required
 
 - `auth_type` (String) L2 Authentication Type. If authType is not open, then at least one RSN Cipher Suite and corresponding valid AKM must be enabled.
-  - Choices: `WPA2_ENTERPRISE`, `WPA2_PERSONAL`, `OPEN`, `WPA3_ENTERPRISE`, `WPA3_PERSONAL`, `WPA2_WPA3_PERSONAL`, `WPA2_WPA3_ENTERPRISE`, `OPEN_SECURED`
+  - Choices: `WPA2_ENTERPRISE`, `WPA2_PERSONAL`, `OPEN`, `WPA3_ENTERPRISE`, `WPA3_PERSONAL`, `WPA2_WPA3_PERSONAL`, `WPA2_WPA3_ENTERPRISE`, `OPEN-SECURED`
 - `site_id` (String) Site ID - only site level Global is supported
 - `ssid` (String) Name of the SSID
 - `wlan_type` (String) Wlan Type

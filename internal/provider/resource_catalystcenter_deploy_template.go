@@ -380,7 +380,7 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 			redeploy = plan.Redeploy.ValueString()
 		}
 
-		tflog.Debug(ctx, fmt.Sprintf("redeployaa: %s: %v", planTarget.Id.ValueString(), redeploy))
+		tflog.Debug(ctx, fmt.Sprintf("redeploy parameter for device %s: %s", planTarget.Id.ValueString(), redeploy))
 		// Add to redeploy list if new or changed
 		if !found || changed && redeploy == "ON_CHANGE" || redeploy == "ALWAYS" {
 			targetInfoToRedeploy = append(targetInfoToRedeploy, planTarget)
@@ -406,9 +406,47 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 		}
 	}
 
+	// Check for changes in member_template_deployment_info (for composite templates)
+	memberChanged := false
+	if len(plan.MemberTemplateDeploymentInfo) > 0 {
+		for i, planMember := range plan.MemberTemplateDeploymentInfo {
+			// Check if this member exists in state
+			if i < len(state.MemberTemplateDeploymentInfo) {
+				stateMember := state.MemberTemplateDeploymentInfo[i]
+				// Check if target_info changed within this member
+				for j, planTarget := range planMember.TargetInfo {
+					if j < len(stateMember.TargetInfo) {
+						stateTarget := stateMember.TargetInfo[j]
+						// Check if redeploy parameter changed or any target attributes changed
+						redeployChanged := !planTarget.Redeploy.Equal(stateTarget.Redeploy)
+						targetAttrsChanged := memberTargetChanged(planTarget, stateTarget)
+
+						if redeployChanged || targetAttrsChanged {
+							tflog.Debug(ctx, fmt.Sprintf("Member template target_info changed: member[%d] target[%d] device=%s redeployChanged=%v targetAttrsChanged=%v", i, j, planTarget.Id.ValueString(), redeployChanged, targetAttrsChanged))
+							memberChanged = true
+							break
+						}
+					}
+				}
+			} else {
+				tflog.Debug(ctx, fmt.Sprintf("New member template detected: member[%d]", i))
+				memberChanged = true
+			}
+			if memberChanged {
+				break
+			}
+		}
+	}
+
 	// Deploy to changed/new targets
-	if len(targetInfoToRedeploy) > 0 {
-		success := r.deployTargets(ctx, &plan, targetInfoToRedeploy, &resp.Diagnostics) // Pass resp.Diagnostics
+	if len(targetInfoToRedeploy) > 0 || memberChanged {
+		// If member templates changed but no top-level targets, use all top-level targets
+		targetsToUse := targetInfoToRedeploy
+		if memberChanged && len(targetInfoToRedeploy) == 0 {
+			targetsToUse = plan.TargetInfo
+			tflog.Debug(ctx, "Member template changed, deploying to all top-level targets")
+		}
+		success := r.deployTargets(ctx, &plan, targetsToUse, &resp.Diagnostics) // Pass resp.Diagnostics
 		if !success {
 			return
 		}
@@ -456,6 +494,42 @@ func targetsMatch(target1, target2 DeployTemplateTargetInfo) bool {
 
 // Helper function to check if a target_info item has changed
 func targetChanged(planTarget, stateTarget DeployTemplateTargetInfo) bool {
+	// Check if params changed
+	if !planTarget.Params.Equal(stateTarget.Params) {
+		return true
+	}
+
+	// Check if type changed
+	if !planTarget.Type.Equal(stateTarget.Type) {
+		return true
+	}
+
+	// Check if versioned_template_id changed
+	if !planTarget.VersionedTemplateId.Equal(stateTarget.VersionedTemplateId) {
+		return true
+	}
+
+	// Check if resource_params changed
+	if len(planTarget.ResourceParams) != len(stateTarget.ResourceParams) {
+		return true
+	}
+
+	for i := range planTarget.ResourceParams {
+		if i >= len(stateTarget.ResourceParams) {
+			return true
+		}
+		if !planTarget.ResourceParams[i].Type.Equal(stateTarget.ResourceParams[i].Type) ||
+			!planTarget.ResourceParams[i].Scope.Equal(stateTarget.ResourceParams[i].Scope) ||
+			!planTarget.ResourceParams[i].Value.Equal(stateTarget.ResourceParams[i].Value) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Helper function to check if a member template target_info item has changed
+func memberTargetChanged(planTarget, stateTarget DeployTemplateMemberTemplateDeploymentInfoTargetInfo) bool {
 	// Check if params changed
 	if !planTarget.Params.Equal(stateTarget.Params) {
 		return true
@@ -567,12 +641,13 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 // Helper function to deploy to specific target_info items
 func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, diag *diag.Diagnostics) bool {
 	tempPlan := DeployTemplate{
-		TemplateId:        plan.TemplateId,
-		ForcePushTemplate: plan.ForcePushTemplate,
-		CopyingConfig:     plan.CopyingConfig,
-		IsComposite:       plan.IsComposite,
-		MainTemplateId:    plan.MainTemplateId,
-		TargetInfo:        targets,
+		TemplateId:                   plan.TemplateId,
+		ForcePushTemplate:            plan.ForcePushTemplate,
+		CopyingConfig:                plan.CopyingConfig,
+		IsComposite:                  plan.IsComposite,
+		MainTemplateId:               plan.MainTemplateId,
+		MemberTemplateDeploymentInfo: plan.MemberTemplateDeploymentInfo,
+		TargetInfo:                   targets,
 	}
 
 	for _, v := range targets {

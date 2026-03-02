@@ -1,0 +1,134 @@
+---
+name: Wireless Profile Site Tag
+rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/siteTags/bulk
+get_rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/siteTags/%v
+put_rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/siteTags/%v
+delete_rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/siteTags/%v
+id_query_rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/siteTags
+put_no_id: true
+id_from_query_path: response.0
+id_from_query_path_attribute: siteTagId
+res_description: 'This resource manages Site Tags associated with a Wireless Profile in Cisco Catalyst Center. Site Tags cannot be created at the Global site - they must be created at Area, Building, or Floor level. Before creating a site tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource.'
+doc_category: Wireless
+attributes:
+  - model_name: wireless_profile_id
+    tf_name: wireless_profile_id
+    type: String
+    reference: true
+    description: The ID of the Wireless Profile
+    example: 12345678-1234-1234-1234-123456789012
+    test_value: catalystcenter_network_profile_for_sites_assignments.test.network_profile_id
+  - model_name: siteTagId
+    tf_name: site_tag_id
+    type: String
+    reference: true
+    computed: true
+    response_data_path: response.siteTagId
+    description: The ID of the Site Tag (computed after creation)
+    example: 87654321-4321-4321-4321-210987654321
+    exclude_test: true
+  - model_name: siteTagName
+    tf_name: site_tag_name
+    type: String
+    mandatory: true
+    requires_replace: true
+    data_path: items.0
+    put_data_path: "_"
+    response_data_path: response.siteTagName
+    description: Name of the Site Tag. Use English letters, numbers, special characters except <, /, '.*', ? and leading/trailing space. Cannot be modified after creation.
+    example: SiteTag1
+  - model_name: apProfileName
+    tf_name: ap_profile_name
+    type: String
+    mandatory: true
+    data_path: items.0
+    put_data_path: "_"
+    response_data_path: response.apProfileName
+    description: Name of the AP Profile to associate with this Site Tag
+    example: default-ap-profile
+    test_value: catalystcenter_ap_profile.test.ap_profile_name
+  - model_name: siteIds
+    tf_name: site_ids
+    type: Set
+    element_type: String
+    mandatory: true
+    data_path: items.0
+    put_data_path: "_"
+    response_data_path: response.siteIds
+    description: Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global).
+    example: 12345678-1234-1234-1234-123456789000
+    test_value: "[catalystcenter_building.test_building.id]"
+  - model_name: flexProfileName
+    tf_name: flex_profile_name
+    type: String
+    data_path: items.0
+    put_data_path: "_"
+    response_data_path: response.flexProfileName
+    default_value: default-flex-profile
+    description: Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. If not provided for a Flex profile, the system will auto-generate one.
+    exclude_test: true
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_area" "test_area" {
+    name      = "SiteTagTestArea"
+    parent_id = data.catalystcenter_site.test.id
+  }
+  resource "catalystcenter_building" "test_building" {
+    name      = "SiteTagTestBuilding"
+    parent_id = catalystcenter_area.test_area.id
+    country   = "United States"
+    address   = "123 Test Street, San Jose, CA"
+    latitude  = 37.3382
+    longitude = -121.8863
+  }
+  resource "catalystcenter_wireless_ssid" "test" {
+    site_id                               = data.catalystcenter_site.test.id
+    ssid                                  = "SiteTagTestSSID"
+    auth_type                             = "WPA3_PERSONAL"
+    passphrase                            = "Cisco12345"
+    fast_lane                             = false
+    mac_filtering                         = false
+    ssid_radio_type                       = "Triple band operation(2.4GHz, 5GHz and 6GHz)"
+    broadcast_ssid                        = true
+    fast_transition                       = "ADAPTIVE"
+    session_timeout_enable                = true
+    session_timeout                       = 1800
+    client_exclusion                      = true
+    client_exclusion_timeout              = 1800
+    basic_service_set_max_idle            = true
+    basic_service_set_client_idle_timeout = 300
+    directed_multicast_service            = true
+    neighbor_list                         = true
+    mft_client_protection                 = "OPTIONAL"
+    aaa_override                          = false
+    protected_management_frame            = "REQUIRED"
+    rsn_cipher_suite_ccmp128              = true
+    wlan_type                             = "Enterprise"
+    auth_key_sae_ext                      = true
+    ghz24_policy                          = "dot11-g-only"
+    hex                                   = false
+    random_mac_filter                     = false
+  }
+  resource "catalystcenter_wireless_profile" "test" {
+    wireless_profile_name = "SiteTagTestProfile"
+    ssid_details = [{
+      ssid_name           = catalystcenter_wireless_ssid.test.ssid
+      enable_fabric       = false
+      enable_flex_connect = false
+    }]
+
+    depends_on = [catalystcenter_wireless_ssid.test, catalystcenter_ap_profile.test]
+  }
+  resource "catalystcenter_ap_profile" "test" {
+    ap_profile_name = "SiteTagTestAPProfile"
+  }
+  resource "catalystcenter_network_profile_for_sites_assignments" "test" {
+    network_profile_id = catalystcenter_wireless_profile.test.id
+    items = [{
+      id = catalystcenter_building.test_building.id
+    }]
+
+    depends_on = [catalystcenter_building.test_building]
+  }

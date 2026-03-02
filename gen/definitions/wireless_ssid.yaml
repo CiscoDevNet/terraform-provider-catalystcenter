@@ -31,7 +31,7 @@ attributes:
       - WPA3_PERSONAL
       - WPA2_WPA3_PERSONAL
       - WPA2_WPA3_ENTERPRISE
-      - OPEN_SECURED
+      - OPEN-SECURED
     description: "L2 Authentication Type. If authType is not open, then at least one RSN Cipher Suite and corresponding valid AKM must be enabled."
     example: WPA3_PERSONAL
   - model_name: passphrase
