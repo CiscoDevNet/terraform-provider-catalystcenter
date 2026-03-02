@@ -7,6 +7,7 @@ id_from_query_path_attribute: id
 data_source_no_id: true
 import_no_id: true
 put_id: true
+allow_existing_on_create: true
 res_description: This resource manages an Access Point (AP) Profile in wireless settings.
 doc_category: Wireless
 attributes:
