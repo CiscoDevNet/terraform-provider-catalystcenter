@@ -24,6 +24,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -169,12 +170,13 @@ type APProfile struct {
 }
 
 type APProfileCalendarPowerProfiles struct {
-	PowerProfileName   types.String `tfsdk:"power_profile_name"`
-	SchedulerType      types.String `tfsdk:"scheduler_type"`
-	SchedulerStartTime types.String `tfsdk:"scheduler_start_time"`
-	SchedulerEndTime   types.String `tfsdk:"scheduler_end_time"`
-	SchedulerDay       types.String `tfsdk:"scheduler_day"`
-	SchedulerDate      types.String `tfsdk:"scheduler_date"`
+	CalendarProfileName types.String `tfsdk:"calendar_profile_name"`
+	PowerProfileName    types.String `tfsdk:"power_profile_name"`
+	SchedulerType       types.String `tfsdk:"scheduler_type"`
+	SchedulerStartTime  types.String `tfsdk:"scheduler_start_time"`
+	SchedulerEndTime    types.String `tfsdk:"scheduler_end_time"`
+	SchedulerDay        types.Set    `tfsdk:"scheduler_day"`
+	SchedulerDate       types.Set    `tfsdk:"scheduler_date"`
 }
 
 func (data APProfile) getPath() string {
@@ -286,10 +288,18 @@ func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 				itemBody, _ = sjson.Set(itemBody, "duration.schedulerEndTime", convertTo12Hour(item.SchedulerEndTime.ValueString()))
 			}
 			if !item.SchedulerDay.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "duration.schedulerDay", item.SchedulerDay.ValueString())
+				var days []string
+				item.SchedulerDay.ElementsAs(ctx, &days, false)
+				// Convert to lowercase for API
+				for i := range days {
+					days[i] = strings.ToLower(days[i])
+				}
+				itemBody, _ = sjson.Set(itemBody, "duration.schedulerDay", days)
 			}
 			if !item.SchedulerDate.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "duration.schedulerDate", item.SchedulerDate.ValueString())
+				var dates []string
+				item.SchedulerDate.ElementsAs(ctx, &dates, false)
+				itemBody, _ = sjson.Set(itemBody, "duration.schedulerDate", dates)
 			}
 			body, _ = sjson.SetRaw(body, "calendarPowerProfiles.-1", itemBody)
 		}
@@ -443,6 +453,11 @@ func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 		data.CalendarPowerProfiles = make([]APProfileCalendarPowerProfiles, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := APProfileCalendarPowerProfiles{}
+			if cValue := v.Get("calendarProfileName"); cValue.Exists() && cValue.Type != gjson.Null {
+				item.CalendarProfileName = types.StringValue(cValue.String())
+			} else {
+				item.CalendarProfileName = types.StringNull()
+			}
 			if cValue := v.Get("powerProfileName"); cValue.Exists() {
 				item.PowerProfileName = types.StringValue(cValue.String())
 			} else {
@@ -463,15 +478,25 @@ func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.SchedulerEndTime = types.StringNull()
 			}
-			if cValue := v.Get("duration.schedulerDay"); cValue.Exists() && cValue.Type != gjson.Null {
-				item.SchedulerDay = types.StringValue(cValue.String())
+			if cValue := v.Get("duration.schedulerDay"); cValue.Exists() && cValue.Type != gjson.Null && cValue.IsArray() {
+				dayValues := []attr.Value{}
+				cValue.ForEach(func(_, dayVal gjson.Result) bool {
+					dayValues = append(dayValues, types.StringValue(strings.ToLower(dayVal.String())))
+					return true
+				})
+				item.SchedulerDay, _ = types.SetValue(types.StringType, dayValues)
 			} else {
-				item.SchedulerDay = types.StringNull()
+				item.SchedulerDay = types.SetNull(types.StringType)
 			}
-			if cValue := v.Get("duration.schedulerDate"); cValue.Exists() && cValue.Type != gjson.Null {
-				item.SchedulerDate = types.StringValue(cValue.String())
+			if cValue := v.Get("duration.schedulerDate"); cValue.Exists() && cValue.Type != gjson.Null && cValue.IsArray() {
+				dateValues := []attr.Value{}
+				cValue.ForEach(func(_, dateVal gjson.Result) bool {
+					dateValues = append(dateValues, types.StringValue(dateVal.String()))
+					return true
+				})
+				item.SchedulerDate, _ = types.SetValue(types.StringType, dateValues)
 			} else {
-				item.SchedulerDate = types.StringNull()
+				item.SchedulerDate = types.SetNull(types.StringType)
 			}
 			data.CalendarPowerProfiles = append(data.CalendarPowerProfiles, item)
 			return true
@@ -631,36 +656,25 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.ApPowerProfileName = types.StringNull()
 	}
 	for i := range data.CalendarPowerProfiles {
-		// Keys for matching - use duration. prefix for time fields and convert user's 24h to API's 12h format for comparison
-		keys := [...]string{"powerProfileName", "schedulerType", "duration.schedulerStartTime", "duration.schedulerEndTime", "duration.schedulerDay", "duration.schedulerDate"}
-		keyValues := [...]string{
-			data.CalendarPowerProfiles[i].PowerProfileName.ValueString(),
-			data.CalendarPowerProfiles[i].SchedulerType.ValueString(),
-			convertTo12Hour(data.CalendarPowerProfiles[i].SchedulerStartTime.ValueString()),
-			convertTo12Hour(data.CalendarPowerProfiles[i].SchedulerEndTime.ValueString()),
-			data.CalendarPowerProfiles[i].SchedulerDay.ValueString(),
-			data.CalendarPowerProfiles[i].SchedulerDate.ValueString(),
-		}
-
+		// Keys for matching - use only the fixed fields (not arrays) for matching
+		// Match based on powerProfileName and schedulerType which should uniquely identify a calendar profile
 		var r gjson.Result
 		res.Get("response.0.calendarPowerProfiles").ForEach(
 			func(_, v gjson.Result) bool {
-				found := false
-				for ik := range keys {
-					if v.Get(keys[ik]).String() == keyValues[ik] {
-						found = true
-						continue
-					}
-					found = false
-					break
-				}
-				if found {
+				// Match by powerProfileName and schedulerType
+				if v.Get("powerProfileName").String() == data.CalendarPowerProfiles[i].PowerProfileName.ValueString() &&
+					v.Get("schedulerType").String() == data.CalendarPowerProfiles[i].SchedulerType.ValueString() {
 					r = v
 					return false
 				}
 				return true
 			},
 		)
+		if value := r.Get("calendarProfileName"); value.Exists() && value.Type != gjson.Null {
+			data.CalendarPowerProfiles[i].CalendarProfileName = types.StringValue(value.String())
+		} else {
+			data.CalendarPowerProfiles[i].CalendarProfileName = types.StringNull()
+		}
 		if value := r.Get("powerProfileName"); value.Exists() && !data.CalendarPowerProfiles[i].PowerProfileName.IsNull() {
 			data.CalendarPowerProfiles[i].PowerProfileName = types.StringValue(value.String())
 		} else {
@@ -681,15 +695,25 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 		} else {
 			data.CalendarPowerProfiles[i].SchedulerEndTime = types.StringNull()
 		}
-		if value := r.Get("duration.schedulerDay"); value.Exists() && value.Type != gjson.Null && !data.CalendarPowerProfiles[i].SchedulerDay.IsNull() {
-			data.CalendarPowerProfiles[i].SchedulerDay = types.StringValue(value.String())
+		if value := r.Get("duration.schedulerDay"); value.Exists() && value.Type != gjson.Null && value.IsArray() && !data.CalendarPowerProfiles[i].SchedulerDay.IsNull() {
+			dayValues := []attr.Value{}
+			value.ForEach(func(_, dayVal gjson.Result) bool {
+				dayValues = append(dayValues, types.StringValue(strings.ToLower(dayVal.String())))
+				return true
+			})
+			data.CalendarPowerProfiles[i].SchedulerDay, _ = types.SetValue(types.StringType, dayValues)
 		} else {
-			data.CalendarPowerProfiles[i].SchedulerDay = types.StringNull()
+			data.CalendarPowerProfiles[i].SchedulerDay = types.SetNull(types.StringType)
 		}
-		if value := r.Get("duration.schedulerDate"); value.Exists() && value.Type != gjson.Null && !data.CalendarPowerProfiles[i].SchedulerDate.IsNull() {
-			data.CalendarPowerProfiles[i].SchedulerDate = types.StringValue(value.String())
+		if value := r.Get("duration.schedulerDate"); value.Exists() && value.Type != gjson.Null && value.IsArray() && !data.CalendarPowerProfiles[i].SchedulerDate.IsNull() {
+			dateValues := []attr.Value{}
+			value.ForEach(func(_, dateVal gjson.Result) bool {
+				dateValues = append(dateValues, types.StringValue(dateVal.String()))
+				return true
+			})
+			data.CalendarPowerProfiles[i].SchedulerDate, _ = types.SetValue(types.StringType, dateValues)
 		} else {
-			data.CalendarPowerProfiles[i].SchedulerDate = types.StringNull()
+			data.CalendarPowerProfiles[i].SchedulerDate = types.SetNull(types.StringType)
 		}
 	}
 	if value := res.Get("response.0.countryCode"); value.Exists() && !data.CountryCode.IsNull() {
