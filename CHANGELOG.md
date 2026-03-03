@@ -1,5 +1,7 @@
 ## 0.5.4 (Unreleased)
 
+- Fix `catalystcenter_ap_profile` resource and data source with multiple improvements: correct boolean default handling, fix scheduler attribute issues, fix schema validation errors
+- Fix `catalystcenter_deploy_template` resource to correctly filter `member_template_deployment_info` parameters when deploying composite templates to a subset of targets
 - Fix `catalystcenter_areas`, `catalystcenter_buildings`, and `catalystcenter_floors` resources to automatically retry on error code `NCGR10083`
 - Add additional verification for the critical fix introduced in 0.5.3 by adding a GET-before-DELETE check and UUID format validation in the `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources, further protecting against accidental or path traversal–based mass deletions.
 - Add `catalystcenter_wireless_profile_site_tag` resource and data source

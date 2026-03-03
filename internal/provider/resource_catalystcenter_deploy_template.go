@@ -640,13 +640,39 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 
 // Helper function to deploy to specific target_info items
 func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, diag *diag.Diagnostics) bool {
+	targetIds := make(map[string]bool)
+	for _, t := range targets {
+		targetIds[t.Id.ValueString()] = true
+	}
+
+	var filteredMemberInfo []DeployTemplateMemberTemplateDeploymentInfo
+	for _, member := range plan.MemberTemplateDeploymentInfo {
+		var filteredTargets []DeployTemplateMemberTemplateDeploymentInfoTargetInfo
+		for _, t := range member.TargetInfo {
+			if targetIds[t.Id.ValueString()] {
+				filteredTargets = append(filteredTargets, t)
+			}
+		}
+		if len(filteredTargets) > 0 {
+			memberCopy := DeployTemplateMemberTemplateDeploymentInfo{
+				TemplateId:        member.TemplateId,
+				ForcePushTemplate: member.ForcePushTemplate,
+				IsComposite:       member.IsComposite,
+				CopyingConfig:     member.CopyingConfig,
+				MainTemplateId:    member.MainTemplateId,
+				TargetInfo:        filteredTargets,
+			}
+			filteredMemberInfo = append(filteredMemberInfo, memberCopy)
+		}
+	}
+
 	tempPlan := DeployTemplate{
 		TemplateId:                   plan.TemplateId,
 		ForcePushTemplate:            plan.ForcePushTemplate,
 		CopyingConfig:                plan.CopyingConfig,
 		IsComposite:                  plan.IsComposite,
 		MainTemplateId:               plan.MainTemplateId,
-		MemberTemplateDeploymentInfo: plan.MemberTemplateDeploymentInfo,
+		MemberTemplateDeploymentInfo: filteredMemberInfo,
 		TargetInfo:                   targets,
 	}
 
