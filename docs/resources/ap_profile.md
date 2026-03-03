@@ -33,7 +33,7 @@ resource "catalystcenter_ap_profile" "example" {
 
 ### Optional
 
-- `ap_power_profile_name` (String) Name of the existing AP power profile.
+- `ap_power_profile_name` (String) Name of the existing AP power profile for always-on mode.
 - `auth_type` (String) Authentication type used in the AP profile. These settings are applicable during PnP claim and for day-N authentication of AP. Changing these settings will be service impacting for the PnP onboarded APs and will need a factory-reset for those APs.
   - Choices: `NO-AUTH`, `EAP-TLS`, `EAP-PEAP`, `EAP-FAST`
   - Default value: `NO-AUTH`
@@ -43,6 +43,7 @@ resource "catalystcenter_ap_profile" "example" {
   - Default value: `false`
 - `backhaul_client_access` (Boolean) Indicates if backhaul client access is enabled on the AP.
 - `bridge_group_name` (String) Name of the bridge group for mesh settings. If not configured, 'Default' Bridge group name will be used in mesh profile.
+- `calendar_power_profiles` (Attributes List) Calendar-based power profile settings. Supports multiple profiles with different schedules. (see [below for nested schema](#nestedatt--calendar_power_profiles))
 - `cdp_state` (Boolean) Indicates if CDP is enabled on the AP. Enable CDP in order to make Cisco Access Points known to its neighboring devices and vice-versa.
   - Default value: `false`
 - `client_limit` (Number) Number of clients. Value should be between 0-1200.
@@ -56,7 +57,7 @@ resource "catalystcenter_ap_profile" "example" {
 - `ghz24_backhaul_data_rates` (String) 2.4GHz backhaul data rates.
   - Choices: `auto`, `802.11abg`, `802.11ax`, `802.11n`
 - `ghz5_backhaul_data_rates` (String) 5GHz backhaul data rates.
-  - Choices: `auto`, `802.11abg`, `802.12ac`, `802.11ax`, `802.11n`
+  - Choices: `auto`, `802.11abg`, `802.11ac`, `802.11ax`, `802.11n`
 - `management_enable_password` (String) Enable password for managing the AP. Length must be 8-120 characters.
 - `management_password` (String) Management password for the AP. Length must be 8-120 characters.
 - `management_user_name` (String) Management username must have a minimum of 1 character and a maximum of 32 characters.
@@ -64,7 +65,6 @@ resource "catalystcenter_ap_profile" "example" {
   - Default value: `false`
 - `pmf_denial_enabled` (Boolean) Indicates if PMF denial is active on the AP. PMF Denial is supported from IOS-XE version 17.12 and above.
   - Default value: `false`
-- `power_profile_name` (String) Name of the existing AP power profile to be mapped to the calendar power profile. API-/intent/api/v1/wirelessSettings/powerProfiles.
 - `range` (Number) Range of the mesh network. Value should be between 150-132000
   - Range: `150`-`132000`
 - `rap_downlink_backhaul` (String) Type of downlink backhaul used.
@@ -81,19 +81,13 @@ resource "catalystcenter_ap_profile" "example" {
   - Default value: `10`
 - `rogue_detection_transient_interval` (Number) Transient interval for rogue detection. Value should be 0 or from 120 to 1800.
   - Default value: `0`
-- `scheduler_date` (String) Start and End date of the duration setting, applicable for MONTHLY schedulers.
-- `scheduler_day` (String) Applies every week on the selected days
-- `scheduler_end_time` (String) End time of the duration setting.
-- `scheduler_start_time` (String) Start time of the duration setting.
-- `scheduler_type` (String) Type of the scheduler.
-  - Choices: `DAILY`, `WEEKLY`, `MONTHLY`
 - `ssh_enabled` (Boolean) Indicates if SSH is enabled on the AP. Enable SSH to add credentials for device management.
   - Default value: `false`
 - `telnet_enabled` (Boolean) Indicates if Telnet is enabled on the AP. Enable Telnet to add credentials for device management.
   - Default value: `false`
 - `time_zone` (String) In the Time Zone area, choose one of the following options. Not Configured - APs operate in the UTC time zone. Controller - APs operate in the Cisco Wireless Controller time zone. Delta from Controller - APs operate in the offset time from the wireless controller time zone.
   - Choices: `Not Configured`, `Controller`, `Delta from Controller`
-  - Default value: `NOT CONFIGURED`
+  - Default value: `Not Configured`
 - `time_zone_offset_hour` (Number) Enter the hour value (HH). The valid range is from -12 through 14.
   - Range: `-12`-`14`
   - Default value: `0`
@@ -104,6 +98,26 @@ resource "catalystcenter_ap_profile" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
+
+<a id="nestedatt--calendar_power_profiles"></a>
+### Nested Schema for `calendar_power_profiles`
+
+Required:
+
+- `power_profile_name` (String) Name of the existing AP power profile to be mapped to the calendar schedule.
+- `scheduler_end_time` (String) End time in 24-hour format (HH:MM, e.g., '06:00'). Provider converts to 12-hour AM/PM format for API.
+- `scheduler_start_time` (String) Start time in 24-hour format (HH:MM, e.g., '22:00'). Provider converts to 12-hour AM/PM format for API.
+- `scheduler_type` (String) Type of the scheduler.
+  - Choices: `DAILY`, `WEEKLY`, `MONTHLY`
+
+Optional:
+
+- `scheduler_date` (Set of String) Dates for MONTHLY scheduler as a set of date strings (e.g., ['1', '15']). Required when schedulerType is MONTHLY.
+- `scheduler_day` (Set of String) Days for WEEKLY scheduler as a set of lowercase day names (e.g., ['saturday', 'sunday']). Required when schedulerType is WEEKLY.
+
+Read-Only:
+
+- `calendar_profile_name` (String) Name of the calendar profile. This is auto-generated by the API and read-only.
 
 ## Import
 

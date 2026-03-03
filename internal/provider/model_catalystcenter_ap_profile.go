@@ -17,78 +17,172 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
+// Section below is manually modified - generator markings removed for imports
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
 
-// End of section. //template:end imports
+// Time conversion helpers for calendar power profiles
+// API requires 12-hour AM/PM format, but we accept 24-hour format from users
 
-// Section below is generated&owned by "gen/generator.go". //template:begin types
-type APProfile struct {
-	Id                              types.String `tfsdk:"id"`
-	ApProfileName                   types.String `tfsdk:"ap_profile_name"`
-	Description                     types.String `tfsdk:"description"`
-	RemoteWorkerEnabled             types.Bool   `tfsdk:"remote_worker_enabled"`
-	AuthType                        types.String `tfsdk:"auth_type"`
-	Dot1xUsername                   types.String `tfsdk:"dot1x_username"`
-	Dot1xPassword                   types.String `tfsdk:"dot1x_password"`
-	SshEnabled                      types.Bool   `tfsdk:"ssh_enabled"`
-	TelnetEnabled                   types.Bool   `tfsdk:"telnet_enabled"`
-	ManagementUserName              types.String `tfsdk:"management_user_name"`
-	ManagementPassword              types.String `tfsdk:"management_password"`
-	ManagementEnablePassword        types.String `tfsdk:"management_enable_password"`
-	CdpState                        types.Bool   `tfsdk:"cdp_state"`
-	AwipsEnabled                    types.Bool   `tfsdk:"awips_enabled"`
-	AwipsForensicEnabled            types.Bool   `tfsdk:"awips_forensic_enabled"`
-	RogueDetection                  types.Bool   `tfsdk:"rogue_detection"`
-	RogueDetectionMinRssi           types.Int64  `tfsdk:"rogue_detection_min_rssi"`
-	RogueDetectionTransientInterval types.Int64  `tfsdk:"rogue_detection_transient_interval"`
-	RogueDetectionReportInterval    types.Int64  `tfsdk:"rogue_detection_report_interval"`
-	PmfDenialEnabled                types.Bool   `tfsdk:"pmf_denial_enabled"`
-	MeshEnabled                     types.Bool   `tfsdk:"mesh_enabled"`
-	BridgeGroupName                 types.String `tfsdk:"bridge_group_name"`
-	BackhaulClientAccess            types.Bool   `tfsdk:"backhaul_client_access"`
-	Range                           types.Int64  `tfsdk:"range"`
-	Ghz5BackhaulDataRates           types.String `tfsdk:"ghz5_backhaul_data_rates"`
-	Ghz24BackhaulDataRates          types.String `tfsdk:"ghz24_backhaul_data_rates"`
-	RapDownlinkBackhaul             types.String `tfsdk:"rap_downlink_backhaul"`
-	ApPowerProfileName              types.String `tfsdk:"ap_power_profile_name"`
-	PowerProfileName                types.String `tfsdk:"power_profile_name"`
-	SchedulerType                   types.String `tfsdk:"scheduler_type"`
-	SchedulerStartTime              types.String `tfsdk:"scheduler_start_time"`
-	SchedulerEndTime                types.String `tfsdk:"scheduler_end_time"`
-	SchedulerDay                    types.String `tfsdk:"scheduler_day"`
-	SchedulerDate                   types.String `tfsdk:"scheduler_date"`
-	CountryCode                     types.String `tfsdk:"country_code"`
-	TimeZone                        types.String `tfsdk:"time_zone"`
-	TimeZoneOffsetHour              types.Int64  `tfsdk:"time_zone_offset_hour"`
-	TimeZoneOffsetMinutes           types.Int64  `tfsdk:"time_zone_offset_minutes"`
-	ClientLimit                     types.Int64  `tfsdk:"client_limit"`
+// convertTo12Hour converts 24-hour format (e.g., "22:00") to 12-hour AM/PM format (e.g., "10:00 PM")
+func convertTo12Hour(time24 string) string {
+	if time24 == "" {
+		return ""
+	}
+	// If already in 12-hour format, return as-is
+	if strings.Contains(strings.ToUpper(time24), "AM") || strings.Contains(strings.ToUpper(time24), "PM") {
+		return time24
+	}
+	parts := strings.Split(time24, ":")
+	if len(parts) != 2 {
+		return time24
+	}
+	hour, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return time24
+	}
+	minute := parts[1]
+
+	suffix := "AM"
+	if hour >= 12 {
+		suffix = "PM"
+	}
+	if hour > 12 {
+		hour -= 12
+	}
+	if hour == 0 {
+		hour = 12
+	}
+	return fmt.Sprintf("%02d:%s %s", hour, minute, suffix)
 }
 
-// End of section. //template:end types
+// convertTo24Hour converts 12-hour AM/PM format (e.g., "10:00 PM") to 24-hour format (e.g., "22:00")
+func convertTo24Hour(time12 string) string {
+	if time12 == "" {
+		return ""
+	}
+	// If already in 24-hour format (no AM/PM), return as-is
+	upper := strings.ToUpper(time12)
+	if !strings.Contains(upper, "AM") && !strings.Contains(upper, "PM") {
+		return time12
+	}
 
-// Section below is generated&owned by "gen/generator.go". //template:begin getPath
+	isPM := strings.Contains(upper, "PM")
+	// Remove AM/PM suffix
+	timeOnly := strings.TrimSpace(strings.Replace(strings.Replace(upper, "AM", "", 1), "PM", "", 1))
+	parts := strings.Split(timeOnly, ":")
+	if len(parts) != 2 {
+		return time12
+	}
+	hour, err := strconv.Atoi(strings.TrimSpace(parts[0]))
+	if err != nil {
+		return time12
+	}
+	minute := strings.TrimSpace(parts[1])
+
+	if isPM && hour != 12 {
+		hour += 12
+	}
+	if !isPM && hour == 12 {
+		hour = 0
+	}
+	return fmt.Sprintf("%02d:%s", hour, minute)
+}
+
+// normalizeTimeZone maps API response (ALL-CAPS) to user's original value or Title Case
+// API accepts Title Case but returns ALL-CAPS
+func normalizeTimeZone(apiValue string, userValue string) string {
+	// Mapping from ALL-CAPS (API response) to Title Case (API docs/user-friendly)
+	timeZoneMap := map[string]string{
+		"NOT CONFIGURED":        "Not Configured",
+		"CONTROLLER":            "Controller",
+		"DELTA FROM CONTROLLER": "Delta from Controller",
+	}
+
+	// If user specified a value that matches case-insensitively, preserve user's casing
+	if userValue != "" && strings.EqualFold(apiValue, userValue) {
+		return userValue
+	}
+
+	// Otherwise normalize to Title Case (matching API documentation)
+	if normalized, ok := timeZoneMap[strings.ToUpper(apiValue)]; ok {
+		return normalized
+	}
+	return apiValue
+}
+
+// normalizeCountryCode handles API returning "unconfigured" which is not in the enum
+// Treats "unconfigured" as null/empty (no country code set)
+func normalizeCountryCode(apiValue string) string {
+	if strings.EqualFold(apiValue, "unconfigured") {
+		return "" // Treat as null
+	}
+	return apiValue
+}
+
+// End of manually modified section
+
+// APProfile types
+type APProfile struct {
+	Id                              types.String                     `tfsdk:"id"`
+	ApProfileName                   types.String                     `tfsdk:"ap_profile_name"`
+	Description                     types.String                     `tfsdk:"description"`
+	RemoteWorkerEnabled             types.Bool                       `tfsdk:"remote_worker_enabled"`
+	AuthType                        types.String                     `tfsdk:"auth_type"`
+	Dot1xUsername                   types.String                     `tfsdk:"dot1x_username"`
+	Dot1xPassword                   types.String                     `tfsdk:"dot1x_password"`
+	SshEnabled                      types.Bool                       `tfsdk:"ssh_enabled"`
+	TelnetEnabled                   types.Bool                       `tfsdk:"telnet_enabled"`
+	ManagementUserName              types.String                     `tfsdk:"management_user_name"`
+	ManagementPassword              types.String                     `tfsdk:"management_password"`
+	ManagementEnablePassword        types.String                     `tfsdk:"management_enable_password"`
+	CdpState                        types.Bool                       `tfsdk:"cdp_state"`
+	AwipsEnabled                    types.Bool                       `tfsdk:"awips_enabled"`
+	AwipsForensicEnabled            types.Bool                       `tfsdk:"awips_forensic_enabled"`
+	RogueDetection                  types.Bool                       `tfsdk:"rogue_detection"`
+	RogueDetectionMinRssi           types.Int64                      `tfsdk:"rogue_detection_min_rssi"`
+	RogueDetectionTransientInterval types.Int64                      `tfsdk:"rogue_detection_transient_interval"`
+	RogueDetectionReportInterval    types.Int64                      `tfsdk:"rogue_detection_report_interval"`
+	PmfDenialEnabled                types.Bool                       `tfsdk:"pmf_denial_enabled"`
+	MeshEnabled                     types.Bool                       `tfsdk:"mesh_enabled"`
+	BridgeGroupName                 types.String                     `tfsdk:"bridge_group_name"`
+	BackhaulClientAccess            types.Bool                       `tfsdk:"backhaul_client_access"`
+	Range                           types.Int64                      `tfsdk:"range"`
+	Ghz5BackhaulDataRates           types.String                     `tfsdk:"ghz5_backhaul_data_rates"`
+	Ghz24BackhaulDataRates          types.String                     `tfsdk:"ghz24_backhaul_data_rates"`
+	RapDownlinkBackhaul             types.String                     `tfsdk:"rap_downlink_backhaul"`
+	ApPowerProfileName              types.String                     `tfsdk:"ap_power_profile_name"`
+	CalendarPowerProfiles           []APProfileCalendarPowerProfiles `tfsdk:"calendar_power_profiles"`
+	CountryCode                     types.String                     `tfsdk:"country_code"`
+	TimeZone                        types.String                     `tfsdk:"time_zone"`
+	TimeZoneOffsetHour              types.Int64                      `tfsdk:"time_zone_offset_hour"`
+	TimeZoneOffsetMinutes           types.Int64                      `tfsdk:"time_zone_offset_minutes"`
+	ClientLimit                     types.Int64                      `tfsdk:"client_limit"`
+}
+
+type APProfileCalendarPowerProfiles struct {
+	CalendarProfileName types.String `tfsdk:"calendar_profile_name"`
+	PowerProfileName    types.String `tfsdk:"power_profile_name"`
+	SchedulerType       types.String `tfsdk:"scheduler_type"`
+	SchedulerStartTime  types.String `tfsdk:"scheduler_start_time"`
+	SchedulerEndTime    types.String `tfsdk:"scheduler_end_time"`
+	SchedulerDay        types.Set    `tfsdk:"scheduler_day"`
+	SchedulerDate       types.Set    `tfsdk:"scheduler_date"`
+}
+
 func (data APProfile) getPath() string {
 	return "/dna/intent/api/v1/wirelessSettings/apProfiles"
 }
 
-// End of section. //template:end getPath
-
-// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
-
-// End of section. //template:end getFallbackPath
-
-// Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
-
-// End of section. //template:end getPathDelete
-
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 	body := ""
 	put := false
@@ -177,23 +271,38 @@ func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 	if !data.ApPowerProfileName.IsNull() {
 		body, _ = sjson.Set(body, "apPowerProfileName", data.ApPowerProfileName.ValueString())
 	}
-	if !data.PowerProfileName.IsNull() {
-		body, _ = sjson.Set(body, "calendarPowerProfiles.powerProfileName", data.PowerProfileName.ValueString())
-	}
-	if !data.SchedulerType.IsNull() {
-		body, _ = sjson.Set(body, "calendarPowerProfiles.schedulerType", data.SchedulerType.ValueString())
-	}
-	if !data.SchedulerStartTime.IsNull() {
-		body, _ = sjson.Set(body, "calendarPowerProfiles.duration.schedulerStartTime", data.SchedulerStartTime.ValueString())
-	}
-	if !data.SchedulerEndTime.IsNull() {
-		body, _ = sjson.Set(body, "calendarPowerProfiles.duration.schedulerEndTime", data.SchedulerEndTime.ValueString())
-	}
-	if !data.SchedulerDay.IsNull() {
-		body, _ = sjson.Set(body, "calendarPowerProfiles.duration.schedulerDay", data.SchedulerDay.ValueString())
-	}
-	if !data.SchedulerDate.IsNull() {
-		body, _ = sjson.Set(body, "calendarPowerProfiles.duration.schedulerDate", data.SchedulerDate.ValueString())
+	if len(data.CalendarPowerProfiles) > 0 {
+		body, _ = sjson.Set(body, "calendarPowerProfiles", []interface{}{})
+		for _, item := range data.CalendarPowerProfiles {
+			itemBody := ""
+			if !item.PowerProfileName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "powerProfileName", item.PowerProfileName.ValueString())
+			}
+			if !item.SchedulerType.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "schedulerType", item.SchedulerType.ValueString())
+			}
+			if !item.SchedulerStartTime.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "duration.schedulerStartTime", convertTo12Hour(item.SchedulerStartTime.ValueString()))
+			}
+			if !item.SchedulerEndTime.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "duration.schedulerEndTime", convertTo12Hour(item.SchedulerEndTime.ValueString()))
+			}
+			if !item.SchedulerDay.IsNull() {
+				var days []string
+				item.SchedulerDay.ElementsAs(ctx, &days, false)
+				// Convert to lowercase for API
+				for i := range days {
+					days[i] = strings.ToLower(days[i])
+				}
+				itemBody, _ = sjson.Set(itemBody, "duration.schedulerDay", days)
+			}
+			if !item.SchedulerDate.IsNull() {
+				var dates []string
+				item.SchedulerDate.ElementsAs(ctx, &dates, false)
+				itemBody, _ = sjson.Set(itemBody, "duration.schedulerDate", dates)
+			}
+			body, _ = sjson.SetRaw(body, "calendarPowerProfiles.-1", itemBody)
+		}
 	}
 	if !data.CountryCode.IsNull() {
 		body, _ = sjson.Set(body, "countryCode", data.CountryCode.ValueString())
@@ -213,9 +322,6 @@ func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 	return body
 }
 
-// End of section. //template:end toBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
 	if value := res.Get("response.0.id"); value.Exists() {
@@ -243,7 +349,7 @@ func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.AuthType = types.StringValue("NO-AUTH")
 	}
-	if value := res.Get("response.0.managementSetting.dot1xUsername"); value.Exists() {
+	if value := res.Get("response.0.managementSetting.dot1xUsername"); value.Exists() && value.Type != gjson.Null {
 		data.Dot1xUsername = types.StringValue(value.String())
 	} else {
 		data.Dot1xUsername = types.StringNull()
@@ -258,7 +364,7 @@ func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.TelnetEnabled = types.BoolValue(false)
 	}
-	if value := res.Get("response.0.managementSetting.managementUserName"); value.Exists() {
+	if value := res.Get("response.0.managementSetting.managementUserName"); value.Exists() && value.Type != gjson.Null {
 		data.ManagementUserName = types.StringValue(value.String())
 	} else {
 		data.ManagementUserName = types.StringNull()
@@ -338,50 +444,78 @@ func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.RapDownlinkBackhaul = types.StringNull()
 	}
-	if value := res.Get("response.0.apPowerProfileName"); value.Exists() {
+	if value := res.Get("response.0.apPowerProfileName"); value.Exists() && value.Type != gjson.Null {
 		data.ApPowerProfileName = types.StringValue(value.String())
 	} else {
 		data.ApPowerProfileName = types.StringNull()
 	}
-	if value := res.Get("response.0.calendarPowerProfiles.powerProfileName"); value.Exists() {
-		data.PowerProfileName = types.StringValue(value.String())
-	} else {
-		data.PowerProfileName = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.schedulerType"); value.Exists() {
-		data.SchedulerType = types.StringValue(value.String())
-	} else {
-		data.SchedulerType = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.duration.schedulerStartTime"); value.Exists() {
-		data.SchedulerStartTime = types.StringValue(value.String())
-	} else {
-		data.SchedulerStartTime = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.duration.schedulerEndTime"); value.Exists() {
-		data.SchedulerEndTime = types.StringValue(value.String())
-	} else {
-		data.SchedulerEndTime = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.duration.schedulerDay"); value.Exists() {
-		data.SchedulerDay = types.StringValue(value.String())
-	} else {
-		data.SchedulerDay = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.duration.schedulerDate"); value.Exists() {
-		data.SchedulerDate = types.StringValue(value.String())
-	} else {
-		data.SchedulerDate = types.StringNull()
+	if value := res.Get("response.0.calendarPowerProfiles"); value.Exists() && len(value.Array()) > 0 {
+		data.CalendarPowerProfiles = make([]APProfileCalendarPowerProfiles, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := APProfileCalendarPowerProfiles{}
+			if cValue := v.Get("calendarProfileName"); cValue.Exists() && cValue.Type != gjson.Null {
+				item.CalendarProfileName = types.StringValue(cValue.String())
+			} else {
+				item.CalendarProfileName = types.StringNull()
+			}
+			if cValue := v.Get("powerProfileName"); cValue.Exists() {
+				item.PowerProfileName = types.StringValue(cValue.String())
+			} else {
+				item.PowerProfileName = types.StringNull()
+			}
+			if cValue := v.Get("schedulerType"); cValue.Exists() {
+				item.SchedulerType = types.StringValue(cValue.String())
+			} else {
+				item.SchedulerType = types.StringNull()
+			}
+			if cValue := v.Get("duration.schedulerStartTime"); cValue.Exists() {
+				item.SchedulerStartTime = types.StringValue(convertTo24Hour(cValue.String()))
+			} else {
+				item.SchedulerStartTime = types.StringNull()
+			}
+			if cValue := v.Get("duration.schedulerEndTime"); cValue.Exists() {
+				item.SchedulerEndTime = types.StringValue(convertTo24Hour(cValue.String()))
+			} else {
+				item.SchedulerEndTime = types.StringNull()
+			}
+			if cValue := v.Get("duration.schedulerDay"); cValue.Exists() && cValue.Type != gjson.Null && cValue.IsArray() {
+				dayValues := []attr.Value{}
+				cValue.ForEach(func(_, dayVal gjson.Result) bool {
+					dayValues = append(dayValues, types.StringValue(strings.ToLower(dayVal.String())))
+					return true
+				})
+				item.SchedulerDay, _ = types.SetValue(types.StringType, dayValues)
+			} else {
+				item.SchedulerDay = types.SetNull(types.StringType)
+			}
+			if cValue := v.Get("duration.schedulerDate"); cValue.Exists() && cValue.Type != gjson.Null && cValue.IsArray() {
+				dateValues := []attr.Value{}
+				cValue.ForEach(func(_, dateVal gjson.Result) bool {
+					dateValues = append(dateValues, types.StringValue(dateVal.String()))
+					return true
+				})
+				item.SchedulerDate, _ = types.SetValue(types.StringType, dateValues)
+			} else {
+				item.SchedulerDate = types.SetNull(types.StringType)
+			}
+			data.CalendarPowerProfiles = append(data.CalendarPowerProfiles, item)
+			return true
+		})
 	}
 	if value := res.Get("response.0.countryCode"); value.Exists() {
-		data.CountryCode = types.StringValue(value.String())
+		normalized := normalizeCountryCode(value.String())
+		if normalized == "" {
+			data.CountryCode = types.StringNull()
+		} else {
+			data.CountryCode = types.StringValue(normalized)
+		}
 	} else {
 		data.CountryCode = types.StringNull()
 	}
 	if value := res.Get("response.0.timeZone"); value.Exists() {
-		data.TimeZone = types.StringValue(value.String())
+		data.TimeZone = types.StringValue(normalizeTimeZone(value.String(), ""))
 	} else {
-		data.TimeZone = types.StringValue("NOT CONFIGURED")
+		data.TimeZone = types.StringValue("Not Configured")
 	}
 	if value := res.Get("response.0.timeZoneOffsetHour"); value.Exists() {
 		data.TimeZoneOffsetHour = types.Int64Value(value.Int())
@@ -400,9 +534,6 @@ func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 	}
 }
 
-// End of section. //template:end fromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.0.apProfileName"); value.Exists() && !data.ApProfileName.IsNull() {
 		data.ApProfileName = types.StringValue(value.String())
@@ -424,7 +555,7 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else if data.AuthType.ValueString() != "NO-AUTH" {
 		data.AuthType = types.StringNull()
 	}
-	if value := res.Get("response.0.managementSetting.dot1xUsername"); value.Exists() && !data.Dot1xUsername.IsNull() {
+	if value := res.Get("response.0.managementSetting.dot1xUsername"); value.Exists() && value.Type != gjson.Null && !data.Dot1xUsername.IsNull() {
 		data.Dot1xUsername = types.StringValue(value.String())
 	} else {
 		data.Dot1xUsername = types.StringNull()
@@ -439,7 +570,7 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else if data.TelnetEnabled.ValueBool() != false {
 		data.TelnetEnabled = types.BoolNull()
 	}
-	if value := res.Get("response.0.managementSetting.managementUserName"); value.Exists() && !data.ManagementUserName.IsNull() {
+	if value := res.Get("response.0.managementSetting.managementUserName"); value.Exists() && value.Type != gjson.Null && !data.ManagementUserName.IsNull() {
 		data.ManagementUserName = types.StringValue(value.String())
 	} else {
 		data.ManagementUserName = types.StringNull()
@@ -519,49 +650,85 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.RapDownlinkBackhaul = types.StringNull()
 	}
-	if value := res.Get("response.0.apPowerProfileName"); value.Exists() && !data.ApPowerProfileName.IsNull() {
+	if value := res.Get("response.0.apPowerProfileName"); value.Exists() && value.Type != gjson.Null && !data.ApPowerProfileName.IsNull() {
 		data.ApPowerProfileName = types.StringValue(value.String())
 	} else {
 		data.ApPowerProfileName = types.StringNull()
 	}
-	if value := res.Get("response.0.calendarPowerProfiles.powerProfileName"); value.Exists() && !data.PowerProfileName.IsNull() {
-		data.PowerProfileName = types.StringValue(value.String())
-	} else {
-		data.PowerProfileName = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.schedulerType"); value.Exists() && !data.SchedulerType.IsNull() {
-		data.SchedulerType = types.StringValue(value.String())
-	} else {
-		data.SchedulerType = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.duration.schedulerStartTime"); value.Exists() && !data.SchedulerStartTime.IsNull() {
-		data.SchedulerStartTime = types.StringValue(value.String())
-	} else {
-		data.SchedulerStartTime = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.duration.schedulerEndTime"); value.Exists() && !data.SchedulerEndTime.IsNull() {
-		data.SchedulerEndTime = types.StringValue(value.String())
-	} else {
-		data.SchedulerEndTime = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.duration.schedulerDay"); value.Exists() && !data.SchedulerDay.IsNull() {
-		data.SchedulerDay = types.StringValue(value.String())
-	} else {
-		data.SchedulerDay = types.StringNull()
-	}
-	if value := res.Get("response.0.calendarPowerProfiles.duration.schedulerDate"); value.Exists() && !data.SchedulerDate.IsNull() {
-		data.SchedulerDate = types.StringValue(value.String())
-	} else {
-		data.SchedulerDate = types.StringNull()
+	for i := range data.CalendarPowerProfiles {
+		// Keys for matching - use only the fixed fields (not arrays) for matching
+		// Match based on powerProfileName and schedulerType which should uniquely identify a calendar profile
+		var r gjson.Result
+		res.Get("response.0.calendarPowerProfiles").ForEach(
+			func(_, v gjson.Result) bool {
+				// Match by powerProfileName and schedulerType
+				if v.Get("powerProfileName").String() == data.CalendarPowerProfiles[i].PowerProfileName.ValueString() &&
+					v.Get("schedulerType").String() == data.CalendarPowerProfiles[i].SchedulerType.ValueString() {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("calendarProfileName"); value.Exists() && value.Type != gjson.Null {
+			data.CalendarPowerProfiles[i].CalendarProfileName = types.StringValue(value.String())
+		} else {
+			data.CalendarPowerProfiles[i].CalendarProfileName = types.StringNull()
+		}
+		if value := r.Get("powerProfileName"); value.Exists() && !data.CalendarPowerProfiles[i].PowerProfileName.IsNull() {
+			data.CalendarPowerProfiles[i].PowerProfileName = types.StringValue(value.String())
+		} else {
+			data.CalendarPowerProfiles[i].PowerProfileName = types.StringNull()
+		}
+		if value := r.Get("schedulerType"); value.Exists() && !data.CalendarPowerProfiles[i].SchedulerType.IsNull() {
+			data.CalendarPowerProfiles[i].SchedulerType = types.StringValue(value.String())
+		} else {
+			data.CalendarPowerProfiles[i].SchedulerType = types.StringNull()
+		}
+		if value := r.Get("duration.schedulerStartTime"); value.Exists() && !data.CalendarPowerProfiles[i].SchedulerStartTime.IsNull() {
+			data.CalendarPowerProfiles[i].SchedulerStartTime = types.StringValue(convertTo24Hour(value.String()))
+		} else {
+			data.CalendarPowerProfiles[i].SchedulerStartTime = types.StringNull()
+		}
+		if value := r.Get("duration.schedulerEndTime"); value.Exists() && !data.CalendarPowerProfiles[i].SchedulerEndTime.IsNull() {
+			data.CalendarPowerProfiles[i].SchedulerEndTime = types.StringValue(convertTo24Hour(value.String()))
+		} else {
+			data.CalendarPowerProfiles[i].SchedulerEndTime = types.StringNull()
+		}
+		if value := r.Get("duration.schedulerDay"); value.Exists() && value.Type != gjson.Null && value.IsArray() && !data.CalendarPowerProfiles[i].SchedulerDay.IsNull() {
+			dayValues := []attr.Value{}
+			value.ForEach(func(_, dayVal gjson.Result) bool {
+				dayValues = append(dayValues, types.StringValue(strings.ToLower(dayVal.String())))
+				return true
+			})
+			data.CalendarPowerProfiles[i].SchedulerDay, _ = types.SetValue(types.StringType, dayValues)
+		} else {
+			data.CalendarPowerProfiles[i].SchedulerDay = types.SetNull(types.StringType)
+		}
+		if value := r.Get("duration.schedulerDate"); value.Exists() && value.Type != gjson.Null && value.IsArray() && !data.CalendarPowerProfiles[i].SchedulerDate.IsNull() {
+			dateValues := []attr.Value{}
+			value.ForEach(func(_, dateVal gjson.Result) bool {
+				dateValues = append(dateValues, types.StringValue(dateVal.String()))
+				return true
+			})
+			data.CalendarPowerProfiles[i].SchedulerDate, _ = types.SetValue(types.StringType, dateValues)
+		} else {
+			data.CalendarPowerProfiles[i].SchedulerDate = types.SetNull(types.StringType)
+		}
 	}
 	if value := res.Get("response.0.countryCode"); value.Exists() && !data.CountryCode.IsNull() {
-		data.CountryCode = types.StringValue(value.String())
+		normalized := normalizeCountryCode(value.String())
+		if normalized == "" {
+			data.CountryCode = types.StringNull()
+		} else {
+			data.CountryCode = types.StringValue(normalized)
+		}
 	} else {
 		data.CountryCode = types.StringNull()
 	}
 	if value := res.Get("response.0.timeZone"); value.Exists() && !data.TimeZone.IsNull() {
-		data.TimeZone = types.StringValue(value.String())
-	} else if data.TimeZone.ValueString() != "NOT CONFIGURED" {
+		data.TimeZone = types.StringValue(normalizeTimeZone(value.String(), data.TimeZone.ValueString()))
+	} else if data.TimeZone.ValueString() != "Not Configured" {
 		data.TimeZone = types.StringNull()
 	}
 	if value := res.Get("response.0.timeZoneOffsetHour"); value.Exists() && !data.TimeZoneOffsetHour.IsNull() {
@@ -581,9 +748,6 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	}
 }
 
-// End of section. //template:end updateFromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *APProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Description.IsNull() {
 		return false
@@ -663,22 +827,7 @@ func (data *APProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.ApPowerProfileName.IsNull() {
 		return false
 	}
-	if !data.PowerProfileName.IsNull() {
-		return false
-	}
-	if !data.SchedulerType.IsNull() {
-		return false
-	}
-	if !data.SchedulerStartTime.IsNull() {
-		return false
-	}
-	if !data.SchedulerEndTime.IsNull() {
-		return false
-	}
-	if !data.SchedulerDay.IsNull() {
-		return false
-	}
-	if !data.SchedulerDate.IsNull() {
+	if len(data.CalendarPowerProfiles) > 0 {
 		return false
 	}
 	if !data.CountryCode.IsNull() {
@@ -698,5 +847,3 @@ func (data *APProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	}
 	return true
 }
-
-// End of section. //template:end isNull
