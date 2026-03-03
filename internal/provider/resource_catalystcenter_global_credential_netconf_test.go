@@ -29,7 +29,7 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcGlobalCredentialNETCONF(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_global_credential_netconf.test", "netconf_port", "830"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_global_credential_netconf.test", "netconf_port", "840"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_global_credential_netconf.test", "comments", "My NETCONF Credential"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_global_credential_netconf.test", "credential_type", "GLOBAL"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_global_credential_netconf.test", "description", "NETCONF credential for network devices"))
@@ -59,7 +59,7 @@ func TestAccCcGlobalCredentialNETCONF(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcGlobalCredentialNETCONFConfig_minimum() string {
 	config := `resource "catalystcenter_global_credential_netconf" "test" {` + "\n"
-	config += `	netconf_port = "830"` + "\n"
+	config += `	netconf_port = "840"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -69,7 +69,7 @@ func testAccCcGlobalCredentialNETCONFConfig_minimum() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcGlobalCredentialNETCONFConfig_all() string {
 	config := `resource "catalystcenter_global_credential_netconf" "test" {` + "\n"
-	config += `	netconf_port = "830"` + "\n"
+	config += `	netconf_port = "840"` + "\n"
 	config += `	comments = "My NETCONF Credential"` + "\n"
 	config += `	credential_type = "GLOBAL"` + "\n"
 	config += `	description = "NETCONF credential for network devices"` + "\n"
