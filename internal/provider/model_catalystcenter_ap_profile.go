@@ -273,7 +273,7 @@ func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 	}
 	if len(data.CalendarPowerProfiles) > 0 {
 		body, _ = sjson.Set(body, "calendarPowerProfiles", []interface{}{})
-		for _, item := range data.CalendarPowerProfiles {
+		for i, item := range data.CalendarPowerProfiles {
 			itemBody := ""
 			if !item.PowerProfileName.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "powerProfileName", item.PowerProfileName.ValueString())
@@ -291,14 +291,23 @@ func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 				var days []string
 				item.SchedulerDay.ElementsAs(ctx, &days, false)
 				// Convert to lowercase for API
-				for i := range days {
-					days[i] = strings.ToLower(days[i])
+				for j := range days {
+					days[j] = strings.ToLower(days[j])
 				}
 				itemBody, _ = sjson.Set(itemBody, "duration.schedulerDay", days)
 			}
+			// WORKAROUND: Catalyst Center API bug - schedulerDate updates are not persisted.
+			// On PUT, send the STATE's schedulerDate (not plan's) to satisfy API requirement while ignoring changes.
+			// On CREATE, send the plan's schedulerDate. See api_bug_scheduler_date_update.md
 			if !item.SchedulerDate.IsNull() {
 				var dates []string
-				item.SchedulerDate.ElementsAs(ctx, &dates, false)
+				if put && i < len(state.CalendarPowerProfiles) && !state.CalendarPowerProfiles[i].SchedulerDate.IsNull() {
+					// On PUT: use state's value to ignore user's changes (API won't persist them anyway)
+					state.CalendarPowerProfiles[i].SchedulerDate.ElementsAs(ctx, &dates, false)
+				} else {
+					// On CREATE: use plan's value
+					item.SchedulerDate.ElementsAs(ctx, &dates, false)
+				}
 				itemBody, _ = sjson.Set(itemBody, "duration.schedulerDate", dates)
 			}
 			body, _ = sjson.SetRaw(body, "calendarPowerProfiles.-1", itemBody)
@@ -456,7 +465,9 @@ func (data *APProfile) fromBody(ctx context.Context, res gjson.Result) {
 			if cValue := v.Get("calendarProfileName"); cValue.Exists() && cValue.Type != gjson.Null {
 				item.CalendarProfileName = types.StringValue(cValue.String())
 			} else {
-				item.CalendarProfileName = types.StringNull()
+				// API returns null for calendarProfileName, but since it's a Computed field
+				// Terraform requires it to have a known value after apply. Set to empty string.
+				item.CalendarProfileName = types.StringValue("")
 			}
 			if cValue := v.Get("powerProfileName"); cValue.Exists() {
 				item.PowerProfileName = types.StringValue(cValue.String())
@@ -673,7 +684,9 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 		if value := r.Get("calendarProfileName"); value.Exists() && value.Type != gjson.Null {
 			data.CalendarPowerProfiles[i].CalendarProfileName = types.StringValue(value.String())
 		} else {
-			data.CalendarPowerProfiles[i].CalendarProfileName = types.StringNull()
+			// API returns null for calendarProfileName, but since it's a Computed field
+			// Terraform requires it to have a known value after apply. Set to empty string.
+			data.CalendarPowerProfiles[i].CalendarProfileName = types.StringValue("")
 		}
 		if value := r.Get("powerProfileName"); value.Exists() && !data.CalendarPowerProfiles[i].PowerProfileName.IsNull() {
 			data.CalendarPowerProfiles[i].PowerProfileName = types.StringValue(value.String())
@@ -705,16 +718,10 @@ func (data *APProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 		} else {
 			data.CalendarPowerProfiles[i].SchedulerDay = types.SetNull(types.StringType)
 		}
-		if value := r.Get("duration.schedulerDate"); value.Exists() && value.Type != gjson.Null && value.IsArray() && !data.CalendarPowerProfiles[i].SchedulerDate.IsNull() {
-			dateValues := []attr.Value{}
-			value.ForEach(func(_, dateVal gjson.Result) bool {
-				dateValues = append(dateValues, types.StringValue(dateVal.String()))
-				return true
-			})
-			data.CalendarPowerProfiles[i].SchedulerDate, _ = types.SetValue(types.StringType, dateValues)
-		} else {
-			data.CalendarPowerProfiles[i].SchedulerDate = types.SetNull(types.StringType)
-		}
+		// WORKAROUND: Catalyst Center API bug - schedulerDate updates are not persisted.
+		// Do NOT update schedulerDate from API response - preserve the plan's value to prevent drift.
+		// See api_bug_scheduler_date_update.md for details.
+		// The scheduler_date value remains unchanged from the plan.
 	}
 	if value := res.Get("response.0.countryCode"); value.Exists() && !data.CountryCode.IsNull() {
 		normalized := normalizeCountryCode(value.String())

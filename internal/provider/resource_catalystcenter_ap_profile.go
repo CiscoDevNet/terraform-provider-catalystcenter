@@ -464,7 +464,6 @@ func (r *APProfileResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *APProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state APProfile
 
@@ -491,13 +490,23 @@ func (r *APProfileResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
+	// Re-read the resource to get computed fields populated
+	params = ""
+	params += "?apProfileName=" + url.QueryEscape(plan.ApProfileName.ValueString())
+	res, err = r.client.Get(plan.getPath() + params)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object after update (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	// Populate computed fields from API response
+	plan.updateFromBody(ctx, res)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *APProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
