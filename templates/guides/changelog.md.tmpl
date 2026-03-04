@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.5.4 (Unreleased)
+## 0.5.4
 
 - Fix `catalystcenter_ap_profile` resource and data source with multiple improvements: correct boolean default handling, fix scheduler attribute issues, fix schema validation errors
 - Fix `catalystcenter_deploy_template` resource to correctly filter `member_template_deployment_info` parameters when deploying composite templates to a subset of targets
