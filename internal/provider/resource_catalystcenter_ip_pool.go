@@ -159,18 +159,25 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 		}
 	}
 	params = ""
+	useFallback := false
 	res, err = r.client.Get(plan.getPath() + params)
 
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
 		res, err = r.client.Get(plan.getFallbackPath() + params)
+		useFallback = true
 	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(name==\"" + plan.Name.ValueString() + "\").id").String())
+	// Use fallback field name for ID extraction if fallback endpoint was used
+	if useFallback {
+		plan.Id = types.StringValue(res.Get("response.#(ipPoolName==\"" + plan.Name.ValueString() + "\").id").String())
+	} else {
+		plan.Id = types.StringValue(res.Get("response.#(name==\"" + plan.Name.ValueString() + "\").id").String())
+	}
 	if !r.AllowExistingOnCreate {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 	} else {

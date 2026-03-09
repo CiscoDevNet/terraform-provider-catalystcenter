@@ -701,6 +701,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
+	{{- if and .FallbackRestEndpoint $id.FallbackResponseModelName }}
+	useFallback := false
+	{{- end}}
 	res, err = r.client.Get({{if .IdQueryRestEndpoint}}plan.getPathIdQuery(){{else if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params)
 	{{- if .FallbackRestEndpoint }}
 
@@ -708,6 +711,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
 		res, err = r.client.Get(plan.getFallbackPath() + params)
+		{{- if $id.FallbackResponseModelName }}
+		useFallback = true
+		{{- end}}
 	}
 	{{- end}}
 	if err != nil {
@@ -717,7 +723,16 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if and .IdFromQueryPathAttribute .IdFromQueryPath (not .GetExtraQueryParams) (not .GetFromAll) }}
 	plan.Id = types.StringValue(res.Get("{{if eq .IdFromQueryPath "." }}{{else}}{{.IdFromQueryPath}}.{{end}}{{.IdFromQueryPathAttribute}}").String())
 	{{- else}}
+	{{- if and .FallbackRestEndpoint $id.FallbackResponseModelName }}
+	// Use fallback field name for ID extraction if fallback endpoint was used
+	if useFallback {
+		plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{$id.FallbackResponseModelName}}==\""+ {{if eq $id.Type "Int64"}}strconv.FormatInt(plan.{{toGoName $id.TfName}}.ValueInt64(), 10){{else}}plan.{{toGoName $id.TfName}}.Value{{$id.Type}}(){{end}} +"\").{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}").String())
+	} else {
+		plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ {{if eq $id.Type "Int64"}}strconv.FormatInt(plan.{{toGoName $id.TfName}}.ValueInt64(), 10){{else}}plan.{{toGoName $id.TfName}}.Value{{$id.Type}}(){{end}} +"\").{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}").String())
+	}
+	{{- else}}
 	plan.Id = types.StringValue(res.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\""+ {{if eq $id.Type "Int64"}}strconv.FormatInt(plan.{{toGoName $id.TfName}}.ValueInt64(), 10){{else}}plan.{{toGoName $id.TfName}}.Value{{$id.Type}}(){{end}} +"\").{{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}").String())
+	{{- end}}
 	{{- end}}
 	{{- /* If we have an id attribute we will use that as id */}}
 	{{- else if hasId .Attributes}}
