@@ -37,6 +37,13 @@ attributes:
     type: String
     example: ""
     exclude_test: true
+  - model_name: additiveFabricIds
+    tf_name: additive_fabric_ids
+    type: Bool
+    write_only: true
+    exclude_test: true
+    description: "When set to `true`, the `fabric_ids` declared in this resource are merged with the existing fabric associations on Catalyst Center (additive on create/update, subtractive on delete), rather than replacing the entire set. Use this in environments where multiple resources or external processes manage fabric associations for the same L3 Virtual Network."
+    example: "false"
 test_prerequisites: |
   data "catalystcenter_site" "test" {
     name_hierarchy = "Global"
