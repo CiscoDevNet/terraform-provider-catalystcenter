@@ -59,7 +59,7 @@ resource "catalystcenter_fabric_site" "test" {
 }
 resource "catalystcenter_fabric_l3_virtual_network" "test" {
   virtual_network_name = "MyL3VN"
-
+  merge_fabric_sites = false
   lifecycle {
     ignore_changes = [
       fabric_ids
