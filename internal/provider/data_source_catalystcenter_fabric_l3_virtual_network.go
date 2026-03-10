@@ -75,6 +75,10 @@ func (d *FabricL3VirtualNetworkDataSource) Schema(ctx context.Context, req datas
 				MarkdownDescription: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.",
 				Computed:            true,
 			},
+			"merge_fabric_sites": schema.BoolAttribute{
+				MarkdownDescription: "When set to `true`, the `fabric_ids` declared in this resource are merged with the existing fabric associations on Catalyst Center (additive on create/update, subtractive on delete), rather than replacing the entire set. Use this in environments where multiple resources or external processes manage fabric associations for the same L3 Virtual Network.",
+				Computed:            true,
+			},
 		},
 	}
 }
