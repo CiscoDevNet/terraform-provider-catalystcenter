@@ -36,7 +36,7 @@ type FabricL3VirtualNetwork struct {
 	VirtualNetworkName types.String `tfsdk:"virtual_network_name"`
 	FabricIds          types.Set    `tfsdk:"fabric_ids"`
 	AnchoredSiteId     types.String `tfsdk:"anchored_site_id"`
-	AdditiveFabricIds  types.Bool   `tfsdk:"additive_fabric_ids"`
+	MergeFabricSites   types.Bool   `tfsdk:"merge_fabric_sites"`
 }
 
 // End of section. //template:end types
@@ -102,10 +102,10 @@ func (data *FabricL3VirtualNetwork) fromBody(ctx context.Context, res gjson.Resu
 	} else {
 		data.AnchoredSiteId = types.StringNull()
 	}
-	if value := res.Get("additiveFabricIds"); value.Exists() && !data.AdditiveFabricIds.IsNull() {
-		data.AdditiveFabricIds = types.BoolValue(value.Bool())
+	if value := res.Get("mergeFabricSites"); value.Exists() && !data.MergeFabricSites.IsNull() {
+		data.MergeFabricSites = types.BoolValue(value.Bool())
 	} else {
-		data.AdditiveFabricIds = types.BoolValue(false)
+		data.MergeFabricSites = types.BoolValue(false)
 	}
 }
 
@@ -127,7 +127,7 @@ func (data *FabricL3VirtualNetwork) updateFromBody(ctx context.Context, res gjso
 	} else {
 		data.AnchoredSiteId = types.StringNull()
 	}
-	// AdditiveFabricIds is a Terraform-only behaviour flag, not returned by the API.
+	// MergeFabricSites is a Terraform-only behaviour flag, not returned by the API.
 	// Preserve whatever value the user configured in state.
 }
 
@@ -138,7 +138,7 @@ func (data *FabricL3VirtualNetwork) isNull(ctx context.Context, res gjson.Result
 	if !data.AnchoredSiteId.IsNull() {
 		return false
 	}
-	// AdditiveFabricIds is a behaviour flag, not a data attribute — excluded from isNull
+	// MergeFabricSites is a behaviour flag, not a data attribute — excluded from isNull
 	// so that it does not affect import detection.
 	return true
 }

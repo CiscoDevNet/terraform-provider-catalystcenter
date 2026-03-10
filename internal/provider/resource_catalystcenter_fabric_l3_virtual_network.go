@@ -90,7 +90,7 @@ func (r *FabricL3VirtualNetworkResource) Schema(ctx context.Context, req resourc
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"additive_fabric_ids": schema.BoolAttribute{
+			"merge_fabric_sites": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("When set to `true`, the `fabric_ids` declared in this resource are merged with the existing fabric associations on Catalyst Center (additive on create/update, subtractive on delete), rather than replacing the entire set. Use this in environments where multiple resources or external processes manage fabric associations for the same L3 Virtual Network.").String,
 				Optional:            true,
 			},
@@ -142,7 +142,7 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 		plan.Id = types.StringValue(id)
 		tflog.Debug(ctx, fmt.Sprintf("Updated plan.Id: %s", plan.Id.ValueString()))
 
-		if plan.AdditiveFabricIds.ValueBool() {
+		if plan.MergeFabricSites.ValueBool() {
 			// Additive mode: merge existing fabricIds with plan fabricIds
 			var planFabricIds []string
 			plan.FabricIds.ElementsAs(ctx, &planFabricIds, false)
@@ -240,7 +240,7 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 		if !r.AllowExistingOnCreate {
 			tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 		} else {
-			if plan.AdditiveFabricIds.ValueBool() {
+			if plan.MergeFabricSites.ValueBool() {
 				// Additive mode under AllowExistingOnCreate: merge existing fabricIds with plan
 				var planFabricIds []string
 				plan.FabricIds.ElementsAs(ctx, &planFabricIds, false)
@@ -368,7 +368,7 @@ func (r *FabricL3VirtualNetworkResource) Read(ctx context.Context, req resource.
 		state.updateFromBody(ctx, res)
 	}
 
-	if state.AdditiveFabricIds.ValueBool() {
+	if state.MergeFabricSites.ValueBool() {
 		state.FabricIds = savedFabricIds
 	}
 
@@ -396,17 +396,17 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// If only additive_fabric_ids changed (fabric_ids is unchanged), no API call is needed.
+	// If only merge_fabric_sites changed (fabric_ids is unchanged), no API call is needed.
 	// The flag is a Terraform-only behaviour switch — flipping it alone does not require
 	// any modification on Catalyst Center.
 	if plan.FabricIds.Equal(state.FabricIds) && plan.AnchoredSiteId.Equal(state.AnchoredSiteId) {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Only additive_fabric_ids changed, skipping API call", plan.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Only merge_fabric_sites changed, skipping API call", plan.Id.ValueString()))
 		diags = resp.State.Set(ctx, &plan)
 		resp.Diagnostics.Append(diags...)
 		return
 	}
 
-	if plan.AdditiveFabricIds.ValueBool() {
+	if plan.MergeFabricSites.ValueBool() {
 		// Additive mode: merge (existing - state) ∪ plan fabric IDs
 		var stateFabricIds []string
 		state.FabricIds.ElementsAs(ctx, &stateFabricIds, false)
@@ -417,7 +417,7 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 		// externally-managed IDs that were synced by the previous Read. In that case we
 		// must not subtract state from existing, otherwise we would remove IDs we don't own.
 		// Instead, treat this first apply as a pure union: existing ∪ plan.
-		transitioningToAdditive := !state.AdditiveFabricIds.ValueBool()
+		transitioningToAdditive := !state.MergeFabricSites.ValueBool()
 
 		MAX_RETRIES := 3
 		for try := 0; try <= MAX_RETRIES; try++ {
@@ -526,8 +526,10 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	if state.AdditiveFabricIds.ValueBool() {
+	if state.MergeFabricSites.ValueBool() {
 		// Additive mode: subtract only the fabric IDs this resource owns; do not delete the VN itself
+		// unless this resource owned all associations (newFabricIds is empty after subtraction),
+		// in which case it is safe to delete the VN entirely (except INFRA_VN / DEFAULT_VN).
 		var stateFabricIds []string
 		state.FabricIds.ElementsAs(ctx, &stateFabricIds, false)
 
@@ -554,6 +556,17 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 				if !slices.Contains(stateFabricIds, fid) {
 					newFabricIds = append(newFabricIds, fid)
 				}
+			}
+
+			// If no external associations remain and this is not a system VN, delete it entirely
+			if len(newFabricIds) == 0 && state.VirtualNetworkName.ValueString() != "INFRA_VN" && state.VirtualNetworkName.ValueString() != "DEFAULT_VN" {
+				params = "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
+				res, err = r.client.Delete(state.getPath()+params, cc.UseMutex)
+				if err != nil {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+					return
+				}
+				break
 			}
 
 			mergedState := state

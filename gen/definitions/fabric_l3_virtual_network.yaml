@@ -37,8 +37,8 @@ attributes:
     type: String
     example: ""
     exclude_test: true
-  - model_name: additiveFabricIds
-    tf_name: additive_fabric_ids
+  - model_name: mergeFabricSites
+    tf_name: merge_fabric_sites
     type: Bool
     write_only: true
     exclude_test: true
