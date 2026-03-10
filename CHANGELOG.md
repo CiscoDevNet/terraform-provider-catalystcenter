@@ -1,3 +1,8 @@
+## 0.5.5 (unreleased)
+
+- Add `merge_fabric_sites` attribute to `catalystcenter_fabric_l3_virtual_network` resource. When set to `true`, the `fabric_ids` declared in the resource are merged with existing fabric associations on Catalyst Center rather than replacing the entire set
+- Fix `catalystcenter_ip_pool` resource to use correct ID field name (`ipPoolName` vs `name`) when the fallback API endpoint is used during resource creation
+
 ## 0.5.4
 
 - Fix `catalystcenter_ap_profile` resource and data source with multiple improvements: correct boolean default handling, fix scheduler attribute issues, fix schema validation errors
