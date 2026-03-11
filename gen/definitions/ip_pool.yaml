@@ -26,6 +26,7 @@ attributes:
   fallback_response_model_name: ipPoolType
   description: The type of the global IP pool. Once created, this cannot be changed.
   example: Generic
+  requires_replace: true
 - model_name: subnet
   tf_name: address_space_subnet
   data_path: addressSpace
@@ -35,6 +36,7 @@ attributes:
   example: 192.168.0.0
   response_data_path: addressSpace.subnet
   fallback_response_data_path: ipPoolCidr
+  requires_replace: true
 - model_name: prefixLength
   tf_name: address_space_prefix_length
   data_path: addressSpace
@@ -44,6 +46,7 @@ attributes:
   example: 16
   response_data_path: addressSpace.prefixLength
   fallback_response_data_path: ipPoolCidr
+  requires_replace: true
 - model_name: gatewayIpAddress
   tf_name: address_space_gateway
   data_path: addressSpace

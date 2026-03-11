@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -85,14 +86,23 @@ func (r *IPPoolResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Validators: []validator.String{
 					stringvalidator.OneOf("Generic", "Tunnel"),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"address_space_subnet": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IP address component of the CIDR notation for this subnet.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"address_space_prefix_length": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The network mask component, as a decimal, for the CIDR notation of this subnet.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"address_space_gateway": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The gateway IP address for this subnet.").String,

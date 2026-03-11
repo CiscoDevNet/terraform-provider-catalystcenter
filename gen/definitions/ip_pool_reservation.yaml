@@ -24,12 +24,14 @@ attributes:
   enum_values: [Generic, LAN, Management, Service, WAN]
   description: The type of the reserve IP subpool. Once created, this cannot be changed.
   example: Generic
+  requires_replace: true
 - model_name: siteId
   type: String
   mandatory: true
   description: The id of the non-Global site that this subpool belongs to.
   example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
   test_value: catalystcenter_area.test.id
+  requires_replace: true
 - model_name: subnet
   tf_name: ipv4_subnet
   data_path: ipV4AddressSpace
@@ -38,6 +40,7 @@ attributes:
   description: The IPv4 IP address component of the CIDR notation for this subnet.
   example: 192.168.10.0
   response_data_path: ipV4AddressSpace.subnet
+  requires_replace: true
 - model_name: prefixLength
   tf_name: ipv4_prefix_length
   data_path: ipV4AddressSpace
@@ -46,6 +49,7 @@ attributes:
   description: The IPv4 network mask length as a decimal for the CIDR notation of this subnet.
   example: 24
   response_data_path: ipV4AddressSpace.prefixLength
+  requires_replace: true
 - model_name: gatewayIpAddress
   tf_name: ipv4_gateway
   data_path: ipV4AddressSpace
@@ -106,6 +110,7 @@ attributes:
   example: 1b2c3d4e-1111-2222-3333-abcdefabcdef
   test_value: catalystcenter_ip_pool.test.id
   response_data_path: ipV4AddressSpace.globalPoolId
+  requires_replace: true
 - model_name: subnet
   tf_name: ipv6_subnet
   data_path: ipV6AddressSpace
@@ -113,6 +118,7 @@ attributes:
   description: The IPv6 IP address component of the CIDR notation for this subnet.
   example: "2001:db8:8000::"
   response_data_path: ipV6AddressSpace.subnet
+  requires_replace: true
 - model_name: prefixLength
   tf_name: ipv6_prefix_length
   data_path: ipV6AddressSpace
@@ -120,6 +126,7 @@ attributes:
   description: The IPv6 network mask length as a decimal for the CIDR notation of this subnet.
   example: 64
   response_data_path: ipV6AddressSpace.prefixLength
+  requires_replace: true
 - model_name: gatewayIpAddress
   tf_name: ipv6_gateway
   data_path: ipV6AddressSpace
@@ -186,6 +193,7 @@ attributes:
   example: 9f8e7d6c-aaaa-bbbb-cccc-1234567890ab
   response_data_path: ipV6AddressSpace.globalPoolId
   test_value: catalystcenter_ip_pool.test_v6.id
+  requires_replace: true
 test_prerequisites: |
   data "catalystcenter_site" "test" {
     name_hierarchy = "Global"
