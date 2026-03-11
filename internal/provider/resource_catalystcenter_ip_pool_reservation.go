@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -85,18 +86,30 @@ func (r *IPPoolReservationResource) Schema(ctx context.Context, req resource.Sch
 				Validators: []validator.String{
 					stringvalidator.OneOf("Generic", "LAN", "Management", "Service", "WAN"),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"site_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The id of the non-Global site that this subpool belongs to.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"ipv4_subnet": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 IP address component of the CIDR notation for this subnet.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"ipv4_prefix_length": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 network mask length as a decimal for the CIDR notation of this subnet.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"ipv4_gateway": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IPv4 gateway IP address for this subnet.").String,
@@ -131,14 +144,23 @@ func (r *IPPoolReservationResource) Schema(ctx context.Context, req resource.Sch
 			"ipv4_global_pool_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The non-tunnel global pool ID for this IPv4 reserve pool. Once added, this value cannot be changed.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"ipv6_subnet": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 IP address component of the CIDR notation for this subnet.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"ipv6_prefix_length": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 network mask length as a decimal for the CIDR notation of this subnet.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"ipv6_gateway": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The IPv6 gateway IP address for this subnet.").String,
@@ -177,6 +199,9 @@ func (r *IPPoolReservationResource) Schema(ctx context.Context, req resource.Sch
 			"ipv6_global_pool_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The non-tunnel global pool ID for this IPv6 reserve pool. Once added, this value cannot be changed.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 		},
 	}
