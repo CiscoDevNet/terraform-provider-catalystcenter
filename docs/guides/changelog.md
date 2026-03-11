@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.6 (unreleased)
+
+- Fix `catalystcenter_ip_pool` and `catalystcenter_ip_pool_reservation` to correctly replace resources when immutable fields change. Added RequiresReplace for fields not supported for in-place updates by the Catalyst Center API
+
 ## 0.5.5
 
 - Add `merge_fabric_sites` attribute to `catalystcenter_fabric_l3_virtual_network` resource. When set to `true`, the `fabric_ids` declared in the resource are merged with existing fabric associations on Catalyst Center rather than replacing the entire set
