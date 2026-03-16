@@ -1,6 +1,7 @@
 ## 0.5.6 (unreleased)
 
 - Fix `catalystcenter_ip_pool` and `catalystcenter_ip_pool_reservation` to correctly replace resources when immutable fields change. Added RequiresReplace for fields not supported for in-place updates by the Catalyst Center API
+- Fix `catalystcenter_deploy_template` resource to add UUID format validation for deployment ID extracted from API response, preventing false positives when regex matches non-UUID strings
 
 ## 0.5.5
 

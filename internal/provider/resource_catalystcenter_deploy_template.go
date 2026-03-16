@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -582,7 +583,7 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 	re := regexp.MustCompile(`Template Deployemnt Id:\s*([a-f0-9-]+)`)
 	matches := re.FindStringSubmatch(progress)
 
-	if len(matches) == 0 {
+	if len(matches) == 0 || uuid.Validate(matches[1]) != nil {
 		tflog.Warn(ctx, "Deployment Id was not found in response. Assuming immediate success or no deployment to track.")
 		return true
 	}
