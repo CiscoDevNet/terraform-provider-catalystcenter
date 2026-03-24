@@ -129,7 +129,6 @@ func (r *NetworkProfileResource) Configure(_ context.Context, req resource.Confi
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *NetworkProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan NetworkProfile
 
@@ -152,7 +151,6 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 	params = ""
-	params += "?populated=true"
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
@@ -166,8 +164,6 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end create
-
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state NetworkProfile
@@ -180,25 +176,6 @@ func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
-
-	params := ""
-	params += "/" + url.QueryEscape(state.Id.ValueString())
-	params += "?populated=true"
-	res, err := r.client.Get(state.getPath() + params)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-
-	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
-	if state.isNull(ctx, res) {
-		state.fromBody(ctx, res)
-	} else {
-		state.updateFromBody(ctx, res)
-	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 

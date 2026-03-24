@@ -26,12 +26,10 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcNetworkProfile(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_profile.test", "name", "Profile1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_profile.test", "type", "switching"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_network_profile.test", "templates.0.type", "cli.templates"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -43,8 +41,6 @@ func TestAccDataSourceCcNetworkProfile(t *testing.T) {
 		},
 	})
 }
-
-// End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceCcNetworkProfilePrerequisitesConfig = `

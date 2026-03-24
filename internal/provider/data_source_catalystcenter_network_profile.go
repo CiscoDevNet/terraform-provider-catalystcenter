@@ -21,7 +21,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -121,7 +120,6 @@ func (d *NetworkProfileDataSource) Configure(_ context.Context, req datasource.C
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config NetworkProfile
 
@@ -133,44 +131,50 @@ func (d *NetworkProfileDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
+
+	res, err := d.client.Get(config.getPath())
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
+		return
+	}
+
+	var found gjson.Result
 	if config.Id.IsNull() && !config.Name.IsNull() {
-		res, err := d.client.Get(config.getPath() + "?populated=true")
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
-			return
-		}
 		if value := res.Get("response"); len(value.Array()) > 0 {
 			value.ForEach(func(k, v gjson.Result) bool {
 				if config.Name.ValueString() == v.Get("name").String() {
-					config.Id = types.StringValue(v.Get("siteProfileUuid").String())
-					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
+					found = v
 					return false
 				}
 				return true
 			})
 		}
-
-		if config.Id.IsNull() {
+		if !found.Exists() {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", config.Name.ValueString()))
+			return
+		}
+	} else if !config.Id.IsNull() {
+		if value := res.Get("response"); len(value.Array()) > 0 {
+			value.ForEach(func(k, v gjson.Result) bool {
+				if config.Id.ValueString() == v.Get("siteProfileUuid").String() {
+					found = v
+					return false
+				}
+				return true
+			})
+		}
+		if !found.Exists() {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with id: %s", config.Id.ValueString()))
 			return
 		}
 	}
 
-	params := ""
-	params += "/" + url.QueryEscape(config.Id.ValueString())
-	params += "?populated=true"
-	res, err := d.client.Get(config.getPath() + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
-		return
-	}
-
-	config.fromBody(ctx, res)
+	config.Id = types.StringValue(found.Get("siteProfileUuid").String())
+	config.Name = types.StringValue(found.Get("name").String())
+	config.Type = types.StringValue(found.Get("namespace").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
