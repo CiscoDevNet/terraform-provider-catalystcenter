@@ -104,6 +104,7 @@ func (d *NetworkProfileForSitesAssignmentsDataSource) Read(ctx context.Context, 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
+	params += "?limit=500"
 	res, err := d.client.Get(config.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
