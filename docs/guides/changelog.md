@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.7
+
+- Fix `catalystcenter_network_profile` and `catalystcenter_network_profile_for_sites_assignments` resources failing when more than big number of sites are assigned to a network profile
+
 ## 0.5.6
 
 - Fix `catalystcenter_ip_pool` and `catalystcenter_ip_pool_reservation` to correctly replace resources when immutable fields change. Added RequiresReplace for fields not supported for in-place updates by the Catalyst Center API

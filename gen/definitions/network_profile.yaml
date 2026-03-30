@@ -1,8 +1,6 @@
 ---
 name: Network Profile
 rest_endpoint: /api/v1/siteprofile
-# id_from_query_path: response
-# id_from_query_path_attribute: siteProfileUuid
 no_read: true
 doc_category: Network Settings
 attributes:
