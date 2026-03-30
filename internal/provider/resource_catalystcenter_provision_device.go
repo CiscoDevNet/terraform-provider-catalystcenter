@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -29,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -88,6 +90,12 @@ func (r *ProvisionDeviceResource) Schema(ctx context.Context, req resource.Schem
 			"reprovision": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply").String,
 				Optional:            true,
+			},
+			"clean_up_config": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. Defaults to `true`.").AddDefaultValueDescription("true").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
 			},
 		},
 	}
@@ -302,7 +310,8 @@ func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
+	deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(state.CleanUpConfig.ValueBool()))
+	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+deleteParams, cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
 		if errorCode == "NCDP10000" {

@@ -355,7 +355,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 			itemBody, _ = sjson.Set(itemBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 			{{- end}}
 			{{- end}}
-			{{- else if not .Reference}}
+			{{- else if and (not .Reference) (not .QueryParamNoBody)}}
 			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 			if {{- if .Computed}} item.{{toGoName .TfName}}.Value{{if eq .Type "Int64"}}Int64() != 0{{else}}String() != ""{{end}} &&{{- end}} !item.{{toGoName .TfName}}.IsNull() {{if .ExcludeFromPut}}&& put == false{{end}} {
 				{{- if .PutDataPath}}
@@ -458,7 +458,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 					itemChildBody, _ = sjson.Set(itemChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 					{{- end}}
 					{{- end}}
-					{{- else if not .Reference}}
+					{{- else if and (not .Reference) (not .QueryParamNoBody)}}
 					{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 					if !childItem.{{toGoName .TfName}}.IsNull() {
 						{{- if .PutDataPath}}
@@ -561,7 +561,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 							itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 							{{- end}}
 							{{- end}}
-							{{- else if not .Reference}}
+		{{- else if and (not .Reference) (not .QueryParamNoBody)}}
 							{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 							if !childChildItem.{{toGoName .TfName}}.IsNull() {
 								{{- if .PutDataPath}}
@@ -698,7 +698,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 	{{- end}}
 	{{- end}}
 	{{- range .Attributes}}
-	{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") }}
+	{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") (not .QueryParamNoBody) }}
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
 	} else {
@@ -742,7 +742,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 			{{- if and .WriteOnly .Mandatory }}
 			item.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Bool"}}false{{else if eq .Type "Int64"}}0{{else if eq .Type "String"}}""{{else}}{{.Type}}{{end}})
 			{{- end}}
-			{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") }}
+			{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") (not .QueryParamNoBody) }}
 			if cValue := v.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cValue.Exists() {
 				item.{{toGoName .TfName}} = types.{{.Type}}Value(cValue.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
 			} else {
@@ -873,7 +873,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	{{- end}}
 	{{- end}}
 	{{- range .Attributes}}
-	{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") }}
+	{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") (not .QueryParamNoBody) }}
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
 	} else {
@@ -1274,7 +1274,7 @@ for i := range data.{{toGoName .TfName}} {
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) bool {
 	{{- range .Attributes}}
-	{{- if and (not .Value) (not .Id) (not .Reference) (not .QueryParam) (not .GetQueryParam) }}
+	{{- if and (not .Value) (not .Id) (not .Reference) (not .QueryParam) (not .GetQueryParam) (not .QueryParamNoBody) }}
 	{{- if isNestedListSet .}}
 	if len(data.{{toGoName .TfName}}) > 0 {
 		return false

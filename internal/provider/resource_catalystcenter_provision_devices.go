@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -30,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -100,6 +102,12 @@ func (r *ProvisionDevicesResource) Schema(ctx context.Context, req resource.Sche
 						"reprovision": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply").String,
 							Optional:            true,
+						},
+						"clean_up_config": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. Defaults to `true`.").AddDefaultValueDescription("true").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(true),
 						},
 					},
 				},
@@ -200,6 +208,14 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 							dev.NetworkDeviceId = types.StringValue(nd.String())
 						}
 						dev.Reprovision = types.BoolValue(false)
+						// Preserve plan's clean_up_config for this device, default to true
+						dev.CleanUpConfig = types.BoolValue(true)
+						for _, planDev := range plan.ProvisionDevices {
+							if planDev.NetworkDeviceId.ValueString() == dev.NetworkDeviceId.ValueString() {
+								dev.CleanUpConfig = planDev.CleanUpConfig
+								break
+							}
+						}
 
 						devices = append(devices, dev)
 						return true
@@ -414,7 +430,8 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 			}
 			tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
 
-			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
+			deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(v.CleanUpConfig.ValueBool()))
+			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString())+deleteParams, cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
 				if errorCode == "NCDP10000" {
@@ -493,6 +510,14 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 							dev.NetworkDeviceId = types.StringValue(nd.String())
 						}
 						dev.Reprovision = types.BoolValue(false)
+						// Preserve plan's clean_up_config for this device, default to true
+						dev.CleanUpConfig = types.BoolValue(true)
+						for _, planDev := range plan.ProvisionDevices {
+							if planDev.NetworkDeviceId.ValueString() == dev.NetworkDeviceId.ValueString() {
+								dev.CleanUpConfig = planDev.CleanUpConfig
+								break
+							}
+						}
 
 						allDevices = append(allDevices, dev)
 						return true
@@ -630,7 +655,8 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 		}
 		tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
 
-		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
+		deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(v.CleanUpConfig.ValueBool()))
+		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(v.Id.ValueString())+deleteParams, cc.UseMutex)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
 			if errorCode == "NCDP10000" {

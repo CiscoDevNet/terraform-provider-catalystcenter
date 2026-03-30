@@ -548,19 +548,21 @@ func GenerateQueryParamString(method string, inputSource string, attributes []Ya
 
 		// Construct the query parameter string if includeParam is true
 		if includeParam {
+			var valueExpr string
+			switch attr.Type {
+			case "Int64":
+				valueExpr = `strconv.FormatInt(` + inputSource + `.` + ToGoName(attr.TfName) + `.Value` + attr.Type + `(), 10)`
+			case "Bool":
+				valueExpr = `strconv.FormatBool(` + inputSource + `.` + ToGoName(attr.TfName) + `.Value` + attr.Type + `())`
+			default:
+				valueExpr = inputSource + `.` + ToGoName(attr.TfName) + `.Value` + attr.Type + `()`
+			}
+
 			if first {
-				if attr.Type == "Int64" {
-					params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(strconv.FormatInt(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`(), 10))`)
-				} else {
-					params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
-				}
+				params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(`+valueExpr+`)`)
 				first = false
 			} else {
-				if attr.Type == "Int64" {
-					params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(strconv.FormatInt(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`(), 10))`)
-				} else {
-					params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(`+inputSource+`.`+ToGoName(attr.TfName)+`.Value`+attr.Type+`())`)
-				}
+				params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(`+valueExpr+`)`)
 			}
 		}
 	}
@@ -571,6 +573,44 @@ func GenerateQueryParamString(method string, inputSource string, attributes []Ya
 	} else {
 		return strings.Join(params, "+")
 	}
+}
+
+func GenerateDeleteOnlyQueryParamString(inputSource string, attributes []YamlConfigAttribute) string {
+	var params []string
+	first := true
+
+	for _, attr := range attributes {
+		if !attr.DeleteQueryParam {
+			continue
+		}
+
+		queryParamName := attr.DeleteQueryParamName
+		if queryParamName == "" {
+			queryParamName = attr.ModelName
+		}
+
+		var valueExpr string
+		switch attr.Type {
+		case "Int64":
+			valueExpr = `strconv.FormatInt(` + inputSource + `.` + ToGoName(attr.TfName) + `.Value` + attr.Type + `(), 10)`
+		case "Bool":
+			valueExpr = `strconv.FormatBool(` + inputSource + `.` + ToGoName(attr.TfName) + `.Value` + attr.Type + `())`
+		default:
+			valueExpr = inputSource + `.` + ToGoName(attr.TfName) + `.Value` + attr.Type + `()`
+		}
+
+		if first {
+			params = append(params, `"?`+queryParamName+`=" + url.QueryEscape(`+valueExpr+`)`)
+			first = false
+		} else {
+			params = append(params, `"&`+queryParamName+`=" + url.QueryEscape(`+valueExpr+`)`)
+		}
+	}
+
+	if len(params) == 0 {
+		return ""
+	}
+	return strings.Join(params, "+")
 }
 
 // Templating helper function to return a list of import attributes
@@ -599,40 +639,41 @@ func Subtract(a, b int) int {
 
 // Map of templating functions
 var functions = template.FuncMap{
-	"toGoName":                 ToGoName,
-	"camelCase":                CamelCase,
-	"strContains":              strings.Contains,
-	"snakeCase":                SnakeCase,
-	"sprintf":                  fmt.Sprintf,
-	"toLower":                  strings.ToLower,
-	"path":                     BuildPath,
-	"hasId":                    HasId,
-	"hasReference":             HasReference,
-	"hasQueryParam":            HasQueryParam,
-	"hasGetQueryParam":         HasGetQueryParam,
-	"hasDeleteQueryParam":      HasDeleteQueryParam,
-	"generateQueryParamString": GenerateQueryParamString,
-	"getId":                    GetId,
-	"getMatchId":               GetMatchId,
-	"hasCreateQueryPath":       HasCreateQueryPath,
-	"getCreateQueryPath":       GetCreateQueryPath,
-	"getQueryParam":            GetQueryParam,
-	"getDeleteQueryParam":      GetDeleteQueryParam,
-	"hasDataSourceQuery":       HasDataSourceQuery,
-	"hasComputedRefreshValue":  HasComputedRefreshValue,
-	"firstPathElement":         FirstPathElement,
-	"remainingPathElements":    RemainingPathElements,
-	"getFromAllPath":           GetFromAllPath,
-	"isListSet":                IsListSet,
-	"isList":                   IsList,
-	"isSet":                    IsSet,
-	"isStringListSet":          IsStringListSet,
-	"isInt64ListSet":           IsInt64ListSet,
-	"isNestedListSet":          IsNestedListSet,
-	"isNestedList":             IsNestedList,
-	"isNestedSet":              IsNestedSet,
-	"importAttributes":         ImportAttributes,
-	"subtract":                 Subtract,
+	"toGoName":                           ToGoName,
+	"camelCase":                          CamelCase,
+	"strContains":                        strings.Contains,
+	"snakeCase":                          SnakeCase,
+	"sprintf":                            fmt.Sprintf,
+	"toLower":                            strings.ToLower,
+	"path":                               BuildPath,
+	"hasId":                              HasId,
+	"hasReference":                       HasReference,
+	"hasQueryParam":                      HasQueryParam,
+	"hasGetQueryParam":                   HasGetQueryParam,
+	"hasDeleteQueryParam":                HasDeleteQueryParam,
+	"generateQueryParamString":           GenerateQueryParamString,
+	"generateDeleteOnlyQueryParamString": GenerateDeleteOnlyQueryParamString,
+	"getId":                              GetId,
+	"getMatchId":                         GetMatchId,
+	"hasCreateQueryPath":                 HasCreateQueryPath,
+	"getCreateQueryPath":                 GetCreateQueryPath,
+	"getQueryParam":                      GetQueryParam,
+	"getDeleteQueryParam":                GetDeleteQueryParam,
+	"hasDataSourceQuery":                 HasDataSourceQuery,
+	"hasComputedRefreshValue":            HasComputedRefreshValue,
+	"firstPathElement":                   FirstPathElement,
+	"remainingPathElements":              RemainingPathElements,
+	"getFromAllPath":                     GetFromAllPath,
+	"isListSet":                          IsListSet,
+	"isList":                             IsList,
+	"isSet":                              IsSet,
+	"isStringListSet":                    IsStringListSet,
+	"isInt64ListSet":                     IsInt64ListSet,
+	"isNestedListSet":                    IsNestedListSet,
+	"isNestedList":                       IsNestedList,
+	"isNestedSet":                        IsNestedSet,
+	"importAttributes":                   ImportAttributes,
+	"subtract":                           Subtract,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {

@@ -1533,7 +1533,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
-	{{- else if hasDeleteQueryParam .Attributes }}
+	{{- else if and (hasDeleteQueryParam .Attributes) (not .SkipDeleteOnEmptyId) (not .GetBeforeDelete) }}
 	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
 	{{- if $queryParams }}
 	params := {{$queryParams}}
@@ -1570,10 +1570,16 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	}
 	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
 	{{- end}}
+	{{- if hasDeleteQueryParam .Attributes }}
+	{{- $deleteQueryParams := generateDeleteOnlyQueryParamString "state" .Attributes }}
+	{{- if $deleteQueryParams }}
+	deleteParams := {{$deleteQueryParams}}
+	{{- end}}
+	{{- end}}
 	{{- if and .DeleteRestEndpoint (strContains .DeleteRestEndpoint "%v")}}
-	res, err := r.client.Delete(state.getPathDelete(){{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Delete(state.getPathDelete(){{- if hasDeleteQueryParam .Attributes }} + deleteParams{{- end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if hasDeleteQueryParam .Attributes }} + deleteParams{{- end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	{{- end}}
 	{{- if not .DeleteIterative }}

@@ -34,6 +34,7 @@ type ProvisionDevice struct {
 	SiteId          types.String `tfsdk:"site_id"`
 	NetworkDeviceId types.String `tfsdk:"network_device_id"`
 	Reprovision     types.Bool   `tfsdk:"reprovision"`
+	CleanUpConfig   types.Bool   `tfsdk:"clean_up_config"`
 }
 
 // End of section. //template:end types
