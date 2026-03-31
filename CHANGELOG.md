@@ -1,6 +1,6 @@
 ## 0.5.7
 
-- Fix `catalystcenter_network_profile` and `catalystcenter_network_profile_for_sites_assignments` resources failing when more than big number of sites are assigned to a network profile
+- Fix `catalystcenter_network_profile` and `catalystcenter_network_profile_for_sites_assignments` resources failing when a large number of sites are assigned to a network profile
 
 ## 0.5.6
 
