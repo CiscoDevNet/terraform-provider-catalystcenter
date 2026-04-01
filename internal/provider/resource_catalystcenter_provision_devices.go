@@ -31,7 +31,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -104,10 +103,8 @@ func (r *ProvisionDevicesResource) Schema(ctx context.Context, req resource.Sche
 							Optional:            true,
 						},
 						"clean_up_config": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. Defaults to `true`.").AddDefaultValueDescription("true").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. When not specified, defaults to `true`.").String,
 							Optional:            true,
-							Computed:            true,
-							Default:             booldefault.StaticBool(true),
 						},
 					},
 				},
@@ -208,8 +205,7 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 							dev.NetworkDeviceId = types.StringValue(nd.String())
 						}
 						dev.Reprovision = types.BoolValue(false)
-						// Preserve plan's clean_up_config for this device, default to true
-						dev.CleanUpConfig = types.BoolValue(true)
+						// Preserve plan's clean_up_config for this device (null means true)
 						for _, planDev := range plan.ProvisionDevices {
 							if planDev.NetworkDeviceId.ValueString() == dev.NetworkDeviceId.ValueString() {
 								dev.CleanUpConfig = planDev.CleanUpConfig
@@ -430,7 +426,12 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 			}
 			tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
 
-			deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(v.CleanUpConfig.ValueBool()))
+			// clean_up_config defaults to true when not specified
+			cleanUpConfig := true
+			if !v.CleanUpConfig.IsNull() && !v.CleanUpConfig.IsUnknown() {
+				cleanUpConfig = v.CleanUpConfig.ValueBool()
+			}
+			deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(cleanUpConfig))
 			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString())+deleteParams, cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
@@ -510,8 +511,7 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 							dev.NetworkDeviceId = types.StringValue(nd.String())
 						}
 						dev.Reprovision = types.BoolValue(false)
-						// Preserve plan's clean_up_config for this device, default to true
-						dev.CleanUpConfig = types.BoolValue(true)
+						// Preserve plan's clean_up_config for this device (null means true)
 						for _, planDev := range plan.ProvisionDevices {
 							if planDev.NetworkDeviceId.ValueString() == dev.NetworkDeviceId.ValueString() {
 								dev.CleanUpConfig = planDev.CleanUpConfig
@@ -655,7 +655,12 @@ func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.Dele
 		}
 		tflog.Debug(ctx, fmt.Sprintf("%s: Device %s verified, proceeding with delete", state.Id.ValueString(), v.Id.ValueString()))
 
-		deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(v.CleanUpConfig.ValueBool()))
+		// clean_up_config defaults to true when not specified
+		cleanUpConfig := true
+		if !v.CleanUpConfig.IsNull() && !v.CleanUpConfig.IsUnknown() {
+			cleanUpConfig = v.CleanUpConfig.ValueBool()
+		}
+		deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(cleanUpConfig))
 		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(v.Id.ValueString())+deleteParams, cc.UseMutex)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
