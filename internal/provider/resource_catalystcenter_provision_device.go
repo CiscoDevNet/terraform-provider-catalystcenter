@@ -30,7 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -92,10 +91,8 @@ func (r *ProvisionDeviceResource) Schema(ctx context.Context, req resource.Schem
 				Optional:            true,
 			},
 			"clean_up_config": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. Defaults to `true`.").AddDefaultValueDescription("true").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. When not specified, defaults to `true`.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(true),
 			},
 		},
 	}
@@ -235,7 +232,6 @@ func (r *ProvisionDeviceResource) Read(ctx context.Context, req resource.ReadReq
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *ProvisionDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state ProvisionDevice
 
@@ -254,19 +250,23 @@ func (r *ProvisionDeviceResource) Update(ctx context.Context, req resource.Updat
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
-	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
-	if err != nil {
-		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
-			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
-			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
-			return
+	if !plan.Reprovision.IsNull() && !plan.Reprovision.IsUnknown() && plan.Reprovision.ValueBool() {
+		body := plan.toBody(ctx, state)
+		params := ""
+		res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+		if err != nil {
+			errorCode := res.Get("response.errorCode").String()
+			if errorCode == "NCDP10000" {
+				// Log a warning and continue execution when device is unreachable
+				failureReason := res.Get("response.failureReason").String()
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
+				return
+			}
 		}
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Skipping PUT - reprovision is not true, only updating state", plan.Id.ValueString()))
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -275,9 +275,6 @@ func (r *ProvisionDeviceResource) Update(ctx context.Context, req resource.Updat
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end update
-
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state ProvisionDevice
 
@@ -310,7 +307,11 @@ func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
-	deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(state.CleanUpConfig.ValueBool()))
+	cleanUpConfig := true
+	if !state.CleanUpConfig.IsNull() && !state.CleanUpConfig.IsUnknown() {
+		cleanUpConfig = state.CleanUpConfig.ValueBool()
+	}
+	deleteParams := "?cleanUpConfig=" + url.QueryEscape(strconv.FormatBool(cleanUpConfig))
 	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+deleteParams, cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
@@ -328,8 +329,6 @@ func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.Delet
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *ProvisionDeviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

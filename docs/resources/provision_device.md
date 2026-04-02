@@ -29,8 +29,7 @@ resource "catalystcenter_provision_device" "example" {
 
 ### Optional
 
-- `clean_up_config` (Boolean) Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. Defaults to `true`.
-  - Default value: `true`
+- `clean_up_config` (Boolean) Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. When not specified, defaults to `true`.
 - `reprovision` (Boolean) Flag to indicate whether the device should be reprovisioned. If set to `true`, reprovisioning will be triggered on every Terraform apply
 
 ### Read-Only

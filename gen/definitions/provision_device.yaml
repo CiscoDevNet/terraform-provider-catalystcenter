@@ -44,8 +44,7 @@ attributes:
   - model_name: cleanUpConfig
     tf_name: clean_up_config
     type: Bool
-    default_value: "true"
-    description: Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. Defaults to `true`.
+    description: Enable/disable configuration cleanup when deleting the device. Set to `false` for unreachable devices to avoid NCIM10000 errors. When not specified, defaults to `true`.
     write_only: true
     query_param_no_body: true
     delete_query_param: true

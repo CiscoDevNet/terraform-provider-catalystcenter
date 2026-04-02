@@ -374,11 +374,23 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 					toReplace.ProvisionDevices = append(toReplace.ProvisionDevices, planItem)
 					continue
 				}
-				toUpdate.ProvisionDevices = append(toUpdate.ProvisionDevices, planItem)
+				// Only send PUT if reprovision is explicitly true; otherwise just update state
+				if !planItem.Reprovision.IsNull() && !planItem.Reprovision.IsUnknown() && planItem.Reprovision.ValueBool() {
+					toUpdate.ProvisionDevices = append(toUpdate.ProvisionDevices, planItem)
+				} else {
+					tflog.Debug(ctx, fmt.Sprintf("%s: Skipping PUT for device %s - reprovision is not true, only updating state", state.Id.ValueString(), planItem.NetworkDeviceId.ValueString()))
+				}
 			}
 		} else {
 			// Exists only in plan → New item
 			toCreate.ProvisionDevices = append(toCreate.ProvisionDevices, planItem)
+		}
+	}
+
+	for i, v := range plan.ProvisionDevices {
+		key := v.NetworkDeviceId.ValueString()
+		if updated, exists := planMap[key]; exists {
+			plan.ProvisionDevices[i] = updated
 		}
 	}
 
