@@ -209,6 +209,15 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 		if value := res{{if .ResponseDataPath}}.Get("{{firstPathElement .ResponseDataPath $getFromAllPath}}"){{end}}; len(value.Array()) > 0 {
 			value.ForEach(func(k, v gjson.Result) bool {
 				if config.{{toGoName .TfName}}.ValueString() == v.Get("{{if .ResponseDataPath}}{{remainingPathElements .ResponseDataPath $getFromAllPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}").String() {
+					{{- range $.Attributes}}
+					{{- if and .Reference (not .DataSourceQuery)}}
+					// If {{.TfName}} is specified, also match on {{if .ResponseModelName}}{{.ResponseModelName}}{{else}}{{.ModelName}}{{end}} to avoid
+					// returning the wrong object when duplicate names exist.
+					if !config.{{toGoName .TfName}}.IsNull() && config.{{toGoName .TfName}}.ValueString() != v.Get("{{if .ResponseModelName}}{{.ResponseModelName}}{{else}}{{.ModelName}}{{end}}").String() {
+						return true
+					}
+					{{- end}}
+					{{- end}}
 					config.Id = types.StringValue(v.Get("{{if $idFromQueryPathAttribute}}{{$idFromQueryPathAttribute}}{{else}}id{{end}}").String())
 					tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{.ModelName}} '%v', id: %v", config.Id.String(), config.{{toGoName .TfName}}.ValueString(), config.Id.String()))
 					return false

@@ -12,6 +12,7 @@ get_extra_query_params: "?unCommitted=true"
 doc_category: Templates
 attributes:
   - model_name: project_id
+    response_model_name: projectId
     type: String
     reference: true
     description: The ID of the project
