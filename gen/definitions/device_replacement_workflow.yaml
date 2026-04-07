@@ -1,0 +1,31 @@
+---
+name: Device Replacement Workflow
+rest_endpoint: /dna/intent/api/v1/device-replacement/workflow
+no_data_source: true
+no_update: true
+no_delete: true
+no_import: true
+no_read: true
+id_from_attribute: true
+skip_minimum_test: true
+no_wait: true
+doc_category: Inventory
+res_description:
+  'This resource triggers the device replacement workflow on Catalyst Center. The faulty device must already be marked
+  for replacement (see `catalystcenter_device_replacement`). The workflow is long-running; this resource only triggers it.
+  <p/>
+  When this resource is destroyed or refreshed, no actions are performed on Catalyst Center.'
+attributes:
+  - model_name: faultyDeviceSerialNumber
+    type: String
+    mandatory: true
+    requires_replace: true
+    id: true
+    description: Serial number of the faulty device to be replaced
+    example: FOC12345678
+  - model_name: replacementDeviceSerialNumber
+    type: String
+    mandatory: true
+    requires_replace: true
+    description: Serial number of the replacement device
+    example: FOC87654321

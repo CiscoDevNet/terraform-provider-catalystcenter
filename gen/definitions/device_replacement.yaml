@@ -1,0 +1,116 @@
+---
+name: Device Replacement
+rest_endpoint: /dna/intent/api/v1/device-replacement
+no_data_source: true
+put_no_id: true
+put_delete: true
+delete_no_id: true
+get_from_all: true
+id_from_query_path: response
+put_id_include_path: "0.id"
+
+skip_minimum_test: true
+doc_category: Inventory
+attributes:
+  - model_name: faultyDeviceId
+    data_path: "0"
+    response_data_path: faultyDeviceId
+    type: String
+    mandatory: true
+    match_id: true
+    description: The ID of the faulty device to be replaced
+    example: 12345678-1234-1234-1234-123456789012
+  - model_name: replacementStatus
+    data_path: "0"
+    response_data_path: replacementStatus
+    type: String
+    mandatory: true
+    requires_replace: true
+    description: The replacement status of the device. Use MARKED-FOR-REPLACEMENT to mark the device for replacement.
+    example: MARKED-FOR-REPLACEMENT
+  - model_name: family
+    response_data_path: family
+    type: String
+    computed: true
+    description: The device family (computed from the faulty device)
+    exclude_test: true
+  - model_name: faultyDeviceName
+    response_data_path: faultyDeviceName
+    type: String
+    computed: true
+    description: The name of the faulty device (computed from the faulty device)
+    exclude_test: true
+  - model_name: faultyDevicePlatform
+    response_data_path: faultyDevicePlatform
+    type: String
+    computed: true
+    description: The platform of the faulty device (computed from the faulty device)
+    exclude_test: true
+  - model_name: faultyDeviceSerialNumber
+    response_data_path: faultyDeviceSerialNumber
+    type: String
+    computed: true
+    description: The serial number of the faulty device (computed from the faulty device)
+    exclude_test: true
+  - model_name: replacementDevicePlatform
+    data_path: "0"
+    response_data_path: replacementDevicePlatform
+    type: String
+    requires_replace: true
+    description: The platform of the replacement device
+    example: C9300-24P
+    exclude_test: true
+  - model_name: replacementDeviceSerialNumber
+    data_path: "0"
+    response_data_path: replacementDeviceSerialNumber
+    type: String
+    requires_replace: true
+    description: The serial number of the replacement device
+    example: FOC87654321
+    exclude_test: true
+  - model_name: neighbourDeviceId
+    tf_name: neighbour_device_id
+    data_path: "0"
+    response_data_path: neighbourDeviceId
+    type: String
+    requires_replace: true
+    description: The ID of the neighbour device to create the DHCP server
+    example: 87654321-4321-4321-4321-210987654321
+    exclude_test: true
+  - model_name: networkReadinessTaskId
+    response_data_path: networkReadinessTaskId
+    type: String
+    computed: true
+    description: The ID of the network readiness task
+    exclude_test: true
+  - model_name: workflowId
+    response_data_path: workflowId
+    type: String
+    computed: true
+    description: The ID of the replacement workflow
+    exclude_test: true
+  - model_name: creationTime
+    response_data_path: creationTime
+    type: Int64
+    computed: true
+    description: The creation time of the device replacement entry
+    exclude_test: true
+  - model_name: replacementTime
+    response_data_path: replacementTime
+    type: Int64
+    computed: true
+    description: The replacement time of the device replacement entry
+    exclude_test: true
+  - model_name: workflowFailedStep
+    response_data_path: workflowFailedStep
+    type: String
+    computed: true
+    description: The failed step of the replacement workflow
+    exclude_test: true
+  - model_name: readinesscheckTaskId
+    tf_name: readiness_check_task_id
+    response_data_path: readinesscheckTaskId
+    type: String
+    computed: true
+    description: The ID of the readiness check task
+    exclude_test: true
