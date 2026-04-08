@@ -8,9 +8,9 @@ delete_no_id: true
 get_from_all: true
 id_from_query_path: response
 put_id_include_path: "0.id"
-
 skip_minimum_test: true
 doc_category: Inventory
+test_tags: [INVENTORY]
 attributes:
   - model_name: faultyDeviceId
     data_path: "0"

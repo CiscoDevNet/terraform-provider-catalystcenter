@@ -10,6 +10,7 @@ id_from_attribute: true
 skip_minimum_test: true
 no_wait: true
 doc_category: Inventory
+test_tags: [INVENTORY]
 res_description:
   'This resource triggers the device replacement workflow on Catalyst Center. The faulty device must already be marked
   for replacement (see `catalystcenter_device_replacement`). The workflow is long-running; this resource only triggers it.

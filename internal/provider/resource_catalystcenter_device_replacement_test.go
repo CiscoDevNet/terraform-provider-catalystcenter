@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcDeviceReplacement(t *testing.T) {
+	if os.Getenv("INVENTORY") == "" {
+		t.Skip("skipping test, set environment variable INVENTORY")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_replacement.test", "faulty_device_id", "12345678-1234-1234-1234-123456789012"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_replacement.test", "replacement_status", "MARKED-FOR-REPLACEMENT"))
