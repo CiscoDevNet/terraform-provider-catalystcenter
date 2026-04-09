@@ -115,4 +115,5 @@ attribute:
   map_key_example: str(required=False) # Example key for Map type attributes, used in generated documentation (e.g., "Global/Area1")
   key_part: bool(required=False) # Set to true if the attribute is part of the composite key for Map type (e.g., parentNameHierarchy and name)
   no_put: bool(required=False) # Set to true if the attribute should be excluded from the PUT request
+  null_on_empty: bool(required=False) # If true, treat empty string values from the API as null in Terraform state (prevents empty-string vs null mismatch on import)
   custom_modifier: str(required=False) # Set custom modifier on the field, Modifier should exist in the package

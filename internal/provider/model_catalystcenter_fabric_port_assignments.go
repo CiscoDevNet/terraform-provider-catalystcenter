@@ -171,7 +171,7 @@ func (data *FabricPortAssignments) fromBody(ctx context.Context, res gjson.Resul
 			} else {
 				item.SecurityGroupName = types.StringNull()
 			}
-			if cValue := v.Get("interfaceDescription"); cValue.Exists() {
+			if cValue := v.Get("interfaceDescription"); cValue.Exists() && cValue.String() != "" {
 				item.InterfaceDescription = types.StringValue(cValue.String())
 			} else {
 				item.InterfaceDescription = types.StringNull()
@@ -256,7 +256,7 @@ func (data *FabricPortAssignments) updateFromBody(ctx context.Context, res gjson
 		} else {
 			data.PortAssignments[i].SecurityGroupName = types.StringNull()
 		}
-		if value := r.Get("interfaceDescription"); value.Exists() && !data.PortAssignments[i].InterfaceDescription.IsNull() {
+		if value := r.Get("interfaceDescription"); value.Exists() && value.String() != "" && !data.PortAssignments[i].InterfaceDescription.IsNull() {
 			data.PortAssignments[i].InterfaceDescription = types.StringValue(value.String())
 		} else {
 			data.PortAssignments[i].InterfaceDescription = types.StringNull()

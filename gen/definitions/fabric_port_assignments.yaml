@@ -88,6 +88,7 @@ attributes:
         type: String
         description: Interface description of the port assignment
         exclude_test: true
+        null_on_empty: true
 test_prerequisites: |
   resource "catalystcenter_area" "test" {
     name        = "Area1"

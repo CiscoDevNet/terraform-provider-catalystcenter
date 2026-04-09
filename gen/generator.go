@@ -212,6 +212,7 @@ type YamlConfigAttribute struct {
 	MapKeyExample             string                `yaml:"map_key_example"`
 	KeyPart                   bool                  `yaml:"key_part"`
 	NoPut                     bool                  `yaml:"no_put"`
+	NullOnEmpty               bool                  `yaml:"null_on_empty"`
 	CustomModifier            string                `yaml:"custom_modifier"`
 }
 
