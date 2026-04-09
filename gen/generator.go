@@ -333,6 +333,17 @@ func HasComputedRefreshValue(attributes []YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return true if any computed_refresh_value attribute participates in key matching
+func HasComputedRefreshValueInKeys(attributes []YamlConfigAttribute) bool {
+	noId := !HasId(attributes)
+	for _, attr := range attributes {
+		if attr.ComputedRefreshValue && (attr.Id || noId) {
+			return true
+		}
+	}
+	return false
+}
+
 // Templating helper function to return the ID attribute
 func GetId(attributes []YamlConfigAttribute) YamlConfigAttribute {
 	for _, attr := range attributes {
@@ -661,6 +672,7 @@ var functions = template.FuncMap{
 	"getDeleteQueryParam":                GetDeleteQueryParam,
 	"hasDataSourceQuery":                 HasDataSourceQuery,
 	"hasComputedRefreshValue":            HasComputedRefreshValue,
+	"hasComputedRefreshValueInKeys":      HasComputedRefreshValueInKeys,
 	"firstPathElement":                   FirstPathElement,
 	"remainingPathElements":              RemainingPathElements,
 	"getFromAllPath":                     GetFromAllPath,

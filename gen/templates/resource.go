@@ -209,6 +209,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							Optional:            true,
 							{{- else if and .Computed (not .ComputedRefreshValue) }}
 							Optional:            true,
+							{{- else if and .ComputedRefreshValue (not .Computed) }}
+							Optional:            true,
 							{{- end}}
 							{{- if or (len .DefaultValue) .Computed}}
 							Computed:            true,

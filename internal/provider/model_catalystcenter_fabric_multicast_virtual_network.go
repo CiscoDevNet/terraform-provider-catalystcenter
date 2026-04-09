@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"slices"
 	"strconv"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -238,13 +239,14 @@ func (data *FabricMulticastVirtualNetwork) updateFromBody(ctx context.Context, r
 	for i := range data.MulticastRps {
 		keys := [...]string{"rpDeviceLocation", "ipv4Address", "ipv6Address", "isDefaultV4RP", "isDefaultV6RP"}
 		keyValues := [...]string{data.MulticastRps[i].RpDeviceLocation.ValueString(), data.MulticastRps[i].Ipv4Address.ValueString(), data.MulticastRps[i].Ipv6Address.ValueString(), strconv.FormatBool(data.MulticastRps[i].IsDefaultV4Rp.ValueBool()), strconv.FormatBool(data.MulticastRps[i].IsDefaultV6Rp.ValueBool())}
+		emptyKeys := [...]string{"ipv4Address", "ipv6Address"}
 
 		var r gjson.Result
 		res.Get("response.0.multicastRPs").ForEach(
 			func(_, v gjson.Result) bool {
 				found := false
 				for ik := range keys {
-					if v.Get(keys[ik]).String() == keyValues[ik] {
+					if v.Get(keys[ik]).String() == keyValues[ik] || slices.Contains(emptyKeys[:], keys[ik]) && keyValues[ik] == "" {
 						found = true
 						continue
 					}

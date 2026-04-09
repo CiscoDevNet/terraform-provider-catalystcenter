@@ -297,13 +297,14 @@ func (data *FabricMulticastVirtualNetworks) updateFromBody(ctx context.Context, 
 		for ci := range data.VirtualNetworks[i].MulticastRps {
 			keys := [...]string{"rpDeviceLocation", "ipv4Address", "ipv6Address", "isDefaultV4RP", "isDefaultV6RP"}
 			keyValues := [...]string{data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation.ValueString(), data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address.ValueString(), data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address.ValueString(), strconv.FormatBool(data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp.ValueBool()), strconv.FormatBool(data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp.ValueBool())}
+			emptyKeys := [...]string{"ipv4Address", "ipv6Address"}
 
 			var cr gjson.Result
 			r.Get("multicastRPs").ForEach(
 				func(_, v gjson.Result) bool {
 					found := false
 					for ik := range keys {
-						if v.Get(keys[ik]).String() == keyValues[ik] {
+						if v.Get(keys[ik]).String() == keyValues[ik] || slices.Contains(emptyKeys[:], keys[ik]) && keyValues[ik] == "" {
 							found = true
 							continue
 						}

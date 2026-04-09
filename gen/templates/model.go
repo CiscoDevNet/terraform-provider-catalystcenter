@@ -909,13 +909,20 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	for i := range data.{{toGoName .TfName}} {
 		keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 		keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
+		{{- if hasComputedRefreshValueInKeys .Attributes}}
+		emptyKeys := [...]string{ {{range .Attributes}}{{if .ComputedRefreshValue}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}} }
+		{{- end}}
 
 		var r gjson.Result
 		res.{{if .ModelName}}Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}").{{end}}ForEach(
 			func(_, v gjson.Result) bool {
 				found := false
 				for ik := range keys {
+					{{- if hasComputedRefreshValueInKeys .Attributes}}
+					if v.Get(keys[ik]).String() == keyValues[ik] || slices.Contains(emptyKeys[:], keys[ik]) && keyValues[ik] == "" {
+					{{- else}}
 					if v.Get(keys[ik]).String() == keyValues[ik] {
+					{{- end}}
 						found = true
 						continue
 					}
@@ -961,13 +968,20 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 		for ci := range data.{{$list}}[i].{{toGoName .TfName}} {
 			keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
+			{{- if hasComputedRefreshValueInKeys .Attributes}}
+			emptyKeys := [...]string{ {{range .Attributes}}{{if .ComputedRefreshValue}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}} }
+			{{- end}}
 
 			var cr gjson.Result
 			r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").ForEach(
 				func(_, v gjson.Result) bool {
 					found := false
 					for ik := range keys {
+						{{- if hasComputedRefreshValueInKeys .Attributes}}
+						if v.Get(keys[ik]).String() == keyValues[ik] || slices.Contains(emptyKeys[:], keys[ik]) && keyValues[ik] == "" {
+						{{- else}}
 						if v.Get(keys[ik]).String() == keyValues[ik] {
+						{{- end}}
 							found = true
 							continue
 						}
@@ -1007,13 +1021,20 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 			for cci := range data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} {
 				keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 				keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
+				{{- if hasComputedRefreshValueInKeys .Attributes}}
+				emptyKeys := [...]string{ {{range .Attributes}}{{if .ComputedRefreshValue}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}} }
+				{{- end}}
 
 				var ccr gjson.Result
 				cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").ForEach(
 					func(_, v gjson.Result) bool {
 						found := false
 						for ik := range keys {
+							{{- if hasComputedRefreshValueInKeys .Attributes}}
+							if v.Get(keys[ik]).String() == keyValues[ik] || slices.Contains(emptyKeys[:], keys[ik]) && keyValues[ik] == "" {
+							{{- else}}
 							if v.Get(keys[ik]).String() == keyValues[ik] {
+							{{- end}}
 								found = true
 								continue
 							}
@@ -1115,13 +1136,20 @@ if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .
 for i := range data.{{toGoName .TfName}} {
 	keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}}{{end}} }
 	keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}}{{end}} }
+	{{- if hasComputedRefreshValueInKeys .Attributes}}
+	emptyKeys := [...]string{ {{range .Attributes}}{{if .ComputedRefreshValue}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}} }
+	{{- end}}
 
 	var r gjson.Result
 	res.{{if .ModelName}}Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}").{{end}}ForEach(
 		func(_, v gjson.Result) bool {
 			found := false
 			for ik := range keys {
+				{{- if hasComputedRefreshValueInKeys .Attributes}}
+				if v.Get(keys[ik]).String() == keyValues[ik] || slices.Contains(emptyKeys[:], keys[ik]) && keyValues[ik] == "" {
+				{{- else}}
 				if v.Get(keys[ik]).String() == keyValues[ik] {
+				{{- end}}
 					found = true
 					continue
 				}
@@ -1210,13 +1238,20 @@ for i := range data.{{toGoName .TfName}} {
 		for cci := range data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} {
 			keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
+			{{- if hasComputedRefreshValueInKeys .Attributes}}
+			emptyKeys := [...]string{ {{range .Attributes}}{{if .ComputedRefreshValue}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}} }
+			{{- end}}
 
 			var ccr gjson.Result
 			cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").ForEach(
 				func(_, v gjson.Result) bool {
 					found := false
 					for ik := range keys {
+						{{- if hasComputedRefreshValueInKeys .Attributes}}
+						if v.Get(keys[ik]).String() == keyValues[ik] || slices.Contains(emptyKeys[:], keys[ik]) && keyValues[ik] == "" {
+						{{- else}}
 						if v.Get(keys[ik]).String() == keyValues[ik] {
+						{{- end}}
 							found = true
 							continue
 						}
