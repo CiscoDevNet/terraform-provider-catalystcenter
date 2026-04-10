@@ -419,6 +419,7 @@ func (data *AnycastGateways) fromBodyUnknowns(ctx context.Context, res gjson.Res
 				data.AnycastGateways[i].Id = types.StringValue(value.String())
 			} else {
 				data.AnycastGateways[i].Id = types.StringNull()
+				continue
 			}
 		}
 		if data.AnycastGateways[i].VlanName.IsUnknown() {

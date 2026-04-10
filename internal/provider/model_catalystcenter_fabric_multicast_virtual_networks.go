@@ -403,6 +403,7 @@ func (data *FabricMulticastVirtualNetworks) fromBodyUnknowns(ctx context.Context
 				data.VirtualNetworks[i].Id = types.StringValue(value.String())
 			} else {
 				data.VirtualNetworks[i].Id = types.StringNull()
+				continue
 			}
 		}
 		for ci := range data.VirtualNetworks[i].MulticastRps {

@@ -211,6 +211,7 @@ func (data *ProvisionDevices) fromBodyUnknowns(ctx context.Context, res gjson.Re
 				data.ProvisionDevices[i].Id = types.StringValue(value.String())
 			} else {
 				data.ProvisionDevices[i].Id = types.StringNull()
+				continue
 			}
 		}
 	}

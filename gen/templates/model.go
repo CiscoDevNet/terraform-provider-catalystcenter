@@ -1172,6 +1172,9 @@ for i := range data.{{toGoName .TfName}} {
 			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
 		} else {{if .DefaultValue}}if data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
 			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Null()
+			{{- if eq .ModelName "id"}}
+			continue
+			{{- end}}
 		}
 	}
 	{{- else if isListSet .}}

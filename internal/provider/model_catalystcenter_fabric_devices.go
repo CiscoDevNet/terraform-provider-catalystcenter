@@ -310,6 +310,7 @@ func (data *FabricDevices) fromBodyUnknowns(ctx context.Context, res gjson.Resul
 				data.FabricDevices[i].Id = types.StringValue(value.String())
 			} else {
 				data.FabricDevices[i].Id = types.StringNull()
+				continue
 			}
 		}
 	}

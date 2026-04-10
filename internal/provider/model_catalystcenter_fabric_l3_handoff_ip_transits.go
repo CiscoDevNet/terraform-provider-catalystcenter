@@ -339,6 +339,7 @@ func (data *FabricL3HandoffIPTransits) fromBodyUnknowns(ctx context.Context, res
 				data.L3Handoffs[i].Id = types.StringValue(value.String())
 			} else {
 				data.L3Handoffs[i].Id = types.StringNull()
+				continue
 			}
 		}
 	}

@@ -301,6 +301,7 @@ func (data *FabricPortAssignments) fromBodyUnknowns(ctx context.Context, res gjs
 				data.PortAssignments[i].Id = types.StringValue(value.String())
 			} else {
 				data.PortAssignments[i].Id = types.StringNull()
+				continue
 			}
 		}
 	}
