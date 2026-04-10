@@ -1648,6 +1648,9 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 	queryPart, err := url.ParseQuery(cacheSuffix)
 	if err == nil{
 		delete(queryPart, "id")
+		{{- range .CacheFilterAttributes}}
+		delete(queryPart, "{{.}}")
+		{{- end}}
 		newQuery := queryPart.Encode()
 		cacheSuffix  =  "?" + newQuery
 		cacheKey += cacheSuffix
@@ -1659,7 +1662,11 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 		{{- if .CacheRestEndpoint}}
 		ccRes, ok := cachedValue.(cc.Res)
 		if ok {
+			{{- if .CacheFilterAttributes}}
+			filteredValue := ccRes.Get({{cacheFilterGjsonExpr .Attributes .CacheFilterAttributes}})
+			{{- else}}
 			filteredValue := ccRes.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+			{{- end}}
 			wrappedRes := cc.Body{}.SetRaw("response", filteredValue.Raw).Res()
 			return wrappedRes, nil
 		}
@@ -1675,8 +1682,16 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 		{{- end}}
 	}
 	{{- if .CacheRestEndpoint}}
+	{{- if strContains .CacheRestEndpoint "?"}}
 	res, err := r.client.Get("{{.CacheRestEndpoint}}" + strings.Replace(cacheSuffix, "?", "&", 1))
+	{{- else}}
+	res, err := r.client.Get("{{.CacheRestEndpoint}}" + cacheSuffix)
+	{{- end}}
+	{{- if .CacheFilterAttributes}}
+	singleRes := res.Get({{cacheFilterGjsonExpr .Attributes .CacheFilterAttributes}})
+	{{- else}}
 	singleRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+	{{- end}}
 	singleRes = cc.Body{}.SetRaw("response", singleRes.Raw).Res()
 	{{- else}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)

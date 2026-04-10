@@ -14,6 +14,9 @@ skip_delete_on_empty_id: true
 get_before_delete: true
 doc_category: Inventory
 mutex: true
+use_cache: true
+cache_rest_endpoint: /dna/intent/api/v1/sda/provisionDevices
+cache_filter_attributes: [siteId, networkDeviceId]
 test_tags: [INVENTORY]
 attributes:
   - model_name: siteId

@@ -150,6 +150,7 @@ type YamlConfig struct {
 	Mutex                       bool                  `yaml:"mutex"`
 	UseCache                    bool                  `yaml:"use_cache"`
 	CacheRestEndpoint           string                `yaml:"cache_rest_endpoint"`
+	CacheFilterAttributes       []string              `yaml:"cache_filter_attributes"`
 	SkipDeleteOnEmptyId         bool                  `yaml:"skip_delete_on_empty_id"`
 	GetBeforeDelete             bool                  `yaml:"get_before_delete"`
 }
@@ -363,6 +364,46 @@ func GetMatchId(attributes []YamlConfigAttribute) YamlConfigAttribute {
 		}
 	}
 	return YamlConfigAttribute{}
+}
+
+// Templating helper function to build a GJSON filter expression for cache lookups.
+// Given cache_filter_attributes [siteId, networkDeviceId] it produces Go code like:
+//
+//	"response.#(siteId==\"" + state.SiteId.ValueString() + "\")#|#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")"
+//
+// For a single attribute it produces:
+//
+//	"response.#(siteId==\"" + state.SiteId.ValueString() + "\")"
+func CacheFilterGjsonExpr(attributes []YamlConfigAttribute, filterNames []string) string {
+	if len(filterNames) == 0 {
+		return ""
+	}
+	// Build a lookup of model_name -> tf_name from attributes
+	tfNameByModel := make(map[string]string)
+	for _, attr := range attributes {
+		tfNameByModel[attr.ModelName] = attr.TfName
+	}
+
+	// Each part produces: modelName==\"" + state.GoName.ValueString() + "\"
+	parts := make([]string, 0, len(filterNames))
+	for _, modelName := range filterNames {
+		tfName := tfNameByModel[modelName]
+		goName := ToGoName(tfName)
+		parts = append(parts, modelName+`==\"" + state.`+goName+`.ValueString() + "\"`)
+	}
+
+	if len(parts) == 1 {
+		return `"response.#(` + parts[0] + `)"`
+	}
+	// Chain: response.#(first=="X")#|#(second=="Y")
+	expr := `"response.#(` + parts[0] + `)#`
+	for _, p := range parts[1:] {
+		expr += `|#(` + p + `)#`
+	}
+	// Remove trailing # from last filter to get first match
+	expr = expr[:len(expr)-1]
+	expr += `"`
+	return expr
 }
 
 // Templating helper function to return the query parameter attribute
@@ -667,6 +708,7 @@ var functions = template.FuncMap{
 	"generateDeleteOnlyQueryParamString": GenerateDeleteOnlyQueryParamString,
 	"getId":                              GetId,
 	"getMatchId":                         GetMatchId,
+	"cacheFilterGjsonExpr":               CacheFilterGjsonExpr,
 	"hasCreateQueryPath":                 HasCreateQueryPath,
 	"getCreateQueryPath":                 GetCreateQueryPath,
 	"getQueryParam":                      GetQueryParam,

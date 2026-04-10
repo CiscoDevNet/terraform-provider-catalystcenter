@@ -112,6 +112,8 @@ func (r *ProvisionDeviceResource) Configure(_ context.Context, req resource.Conf
 
 func (r *ProvisionDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan ProvisionDevice
+	cacheKey := "ProvisionDevice::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -208,7 +210,7 @@ func (r *ProvisionDeviceResource) Read(ctx context.Context, req resource.ReadReq
 
 	params := ""
 	params += "?siteId=" + url.QueryEscape(state.SiteId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.ReadCache(ctx, req, state, params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -234,6 +236,8 @@ func (r *ProvisionDeviceResource) Read(ctx context.Context, req resource.ReadReq
 
 func (r *ProvisionDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state ProvisionDevice
+	cacheKey := "ProvisionDevice::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -277,6 +281,8 @@ func (r *ProvisionDeviceResource) Update(ctx context.Context, req resource.Updat
 
 func (r *ProvisionDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state ProvisionDevice
+	cacheKey := "ProvisionDevice::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -346,3 +352,43 @@ func (r *ProvisionDeviceResource) ImportState(ctx context.Context, req resource.
 }
 
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin readcache
+func (r *ProvisionDeviceResource) ReadCache(ctx context.Context, req resource.ReadRequest, state ProvisionDevice, params string) (cc.Res, error) {
+	var err error
+	cacheKey := "ProvisionDevice::"
+
+	_, cacheSuffix, found := strings.Cut(params, "?")
+	queryPart, err := url.ParseQuery(cacheSuffix)
+	if err == nil {
+		delete(queryPart, "id")
+		delete(queryPart, "siteId")
+		delete(queryPart, "networkDeviceId")
+		newQuery := queryPart.Encode()
+		cacheSuffix = "?" + newQuery
+		cacheKey += cacheSuffix
+	}
+
+	cachedValue, found := r.cache.Get(cacheKey)
+	if found {
+		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
+		ccRes, ok := cachedValue.(cc.Res)
+		if ok {
+			filteredValue := ccRes.Get("response.#(siteId==\"" + state.SiteId.ValueString() + "\")#|#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")")
+			wrappedRes := cc.Body{}.SetRaw("response", filteredValue.Raw).Res()
+			return wrappedRes, nil
+		}
+		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
+		r.cache.Delete(cacheKey)
+	}
+	res, err := r.client.Get("/dna/intent/api/v1/sda/provisionDevices" + cacheSuffix)
+	singleRes := res.Get("response.#(siteId==\"" + state.SiteId.ValueString() + "\")#|#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")")
+	singleRes = cc.Body{}.SetRaw("response", singleRes.Raw).Res()
+	if err == nil {
+		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
+		r.cache.Set(cacheKey, res)
+	}
+	return singleRes, err
+}
+
+// End of section. //template:end readcache
