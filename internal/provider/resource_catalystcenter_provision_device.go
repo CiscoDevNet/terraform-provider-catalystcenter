@@ -375,7 +375,7 @@ func (r *ProvisionDeviceResource) ReadCache(ctx context.Context, req resource.Re
 		ccRes, ok := cachedValue.(cc.Res)
 		if ok {
 			filteredValue := ccRes.Get("response.#(siteId==\"" + state.SiteId.ValueString() + "\")#|#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")")
-			wrappedRes := cc.Body{}.SetRaw("response", filteredValue.Raw).Res()
+			wrappedRes := cc.Body{}.SetRaw("response", "["+filteredValue.Raw+"]").Res()
 			return wrappedRes, nil
 		}
 		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
@@ -383,7 +383,7 @@ func (r *ProvisionDeviceResource) ReadCache(ctx context.Context, req resource.Re
 	}
 	res, err := r.client.Get("/dna/intent/api/v1/sda/provisionDevices" + cacheSuffix)
 	singleRes := res.Get("response.#(siteId==\"" + state.SiteId.ValueString() + "\")#|#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")")
-	singleRes = cc.Body{}.SetRaw("response", singleRes.Raw).Res()
+	singleRes = cc.Body{}.SetRaw("response", "["+singleRes.Raw+"]").Res()
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
 		r.cache.Set(cacheKey, res)

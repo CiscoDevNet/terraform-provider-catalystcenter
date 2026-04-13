@@ -1664,10 +1664,11 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 		if ok {
 			{{- if .CacheFilterAttributes}}
 			filteredValue := ccRes.Get({{cacheFilterGjsonExpr .Attributes .CacheFilterAttributes}})
+			wrappedRes := cc.Body{}.SetRaw("response", "[" + filteredValue.Raw + "]").Res()
 			{{- else}}
 			filteredValue := ccRes.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-			{{- end}}
 			wrappedRes := cc.Body{}.SetRaw("response", filteredValue.Raw).Res()
+			{{- end}}
 			return wrappedRes, nil
 		}
 		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
@@ -1689,10 +1690,11 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 	{{- end}}
 	{{- if .CacheFilterAttributes}}
 	singleRes := res.Get({{cacheFilterGjsonExpr .Attributes .CacheFilterAttributes}})
+	singleRes = cc.Body{}.SetRaw("response", "[" + singleRes.Raw + "]").Res()
 	{{- else}}
 	singleRes := res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
-	{{- end}}
 	singleRes = cc.Body{}.SetRaw("response", singleRes.Raw).Res()
+	{{- end}}
 	{{- else}}
 	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
 	singleRes := res
