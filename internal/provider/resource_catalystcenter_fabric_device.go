@@ -145,6 +145,8 @@ func (r *FabricDeviceResource) Configure(_ context.Context, req resource.Configu
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FabricDevice
+	cacheKey := "FabricDevice::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -203,7 +205,7 @@ func (r *FabricDeviceResource) Read(ctx context.Context, req resource.ReadReques
 
 	params := ""
 	params += "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString()) + "&fabricId=" + url.QueryEscape(state.FabricId.ValueString())
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := r.ReadCache(ctx, req, state, params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
@@ -230,6 +232,8 @@ func (r *FabricDeviceResource) Read(ctx context.Context, req resource.ReadReques
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state FabricDevice
+	cacheKey := "FabricDevice::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -272,6 +276,8 @@ func (r *FabricDeviceResource) Update(ctx context.Context, req resource.UpdateRe
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state FabricDevice
+	cacheKey := "FabricDevice::"
+	r.cache.DeletePattern(cacheKey)
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -317,3 +323,43 @@ func (r *FabricDeviceResource) ImportState(ctx context.Context, req resource.Imp
 }
 
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin readcache
+func (r *FabricDeviceResource) ReadCache(ctx context.Context, req resource.ReadRequest, state FabricDevice, params string) (cc.Res, error) {
+	var err error
+	cacheKey := "FabricDevice::"
+
+	_, cacheSuffix, found := strings.Cut(params, "?")
+	queryPart, err := url.ParseQuery(cacheSuffix)
+	if err == nil {
+		delete(queryPart, "id")
+		delete(queryPart, "networkDeviceId")
+		delete(queryPart, "fabricId")
+		newQuery := queryPart.Encode()
+		cacheSuffix = "?" + newQuery
+		cacheKey += cacheSuffix
+	}
+
+	cachedValue, found := r.cache.Get(cacheKey)
+	if found {
+		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
+		ccRes, ok := cachedValue.(cc.Res)
+		if ok {
+			filteredValue := ccRes.Get("response.#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")#|#(fabricId==\"" + state.FabricId.ValueString() + "\")")
+			wrappedRes := cc.Body{}.SetRaw("response", "["+filteredValue.Raw+"]").Res()
+			return wrappedRes, nil
+		}
+		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
+		r.cache.Delete(cacheKey)
+	}
+	res, err := r.client.Get("/dna/intent/api/v1/sda/fabricDevices" + cacheSuffix)
+	singleRes := res.Get("response.#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")#|#(fabricId==\"" + state.FabricId.ValueString() + "\")")
+	singleRes = cc.Body{}.SetRaw("response", "["+singleRes.Raw+"]").Res()
+	if err == nil {
+		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
+		r.cache.Set(cacheKey, res)
+	}
+	return singleRes, err
+}
+
+// End of section. //template:end readcache
