@@ -334,7 +334,6 @@ func (r *FabricDeviceResource) ReadCache(ctx context.Context, req resource.ReadR
 	if err == nil {
 		delete(queryPart, "id")
 		delete(queryPart, "networkDeviceId")
-		delete(queryPart, "fabricId")
 		newQuery := queryPart.Encode()
 		cacheSuffix = "?" + newQuery
 		cacheKey += cacheSuffix
@@ -345,7 +344,7 @@ func (r *FabricDeviceResource) ReadCache(ctx context.Context, req resource.ReadR
 		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
 		ccRes, ok := cachedValue.(cc.Res)
 		if ok {
-			filteredValue := ccRes.Get("response.#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")#|#(fabricId==\"" + state.FabricId.ValueString() + "\")")
+			filteredValue := ccRes.Get("response.#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")")
 			wrappedRes := cc.Body{}.SetRaw("response", "["+filteredValue.Raw+"]").Res()
 			return wrappedRes, nil
 		}
@@ -353,7 +352,7 @@ func (r *FabricDeviceResource) ReadCache(ctx context.Context, req resource.ReadR
 		r.cache.Delete(cacheKey)
 	}
 	res, err := r.client.Get("/dna/intent/api/v1/sda/fabricDevices" + cacheSuffix)
-	singleRes := res.Get("response.#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")#|#(fabricId==\"" + state.FabricId.ValueString() + "\")")
+	singleRes := res.Get("response.#(networkDeviceId==\"" + state.NetworkDeviceId.ValueString() + "\")")
 	singleRes = cc.Body{}.SetRaw("response", "["+singleRes.Raw+"]").Res()
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))

@@ -13,7 +13,7 @@ doc_category: SDA
 mutex: true
 use_cache: true
 cache_rest_endpoint: /dna/intent/api/v1/sda/fabricDevices
-cache_filter_attributes: [networkDeviceId, fabricId]
+cache_filter_attributes: [networkDeviceId]
 test_tags: [SDA]
 attributes:
   - model_name: networkDeviceId
