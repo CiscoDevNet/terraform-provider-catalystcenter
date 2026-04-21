@@ -907,6 +907,10 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 		{{- else}}
 	res = res.Get("{{.IdFromQueryPath}}.#({{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}==\"" + state.Id.ValueString() + "\")")
 		{{- end}}
+	if !res.Exists() {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	{{- end}}
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes

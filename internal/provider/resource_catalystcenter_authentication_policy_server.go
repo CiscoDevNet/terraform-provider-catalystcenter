@@ -297,6 +297,10 @@ func (r *AuthenticationPolicyServerResource) Read(ctx context.Context, req resou
 		return
 	}
 	res = res.Get("response.#(instanceUuid==\"" + state.Id.ValueString() + "\")")
+	if !res.Exists() {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {

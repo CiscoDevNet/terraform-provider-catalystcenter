@@ -158,6 +158,10 @@ func (r *CredentialsSNMPv2WriteResource) Read(ctx context.Context, req resource.
 		return
 	}
 	res = res.Get("response.snmpV2cWrite.#(id==\"" + state.Id.ValueString() + "\")")
+	if !res.Exists() {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {

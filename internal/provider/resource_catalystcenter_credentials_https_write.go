@@ -169,6 +169,10 @@ func (r *CredentialsHTTPSWriteResource) Read(ctx context.Context, req resource.R
 		return
 	}
 	res = res.Get("response.httpsWrite.#(id==\"" + state.Id.ValueString() + "\")")
+	if !res.Exists() {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {

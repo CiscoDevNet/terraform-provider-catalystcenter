@@ -202,6 +202,10 @@ func (r *FabricL2HandoffResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 	res = res.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+	if !res.Exists() {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {

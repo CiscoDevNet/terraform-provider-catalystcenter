@@ -161,6 +161,10 @@ func (r *RoleResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 	res = res.Get("response.roles.#(roleId==\"" + state.Id.ValueString() + "\")")
+	if !res.Exists() {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {

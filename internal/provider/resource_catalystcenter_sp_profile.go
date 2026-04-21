@@ -161,6 +161,10 @@ func (r *SPProfileResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 	res = res.Get("response.0.value.#(spProfileName==\"" + state.Name.ValueString() + "\")")
+	if !res.Exists() {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
