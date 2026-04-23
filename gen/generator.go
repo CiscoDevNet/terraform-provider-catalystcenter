@@ -796,7 +796,7 @@ func augmentAttribute(attr *YamlConfigAttribute) {
 			}
 		}
 		if len(keyParts) > 0 {
-			attr.MapKeyExample = strings.Join(keyParts, ",")
+			attr.MapKeyExample = strings.Join(keyParts, "_")
 		}
 	}
 }

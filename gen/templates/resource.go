@@ -1019,7 +1019,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- end}}
 	{{- end}}
 
-	{{- if and .RootList .UpdateComputed}}
+	{{- if and .RootList .UpdateComputed}}{{"\n"}}
 	{{- $items := "" }}
 	{{- $itemsIsMap := false }}
 	{{- range .Attributes}}
@@ -1063,6 +1063,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	stateMap := make(map[string]{{camelCase .Name}}{{toGoName $items}})
 
 	// Populate state map
+	{{- if $itemsIsMap}}
+	for k, v := range state.{{toGoName $items}} {
+		stateMap[k] = v
+	}
+	{{- else}}
 	for _, v := range state.{{toGoName $items}} {
 		{{- range .Attributes}}
 		{{- $id := getId .Attributes}}
@@ -1071,8 +1076,14 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- end}}
 		{{- end}}
 	}
+	{{- end}}
 
 	// Populate plan map
+	{{- if $itemsIsMap}}
+	for k, v := range plan.{{toGoName $items}} {
+		planMap[k] = v
+	}
+	{{- else}}
 	for _, v := range plan.{{toGoName $items}} {
 		{{- range .Attributes}}
 		{{- $id := getId .Attributes}}
@@ -1081,6 +1092,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- end}}
 		{{- end}}
 	}
+	{{- end}}
 
 	// Find items to delete (exist in state but not in plan)
 	for stateKey, stateItem := range stateMap {
@@ -1502,8 +1514,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{- $id := getId .Attributes}}
 			{{- if not (eq (toGoName $id.TfName) "") }}
 			{{- if $itemsIsMap}}
-			for _, item := range pl.{{toGoName $items}} {
-				toUpdateKey := {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(item.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(item.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}item.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}
+			for toUpdateKey, _ := range pl.{{toGoName $items}} {
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					{{- if ne $noPutAttr ""}}
 					updatedItem.{{toGoName $noPutAttr}} = existingNoPut[toUpdateKey]
@@ -1549,8 +1560,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- $id := getId .Attributes}}
 		{{- if not (eq (toGoName $id.TfName) "") }}
 		{{- if $itemsIsMap}}
-		for _, item := range toUpdate.{{toGoName $items}} {
-			toUpdateKey := {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(item.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(item.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}item.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}
+		for toUpdateKey, _ := range toUpdate.{{toGoName $items}} {
 			if updatedItem, exists := planMap[toUpdateKey]; exists {
 				plan.{{toGoName $items}}[toUpdateKey] = updatedItem
 			}

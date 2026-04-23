@@ -1,7 +1,7 @@
 resource "catalystcenter_{{snakeCase .Name}}" "example" {
 {{- range  .Attributes}}
 {{- if and (not .ExcludeTest) (not .ExcludeExample) (not .Value)}}
-{{- if eq .Type "Map"}}
+{{- if isNestedMap .}}
   {{.TfName}} = {
     "{{.MapKeyExample}}" = {
       {{- range  .Attributes}}
