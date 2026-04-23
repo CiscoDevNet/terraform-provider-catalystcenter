@@ -37,7 +37,15 @@ func TestAccCc{{camelCase .Name}}(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	{{- $name := .Name }}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (isNestedMap .)}}
+	{{- $list := .TfName }}
+	{{- $mapKey := .MapKeyExample }}
+	{{- range  .Attributes}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .KeyPart) (not (isSet .)) (not (isNestedListSetMap .))}}
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_{{snakeCase $name}}.test", "{{$list}}.{{$mapKey}}.{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
+	{{- end}}
+	{{- end}}
+	{{- else if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
 	{{- if isNestedListSet .}}
 	{{- $list := .TfName }}
 	{{- if len .TestTags}}
@@ -164,7 +172,17 @@ func testAccCc{{camelCase .Name}}Config_minimum() string {
 	config := `resource "catalystcenter_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
 	{{- if and (not .Computed) (or .Id .MatchId .Reference .Mandatory .MinimumTestValue .QueryParam)}}
-	{{- if isNestedListSet .}}
+	{{- if isNestedMap .}}
+	config += `	{{.TfName}} = {` + "\n"
+	config += `	  "{{.MapKeyExample}}" = {` + "\n"
+		{{- range  .Attributes}}
+		{{- if or .Id .Reference .Mandatory .MinimumTestValue}}
+	config += `	    {{.TfName}} = {{if .MinimumTestValue}}{{.MinimumTestValue}}{{else if .TestValue}}{{.TestValue}}{{else}}{{if eq .Type "String"}}"{{.Example}}"{{else if isStringListSet .}}["{{.Example}}"]{{else if isInt64ListSet .}}[{{.Example}}]{{else}}{{.Example}}{{end}}{{end}}` + "\n"
+		{{- end}}
+		{{- end}}
+	config += `	  }` + "\n"
+	config += `	}` + "\n"
+	{{- else if isNestedListSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
@@ -249,7 +267,17 @@ func testAccCc{{camelCase .Name}}Config_all() string {
 	config := `resource "catalystcenter_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
 	{{- if and (not .ExcludeTest) (not .Value)}}
-	{{- if isNestedListSet .}}
+	{{- if isNestedMap .}}
+	config += `	{{.TfName}} = {` + "\n"
+	config += `	  "{{.MapKeyExample}}" = {` + "\n"
+		{{- range  .Attributes}}
+		{{- if and (not .ExcludeTest) (not .Value)}}
+	config += `	    {{.TfName}} = {{if .TestValue}}{{.TestValue}}{{else}}{{if eq .Type "String"}}"{{.Example}}"{{else if isStringListSet .}}["{{.Example}}"]{{else if isInt64ListSet .}}[{{.Example}}]{{else}}{{.Example}}{{end}}{{end}}` + "\n"
+		{{- end}}
+		{{- end}}
+	config += `	  }` + "\n"
+	config += `	}` + "\n"
+	{{- else if isNestedListSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}

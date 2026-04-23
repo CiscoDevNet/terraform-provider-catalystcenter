@@ -92,7 +92,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 			{{- $root := . }}
 			{{- range  .Attributes}}
 			{{- if not .Value}}
-			"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
+            "{{.TfName}}": schema.{{if isNestedListSetMap .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
 					{{- if len .EnumValues -}}
 					.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
@@ -109,7 +109,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					.String,
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
-				{{- else if eq .Type "Map"}}
+                {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
 				{{- if $.NoRead}}
 				ElementType:         types.ListType{ElemType: types.StringType},
 				{{- else}}
@@ -174,12 +174,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				},
 				{{- end}}
 				{{- end}}
-				{{- if isNestedListSet .}}
+                {{- if isNestedListSetMap .}}
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						{{- range  .Attributes}}
 						{{- if not .Value}}
-						"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
+                        "{{.TfName}}": schema.{{if isNestedListSetMap .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 							MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
 								{{- if len .EnumValues -}}
 								.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
@@ -196,7 +196,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								.String,
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
-							{{- else if eq .Type "Map"}}
+                            {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
 							{{- if $.NoRead}}
 							ElementType:         types.ListType{ElemType: types.StringType},
 							{{- else}}
@@ -260,12 +260,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							},
 							{{- end}}
 							{{- end}}
-							{{- if isNestedListSet .}}
+                            {{- if isNestedListSetMap .}}
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									{{- range  .Attributes}}
 									{{- if not .Value}}
-									"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
+                                    "{{.TfName}}": schema.{{if isNestedListSetMap .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 										MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
 											{{- if len .EnumValues -}}
 											.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
@@ -282,7 +282,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											.String,
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
-										{{- else if eq .Type "Map"}}
+                                        {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
 										{{- if $.NoRead}}
 										ElementType:         types.ListType{ElemType: types.StringType},
 										{{- else}}
@@ -342,12 +342,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										},
 										{{- end}}
 										{{- end}}
-										{{- if isNestedListSet .}}
+                                        {{- if isNestedListSetMap .}}
 										NestedObject: schema.NestedAttributeObject{
 											Attributes: map[string]schema.Attribute{
 												{{- range  .Attributes}}
 												{{- if not .Value}}
-												"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
+                                                "{{.TfName}}": schema.{{if isNestedListSetMap .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 													MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
 														{{- if len .EnumValues -}}
 														.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
@@ -364,7 +364,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 														.String,
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
-													{{- else if eq .Type "Map"}}
+                                                    {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
 													{{- if $.NoRead}}
 													ElementType:         types.ListType{ElemType: types.StringType},
 													{{- else}}
@@ -519,6 +519,26 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
 	maxElementsPerShard := {{.MaxElementsInRootList}}
 	originalList := plan.{{toGoName .TfName}}
+	{{- if isNestedMap .}}
+	chunkMap := make(map[string]{{camelCase $resName}}{{toGoName .TfName}})
+	count := 0
+	for k, v := range originalList {
+		chunkMap[k] = v
+		count++
+		if count >= maxElementsPerShard {
+			currentPlanForShard := plan 
+			currentPlanForShard.{{toGoName .TfName}} = chunkMap
+			planList = append(planList, currentPlanForShard)
+			chunkMap = make(map[string]{{camelCase $resName}}{{toGoName .TfName}})
+			count = 0
+		}
+	}
+	if count > 0 {
+		currentPlanForShard := plan 
+		currentPlanForShard.{{toGoName .TfName}} = chunkMap
+		planList = append(planList, currentPlanForShard)
+	}
+	{{- else}}
 	for i := 0; i < len(originalList); i += maxElementsPerShard {
 		end := i+maxElementsPerShard
 		if end > len(originalList){
@@ -530,6 +550,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		planList = append(planList, currentPlanForShard)
 
 	}
+	{{- end}}
 	{{- end}}
 	{{- end}}
 
@@ -1000,12 +1021,29 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 	{{- if and .RootList .UpdateComputed}}
 	{{- $items := "" }}
+	{{- $itemsIsMap := false }}
 	{{- range .Attributes}}
-	{{- if isNestedListSet .}}
+    {{- if isNestedListSetMap .}}
 	{{- $items = .TfName }}
+	{{- $itemsIsMap = isNestedMap . }}
 	{{- end}}
 	{{- end}}
 
+	{{- if $itemsIsMap}}
+	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty maps
+	var toDelete = {{camelCase .Name}}{
+		{{toGoName $items}}: make(map[string]{{camelCase .Name}}{{toGoName $items}}),
+	}
+	var toCreate = {{camelCase .Name}}{
+		{{toGoName $items}}: make(map[string]{{camelCase .Name}}{{toGoName $items}}),
+	}
+	var toUpdate = {{camelCase .Name}}{
+		{{toGoName $items}}: make(map[string]{{camelCase .Name}}{{toGoName $items}}),
+	}
+	var toReplace = {{camelCase .Name}}{
+		{{toGoName $items}}: make(map[string]{{camelCase .Name}}{{toGoName $items}}),
+	}
+	{{- else}}
 	// Initialize toDelete, toCreate, toReplace, and toUpdate with empty slices
 	var toDelete = {{camelCase .Name}}{
 		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
@@ -1019,6 +1057,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	var toReplace = {{camelCase .Name}}{
 		{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 	}
+	{{- end}}
 
 	planMap := make(map[string]{{camelCase .Name}}{{toGoName $items}})
 	stateMap := make(map[string]{{camelCase .Name}}{{toGoName $items}})
@@ -1047,7 +1086,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	for stateKey, stateItem := range stateMap {
 		if _, exists := planMap[stateKey]; !exists {
 			// Exists only in state → Needs to be deleted
+			{{- if $itemsIsMap}}
+			toDelete.{{toGoName $items}}[stateKey] = stateItem
+			{{- else}}
 			toDelete.{{toGoName $items}} = append(toDelete.{{toGoName $items}}, stateItem)
+			{{- end}}
 		}
 	}
 
@@ -1078,17 +1121,29 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				if planItem.{{toGoName .TfName}} != stateItem.{{toGoName .TfName}} {
 				{{- end}}
 				{{- end}}
+					{{- if $itemsIsMap}}
+					toReplace.{{toGoName $items}}[planKey] = planItem
+					{{- else}}
 					toReplace.{{toGoName $items}} = append(toReplace.{{toGoName $items}}, planItem)
+					{{- end}}
 					continue
 				}
 				{{- end}}
 				{{- end}}
 				{{- end}}
+				{{- if $itemsIsMap}}
+				toUpdate.{{toGoName $items}}[planKey] = planItem
+				{{- else}}
 				toUpdate.{{toGoName $items}} = append(toUpdate.{{toGoName $items}}, planItem)
+				{{- end}}
 			}
 		} else {
 			// Exists only in plan → New item
+			{{- if $itemsIsMap}}
+			toCreate.{{toGoName $items}}[planKey] = planItem
+			{{- else}}
 			toCreate.{{toGoName $items}} = append(toCreate.{{toGoName $items}}, planItem)
+			{{- end}}
 		}
 	}
 
@@ -1097,10 +1152,17 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	if len(toReplace.{{toGoName $items}}) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to replace: %d", state.Id.ValueString(), len(toReplace.{{toGoName $items}})))
 		// Clear IDs before recreating
+		{{- if $itemsIsMap}}
+		var toReplaceNoId = {{camelCase .Name}}{
+			{{toGoName $items}}: make(map[string]{{camelCase .Name}}{{toGoName $items}}),
+		}
+		for replaceKey, item := range toReplace.{{toGoName $items}} {
+		{{- else}}
 		var toReplaceNoId = {{camelCase .Name}}{
 			{{toGoName $items}}: []{{camelCase .Name}}{{toGoName $items}}{},
 		}
 		for _, item := range toReplace.{{toGoName $items}} {
+		{{- end}}
 			{{- range .Attributes}}
 			{{- $Atts := .Attributes}}
 			{{- range .Attributes}}
@@ -1121,12 +1183,25 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{- end}}
 			{{- end}}
 			{{- end}}
+			{{- if $itemsIsMap}}
+			toReplaceNoId.{{toGoName $items}}[replaceKey] = item
+			{{- else}}
 			toReplaceNoId.{{toGoName $items}} = append(toReplaceNoId.{{toGoName $items}}, item)
+			{{- end}}
 		}
 
 		// Replace is done by delete + create
+		{{- if $itemsIsMap}}
+		for k, v := range toReplace.{{toGoName $items}} {
+			toDelete.{{toGoName $items}}[k] = v
+		}
+		for k, v := range toReplaceNoId.{{toGoName $items}} {
+			toCreate.{{toGoName $items}}[k] = v
+		}
+		{{- else}}
 		toDelete.{{toGoName $items}} = append(toDelete.{{toGoName $items}}, toReplace.{{toGoName $items}}...)
 		toCreate.{{toGoName $items}} = append(toCreate.{{toGoName $items}}, toReplaceNoId.{{toGoName $items}}...)
+		{{- end}}
 	}
 
 	// DELETE
@@ -1176,6 +1251,26 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
 		maxElementsPerShard := {{$MaxElementsInRootList}}
 		var createList []{{$name}}
+		{{- if $itemsIsMap}}
+		chunkMap := make(map[string]{{camelCase $.Name}}{{toGoName $items}})
+		count := 0
+		for k, v := range toCreate.{{toGoName $items}} {
+			chunkMap[k] = v
+			count++
+			if count >= maxElementsPerShard {
+				currentPlanForShard := plan
+				currentPlanForShard.{{toGoName $items}} = chunkMap
+				createList = append(createList, currentPlanForShard)
+				chunkMap = make(map[string]{{camelCase $.Name}}{{toGoName $items}})
+				count = 0
+			}
+		}
+		if count > 0 {
+			currentPlanForShard := plan
+			currentPlanForShard.{{toGoName $items}} = chunkMap
+			createList = append(createList, currentPlanForShard)
+		}
+		{{- else}}
 		for i := 0; i < len(toCreate.{{toGoName $items}}); i += maxElementsPerShard {
 			end := min(i+maxElementsPerShard, len(toCreate.{{toGoName $items}}))
 			chunk := toCreate.{{toGoName $items}}[i:end]
@@ -1185,6 +1280,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 			
 		}
+		{{- end}}
 		{{$chunks = true}}
 		{{- end}}
 		{{- end}}
@@ -1280,6 +1376,26 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- $MaxElementsInRootList = .MaxElementsInRootList }} 
 		maxElementsPerShard := {{$MaxElementsInRootList}}
 		var updateList []{{$name}}
+		{{- if $itemsIsMap}}
+		chunkMap := make(map[string]{{camelCase $.Name}}{{toGoName $items}})
+		count := 0
+		for k, v := range toUpdate.{{toGoName $items}} {
+			chunkMap[k] = v
+			count++
+			if count >= maxElementsPerShard {
+				currentPlanForShard := plan
+				currentPlanForShard.{{toGoName $items}} = chunkMap
+				updateList = append(updateList, currentPlanForShard)
+				chunkMap = make(map[string]{{camelCase $.Name}}{{toGoName $items}})
+				count = 0
+			}
+		}
+		if count > 0 {
+			currentPlanForShard := plan
+			currentPlanForShard.{{toGoName $items}} = chunkMap
+			updateList = append(updateList, currentPlanForShard)
+		}
+		{{- else}}
 		for i := 0; i < len(toUpdate.{{toGoName $items}}); i += maxElementsPerShard {
 			end := min(i+maxElementsPerShard, len(toUpdate.{{toGoName $items}}))
 			chunk := toUpdate.{{toGoName $items}}[i:end]
@@ -1289,12 +1405,15 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 			
 		}
+		{{- end}}
 		{{$chunks = true}}
 		{{- end}}
 		{{- end}}
 
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.{{toGoName $items}})))
+		{{- if not $itemsIsMap}}
 		planIndexMap := make(map[string]int)
+		{{- end}}
 
 
 		{{- if $chunks}}
@@ -1382,6 +1501,17 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{- range .Attributes}}
 			{{- $id := getId .Attributes}}
 			{{- if not (eq (toGoName $id.TfName) "") }}
+			{{- if $itemsIsMap}}
+			for _, item := range pl.{{toGoName $items}} {
+				toUpdateKey := {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(item.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(item.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}item.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}
+				if updatedItem, exists := planMap[toUpdateKey]; exists {
+					{{- if ne $noPutAttr ""}}
+					updatedItem.{{toGoName $noPutAttr}} = existingNoPut[toUpdateKey]
+					{{- end}}
+					plan.{{toGoName $items}}[toUpdateKey] = updatedItem
+				}
+			}
+			{{- else}}
 			for i, v := range plan.{{toGoName $items}} {
 				planIndexMap[{{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(v.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}v.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}] = i
 			}
@@ -1402,6 +1532,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			}
 			{{- end}}
 			{{- end}}
+			{{- end}}
 
 			body := pl.toBody(ctx, {{$name}}{})
 			params := ""
@@ -1417,6 +1548,14 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- range .Attributes}}
 		{{- $id := getId .Attributes}}
 		{{- if not (eq (toGoName $id.TfName) "") }}
+		{{- if $itemsIsMap}}
+		for _, item := range toUpdate.{{toGoName $items}} {
+			toUpdateKey := {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(item.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(item.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}item.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}
+			if updatedItem, exists := planMap[toUpdateKey]; exists {
+				plan.{{toGoName $items}}[toUpdateKey] = updatedItem
+			}
+		}
+		{{- else}}
 		for i, v := range plan.{{toGoName $items}} {
 			planIndexMap[{{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(v.{{toGoName .TfName}}.ValueInt64(), 10){{else if eq .Type "Bool"}}strconv.FormatBool(v.{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}v.{{toGoName .TfName}}.Value{{.Type}}(){{end}}{{end}}{{end}}{{end}}] = i
 		}
@@ -1428,6 +1567,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				}
 			}
 		}
+		{{- end}}
 		{{- end}}
 		{{- end}}
 
@@ -1504,7 +1644,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- if and .RootList .UpdateComputed}}
 	{{- $items := "" }}
 	{{- range .Attributes}}
-	{{- if isNestedListSet .}}
+    {{- if isNestedListSetMap .}}
 	{{- $items = .TfName }}
 	{{- end}}
 	{{- end}}

@@ -532,6 +532,40 @@ func IsNestedSet(attribute YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return true if type is a map with nested elements
+func IsNestedMap(attribute YamlConfigAttribute) bool {
+	if attribute.Type == "Map" && attribute.ElementType == "" && len(attribute.Attributes) > 0 {
+		return true
+	}
+	return false
+}
+
+// Templating helper function to return true if type is a list, set or map with nested elements
+func IsNestedListSetMap(attribute YamlConfigAttribute) bool {
+	return IsNestedListSet(attribute) || IsNestedMap(attribute)
+}
+
+// Templating helper function to check if any child attribute has key_part set
+func HasKeyPart(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.KeyPart {
+			return true
+		}
+	}
+	return false
+}
+
+// Templating helper function to return child attributes with key_part set
+func GetKeyPartAttributes(attributes []YamlConfigAttribute) []YamlConfigAttribute {
+	var result []YamlConfigAttribute
+	for _, attr := range attributes {
+		if attr.KeyPart {
+			result = append(result, attr)
+		}
+	}
+	return result
+}
+
 // Templating helper function to return true if create query path included in attributes
 func HasCreateQueryPath(attributes []YamlConfigAttribute) bool {
 	for _, attr := range attributes {
@@ -727,6 +761,10 @@ var functions = template.FuncMap{
 	"isNestedListSet":                    IsNestedListSet,
 	"isNestedList":                       IsNestedList,
 	"isNestedSet":                        IsNestedSet,
+	"isNestedMap":                        IsNestedMap,
+	"isNestedListSetMap":                 IsNestedListSetMap,
+	"hasKeyPart":                         HasKeyPart,
+	"getKeyPartAttributes":               GetKeyPartAttributes,
 	"importAttributes":                   ImportAttributes,
 	"subtract":                           Subtract,
 }
@@ -747,6 +785,18 @@ func augmentAttribute(attr *YamlConfigAttribute) {
 	if attr.Type == "List" || attr.Type == "Set" || attr.Type == "Map" {
 		for a := range attr.Attributes {
 			augmentAttribute(&attr.Attributes[a])
+		}
+	}
+	// Auto-populate MapKeyExample for nested maps from key_part child Example values
+	if attr.Type == "Map" && attr.MapKeyExample == "" && len(attr.Attributes) > 0 {
+		var keyParts []string
+		for _, child := range attr.Attributes {
+			if child.KeyPart && child.Example != "" {
+				keyParts = append(keyParts, child.Example)
+			}
+		}
+		if len(keyParts) > 0 {
+			attr.MapKeyExample = strings.Join(keyParts, ",")
 		}
 	}
 }
