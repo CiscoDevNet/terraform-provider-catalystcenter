@@ -148,7 +148,6 @@ func (d *DeviceReplacementDataSource) Configure(_ context.Context, req datasourc
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *DeviceReplacementDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config DeviceReplacement
 
@@ -202,5 +201,3 @@ func (d *DeviceReplacementDataSource) Read(ctx context.Context, req datasource.R
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
