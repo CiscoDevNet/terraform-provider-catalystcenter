@@ -1,7 +1,8 @@
 ## 0.5.11 (unreleased)
 
-- Add `catalystcenter_device_replacement` data source
+- Add `catalystcenter_device_replacement` data source for querying device replacement status
 - Add `catalystcenter_wireless_profile_policy_tag` resource and data source for managing Policy Tags associated with Wireless Profiles (controls which AP Zones are active at specific sites)
+- Fix `catalystcenter_provision_devices` resource to skip reprovisioning devices that are not in the Terraform plan
 
 ## 0.5.10
 
