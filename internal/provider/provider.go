@@ -416,6 +416,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewCredentialsSNMPv2WriteDataSource,
 		NewCredentialsSNMPv3DataSource,
 		NewDeviceDetailDataSource,
+		NewDeviceReplacementDataSource,
 		NewDHCPSettingsDataSource,
 		NewDiscoveryDataSource,
 		NewDNSSettingsDataSource,

@@ -1,7 +1,7 @@
 ---
 name: Device Replacement
 rest_endpoint: /dna/intent/api/v1/device-replacement
-no_data_source: true
+# no_data_source: true
 put_no_id: true
 put_delete: true
 delete_no_id: true
@@ -18,6 +18,7 @@ attributes:
     type: String
     mandatory: true
     match_id: true
+    data_source_query: true
     description: The ID of the faulty device to be replaced
     example: 12345678-1234-1234-1234-123456789012
   - model_name: replacementStatus
