@@ -217,6 +217,21 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 						return true
 					})
 
+					// Filter: only keep devices that are in the original plan to avoid reprovisioning unrelated devices
+					plannedDeviceIds := make(map[string]bool)
+					for _, planDev := range originalList {
+						plannedDeviceIds[planDev.NetworkDeviceId.ValueString()] = true
+					}
+					var filteredDevices []ProvisionDevicesProvisionDevices
+					for _, dev := range devices {
+						if plannedDeviceIds[dev.NetworkDeviceId.ValueString()] {
+							filteredDevices = append(filteredDevices, dev)
+						} else {
+							tflog.Debug(ctx, fmt.Sprintf("%s: Filtering out device %s from reprovision - not in plan", plan.Id.ValueString(), dev.NetworkDeviceId.ValueString()))
+						}
+					}
+					devices = filteredDevices
+
 					if len(devices) == 0 {
 						resp.Diagnostics.AddError("No Devices Found", fmt.Sprintf("No provisioned devices found for site %s", plan.SiteId.ValueString()))
 						return
