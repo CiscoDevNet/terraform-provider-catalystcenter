@@ -30,7 +30,6 @@ attributes:
     example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
     test_value: "[catalystcenter_fabric_site.test.id]"
   - model_name: anchoredSiteId
-    requires_replace: true
     data_path: "0"
     response_data_path: response.0.anchoredSiteId
     description: Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.
