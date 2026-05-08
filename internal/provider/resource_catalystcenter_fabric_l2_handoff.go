@@ -144,9 +144,10 @@ func (r *FabricL2HandoffResource) Create(ctx context.Context, req resource.Creat
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
+		failureReason := res.Get("response.failureReason").String()
+		deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+		if errorCode == "NCDP10000" || deviceFailureMatch {
 			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
