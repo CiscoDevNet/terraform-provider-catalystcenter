@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.5.12 (unreleased)
+## 0.5.12
 
 - Add `catalystcenter_wireless_fabric_multicast` resource and data source to enable or disable wireless multicast on a per-fabric-site basis
 - Add `catalystcenter_floor_image` resource to upload floor plan images (PNG, JPEG, PDF) to existing floors for map visualization and RF planning
