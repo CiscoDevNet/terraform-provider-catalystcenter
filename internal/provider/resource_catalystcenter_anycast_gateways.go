@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -238,9 +239,10 @@ func (r *AnycastGatewaysResource) Create(ctx context.Context, req resource.Creat
 		res, err = r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
+			failureReason := res.Get("response.failureReason").String()
+			deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+			if errorCode == "NCDP10000" || deviceFailureMatch {
 				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
 				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
@@ -426,9 +428,10 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 			res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
-				if errorCode == "NCDP10000" {
+				failureReason := res.Get("response.failureReason").String()
+				deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+				if errorCode == "NCDP10000" || deviceFailureMatch {
 					// Log a warning and continue execution when device is unreachable
-					failureReason := res.Get("response.failureReason").String()
 					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 				} else {
 					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
@@ -462,9 +465,10 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
-				if errorCode == "NCDP10000" {
+				failureReason := res.Get("response.failureReason").String()
+				deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+				if errorCode == "NCDP10000" || deviceFailureMatch {
 					// Log a warning and continue execution when device is unreachable
-					failureReason := res.Get("response.failureReason").String()
 					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 				} else {
 					resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
@@ -573,9 +577,10 @@ func (r *AnycastGatewaysResource) Delete(ctx context.Context, req resource.Delet
 		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(v.Id.ValueString()), cc.UseMutex)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
+			failureReason := res.Get("response.failureReason").String()
+			deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+			if errorCode == "NCDP10000" || deviceFailureMatch {
 				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))

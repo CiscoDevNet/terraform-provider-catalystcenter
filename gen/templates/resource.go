@@ -24,6 +24,9 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	{{- if .DeviceUnreachabilityWarning}}
+	"regexp"
+	{{- end}}
 	"strings"
 	"sync"
 	{{- if .RetryOnErrorCodes}}
@@ -573,9 +576,10 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		if err != nil {
 		{{- if .DeviceUnreachabilityWarning}}
 			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
+			failureReason := res.Get("response.failureReason").String()
+			deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+			if errorCode == "NCDP10000" || deviceFailureMatch {
 				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
 				{{- if and .AllowExistingOnCreate (not .PutCreate)}}	
@@ -659,9 +663,10 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
+		failureReason := res.Get("response.failureReason").String()
+		deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+		if errorCode == "NCDP10000" || deviceFailureMatch {
 			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
 			{{- if and .AllowExistingOnCreate (not .PutCreate)}}	
@@ -999,9 +1004,10 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
+		failureReason := res.Get("response.failureReason").String()
+		deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+		if errorCode == "NCDP10000" || deviceFailureMatch {
 			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", {{- if .PostUpdate }} "POST" {{- else }} "PUT" {{- end }}, err, res.String()))
@@ -1236,9 +1242,10 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			if err != nil {
 			{{- if .DeviceUnreachabilityWarning}}
 				errorCode := res.Get("response.errorCode").String()
-				if errorCode == "NCDP10000" {
+				failureReason := res.Get("response.failureReason").String()
+				deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+				if errorCode == "NCDP10000" || deviceFailureMatch {
 					// Log a warning and continue execution when device is unreachable
-					failureReason := res.Get("response.failureReason").String()
 					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 				} else {
 					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
@@ -1308,9 +1315,10 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
 				errorCode := res.Get("response.errorCode").String()
-				if errorCode == "NCDP10000" {
+				failureReason := res.Get("response.failureReason").String()
+				deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+				if errorCode == "NCDP10000" || deviceFailureMatch {
 					// Log a warning and continue execution when device is unreachable
-					failureReason := res.Get("response.failureReason").String()
 					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 				} else {
 					resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
@@ -1330,9 +1338,10 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		if err != nil {
 		{{- if .DeviceUnreachabilityWarning}}
 			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
+			failureReason := res.Get("response.failureReason").String()
+			deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+			if errorCode == "NCDP10000" || deviceFailureMatch {
 				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", {{- if .PutCreate }} "PUT" {{- else }} "POST" {{- end }}, err, res.String()))
@@ -1670,9 +1679,10 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 		if err != nil {
 		{{- if .DeviceUnreachabilityWarning}}
 			errorCode := res.Get("response.errorCode").String()
-			if errorCode == "NCDP10000" {
+			failureReason := res.Get("response.failureReason").String()
+			deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+			if errorCode == "NCDP10000" || deviceFailureMatch {
 				// Log a warning and continue execution when device is unreachable
-				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
@@ -1742,9 +1752,10 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
+		failureReason := res.Get("response.failureReason").String()
+		deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+		if errorCode == "NCDP10000" || deviceFailureMatch {
 			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
