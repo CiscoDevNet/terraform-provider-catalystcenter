@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.13 (unreleased)
+
+- Extended device unreachability detection to match failure reason messages in addition to the existing `NCDP10000` error code check, preventing false error reporting when multiple devices are temporarily unreachable
+
 ## 0.5.12
 
 - Add `catalystcenter_wireless_fabric_multicast` resource and data source to enable or disable wireless multicast on a per-fabric-site basis
