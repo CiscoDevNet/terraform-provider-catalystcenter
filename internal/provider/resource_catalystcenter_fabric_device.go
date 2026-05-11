@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -164,9 +165,10 @@ func (r *FabricDeviceResource) Create(ctx context.Context, req resource.CreateRe
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
+		failureReason := res.Get("response.failureReason").String()
+		deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+		if errorCode == "NCDP10000" || deviceFailureMatch {
 			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
@@ -255,9 +257,10 @@ func (r *FabricDeviceResource) Update(ctx context.Context, req resource.UpdateRe
 	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
+		failureReason := res.Get("response.failureReason").String()
+		deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+		if errorCode == "NCDP10000" || deviceFailureMatch {
 			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
@@ -290,9 +293,10 @@ func (r *FabricDeviceResource) Delete(ctx context.Context, req resource.DeleteRe
 	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
-		if errorCode == "NCDP10000" {
+		failureReason := res.Get("response.failureReason").String()
+		deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+		if errorCode == "NCDP10000" || deviceFailureMatch {
 			// Log a warning and continue execution when device is unreachable
-			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
