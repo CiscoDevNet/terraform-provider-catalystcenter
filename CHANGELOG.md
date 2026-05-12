@@ -1,6 +1,8 @@
 ## 0.5.13 (unreleased)
 
+- Fix `catalystcenter_pnp_device_claim_site` resource to correctly handle day-zero template attachment when the template does not require variables
 - Extended device unreachability detection to match failure reason messages in addition to the existing `NCDP10000` error code check, preventing false error reporting when multiple devices are temporarily unreachable
+- Fix `catalystcenter_fabric_l3_virtual_network` resource to allow in-place updates to the `anchored_site_id` attribute
 
 ## 0.5.12
 
