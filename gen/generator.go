@@ -215,6 +215,7 @@ type YamlConfigAttribute struct {
 	NoPut                     bool                  `yaml:"no_put"`
 	NullOnEmpty               bool                  `yaml:"null_on_empty"`
 	CustomModifier            string                `yaml:"custom_modifier"`
+	AlwaysInclude             bool                  `yaml:"always_include"`
 }
 
 // Templating helper function to convert TF name to GO name

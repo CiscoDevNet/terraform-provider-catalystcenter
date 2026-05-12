@@ -87,7 +87,7 @@ func (data PnPDeviceClaimSite) toBody(ctx context.Context, state PnPDeviceClaimS
 	if !data.ConfigId.IsNull() {
 		body, _ = sjson.Set(body, "configInfo.configId", data.ConfigId.ValueString())
 	}
-	if len(data.ConfigParameters) > 0 {
+	if true {
 		body, _ = sjson.Set(body, "configInfo.configParameters", []interface{}{})
 		for _, item := range data.ConfigParameters {
 			itemBody := ""
