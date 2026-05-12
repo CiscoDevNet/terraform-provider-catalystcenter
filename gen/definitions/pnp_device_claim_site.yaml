@@ -47,6 +47,7 @@ attributes:
     data_path: configInfo
     type: List
     description: List of config (temaplate) parameters.
+    always_include: true
     attributes:
       - model_name: key
         tf_name: name

@@ -324,7 +324,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 		{{- end}}
 	}
 	{{- else if isNestedListSetMap .}}
+	{{- if .AlwaysInclude}}
+	if true {
+	{{- else}}
 	if len(data.{{toGoName .TfName}}) > 0 {
+	{{- end}}
 		{{- if .PutDataPath}}
 		if put {
 			body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", []interface{}{})
