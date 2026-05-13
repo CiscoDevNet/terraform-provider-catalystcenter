@@ -7,10 +7,10 @@ description: |-
 
 # Changelog
 
-## 0.5.13 (unreleased)
+## 0.5.13
 
 - Fix `catalystcenter_pnp_device_claim_site` resource to correctly handle day-zero template attachment when the template does not require variables
-- Extended device unreachability detection to match failure reason messages in addition to the existing `NCDP10000` error code check, preventing false error reporting when multiple devices are temporarily unreachable
+- Extend detection to match specific failure reason messages in addition to the `NCDP10000` error code. This prevents false error reporting when multiple devices are temporarily unreachable. Fixes [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/414)
 - Fix `catalystcenter_fabric_l3_virtual_network` resource to allow in-place updates to the `anchored_site_id` attribute
 
 ## 0.5.12
