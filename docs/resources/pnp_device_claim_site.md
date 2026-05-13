@@ -41,6 +41,8 @@ resource "catalystcenter_pnp_device_claim_site" "example" {
 
 ### Optional
 
+- `cabling_scheme` (String) Cabling scheme for stack renumbering. Applicable when `type` is `StackSwitch`.
+  - Choices: `1A`, `1B`
 - `config_id` (String) Config (temaplate) ID. Required if `type` is `Default` or `StackSwitch`.
 - `config_parameters` (Attributes List) List of config (temaplate) parameters. (see [below for nested schema](#nestedatt--config_parameters))
 - `gateway` (String) Gateway IP. Required if `type` is `CatalystWLC` or `MobilityExpress`.
@@ -51,6 +53,7 @@ resource "catalystcenter_pnp_device_claim_site" "example" {
 - `sensor_profile` (String) Sensor profile. Required if `type` is `Sensor`.
 - `static_ip` (String) Static IP address. Required if `type` is `CatalystWLC` or `MobilityExpress`.
 - `subnet_mask` (String) Subnet mask. Required if `type` is `CatalystWLC` or `MobilityExpress`.
+- `top_of_stack_serial_number` (String) Top of stack serial number. Used with `StackSwitch` type to designate which switch becomes stack member 1.
 - `vlan_id` (String) Vlan ID. Required for Catalyst 9800 WLC.
 
 ### Read-Only

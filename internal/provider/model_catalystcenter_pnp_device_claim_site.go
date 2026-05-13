@@ -30,21 +30,23 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type PnPDeviceClaimSite struct {
-	Id               types.String                         `tfsdk:"id"`
-	DeviceId         types.String                         `tfsdk:"device_id"`
-	SiteId           types.String                         `tfsdk:"site_id"`
-	Type             types.String                         `tfsdk:"type"`
-	ImageId          types.String                         `tfsdk:"image_id"`
-	ImageSkip        types.Bool                           `tfsdk:"image_skip"`
-	ConfigId         types.String                         `tfsdk:"config_id"`
-	ConfigParameters []PnPDeviceClaimSiteConfigParameters `tfsdk:"config_parameters"`
-	RfProfile        types.String                         `tfsdk:"rf_profile"`
-	StaticIp         types.String                         `tfsdk:"static_ip"`
-	SubnetMask       types.String                         `tfsdk:"subnet_mask"`
-	Gateway          types.String                         `tfsdk:"gateway"`
-	VlanId           types.String                         `tfsdk:"vlan_id"`
-	IpInterfaceName  types.String                         `tfsdk:"ip_interface_name"`
-	SensorProfile    types.String                         `tfsdk:"sensor_profile"`
+	Id                     types.String                         `tfsdk:"id"`
+	DeviceId               types.String                         `tfsdk:"device_id"`
+	SiteId                 types.String                         `tfsdk:"site_id"`
+	Type                   types.String                         `tfsdk:"type"`
+	ImageId                types.String                         `tfsdk:"image_id"`
+	ImageSkip              types.Bool                           `tfsdk:"image_skip"`
+	ConfigId               types.String                         `tfsdk:"config_id"`
+	ConfigParameters       []PnPDeviceClaimSiteConfigParameters `tfsdk:"config_parameters"`
+	RfProfile              types.String                         `tfsdk:"rf_profile"`
+	StaticIp               types.String                         `tfsdk:"static_ip"`
+	SubnetMask             types.String                         `tfsdk:"subnet_mask"`
+	Gateway                types.String                         `tfsdk:"gateway"`
+	VlanId                 types.String                         `tfsdk:"vlan_id"`
+	IpInterfaceName        types.String                         `tfsdk:"ip_interface_name"`
+	SensorProfile          types.String                         `tfsdk:"sensor_profile"`
+	TopOfStackSerialNumber types.String                         `tfsdk:"top_of_stack_serial_number"`
+	CablingScheme          types.String                         `tfsdk:"cabling_scheme"`
 }
 
 type PnPDeviceClaimSiteConfigParameters struct {
@@ -120,6 +122,12 @@ func (data PnPDeviceClaimSite) toBody(ctx context.Context, state PnPDeviceClaimS
 	}
 	if !data.SensorProfile.IsNull() {
 		body, _ = sjson.Set(body, "sensorProfile", data.SensorProfile.ValueString())
+	}
+	if !data.TopOfStackSerialNumber.IsNull() {
+		body, _ = sjson.Set(body, "topOfStackSerialNumber", data.TopOfStackSerialNumber.ValueString())
+	}
+	if !data.CablingScheme.IsNull() {
+		body, _ = sjson.Set(body, "cablingScheme", data.CablingScheme.ValueString())
 	}
 	return body
 }
@@ -210,6 +218,16 @@ func (data *PnPDeviceClaimSite) fromBody(ctx context.Context, res gjson.Result) 
 		data.SensorProfile = types.StringValue(value.String())
 	} else {
 		data.SensorProfile = types.StringNull()
+	}
+	if value := res.Get("topOfStackSerialNumber"); value.Exists() {
+		data.TopOfStackSerialNumber = types.StringValue(value.String())
+	} else {
+		data.TopOfStackSerialNumber = types.StringNull()
+	}
+	if value := res.Get("cablingScheme"); value.Exists() {
+		data.CablingScheme = types.StringValue(value.String())
+	} else {
+		data.CablingScheme = types.StringNull()
 	}
 }
 
@@ -316,6 +334,16 @@ func (data *PnPDeviceClaimSite) updateFromBody(ctx context.Context, res gjson.Re
 	} else {
 		data.SensorProfile = types.StringNull()
 	}
+	if value := res.Get("topOfStackSerialNumber"); value.Exists() && !data.TopOfStackSerialNumber.IsNull() {
+		data.TopOfStackSerialNumber = types.StringValue(value.String())
+	} else {
+		data.TopOfStackSerialNumber = types.StringNull()
+	}
+	if value := res.Get("cablingScheme"); value.Exists() && !data.CablingScheme.IsNull() {
+		data.CablingScheme = types.StringValue(value.String())
+	} else {
+		data.CablingScheme = types.StringNull()
+	}
 }
 
 // End of section. //template:end updateFromBody
@@ -359,6 +387,12 @@ func (data *PnPDeviceClaimSite) isNull(ctx context.Context, res gjson.Result) bo
 		return false
 	}
 	if !data.SensorProfile.IsNull() {
+		return false
+	}
+	if !data.TopOfStackSerialNumber.IsNull() {
+		return false
+	}
+	if !data.CablingScheme.IsNull() {
 		return false
 	}
 	return true

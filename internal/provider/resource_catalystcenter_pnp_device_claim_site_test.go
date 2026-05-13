@@ -44,7 +44,7 @@ func TestAccCcPnPDeviceClaimSite(t *testing.T) {
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcPnPDeviceClaimSiteConfig_all(),
+		Config: testAccCcPnPDeviceClaimSitePrerequisitesConfig + testAccCcPnPDeviceClaimSiteConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -58,6 +58,50 @@ func TestAccCcPnPDeviceClaimSite(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccCcPnPDeviceClaimSitePrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
+resource "catalystcenter_area" "test" {
+  name      = "Area1"
+  parent_id = data.catalystcenter_site.test.id
+}
+resource "catalystcenter_pnp_device" "test" {
+  serial_number = "FOC2724Y8RE"
+  pid           = "C9300X-48HX"
+  hostname      = "PNP-SW"
+  stack         = false
+  lifecycle {
+    ignore_changes = [hostname, stack, pid, serial_number]
+  }
+}
+resource "catalystcenter_project" "test" {
+  name = "Project1"
+}
+resource "catalystcenter_template" "test" {
+  project_id  = catalystcenter_project.test.id
+  name        = "Template1"
+  description = "My description"
+  device_types = [
+    {
+      product_family = "Switches and Hubs"
+      product_series = "Cisco Catalyst 9300 Series Switches"
+      product_type   = "Cisco Catalyst 9300 Switch"
+    }
+  ]
+  language         = "JINJA"
+  software_type    = "IOS-XE"
+  software_variant = "XE"
+  software_version = "17.12.4"
+  template_content = "hostname {{HOSTNAME}}"
+}
+resource "catalystcenter_template_version" "test" {
+  template_id = catalystcenter_template.test.id
+  comments    = "Initial version"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal

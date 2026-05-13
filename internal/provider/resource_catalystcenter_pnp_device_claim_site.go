@@ -142,6 +142,17 @@ func (r *PnPDeviceClaimSiteResource) Schema(ctx context.Context, req resource.Sc
 				MarkdownDescription: helpers.NewAttributeDescription("Sensor profile. Required if `type` is `Sensor`.").String,
 				Optional:            true,
 			},
+			"top_of_stack_serial_number": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Top of stack serial number. Used with `StackSwitch` type to designate which switch becomes stack member 1.").String,
+				Optional:            true,
+			},
+			"cabling_scheme": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Cabling scheme for stack renumbering. Applicable when `type` is `StackSwitch`.").AddStringEnumDescription("1A", "1B").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("1A", "1B"),
+				},
+			},
 		},
 	}
 }
