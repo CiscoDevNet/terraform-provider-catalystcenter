@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.14 (unreleased)
+
+- Add `top_of_stack_serial_number` and `cabling_scheme` attributes to `catalystcenter_pnp_device_claim_site` resource to support stacked switch provisioning via PnP
+
 ## 0.5.13
 
 - Fix `catalystcenter_pnp_device_claim_site` resource to correctly handle day-zero template attachment when the template does not require variables
