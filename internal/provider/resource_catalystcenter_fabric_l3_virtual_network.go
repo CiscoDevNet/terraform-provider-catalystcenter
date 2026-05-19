@@ -84,8 +84,11 @@ func (r *FabricL3VirtualNetworkResource) Schema(ctx context.Context, req resourc
 				Optional:            true,
 			},
 			"anchored_site_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Changing this value (including setting or clearing it) forces resource replacement, because Catalyst Center does not allow adding, changing, or removing the anchor of an existing Layer 3 Virtual Network.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"merge_fabric_sites": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("When set to `true`, the `fabric_ids` declared in this resource are merged with the existing fabric associations on Catalyst Center (additive on create/update, subtractive on delete), rather than replacing the entire set. Use this in environments where multiple resources or external processes manage fabric associations for the same L3 Virtual Network.").String,
@@ -119,8 +122,20 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
+	isInfra := plan.VirtualNetworkName.ValueString() == "INFRA_VN" || plan.VirtualNetworkName.ValueString() == "DEFAULT_VN"
+	isAnchored := !plan.AnchoredSiteId.IsNull() && plan.AnchoredSiteId.ValueString() != ""
+
+	// INFRA_VN / DEFAULT_VN are system virtual networks and cannot be anchored.
+	if isAnchored && isInfra {
+		resp.Diagnostics.AddError(
+			"Invalid Configuration",
+			"anchored_site_id cannot be set on INFRA_VN or DEFAULT_VN — system virtual networks do not support anchoring.",
+		)
+		return
+	}
+
 	// Check if VirtualNetworkName is "INFRA_VN" or "DEFAULT_VN"
-	if plan.VirtualNetworkName.ValueString() == "INFRA_VN" || plan.VirtualNetworkName.ValueString() == "DEFAULT_VN" {
+	if isInfra {
 		// Perform GET request to retrieve the ID (and existing fabricIds for additive mode)
 		params := "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
 		res, err := r.client.Get(plan.getPath() + params)
@@ -165,7 +180,7 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 				body := mergedPlan.toBody(ctx, FabricL3VirtualNetwork{})
 				res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
 				if err != nil {
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT final fabric_ids set), got error: %s, %s", err, res.String()))
 					return
 				}
 
@@ -203,6 +218,66 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 				return
 			}
 		}
+	} else if isAnchored {
+		var planFabricIds []string
+		plan.FabricIds.ElementsAs(ctx, &planFabricIds, false)
+
+		if !slices.Contains(planFabricIds, plan.AnchoredSiteId.ValueString()) {
+			resp.Diagnostics.AddError(
+				"Invalid Configuration",
+				"anchored_site_id must be present in fabric_ids. Catalyst Center requires the anchor site to be one of the fabric sites this Layer 3 Virtual Network is assigned to.",
+			)
+			return
+		}
+
+		// POST with only the anchor site in fabricIds.
+		phase1 := plan
+		phase1.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, []string{plan.AnchoredSiteId.ValueString()})
+		body := phase1.toBody(ctx, FabricL3VirtualNetwork{})
+		res, err := r.client.Post(plan.getPath(), body, cc.UseMutex)
+		if err != nil {
+			errStr := strings.ToLower(err.Error()) + " " + strings.ToLower(res.String())
+			looksLikeExisting := strings.Contains(errStr, "already exists") ||
+				strings.Contains(errStr, "statuscode 409")
+			if r.AllowExistingOnCreate && looksLikeExisting {
+				resp.Diagnostics.AddError(
+					"Invalid Configuration",
+					fmt.Sprintf("L3 Virtual Network %q already exists on Catalyst Center. The anchor (anchored_site_id) cannot be added to an existing Layer 3 Virtual Network — this is a Catalyst Center API limitation. To set an anchor, the VN must be destroyed and recreated, or remove anchored_site_id from this resource. Underlying error: %s, %s", plan.VirtualNetworkName.ValueString(), err, res.String()),
+				)
+				return
+			}
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST anchored phase 1), got error: %s, %s", err, res.String()))
+			return
+		}
+
+		params := "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
+		params += "&fabricIds=" + url.QueryEscape(plan.AnchoredSiteId.ValueString())
+		params += "&anchoredSiteId=" + url.QueryEscape(plan.AnchoredSiteId.ValueString())
+		res, err = r.client.Get(plan.getPath() + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET) after phase 1 anchored create, got error: %s, %s", err, res.String()))
+			return
+		}
+		plan.Id = types.StringValue(res.Get("response.0.id").String())
+
+		// PUT with the full fabric_ids set when more sites are requested beyond the anchor.
+		if len(planFabricIds) > 1 {
+			body = plan.toBody(ctx, FabricL3VirtualNetwork{Id: plan.Id})
+			res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
+			if err != nil {
+				phase1State := plan
+				phase1State.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, []string{plan.AnchoredSiteId.ValueString()})
+				diags = resp.State.Set(ctx, &phase1State)
+				resp.Diagnostics.Append(diags...)
+				resp.Diagnostics.AddError(
+					"Client Error",
+					fmt.Sprintf("Phase 1 (POST with anchor only) succeeded but phase 2 (PUT to add remaining fabric sites) failed: %s, %s. The Virtual Network has been recorded in Terraform state with only the anchor site; the next apply will attempt to add the remaining sites via Update.", err, res.String()),
+				)
+				return
+			}
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("%s: Anchored create finished successfully", plan.Id.ValueString()))
 	} else {
 		// Create object
 		body := plan.toBody(ctx, FabricL3VirtualNetwork{})
@@ -393,9 +468,18 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// If only merge_fabric_sites changed (fabric_ids is unchanged), no API call is needed.
-	// The flag is a Terraform-only behaviour switch — flipping it alone does not require
-	// any modification on Catalyst Center.
+	if !plan.AnchoredSiteId.IsNull() && plan.AnchoredSiteId.ValueString() != "" {
+		var planFabricIds []string
+		plan.FabricIds.ElementsAs(ctx, &planFabricIds, false)
+		if !slices.Contains(planFabricIds, plan.AnchoredSiteId.ValueString()) {
+			resp.Diagnostics.AddError(
+				"Invalid Configuration",
+				"anchored_site_id must be present in fabric_ids. Catalyst Center requires the anchor site to remain one of the fabric sites this Layer 3 Virtual Network is assigned to.",
+			)
+			return
+		}
+	}
+
 	if plan.FabricIds.Equal(state.FabricIds) && plan.AnchoredSiteId.Equal(state.AnchoredSiteId) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Only merge_fabric_sites changed, skipping API call", plan.Id.ValueString()))
 		diags = resp.State.Set(ctx, &plan)
@@ -410,10 +494,6 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 		var planFabricIds []string
 		plan.FabricIds.ElementsAs(ctx, &planFabricIds, false)
 
-		// If transitioning from normal mode to additive mode, state.FabricIds may contain
-		// externally-managed IDs that were synced by the previous Read. In that case we
-		// must not subtract state from existing, otherwise we would remove IDs we don't own.
-		// Instead, treat this first apply as a pure union: existing ∪ plan.
 		transitioningToAdditive := !state.MergeFabricSites.ValueBool()
 
 		MAX_RETRIES := 3
@@ -431,12 +511,6 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 				existingFabricIds = append(existingFabricIds, fid.String())
 			}
 
-			// Compute new fabric IDs:
-			// - Steady-state additive: (existingFabricIds - stateFabricIds) ∪ planFabricIds
-			//   This correctly handles adds and removes relative to what this resource declared.
-			// - Transition to additive: existing ∪ plan (no subtraction — state may contain
-			//   externally-managed IDs from the previous normal-mode Read, subtracting them
-			//   would incorrectly remove IDs we don't own).
 			newFabricIds := []string{}
 			if transitioningToAdditive {
 				newFabricIds = append(newFabricIds, existingFabricIds...)
@@ -461,6 +535,30 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 			mergedPlan := plan
 			mergedPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, newFabricIds)
 			body := mergedPlan.toBody(ctx, state)
+			if !plan.AnchoredSiteId.IsNull() && plan.AnchoredSiteId.ValueString() != "" {
+				adds, removes := diffFabricIds(existingFabricIds, newFabricIds)
+				if len(adds) > 0 && len(removes) > 0 {
+					// First PUT: only the removals (keep additions for second PUT)
+					intermediate := make([]string, 0, len(existingFabricIds))
+					removeSet := map[string]struct{}{}
+					for _, id := range removes {
+						removeSet[id] = struct{}{}
+					}
+					for _, fid := range existingFabricIds {
+						if _, drop := removeSet[fid]; !drop {
+							intermediate = append(intermediate, fid)
+						}
+					}
+					firstPlan := plan
+					firstPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, intermediate)
+					firstBody := firstPlan.toBody(ctx, state)
+					res, err = r.client.Put(plan.getPath(), firstBody, cc.UseMutex)
+					if err != nil {
+						resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT removals), got error: %s, %s", err, res.String()))
+						return
+					}
+				}
+			}
 			res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
@@ -494,15 +592,12 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 			}
 		}
 	} else {
-		// Normal mode: plain PUT with plan fabricIds
-		body := plan.toBody(ctx, state)
-		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		var planFabricIds []string
+		plan.FabricIds.ElementsAs(ctx, &planFabricIds, false)
+		if err := r.applyFabricIdsAnchorAware(ctx, &plan, &state, planFabricIds); err != nil {
+			resp.Diagnostics.AddError("Client Error", err.Error())
 			return
 		}
-		_ = res
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -605,7 +700,24 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 			}
 		}
 	} else if state.VirtualNetworkName.ValueString() != "INFRA_VN" && state.VirtualNetworkName.ValueString() != "DEFAULT_VN" {
-		// Normal mode, normal VN: DELETE the virtual network
+		// Normal mode, normal VN: DELETE the virtual network.
+		// For anchored VNs assigned to multiple fabric sites, CatC rejects DELETE
+		// with NCHS20691 ("Cannot remove anchor while this anchor is inherited in
+		// other fabrics"). Pre-shrink to anchor-only first, then DELETE.
+		if !state.AnchoredSiteId.IsNull() && state.AnchoredSiteId.ValueString() != "" {
+			var stateFabricIds []string
+			state.FabricIds.ElementsAs(ctx, &stateFabricIds, false)
+			if len(stateFabricIds) > 1 {
+				shrunk := state
+				shrunk.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, []string{state.AnchoredSiteId.ValueString()})
+				body := shrunk.toBody(ctx, FabricL3VirtualNetwork{Id: state.Id})
+				res, err := r.client.Put(state.getPath(), body, cc.UseMutex)
+				if err != nil {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to shrink anchored VN to anchor-only before delete (PUT), got error: %s, %s", err, res.String()))
+					return
+				}
+			}
+		}
 		params := ""
 		params += "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
 		res, err := r.client.Delete(state.getPath()+params, cc.UseMutex)
@@ -628,6 +740,81 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
 	resp.State.RemoveResource(ctx)
+}
+
+// diffFabricIds returns (adds, removes) where adds = desired - existing and removes = existing - desired.
+func diffFabricIds(existing, desired []string) (adds, removes []string) {
+	existingSet := map[string]struct{}{}
+	for _, id := range existing {
+		existingSet[id] = struct{}{}
+	}
+	desiredSet := map[string]struct{}{}
+	for _, id := range desired {
+		desiredSet[id] = struct{}{}
+	}
+	for _, id := range desired {
+		if _, ok := existingSet[id]; !ok {
+			adds = append(adds, id)
+		}
+	}
+	for _, id := range existing {
+		if _, ok := desiredSet[id]; !ok {
+			removes = append(removes, id)
+		}
+	}
+	return
+}
+
+// applyFabricIdsAnchorAware issues a PUT to set fabric_ids to finalIds.
+// For anchored VNs where the change both adds and removes sites, it issues two PUTs
+// (remove first, then add) because Catalyst Center rejects a single PUT that does both
+// (errorCode NCHS20477).
+func (r *FabricL3VirtualNetworkResource) applyFabricIdsAnchorAware(ctx context.Context, plan, state *FabricL3VirtualNetwork, finalIds []string) error {
+	finalPlan := *plan
+	finalPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, finalIds)
+	finalBody := finalPlan.toBody(ctx, *state)
+
+	// Only anchored VNs are subject to the swap restriction.
+	if !plan.AnchoredSiteId.IsNull() && plan.AnchoredSiteId.ValueString() != "" {
+		// GET existing fabric_ids
+		params := "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
+		res, err := r.client.Get(plan.getPath()+params, cc.UseMutex)
+		if err != nil {
+			return fmt.Errorf("Failed to retrieve object (GET) before anchor-aware PUT, got error: %s, %s", err, res.String())
+		}
+		existing := []string{}
+		for _, fid := range res.Get("response.0.fabricIds").Array() {
+			existing = append(existing, fid.String())
+		}
+		adds, removes := diffFabricIds(existing, finalIds)
+		if len(adds) > 0 && len(removes) > 0 {
+			// First PUT: only removals
+			intermediate := make([]string, 0, len(existing))
+			removeSet := map[string]struct{}{}
+			for _, id := range removes {
+				removeSet[id] = struct{}{}
+			}
+			for _, fid := range existing {
+				if _, drop := removeSet[fid]; !drop {
+					intermediate = append(intermediate, fid)
+				}
+			}
+			firstPlan := *plan
+			firstPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, intermediate)
+			firstBody := firstPlan.toBody(ctx, *state)
+			res, err := r.client.Put(plan.getPath(), firstBody, cc.UseMutex)
+			if err != nil {
+				return fmt.Errorf("Failed to configure object (PUT removals for anchored swap), got error: %s, %s", err, res.String())
+			}
+		}
+	}
+
+	res, err := r.client.Put(plan.getPath(), finalBody, cc.UseMutex)
+	if err != nil {
+		return fmt.Errorf("Failed to configure object (PUT), got error: %s, %s", err, res.String())
+	}
+	_ = res
+	return nil
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import

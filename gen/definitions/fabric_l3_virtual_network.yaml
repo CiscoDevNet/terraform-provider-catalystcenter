@@ -31,8 +31,9 @@ attributes:
     test_value: "[catalystcenter_fabric_site.test.id]"
   - model_name: anchoredSiteId
     data_path: "0"
+    requires_replace: true
     response_data_path: response.0.anchoredSiteId
-    description: Fabric ID of the fabric site this layer 3 virtual network is to be anchored at.
+    description: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Changing this value (including setting or clearing it) forces resource replacement, because Catalyst Center does not allow adding, changing, or removing the anchor of an existing Layer 3 Virtual Network."
     type: String
     example: ""
     exclude_test: true
