@@ -1,4 +1,5 @@
 ---
+# manual changes in create and update
 name: Update Device Management Address
 rest_endpoint: /dna/intent/api/v1/network-device/%v/management-address
 get_rest_endpoint: /dna/intent/api/v1/network-device

@@ -95,7 +95,6 @@ func (r *UpdateDeviceManagementAddressResource) Configure(_ context.Context, req
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *UpdateDeviceManagementAddressResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan UpdateDeviceManagementAddress
 
@@ -107,6 +106,22 @@ func (r *UpdateDeviceManagementAddressResource) Create(ctx context.Context, req 
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+
+	// Pre-flight: fetch current device state and compare management IP.
+	getRes, getErr := r.client.Get("/dna/intent/api/v1/network-device/" + url.QueryEscape(plan.DeviceId.ValueString()))
+	if getErr == nil {
+		current := getRes.Get("response.managementIpAddress").String()
+		if !plan.NewIp.IsNull() && current != "" && current == plan.NewIp.ValueString() {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Device already has desired management IP %s, skipping PUT", plan.DeviceId.ValueString(), current))
+			plan.Id = types.StringValue(plan.DeviceId.ValueString())
+			diags = resp.State.Set(ctx, &plan)
+			resp.Diagnostics.Append(diags...)
+			return
+		}
+	} else {
+		// Non-fatal: log and proceed to PUT (the PUT will surface any real error).
+		tflog.Debug(ctx, fmt.Sprintf("%s: Pre-flight GET failed, proceeding with PUT: %s", plan.DeviceId.ValueString(), getErr))
+	}
 
 	// Create object
 	body := plan.toBody(ctx, UpdateDeviceManagementAddress{})
@@ -124,8 +139,6 @@ func (r *UpdateDeviceManagementAddressResource) Create(ctx context.Context, req 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *UpdateDeviceManagementAddressResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -166,7 +179,6 @@ func (r *UpdateDeviceManagementAddressResource) Read(ctx context.Context, req re
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *UpdateDeviceManagementAddressResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state UpdateDeviceManagementAddress
 
@@ -185,6 +197,20 @@ func (r *UpdateDeviceManagementAddressResource) Update(ctx context.Context, req 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
+	// Pre-flight: fetch current device state and compare management IP.
+	getRes, getErr := r.client.Get("/dna/intent/api/v1/network-device/" + url.QueryEscape(plan.DeviceId.ValueString()))
+	if getErr == nil {
+		current := getRes.Get("response.managementIpAddress").String()
+		if !plan.NewIp.IsNull() && current != "" && current == plan.NewIp.ValueString() {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Device already has desired management IP %s, skipping PUT", plan.DeviceId.ValueString(), current))
+			diags = resp.State.Set(ctx, &plan)
+			resp.Diagnostics.Append(diags...)
+			return
+		}
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Pre-flight GET failed, proceeding with PUT: %s", plan.DeviceId.ValueString(), getErr))
+	}
+
 	body := plan.toBody(ctx, state)
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body)
@@ -198,8 +224,6 @@ func (r *UpdateDeviceManagementAddressResource) Update(ctx context.Context, req 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *UpdateDeviceManagementAddressResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
