@@ -2,7 +2,7 @@
 
 - Fix `catalystcenter_pnp_device_claim_site` resource to correctly handle day-zero template attachment when the template does not require variables
 - Extend detection to match specific failure reason messages in addition to the `NCDP10000` error code. This prevents false error reporting when multiple devices are temporarily unreachable. Fixes [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/414)
-- Fix `catalystcenter_fabric_l3_virtual_network` resource to allow in-place updates to the `anchored_site_id` attribute
+- Fix `catalystcenter_fabric_l3_virtual_network` resource to fully support anchored Layer 3 Virtual Networks. The Create, Update and Delete flows now mirror several undocumented Catalyst Center constraints: anchored Create uses a two-phase POST+PUT, `anchored_site_id` is treated as immutable (forces replacement on change), `anchored_site_id` must be one of `fabric_ids`, anchored Updates that both add and remove fabric sites are split into two sequential PUTs (CatC `NCHS20477`), and anchored Deletes pre-shrink fabric assignments to the anchor site before issuing DELETE (CatC `NCHS20691`)
 
 ## 0.5.12
 

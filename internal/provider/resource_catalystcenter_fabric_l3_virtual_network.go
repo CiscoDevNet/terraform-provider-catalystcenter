@@ -480,6 +480,9 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 		}
 	}
 
+	// If only merge_fabric_sites changed (fabric_ids and anchored_site_id unchanged), no API call is needed.
+	// The flag is a Terraform-only behaviour switch — flipping it alone does not require
+	// any modification on Catalyst Center.
 	if plan.FabricIds.Equal(state.FabricIds) && plan.AnchoredSiteId.Equal(state.AnchoredSiteId) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Only merge_fabric_sites changed, skipping API call", plan.Id.ValueString()))
 		diags = resp.State.Set(ctx, &plan)
@@ -494,6 +497,10 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 		var planFabricIds []string
 		plan.FabricIds.ElementsAs(ctx, &planFabricIds, false)
 
+		// If transitioning from normal mode to additive mode, state.FabricIds may contain
+		// externally-managed IDs that were synced by the previous Read. In that case we
+		// must not subtract state from existing, otherwise we would remove IDs we don't own.
+		// Instead, treat this first apply as a pure union: existing ∪ plan.
 		transitioningToAdditive := !state.MergeFabricSites.ValueBool()
 
 		MAX_RETRIES := 3
@@ -511,6 +518,12 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 				existingFabricIds = append(existingFabricIds, fid.String())
 			}
 
+			// Compute new fabric IDs:
+			// - Steady-state additive: (existingFabricIds - stateFabricIds) ∪ planFabricIds
+			//   This correctly handles adds and removes relative to what this resource declared.
+			// - Transition to additive: existing ∪ plan (no subtraction — state may contain
+			//   externally-managed IDs from the previous normal-mode Read, subtracting them
+			//   would incorrectly remove IDs we don't own).
 			newFabricIds := []string{}
 			if transitioningToAdditive {
 				newFabricIds = append(newFabricIds, existingFabricIds...)

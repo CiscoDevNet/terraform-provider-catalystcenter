@@ -1,4 +1,20 @@
 ---
+# NOTE: The Create, Update and Delete functions in the generated resource file
+# (internal/provider/resource_catalystcenter_fabric_l3_virtual_network.go) contain
+# hand-written logic that mirrors several undocumented Catalyst Center constraints
+# around Layer 3 Virtual Networks, in particular anchored VNs and the
+# `merge_fabric_sites` (additive) mode. Specifically:
+#   * Anchored Create is a two-phase POST+PUT (CatC rejects POST with multiple
+#     fabricIds when anchoredSiteId is set).
+#   * Anchored Update splits a combined add+remove of fabricIds into two
+#     sequential PUTs (CatC errorCode NCHS20477).
+#   * Anchored Delete pre-shrinks fabricIds to the anchor only before DELETE
+#     (CatC errorCode NCHS20691).
+#   * `anchored_site_id` is marked requires_replace because CatC does not allow
+#     adding, changing, or removing the anchor of an existing L3 VN.
+#   * `INFRA_VN` / `DEFAULT_VN` cannot be anchored and are managed via PUT only.
+# If you re-run `go generate`, remove the //template:begin/end markers around
+# these hand-edited functions so they are preserved.
 name: Fabric L3 Virtual Network
 rest_endpoint: /dna/intent/api/v1/sda/layer3VirtualNetworks
 id_from_query_path: response.0
