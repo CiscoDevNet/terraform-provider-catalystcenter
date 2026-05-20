@@ -10,6 +10,7 @@ description: |-
 ## 0.5.14 (unreleased)
 
 - Add `top_of_stack_serial_number` and `cabling_scheme` attributes to `catalystcenter_pnp_device_claim_site` resource to support stacked switch provisioning via PnP
+- Add `catalystcenter_planned_access_point_position` resource to manage planned (virtual) Access Point positions on floor maps for RF planning (Day 0 design-time, no physical APs required)
 
 ## 0.5.13
 

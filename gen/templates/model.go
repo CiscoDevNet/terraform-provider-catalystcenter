@@ -174,6 +174,18 @@ func (data {{camelCase .Name}}) getPathGet() string {
 {{end}}
 // End of section. //template:end getPathGet
 
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathPost
+{{if .PostRestEndpoint}}
+func (data {{camelCase .Name}}) getPathPost() string {
+	{{- if and (hasReference .Attributes) (strContains .PostRestEndpoint "%v")}}
+		return fmt.Sprintf("{{.PostRestEndpoint}}"{{range .Attributes}}{{if and .Reference (not .Computed)}}, url.QueryEscape(data.{{toGoName .TfName}}.Value{{.Type}}()){{end}}{{end}})
+	{{- else}}
+		return "{{.PostRestEndpoint}}"
+	{{- end}}
+}
+{{end}}
+// End of section. //template:end getPathPost
+
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathPut
 {{if .PutRestEndpoint}}
 func (data {{camelCase .Name}}) getPathPut() string {

@@ -613,7 +613,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
+	res, err := r.client.Post({{if .PostRestEndpoint}}{{if strContains .PostRestEndpoint "%v"}}plan.getPathPost(){{else}}"{{.PostRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}}{{- if .NoWait }}, cc.NoWait{{- end}})
 	{{- end}}
 	{{- if .RetryOnErrorCodes}}
 	if err != nil {
@@ -991,7 +991,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	params += "?{{.PutIdQueryParam}}=" + url.QueryEscape(plan.Id.ValueString())
 	{{- end}}
 	{{- if .PostUpdate}}
-	res, err := r.client.Post(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.Post({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .PutCreate}}
 	res, err := r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if and (hasQueryParam .Attributes) (not .PutId)}}

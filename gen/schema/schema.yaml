@@ -4,6 +4,7 @@ no_resource: bool(required=False) # Set to true if no resource should be created
 no_data_source: bool(required=False) # Set to true if no data source should be created
 rest_endpoint: str() # REST endpoint path
 get_rest_endpoint: str(required=False) # Override GET REST endpoint path
+post_rest_endpoint: str(required=False) # Override POST REST endpoint path
 put_rest_endpoint: str(required=False) # Override PUT REST endpoint path
 delete_rest_endpoint: str(required=False) # Override DELETE REST endpoint path
 id_query_rest_endpoint: str(required=False) # Override REST endpoint path for ID query after creation (when POST doesn't return ID)
