@@ -1,0 +1,142 @@
+---
+name: Planned Access Point Position
+rest_endpoint: /dna/intent/api/v2/floors/%v/plannedAccessPointPositions
+post_rest_endpoint: /dna/intent/api/v2/floors/%v/plannedAccessPointPositions/bulk
+post_update: true
+put_rest_endpoint: /dna/intent/api/v2/floors/%v/plannedAccessPointPositions/bulkChange
+put_id_include_path: "0.id"
+update_computed: true
+id_from_query_path: response.0
+id_from_query_path_attribute: id
+import_no_id: true
+data_source_no_id: true
+skip_minimum_test: true
+ds_description: 'This data source reads a planned Access Point position from a floor map in Cisco Catalyst Center.'
+res_description: 'This resource manages a planned (virtual) Access Point position on a floor map for RF planning in Cisco Catalyst Center. Planned APs are Day 0 design-time resources - no physical APs are needed in the inventory.'
+doc_category: Sites
+attributes:
+  - tf_name: floor_id
+    type: String
+    reference: true
+    description: Floor ID where the planned AP is placed
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: catalystcenter_floor.test.id
+  - model_name: name
+    data_path: "0"
+    type: String
+    mandatory: true
+    query_param: true
+    response_data_path: response.0.name
+    description: Name of the planned Access Point
+    example: AP-1001
+  - model_name: macAddress
+    data_path: "0"
+    type: String
+    response_data_path: response.0.macAddress
+    description: MAC address of the planned Access Point
+    example: "00:11:22:33:44:55"
+    exclude_test: true
+  - model_name: type
+    data_path: "0"
+    tf_name: ap_type
+    type: String
+    mandatory: true
+    response_data_path: response.0.type
+    description: AP model type. Use /dna/intent/api/v1/maps/supported-access-points to find supported models
+    example: AP9166I
+  - model_name: x
+    data_path: "0.position"
+    tf_name: position_x
+    type: Float64
+    mandatory: true
+    response_data_path: response.0.position.x
+    description: X coordinate of the planned AP position in feet
+    example: "50.5"
+  - model_name: "y"
+    data_path: "0.position"
+    tf_name: position_y
+    type: Float64
+    mandatory: true
+    response_data_path: response.0.position.y
+    description: Y coordinate of the planned AP position in feet
+    example: "30.2"
+  - model_name: z
+    data_path: "0.position"
+    tf_name: position_z
+    type: Float64
+    response_data_path: response.0.position.z
+    description: Z coordinate (height) of the planned AP position in feet
+    example: "3.5"
+  - model_name: radios
+    data_path: "0"
+    type: Set
+    requires_replace: true
+    mandatory: true
+    response_data_path: response.0.radios
+    description: Radio configurations for the planned AP (1-4 radios). Any change to any radio attribute forces destroy+create because the Catalyst Center bulkChange API has limited update support.
+    attributes:
+      - model_name: id
+        tf_name: radio_id
+        type: String
+        match_id: true
+        computed: true
+        description: Radio ID (read-only, assigned by Catalyst Center)
+        exclude_test: true
+      - model_name: bands
+        type: Set
+        element_type: String
+        description: Radio frequency bands in GHz. Valid values are 2.4, 5, and 6
+        example: "5"
+      - model_name: channel
+        type: Int64
+        description: Channel number for map visualization
+        example: 36
+      - model_name: txPower
+        tf_name: tx_power
+        type: Int64
+        description: Transmit power in dBm for map visualization
+        example: 17
+      - model_name: name
+        data_path: antenna
+        tf_name: antenna_name
+        type: String
+        description: Antenna type name. Use /dna/intent/api/v1/maps/supported-access-points to find supported antennas
+        example: Internal-CW9166I-x-5GHz
+      - model_name: azimuth
+        data_path: antenna
+        tf_name: antenna_azimuth
+        type: Int64
+        description: Antenna azimuth angle in degrees (0-360)
+        example: 0
+      - model_name: elevation
+        data_path: antenna
+        tf_name: antenna_elevation
+        type: Int64
+        description: Antenna elevation angle in degrees (-90 to 90)
+        example: 0
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_area" "test" {
+    name      = "PlannedAPTestArea"
+    parent_id = data.catalystcenter_site.test.id
+  }
+  resource "catalystcenter_building" "test" {
+    name      = "PlannedAPTestBuilding"
+    parent_id = catalystcenter_area.test.id
+    country   = "United States"
+    address   = "150 W Tasman Dr, San Jose"
+    latitude  = 37.338
+    longitude = -121.832
+  }
+  resource "catalystcenter_floor" "test" {
+    parent_id        = catalystcenter_building.test.id
+    name             = "PlannedAPTestFloor"
+    floor_number     = 1
+    rf_model         = "Cubes And Walled Offices"
+    width            = 100
+    length           = 100
+    height           = 10
+    units_of_measure = "feet"
+  }

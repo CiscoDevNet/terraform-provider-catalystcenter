@@ -1,12 +1,14 @@
 ## 0.5.14 (unreleased)
 
+- Add `catalystcenter_planned_access_point_position` resource to manage planned (virtual) Access Point positions on floor maps for RF planning (Day 0 design-time, no physical APs required)
 - Add `top_of_stack_serial_number` and `cabling_scheme` attributes to `catalystcenter_pnp_device_claim_site` resource to support stacked switch provisioning via PnP
+- Fix `catalystcenter_fabric_l3_virtual_network` resource to fully support anchored Layer 3 Virtual Networks, mirroring undocumented Catalyst Center anchor handling in Create, Update, and Delete API operations
 
 ## 0.5.13
 
 - Fix `catalystcenter_pnp_device_claim_site` resource to correctly handle day-zero template attachment when the template does not require variables
 - Extend detection to match specific failure reason messages in addition to the `NCDP10000` error code. This prevents false error reporting when multiple devices are temporarily unreachable. Fixes [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/414)
-- Fix `catalystcenter_fabric_l3_virtual_network` resource to fully support anchored Layer 3 Virtual Networks, mirroring undocumented Catalyst Center anchor handling in Create, Update, and Delete API operations
+- Fix `catalystcenter_fabric_l3_virtual_network` resource to allow in-place updates to the `anchored_site_id` attribute
 
 ## 0.5.12
 
