@@ -12,6 +12,7 @@ description: |-
 - Add `catalystcenter_planned_access_point_position` resource to manage planned (virtual) Access Point positions on floor maps for RF planning (Day 0 design-time, no physical APs required)
 - Add `top_of_stack_serial_number` and `cabling_scheme` attributes to `catalystcenter_pnp_device_claim_site` resource to support stacked switch provisioning via PnP
 - Fix `catalystcenter_fabric_l3_virtual_network` resource to fully support anchored Layer 3 Virtual Networks, mirroring undocumented Catalyst Center anchor handling in Create, Update, and Delete API operations
+- Fix `catalystcenter_update_device_management_address` resource to skip the PUT request when the device management IP address is already set to the desired value, preventing unnecessary API calls and idempotency errors. Fixes [link](https://github.com/CiscoDevNet/terraform-provider-catalystcenter/issues/414)
 
 ## 0.5.13
 
