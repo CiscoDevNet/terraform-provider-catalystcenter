@@ -39,6 +39,7 @@ resource "catalystcenter_deploy_template" "example" {
 ### Optional
 
 - `copying_config` (Boolean) Copy config from running into startup
+- `deployment_id` (String) In-flight DNAC deployment id, set when an apply times out before SUCCESS/FAILURE. Cleared by Read on SUCCESS.
 - `force_push_template` (Boolean) Force Push Template
 - `is_composite` (Boolean) Composite template flag
 - `main_template_id` (String) Composite Template ID
