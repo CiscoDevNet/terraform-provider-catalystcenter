@@ -1,3 +1,7 @@
+## 0.5.15 (unreleased)
+
+- Fix `catalystcenter_deploy_template` resource to handle deployment timeouts, eliminating the per-device "Provider produced inconsistent result after apply" cascade on multi-target deployments
+
 ## 0.5.14
 
 - Add `catalystcenter_planned_access_point_position` resource to manage planned (virtual) Access Point positions on floor maps for RF planning (Day 0 design-time, no physical APs required)
