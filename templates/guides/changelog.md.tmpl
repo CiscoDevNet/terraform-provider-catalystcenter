@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.15 (unreleased)
+
+- Revert workaround introduced in 0.5.3 for `catalystcenter_assign_credentials` that silently included all credential types in the request payload as `null` to suppress an API error at the global site level. This workaround was masking a Catalyst Center API defect where the API rejects partial credential payloads at the global level. Users who encounter a `400` error when assigning credentials at the global site should specify all six credential attributes (`cli_id`, `snmp_v2_read_id`, `snmp_v2_write_id`, `snmp_v3_id`, `https_read_id`, `https_write_id`) explicitly in their resource configuration as a temporary workaround until the API defect is fixed.
+
 ## 0.5.14
 
 - Add `catalystcenter_planned_access_point_position` resource to manage planned (virtual) Access Point positions on floor maps for RF planning (Day 0 design-time, no physical APs required)
