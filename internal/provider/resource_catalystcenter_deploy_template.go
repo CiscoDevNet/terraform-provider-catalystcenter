@@ -80,6 +80,11 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"deployment_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("In-flight DNAC deployment id, set when an apply times out before SUCCESS/FAILURE. Cleared by Read on SUCCESS.").String,
+				Optional:            true,
+				Computed:            true,
+			},
 			"redeploy": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Attribute that controls when the template should be redeployed. `ALWAYS` redeploys it on every Terraform apply, `ON_CHANGE` redeploys only when the template’s content changes, and `NEVER` prevents redeployment.").AddStringEnumDescription("ALWAYS", "ON_CHANGE", "NEVER").String,
 				Optional:            true,
@@ -295,10 +300,17 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 	postPath := plan.getPath() // params is an empty string in the original code, so just getPath() is sufficient.
 
 	// Perform deployment and monitor status using the new helper
-	deploymentSuccess := r.performDeploymentAndMonitorStatus(ctx, postPath, body, &resp.Diagnostics)
-	if !deploymentSuccess {
+	success, deploymentId, _ := r.performDeploymentAndMonitorStatus(ctx, postPath, body, &resp.Diagnostics)
+	if !success {
+		if deploymentId != "" {
+			// Persist deployment_id so the next Read can reconcile (TIMEOUT, FAILURE, or unknown status).
+			plan.DeploymentId = types.StringValue(deploymentId)
+			resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+		}
 		return
 	}
+
+	plan.DeploymentId = types.StringNull()
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -314,6 +326,39 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// Reconcile a prior timed-out deployment by re-polling its status.
+	if !state.DeploymentId.IsNull() && state.DeploymentId.ValueString() != "" {
+		deploymentId := state.DeploymentId.ValueString()
+		statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
+		statusRes, err := r.client.Get(statusURL)
+		if err != nil {
+			// Id no longer queryable; assume success optimistically.
+			tflog.Warn(ctx, fmt.Sprintf("Deployment %s no longer queryable (%s); assuming success", deploymentId, err))
+			state.DeploymentId = types.StringNull()
+		} else {
+			status := statusRes.Get("status").String()
+			switch status {
+			case "SUCCESS":
+				state.DeploymentId = types.StringNull()
+			case "FAILURE":
+				devices := statusRes.Get("devices").String()
+				revertVersionedTemplateIds(&state)
+				resp.Diagnostics.AddWarning(
+					"Previous Template Deployment Failed",
+					fmt.Sprintf("Deployment %s reported FAILURE on devices: %s. State reverted to force redeploy.", deploymentId, devices),
+				)
+			case "INIT", "IN_PROGRESS", "":
+				// Still in flight; leave state and id for next Read.
+			default:
+				revertVersionedTemplateIds(&state)
+				resp.Diagnostics.AddWarning(
+					"Previous Template Deployment Ended With Unexpected Status",
+					fmt.Sprintf("Deployment %s reported status %q. State reverted to force redeploy.", deploymentId, status),
+				)
+			}
+		}
 	}
 
 	// read always as on_change to create drift and push template every apply
@@ -447,12 +492,19 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 			targetsToUse = plan.TargetInfo
 			tflog.Debug(ctx, "Member template changed, deploying to all top-level targets")
 		}
-		success := r.deployTargets(ctx, &plan, targetsToUse, &resp.Diagnostics) // Pass resp.Diagnostics
+		success, deploymentId, _ := r.deployTargets(ctx, &plan, targetsToUse, &resp.Diagnostics)
 		if !success {
+			if deploymentId != "" {
+				// Persist deployment_id so the next Read can reconcile (TIMEOUT, FAILURE, or unknown status).
+				plan.DeploymentId = types.StringValue(deploymentId)
+				resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+			}
 			return
 		}
+		plan.DeploymentId = types.StringNull()
 	} else {
 		tflog.Debug(ctx, "No target_info items need redeployment")
+		plan.DeploymentId = state.DeploymentId
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -565,18 +617,35 @@ func memberTargetChanged(planTarget, stateTarget DeployTemplateMemberTemplateDep
 	return false
 }
 
-// New helper function to perform template deployment and monitor its status
-func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, diag *diag.Diagnostics) bool {
+// revertVersionedTemplateIds clears versioned_template_id on all targets and
+// the persisted deployment_id, so the next plan diffs and Update retries.
+func revertVersionedTemplateIds(state *DeployTemplate) {
+	for i := range state.TargetInfo {
+		state.TargetInfo[i].VersionedTemplateId = types.StringNull()
+	}
+	for i := range state.MemberTemplateDeploymentInfo {
+		for k := range state.MemberTemplateDeploymentInfo[i].TargetInfo {
+			state.MemberTemplateDeploymentInfo[i].TargetInfo[k].VersionedTemplateId = types.StringNull()
+		}
+	}
+	state.DeploymentId = types.StringNull()
+}
+
+// performDeploymentAndMonitorStatus runs the deploy POST and polls its status.
+// Returns (success, deploymentId, terminalStatus) where terminalStatus is
+// "SUCCESS", "TIMEOUT" (warning, caller should persist id), or "FAILURE"/other
+// (Error already added to diag).
+func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, diag *diag.Diagnostics) (bool, string, string) {
 	bodyString, ok := body.(string)
 	if !ok {
 		diag.AddError("Internal Error", "Failed to convert request body to string. The 'toBody' method is expected to return a string for the client.Post method.")
-		return false
+		return false, "", ""
 	}
 
 	res, err := r.client.Post(postPath, bodyString) // Pass the type-asserted string
 	if err != nil {
 		diag.AddError("Client Error", fmt.Sprintf("Failed to initiate template deployment (%s), got error: %s, %s", "POST", err, res.String()))
-		return false
+		return false, "", ""
 	}
 
 	progress := res.Get("response.progress").String()
@@ -585,7 +654,7 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 
 	if len(matches) == 0 || uuid.Validate(matches[1]) != nil {
 		tflog.Warn(ctx, "Deployment Id was not found in response. Assuming immediate success or no deployment to track.")
-		return true
+		return true, "", "SUCCESS"
 	}
 
 	deploymentId := matches[1]
@@ -595,7 +664,8 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 	statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
 
 	waitingStatuses := map[string]bool{
-		"INIT": true,
+		"INIT":        true,
+		"IN_PROGRESS": true,
 	}
 
 	for retry := 0; retry < maxRetries; retry++ {
@@ -612,35 +682,37 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 		switch {
 		case status == "SUCCESS":
 			tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", deploymentId))
-			return true
+			return true, deploymentId, "SUCCESS"
 		case status == "FAILURE":
 			diag.AddWarning(
 				"Template Deployment Failed",
-				fmt.Sprintf("Deployment %s failed with status: %s, on devices: %s", deploymentId, status, devices),
+				fmt.Sprintf("Deployment %s failed with status: %s, on devices: %s. State persisted with deployment_id; next apply will reconcile via Read and retry.", deploymentId, status, devices),
 			)
-			return false
+			return false, deploymentId, "FAILURE"
 		case waitingStatuses[status]:
 			time.Sleep(10 * time.Second)
 			continue
 		default:
 			diag.AddWarning(
 				"Template Deployment Unknown Status",
-				fmt.Sprintf("Deployment %s ended with unexpected status: %s", deploymentId, status),
+				fmt.Sprintf("Deployment %s ended with unexpected status: %s. State persisted with deployment_id; next apply will reconcile via Read.", deploymentId, status),
 			)
-			return false
+			return false, deploymentId, status
 		}
 	}
 
-	// If maxRetries reached without success
+	// maxRetries reached: deploy may still be in flight on DNAC. Warning only;
+	// caller persists deploymentId so Read can reconcile on the next apply.
 	diag.AddWarning(
 		"Template Deployment Timeout",
-		fmt.Sprintf("Deployment %s did not complete within expected time", deploymentId),
+		fmt.Sprintf("Deployment %s did not complete within expected time. Will be reconciled on the next apply via deployment_id.", deploymentId),
 	)
-	return false
+	return false, deploymentId, "TIMEOUT"
 }
 
-// Helper function to deploy to specific target_info items
-func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, diag *diag.Diagnostics) bool {
+// deployTargets deploys to a subset of target_info items.
+// Returns (success, deploymentId, terminalStatus) — see performDeploymentAndMonitorStatus.
+func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, diag *diag.Diagnostics) (bool, string, string) {
 	targetIds := make(map[string]bool)
 	for _, t := range targets {
 		targetIds[t.Id.ValueString()] = true
@@ -685,8 +757,7 @@ func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *Deploy
 	postPath := plan.getPath() // params is an empty string
 
 	// Use the unified helper for deployment and status monitoring
-	deploymentSuccess := r.performDeploymentAndMonitorStatus(ctx, postPath, body, diag)
-	return deploymentSuccess
+	return r.performDeploymentAndMonitorStatus(ctx, postPath, body, diag)
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import

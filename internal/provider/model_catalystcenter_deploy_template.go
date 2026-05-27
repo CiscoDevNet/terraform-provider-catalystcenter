@@ -33,6 +33,7 @@ import (
 type DeployTemplate struct {
 	Id                           types.String                                 `tfsdk:"id"`
 	TemplateId                   types.String                                 `tfsdk:"template_id"`
+	DeploymentId                 types.String                                 `tfsdk:"deployment_id"`
 	Redeploy                     types.String                                 `tfsdk:"redeploy"`
 	ForcePushTemplate            types.Bool                                   `tfsdk:"force_push_template"`
 	CopyingConfig                types.Bool                                   `tfsdk:"copying_config"`
@@ -106,6 +107,9 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 	_ = put
 	if !data.TemplateId.IsNull() {
 		body, _ = sjson.Set(body, "templateId", data.TemplateId.ValueString())
+	}
+	if data.DeploymentId.ValueString() != "" && !data.DeploymentId.IsNull() {
+		body, _ = sjson.Set(body, "", data.DeploymentId.ValueString())
 	}
 	if !data.Redeploy.IsNull() {
 		body, _ = sjson.Set(body, "", data.Redeploy.ValueString())
@@ -261,6 +265,11 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 		data.TemplateId = types.StringValue(value.String())
 	} else {
 		data.TemplateId = types.StringNull()
+	}
+	if value := res.Get(""); value.Exists() {
+		data.DeploymentId = types.StringValue(value.String())
+	} else {
+		data.DeploymentId = types.StringNull()
 	}
 	if value := res.Get(""); value.Exists() {
 		data.Redeploy = types.StringValue(value.String())
@@ -452,6 +461,11 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 		data.TemplateId = types.StringValue(value.String())
 	} else {
 		data.TemplateId = types.StringNull()
+	}
+	if value := res.Get(""); value.Exists() && !data.DeploymentId.IsNull() {
+		data.DeploymentId = types.StringValue(value.String())
+	} else {
+		data.DeploymentId = types.StringNull()
 	}
 	if value := res.Get(""); value.Exists() && !data.Redeploy.IsNull() {
 		data.Redeploy = types.StringValue(value.String())
@@ -719,6 +733,9 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *DeployTemplate) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.DeploymentId.IsNull() {
+		return false
+	}
 	if !data.Redeploy.IsNull() {
 		return false
 	}
