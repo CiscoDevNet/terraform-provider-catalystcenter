@@ -84,11 +84,8 @@ func (r *FabricL3VirtualNetworkResource) Schema(ctx context.Context, req resourc
 				Optional:            true,
 			},
 			"anchored_site_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Changing this value (including setting or clearing it) forces resource replacement, because Catalyst Center does not allow adding, changing, or removing the anchor of an existing Layer 3 Virtual Network.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center does not allow adding, changing, or removing the anchor on an existing L3 VN that has fabric associations; the only supported mutation is removing the anchor together with emptying `fabric_ids` (effectively unassociating the VN from all fabric sites).").String,
 				Optional:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"merge_fabric_sites": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("When set to `true`, the `fabric_ids` declared in this resource are merged with the existing fabric associations on Catalyst Center (additive on create/update, subtractive on delete), rather than replacing the entire set. Use this in environments where multiple resources or external processes manage fabric associations for the same L3 Virtual Network.").String,
@@ -480,6 +477,61 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 		}
 	}
 
+	// Anchor-mutation guard.
+	// Catalyst Center does not allow adding, changing, or removing the anchor on
+	// an existing L3 VN that still has fabric associations.
+	stateAnchor := ""
+	if !state.AnchoredSiteId.IsNull() {
+		stateAnchor = state.AnchoredSiteId.ValueString()
+	}
+	planAnchor := ""
+	if !plan.AnchoredSiteId.IsNull() {
+		planAnchor = plan.AnchoredSiteId.ValueString()
+	}
+	var planFabricIdsForAnchorCheck []string
+	plan.FabricIds.ElementsAs(ctx, &planFabricIdsForAnchorCheck, false)
+	planFabricIdsEmpty := plan.FabricIds.IsNull() || len(planFabricIdsForAnchorCheck) == 0
+	anchorRemovedWithEmptyFabricIds := stateAnchor != "" && planAnchor == "" && planFabricIdsEmpty
+
+	if stateAnchor != planAnchor && !anchorRemovedWithEmptyFabricIds {
+		resp.Diagnostics.AddError(
+			"Invalid Configuration",
+			"Catalyst Center does not allow adding, changing, or removing the anchor of an existing Layer 3 Virtual Network. The only permitted anchor mutation via Update is removing the anchor together with emptying fabric_ids (effectively unassociating the VN from all fabric sites). For any other anchor change you must destroy and recreate the resource.",
+		)
+		return
+	}
+
+	// Special path: unassociate (remove anchor + empty fabric_ids in one apply).
+	if anchorRemovedWithEmptyFabricIds {
+		var stateFabricIds []string
+		state.FabricIds.ElementsAs(ctx, &stateFabricIds, false)
+		// Step 1: if currently multi-fabric anchored, shrink to anchor-only first.
+		if len(stateFabricIds) > 1 {
+			shrunk := state
+			shrunk.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, []string{stateAnchor})
+			body := shrunk.toBody(ctx, FabricL3VirtualNetwork{Id: state.Id})
+			res, err := r.client.Put(plan.getPath(), body, cc.UseMutex)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to shrink anchored VN to anchor-only before unassociating (PUT), got error: %s, %s", err, res.String()))
+				return
+			}
+		}
+		unassocPlan := plan
+		unassocPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, []string{})
+		unassocPlan.AnchoredSiteId = types.StringNull()
+		body := unassocPlan.toBody(ctx, FabricL3VirtualNetwork{Id: state.Id})
+		res, err := r.client.Put(plan.getPath(), body, cc.UseMutex)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to unassociate L3 Virtual Network (PUT with empty fabric_ids and no anchored_site_id), got error: %s, %s", err, res.String()))
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("%s: Update (unassociate) finished successfully", plan.Id.ValueString()))
+		diags = resp.State.Set(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
 	// If only merge_fabric_sites changed (fabric_ids and anchored_site_id unchanged), no API call is needed.
 	// The flag is a Terraform-only behaviour switch — flipping it alone does not require
 	// any modification on Catalyst Center.
@@ -665,6 +717,14 @@ func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resourc
 
 			// If no external associations remain and this is not a system VN, delete it entirely
 			if len(newFabricIds) == 0 && state.VirtualNetworkName.ValueString() != "INFRA_VN" && state.VirtualNetworkName.ValueString() != "DEFAULT_VN" {
+				// Refuse DELETE of an anchored VN in merge mode; CatC returns NCHS20691.
+				if !state.AnchoredSiteId.IsNull() && state.AnchoredSiteId.ValueString() != "" {
+					resp.Diagnostics.AddError(
+						"Invalid Configuration",
+						"Cannot destroy an anchored Layer 3 Virtual Network while merge_fabric_sites = true. Catalyst Center rejects DELETE of an anchored VN that still has the anchor association. To remove this resource, first unassociate the VN by setting anchored_site_id = null and fabric_ids = [] in a prior apply, then destroy.",
+					)
+					return
+				}
 				params = "?virtualNetworkName=" + url.QueryEscape(state.VirtualNetworkName.ValueString())
 				res, err = r.client.Delete(state.getPath()+params, cc.UseMutex)
 				if err != nil {

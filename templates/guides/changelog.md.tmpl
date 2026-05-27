@@ -9,6 +9,7 @@ description: |-
 
 ## 0.5.15 (unreleased)
 
+- Fix `catalystcenter_fabric_l3_virtual_network` resource to allow in-place removal of the anchor when `fabric_ids` is also emptied (unassociating the VN while keeping it on Catalyst Center)
 - Fix `catalystcenter_deploy_template` resource to handle deployment timeouts, eliminating the per-device "Provider produced inconsistent result after apply" cascade on multi-target deployments
 - Revert workaround introduced in 0.5.3 for `catalystcenter_assign_credentials` that silently included all credential types in the request payload as `null` to suppress an API error at the global site level. This workaround was masking a Catalyst Center API defect where the API rejects partial credential payloads at the global level. Users who encounter a `400` error when assigning credentials at the global site should specify all six credential attributes (`cli_id`, `snmp_v2_read_id`, `snmp_v2_write_id`, `snmp_v3_id`, `https_read_id`, `https_write_id`) explicitly in their resource configuration as a temporary workaround until the API defect is fixed.
 

@@ -10,8 +10,11 @@
 #     sequential PUTs (CatC errorCode NCHS20477).
 #   * Anchored Delete pre-shrinks fabricIds to the anchor only before DELETE
 #     (CatC errorCode NCHS20691).
-#   * `anchored_site_id` is marked requires_replace because CatC does not allow
-#     adding, changing, or removing the anchor of an existing L3 VN.
+#   * `anchored_site_id` mutations: CatC does not allow adding, changing, or
+#     removing the anchor of an existing L3 VN that still has fabric
+#     associations. The Update handler rejects such mutations with a validation
+#     error, except for the special case of removing the anchor together with
+#     emptying `fabric_ids` (i.e. unassociating the VN from all fabric sites).
 #   * `INFRA_VN` / `DEFAULT_VN` cannot be anchored and are managed via PUT only.
 # If you re-run `go generate`, remove the //template:begin/end markers around
 # these hand-edited functions so they are preserved.
@@ -47,9 +50,8 @@ attributes:
     test_value: "[catalystcenter_fabric_site.test.id]"
   - model_name: anchoredSiteId
     data_path: "0"
-    requires_replace: true
     response_data_path: response.0.anchoredSiteId
-    description: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Changing this value (including setting or clearing it) forces resource replacement, because Catalyst Center does not allow adding, changing, or removing the anchor of an existing Layer 3 Virtual Network."
+    description: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center does not allow adding, changing, or removing the anchor on an existing L3 VN that has fabric associations; the only supported mutation is removing the anchor together with emptying `fabric_ids` (effectively unassociating the VN from all fabric sites)."
     type: String
     example: ""
     exclude_test: true
