@@ -171,7 +171,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
 					{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
 				},
-				{{- else if and .Computed (not (hasComputedRefreshValue .Attributes))}}
+				{{- else if and .Computed (not .ComputedRefreshValue) (not (hasComputedRefreshValue .Attributes))}}
 				PlanModifiers: []planmodifier.{{.Type}}{
 					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 				},
