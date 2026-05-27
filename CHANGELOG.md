@@ -1,4 +1,4 @@
-## 0.5.15 (unreleased)
+## 0.5.15
 
 - Fix `catalystcenter_fabric_l3_virtual_network` resource to allow in-place removal of the anchor when `fabric_ids` is also emptied (unassociating the VN while keeping it on Catalyst Center)
 - Fix `catalystcenter_deploy_template` resource to handle deployment timeouts, eliminating the per-device "Provider produced inconsistent result after apply" cascade on multi-target deployments
