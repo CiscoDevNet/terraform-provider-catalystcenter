@@ -71,3 +71,26 @@ func GetInt64Set(result []gjson.Result) types.Set {
 	}
 	return types.SetValueMust(types.Int64Type, v)
 }
+
+// StringSetEqual reports whether a and b contain the same strings,
+// ignoring order. Comparison is case-sensitive and performs no
+// canonicalization — callers that need looser matching should normalize
+// the inputs themselves.
+func StringSetEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	counts := make(map[string]int, len(a))
+	for _, v := range a {
+		counts[v]++
+	}
+	for _, v := range b {
+		counts[v]--
+	}
+	for _, c := range counts {
+		if c != 0 {
+			return false
+		}
+	}
+	return true
+}

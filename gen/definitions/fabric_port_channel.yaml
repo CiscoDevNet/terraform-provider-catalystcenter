@@ -1,0 +1,100 @@
+---
+name: Fabric Port Channel
+rest_endpoint: /dna/intent/api/v1/sda/portChannels
+res_description: Manages a single port channel in SD-Access fabric.
+# manual Create function (bulk POST returns no per-item id)
+id_from_query_path: response
+id_from_query_path_attribute: id
+put_id_include_path: 0.id
+get_from_all: true
+put_no_id: true
+skip_minimum_test: true
+skip_delete_on_empty_id: true
+device_unreachability_warning: true
+doc_category: SDA
+mutex: true
+test_tags: [SDA]
+attributes:
+  - model_name: networkDeviceId
+    query_param: true
+    query_param_name: networkDeviceId
+    requires_replace: true
+    data_path: '0'
+    response_data_path: networkDeviceId
+    mandatory: true
+    type: String
+    description: Network device ID of the fabric device
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+  - model_name: fabricId
+    query_param: true
+    query_param_name: fabricId
+    requires_replace: true
+    data_path: '0'
+    response_data_path: fabricId
+    mandatory: true
+    type: String
+    description: ID of the fabric the device is assigned to
+    example: c4b85bb2-ce3f-4db9-a32b-e439a388ac2f
+    test_value: catalystcenter_fabric_site.test.id
+  - model_name: portChannelName
+    data_path: '0'
+    response_data_path: portChannelName
+    type: String
+    computed: true
+    description: Port channel name auto-assigned by Catalyst Center on creation; read-only (any value set in config is ignored).
+    exclude_test: true
+  - model_name: interfaceNames
+    data_path: '0'
+    response_data_path: interfaceNames
+    type: Set
+    element_type: String
+    mandatory: true
+    description: Set of interface names for the port channel
+    example: GigabitEthernet1/0/9
+  - model_name: connectedDeviceType
+    data_path: '0'
+    response_data_path: connectedDeviceType
+    mandatory: true
+    type: String
+    enum_values: ["TRUNK", "EXTENDED_NODE"]
+    description: Connected device type of the port channel
+    example: EXTENDED_NODE
+  - model_name: protocol
+    data_path: '0'
+    response_data_path: protocol
+    mandatory: true
+    requires_replace: true
+    type: String
+    enum_values: ["ON", "LACP", "PAGP"]
+    description: Protocol of the port channel
+    example: PAGP
+  - model_name: description
+    data_path: '0'
+    response_data_path: description
+    type: String
+    description: Description of the port channel
+    null_on_empty: true
+    exclude_test: true
+  - model_name: nativeVlanId
+    data_path: '0'
+    response_data_path: nativeVlanId
+    type: Int64
+    description: Native VLAN ID of the port channel
+    exclude_test: true
+  - model_name: allowedVlanRanges
+    data_path: '0'
+    response_data_path: allowedVlanRanges
+    type: String
+    description: Allowed VLAN ranges of the port channel
+    exclude_test: true
+test_prerequisites: |
+  resource "catalystcenter_area" "test" {
+    name        = "Area1"
+    parent_name = "Global"
+  }
+  resource "catalystcenter_fabric_site" "test" {
+    site_id                     = catalystcenter_area.test.id
+    pub_sub_enabled             = false
+    authentication_profile_name = "No Authentication"
+    depends_on = [catalystcenter_area.test]
+  }
