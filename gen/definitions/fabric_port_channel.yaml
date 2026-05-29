@@ -56,7 +56,7 @@ attributes:
     response_data_path: connectedDeviceType
     mandatory: true
     type: String
-    enum_values: [TRUNK, EXTENDED_NODE]
+    enum_values: ["TRUNK", "EXTENDED_NODE"]
     description: Connected device type of the port channel
     example: EXTENDED_NODE
   - model_name: protocol
@@ -65,7 +65,7 @@ attributes:
     mandatory: true
     requires_replace: true
     type: String
-    enum_values: [ON, LACP, PAGP]
+    enum_values: ["ON", "LACP", "PAGP"]
     description: Protocol of the port channel
     example: PAGP
   - model_name: description
