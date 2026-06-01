@@ -64,6 +64,11 @@ attributes:
     description: RF profile. Required if `type` is `AccessPoint`.
     example: profile1
     exclude_test: true
+  - model_name: hostname
+    type: String
+    description: Hostname to configure on the device during claim. For Access Points, this becomes the AP name shown in the inventory.
+    example: AP-FLOOR1-01
+    exclude_test: true
   - model_name: staticIP
     tf_name: static_ip
     type: String

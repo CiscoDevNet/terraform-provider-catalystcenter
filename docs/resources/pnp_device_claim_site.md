@@ -46,6 +46,7 @@ resource "catalystcenter_pnp_device_claim_site" "example" {
 - `config_id` (String) Config (temaplate) ID. Required if `type` is `Default` or `StackSwitch`.
 - `config_parameters` (Attributes List) List of config (temaplate) parameters. (see [below for nested schema](#nestedatt--config_parameters))
 - `gateway` (String) Gateway IP. Required if `type` is `CatalystWLC` or `MobilityExpress`.
+- `hostname` (String) Hostname to configure on the device during claim. For Access Points, this becomes the AP name shown in the inventory.
 - `image_id` (String) Image ID. Required if `type` is `Default` or `StackSwitch`.
 - `image_skip` (Boolean) Skip image provisioning.
 - `ip_interface_name` (String) IP interface name. Required for Catalyst 9800 WLC.

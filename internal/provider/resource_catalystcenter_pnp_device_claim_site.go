@@ -118,6 +118,10 @@ func (r *PnPDeviceClaimSiteResource) Schema(ctx context.Context, req resource.Sc
 				MarkdownDescription: helpers.NewAttributeDescription("RF profile. Required if `type` is `AccessPoint`.").String,
 				Optional:            true,
 			},
+			"hostname": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Hostname to configure on the device during claim. For Access Points, this becomes the AP name shown in the inventory.").String,
+				Optional:            true,
+			},
 			"static_ip": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Static IP address. Required if `type` is `CatalystWLC` or `MobilityExpress`.").String,
 				Optional:            true,
