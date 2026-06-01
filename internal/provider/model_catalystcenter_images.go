@@ -28,9 +28,7 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin types
 type Images struct {
-	Id     types.String   `tfsdk:"id"`
 	Images []ImagesImages `tfsdk:"images"`
 }
 
@@ -43,8 +41,6 @@ type ImagesImages struct {
 	ApplicationType types.String `tfsdk:"application_type"`
 	ImageType       types.String `tfsdk:"image_type"`
 }
-
-// End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data Images) getPath() string {
@@ -77,14 +73,8 @@ func (data Images) getPath() string {
 
 // End of section. //template:end getPathIdQuery
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data Images) toBody(ctx context.Context, state Images) string {
 	body := ""
-	put := false
-	if state.Id.ValueString() != "" {
-		put = true
-	}
-	_ = put
 	if len(data.Images) > 0 {
 		body, _ = sjson.Set(body, "response", []interface{}{})
 		for _, item := range data.Images {
@@ -115,8 +105,6 @@ func (data Images) toBody(ctx context.Context, state Images) string {
 	}
 	return body
 }
-
-// End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Images) fromBody(ctx context.Context, res gjson.Result) {
