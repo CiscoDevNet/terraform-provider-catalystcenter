@@ -39,6 +39,7 @@ type PnPDeviceClaimSite struct {
 	ConfigId               types.String                         `tfsdk:"config_id"`
 	ConfigParameters       []PnPDeviceClaimSiteConfigParameters `tfsdk:"config_parameters"`
 	RfProfile              types.String                         `tfsdk:"rf_profile"`
+	Hostname               types.String                         `tfsdk:"hostname"`
 	StaticIp               types.String                         `tfsdk:"static_ip"`
 	SubnetMask             types.String                         `tfsdk:"subnet_mask"`
 	Gateway                types.String                         `tfsdk:"gateway"`
@@ -104,6 +105,9 @@ func (data PnPDeviceClaimSite) toBody(ctx context.Context, state PnPDeviceClaimS
 	}
 	if !data.RfProfile.IsNull() {
 		body, _ = sjson.Set(body, "rfProfile", data.RfProfile.ValueString())
+	}
+	if !data.Hostname.IsNull() {
+		body, _ = sjson.Set(body, "hostname", data.Hostname.ValueString())
 	}
 	if !data.StaticIp.IsNull() {
 		body, _ = sjson.Set(body, "staticIP", data.StaticIp.ValueString())
@@ -188,6 +192,11 @@ func (data *PnPDeviceClaimSite) fromBody(ctx context.Context, res gjson.Result) 
 		data.RfProfile = types.StringValue(value.String())
 	} else {
 		data.RfProfile = types.StringNull()
+	}
+	if value := res.Get("hostname"); value.Exists() {
+		data.Hostname = types.StringValue(value.String())
+	} else {
+		data.Hostname = types.StringNull()
 	}
 	if value := res.Get("staticIP"); value.Exists() {
 		data.StaticIp = types.StringValue(value.String())
@@ -304,6 +313,11 @@ func (data *PnPDeviceClaimSite) updateFromBody(ctx context.Context, res gjson.Re
 	} else {
 		data.RfProfile = types.StringNull()
 	}
+	if value := res.Get("hostname"); value.Exists() && !data.Hostname.IsNull() {
+		data.Hostname = types.StringValue(value.String())
+	} else {
+		data.Hostname = types.StringNull()
+	}
 	if value := res.Get("staticIP"); value.Exists() && !data.StaticIp.IsNull() {
 		data.StaticIp = types.StringValue(value.String())
 	} else {
@@ -369,6 +383,9 @@ func (data *PnPDeviceClaimSite) isNull(ctx context.Context, res gjson.Result) bo
 		return false
 	}
 	if !data.RfProfile.IsNull() {
+		return false
+	}
+	if !data.Hostname.IsNull() {
 		return false
 	}
 	if !data.StaticIp.IsNull() {
