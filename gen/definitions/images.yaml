@@ -1,0 +1,45 @@
+---
+name: Images
+rest_endpoint: /dna/intent/api/v1/images
+ds_description:
+  "This data source fetches all software images uploaded to the Catalyst Center.
+  Use it to look up an image's `id` by name — useful as input to
+  `catalystcenter_image_distribution` or `catalystcenter_image_activation`
+  when the image was uploaded out-of-band (not via `catalystcenter_image`)."
+get_no_id: true
+no_resource: true
+no_data_source: true
+doc_category: Software Image Management (SWIM)
+attributes:
+  - model_name: response
+    tf_name: images
+    type: List
+    attributes:
+      - model_name: id
+        type: String
+        description: The UUID of the software image. Suitable as input to `catalystcenter_image_distribution` / `_activation`.
+        example: faa9c5f7-d093-459a-8164-cc555bbf3b80
+      - model_name: name
+        type: String
+        description: Image file name.
+        example: cat9k_iosxe.17.12.01.SPA.bin
+      - model_name: family
+        type: String
+        description: Image family.
+        example: Cisco Catalyst 9300 Switch
+      - model_name: vendor
+        type: String
+        description: Image vendor.
+        example: CISCO
+      - model_name: version
+        type: String
+        description: Image software version.
+        example: 17.12.01
+      - model_name: applicationType
+        type: String
+        description: Third party application type (for non-Cisco images).
+        exclude_example: true
+      - model_name: imageType
+        type: String
+        description: Image type (e.g. SYSTEM_SW).
+        exclude_example: true
