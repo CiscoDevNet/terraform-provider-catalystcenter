@@ -135,6 +135,10 @@ func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateReque
 			}
 			// Set ID from GET response
 			plan.Id = types.StringValue(res.Get("0.id").String())
+			if plan.Id.ValueString() == "" {
+				resp.Diagnostics.AddError("Client Error", "NCOB01019 returned but no device found by serial number")
+				return
+			}
 
 			// Reconcile existing device with desired config (hostname, pid, ...)
 			body = plan.toBody(ctx, plan)
