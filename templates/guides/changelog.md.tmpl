@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.5.16 (unreleased)
+## 0.5.16
 
 - Set explicit default `false` for `merge_fabric_sites` on `catalystcenter_fabric_l3_virtual_network`
 - Add `catalystcenter_fabric_port_channel` resource and data source to manage individual SD-Access Fabric Port Channels
