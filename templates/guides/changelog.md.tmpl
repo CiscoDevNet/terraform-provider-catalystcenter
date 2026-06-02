@@ -9,6 +9,7 @@ description: |-
 
 ## 0.5.16 (unreleased)
 
+- Set explicit default `false` for `merge_fabric_sites` on `catalystcenter_fabric_l3_virtual_network`
 - Add `catalystcenter_fabric_port_channel` resource and data source to manage individual SD-Access Fabric Port Channels
 - Add `catalystcenter_images` data source to list software images uploaded to Catalyst Center and look up an image `id` by name
 - Fix `catalystcenter_pnp_device` resource to reconcile an existing PnP device on `NCOB01019` (device already exists) by issuing a follow-up PUT with the desired configuration
