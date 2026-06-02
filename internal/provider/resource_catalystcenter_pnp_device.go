@@ -121,18 +121,35 @@ func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateReque
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
 		errorCode := res.Get("response.errorCode").String()
-		// if the error code is NCOB01019, it means the device already exists, so we can skip the error and add resource to state
+		// if the error code is NCOB01019, the device already exists in PnP
+		// Recover its id via GET, then PUT the desired config so attributes
+		// such as hostname/pid are reconciled with the user's plan.
 		if errorCode == "NCOB01019" {
 			// Retrieve Id from the GET response
 			params := ""
 			params += "?serialNumber=" + url.QueryEscape(plan.SerialNumber.ValueString())
-			res, err := r.client.Get(plan.getPath() + params)
+			res, err = r.client.Get(plan.getPath() + params)
 			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve existing PnP device (GET), got error: %s, %s", err, res.String()))
 				return
 			}
 			// Set ID from GET response
 			plan.Id = types.StringValue(res.Get("0.id").String())
+			if plan.Id.ValueString() == "" {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("NCOB01019 returned but no device found by serial number: %s", plan.SerialNumber.ValueString()))
+				return
+			}
+
+			// Reconcile existing device with desired config (hostname, pid, ...)
+			body = plan.toBody(ctx, plan)
+			res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Existing PnP device found but failed to update (PUT), got error: %s, %s", err, res.String()))
+				return
+			}
+
+			tflog.Debug(ctx, fmt.Sprintf("%s: Create (reconcile existing) finished successfully", plan.Id.ValueString()))
+
 			// Save to state
 			diags := resp.State.Set(ctx, &plan)
 			resp.Diagnostics.Append(diags...)
