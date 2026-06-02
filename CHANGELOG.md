@@ -1,3 +1,9 @@
+## 0.5.16 (unreleased)
+
+- Add `catalystcenter_fabric_port_channel` resource and data source to manage individual SD-Access Fabric Port Channels
+- Add `catalystcenter_images` data source to list software images uploaded to Catalyst Center and look up an image `id` by name
+- Fix `catalystcenter_pnp_device` resource to reconcile an existing PnP device on `NCOB01019` (device already exists) by issuing a follow-up PUT with the desired configuration
+
 ## 0.5.15
 
 - Fix `catalystcenter_fabric_l3_virtual_network` resource to allow in-place removal of the anchor when `fabric_ids` is also emptied (unassociating the VN while keeping it on Catalyst Center)
