@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcImages(t *testing.T) {
+	if os.Getenv("IMAGES") == "" {
+		t.Skip("skipping test, set environment variable IMAGES")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_images.test", "images.0.id", "faa9c5f7-d093-459a-8164-cc555bbf3b80"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_images.test", "images.0.name", "cat9k_iosxe.17.12.01.SPA.bin"))
@@ -53,15 +57,11 @@ func TestAccDataSourceCcImages(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 // End of section. //template:end testPrerequisites
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcImagesConfig() string {
 
 	config := `
 		data "catalystcenter_images" "test" {
-			id = catalystcenter_images.test.id
 		}
 	`
 	return config
 }
-
-// End of section. //template:end testAccDataSourceConfig
