@@ -9,6 +9,8 @@ ds_description:
 get_no_id: true
 no_resource: true
 no_data_source: true
+test_tags:
+  - IMAGES
 doc_category: Software Image Management (SWIM)
 attributes:
   - model_name: response
