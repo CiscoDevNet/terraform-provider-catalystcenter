@@ -31,6 +31,7 @@ resource "catalystcenter_fabric_l3_virtual_network" "example" {
 - `anchored_site_id` (String) Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center does not allow adding, changing, or removing the anchor on an existing L3 VN that has fabric associations; the only supported mutation is removing the anchor together with emptying `fabric_ids` (effectively unassociating the VN from all fabric sites).
 - `fabric_ids` (Set of String) IDs of the fabrics this layer 3 virtual network is to be assigned to.
 - `merge_fabric_sites` (Boolean) When set to `true`, the `fabric_ids` declared in this resource are merged with the existing fabric associations on Catalyst Center (additive on create/update, subtractive on delete), rather than replacing the entire set. Use this in environments where multiple resources or external processes manage fabric associations for the same L3 Virtual Network.
+  - Default value: `false`
 
 ### Read-Only
 
