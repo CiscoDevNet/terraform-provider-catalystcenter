@@ -145,6 +145,20 @@ func (d *SitesDataSource) Configure(_ context.Context, req datasource.ConfigureR
 
 // End of section. //template:end model
 
+const sitesReadMaxAttempts = 4
+
+func (d *SitesDataSource) sitesCount(typeFilter string) (int64, error) {
+	path := "/dna/intent/api/v1/sites/count"
+	if typeFilter != "" {
+		path += "?type=" + typeFilter
+	}
+	res, err := d.client.Get(path)
+	if err != nil {
+		return 0, err
+	}
+	return res.Get("response.count").Int(), nil
+}
+
 func (d *SitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config Sites
 
@@ -155,23 +169,55 @@ func (d *SitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		return
 	}
 
-	tflog.Debug(ctx, "singleton: Beginning Read")
-	params := ""
+	tflog.Debug(ctx, "sites: Beginning Read")
+
+	typeFilter := ""
 	if !config.Type.IsNull() {
-		params = "?type=" + config.Type.ValueString()
-	} else {
-		params = ""
+		typeFilter = config.Type.ValueString()
 	}
-	res, err := d.client.Get(config.getPath() + params)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
-		return
+	params := ""
+	if typeFilter != "" {
+		params = "?type=" + typeFilter
 	}
 
-	config.fromBody(ctx, res)
+	var lastBefore, lastWalk, lastAfter int64 = -1, -1, -1
+	for attempt := 1; attempt <= sitesReadMaxAttempts; attempt++ {
+		countBefore, err := d.sitesCount(typeFilter)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve site count: %s", err))
+			return
+		}
 
-	tflog.Debug(ctx, "singleton: Read finished successfully")
+		res, err := d.client.Get(config.getPath() + params)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
+			return
+		}
 
-	diags = resp.State.Set(ctx, &config)
-	resp.Diagnostics.Append(diags...)
+		walked := int64(len(res.Get("response").Array()))
+
+		countAfter, err := d.sitesCount(typeFilter)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve site count: %s", err))
+			return
+		}
+
+		lastBefore, lastWalk, lastAfter = countBefore, walked, countAfter
+
+		if walked == countBefore && walked == countAfter {
+			config.fromBody(ctx, res)
+			tflog.Debug(ctx, fmt.Sprintf("sites: Read finished successfully on attempt %d, total: %d", attempt, walked))
+			diags = resp.State.Set(ctx, &config)
+			resp.Diagnostics.Append(diags...)
+			return
+		}
+
+		tflog.Warn(ctx, fmt.Sprintf("sites: walk count mismatch on attempt %d (countBefore=%d, walked=%d, countAfter=%d) — site set was mutated mid-walk, retrying", attempt, countBefore, walked, countAfter))
+	}
+
+	resp.Diagnostics.AddError(
+		"Inconsistent Read",
+		fmt.Sprintf("The site list changed during every read attempt; could not obtain a consistent snapshot after %d attempts (last counts: before=%d, walked=%d, after=%d). Retry after concurrent site-mutation activity settles.",
+			sitesReadMaxAttempts, lastBefore, lastWalk, lastAfter),
+	)
 }
