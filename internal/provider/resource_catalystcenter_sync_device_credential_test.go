@@ -29,8 +29,8 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcSyncDeviceCredential(t *testing.T) {
-	if os.Getenv("INVENTORY") == "" {
-		t.Skip("skipping test, set environment variable INVENTORY")
+	if os.Getenv("CREDENTIALS") == "" {
+		t.Skip("skipping test, set environment variable CREDENTIALS")
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sync_device_credential.test", "configure_device", "false"))

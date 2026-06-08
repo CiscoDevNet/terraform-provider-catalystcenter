@@ -85,7 +85,7 @@ func (r *SyncDeviceCredentialResource) Schema(ctx context.Context, req resource.
 				},
 			},
 			"configure_device": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("If `true`, the applied CLI credential is configured on locally-authenticated devices and authentication is performed before the device is managed in inventory; AAA-authenticated devices are only managed, not reconfigured. If `false`, devices are updated in inventory with the applied credential without any authentication. When omitted, the parameter is not sent and the Catalyst Center default applies.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only applicable when `device_credential_id` is a CLI credential; ignored by Catalyst Center for SNMPv2c/SNMPv3 credential IDs. If `true`, the applied CLI credential is configured on locally-authenticated devices and authentication is performed before the device is managed in inventory; AAA-authenticated devices are only managed, not reconfigured. If `false`, devices are updated in inventory with the applied credential without any authentication. When omitted, the parameter is not sent and the Catalyst Center default applies.").String,
 				Optional:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplace(),

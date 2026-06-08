@@ -30,7 +30,7 @@ resource "catalystcenter_sync_device_credential" "example" {
 
 ### Optional
 
-- `configure_device` (Boolean) If `true`, the applied CLI credential is configured on locally-authenticated devices and authentication is performed before the device is managed in inventory; AAA-authenticated devices are only managed, not reconfigured. If `false`, devices are updated in inventory with the applied credential without any authentication. When omitted, the parameter is not sent and the Catalyst Center default applies.
+- `configure_device` (Boolean) Only applicable when `device_credential_id` is a CLI credential; ignored by Catalyst Center for SNMPv2c/SNMPv3 credential IDs. If `true`, the applied CLI credential is configured on locally-authenticated devices and authentication is performed before the device is managed in inventory; AAA-authenticated devices are only managed, not reconfigured. If `false`, devices are updated in inventory with the applied credential without any authentication. When omitted, the parameter is not sent and the Catalyst Center default applies.
 
 ### Read-Only
 
