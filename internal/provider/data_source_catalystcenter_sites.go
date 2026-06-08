@@ -21,11 +21,13 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -159,6 +161,23 @@ func (d *SitesDataSource) sitesCount(typeFilter string) (int64, error) {
 	return res.Get("response.count").Int(), nil
 }
 
+func dedupeSitesByID(res gjson.Result) (gjson.Result, int64) {
+	items := res.Get("response").Array()
+	seen := make(map[string]struct{}, len(items))
+	uniqueRaw := make([]string, 0, len(items))
+	for _, item := range items {
+		id := item.Get("id").String()
+		if id != "" {
+			if _, dup := seen[id]; dup {
+				continue
+			}
+			seen[id] = struct{}{}
+		}
+		uniqueRaw = append(uniqueRaw, item.Raw)
+	}
+	return gjson.Parse(`{"response":[` + strings.Join(uniqueRaw, ",") + `]}`), int64(len(uniqueRaw))
+}
+
 func (d *SitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config Sites
 
@@ -180,7 +199,10 @@ func (d *SitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		params = "?type=" + typeFilter
 	}
 
-	var lastBefore, lastWalk, lastAfter int64 = -1, -1, -1
+	var (
+		lastBefore, lastWalk, lastAfter int64 = -1, -1, -1
+		lastDeduped                     gjson.Result
+	)
 	for attempt := 1; attempt <= sitesReadMaxAttempts; attempt++ {
 		countBefore, err := d.sitesCount(typeFilter)
 		if err != nil {
@@ -194,7 +216,7 @@ func (d *SitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 			return
 		}
 
-		walked := int64(len(res.Get("response").Array()))
+		deduped, walked := dedupeSitesByID(res)
 
 		countAfter, err := d.sitesCount(typeFilter)
 		if err != nil {
@@ -203,21 +225,25 @@ func (d *SitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		}
 
 		lastBefore, lastWalk, lastAfter = countBefore, walked, countAfter
+		lastDeduped = deduped
 
 		if walked == countBefore && walked == countAfter {
-			config.fromBody(ctx, res)
+			config.fromBody(ctx, deduped)
 			tflog.Debug(ctx, fmt.Sprintf("sites: Read finished successfully on attempt %d, total: %d", attempt, walked))
 			diags = resp.State.Set(ctx, &config)
 			resp.Diagnostics.Append(diags...)
 			return
 		}
 
-		tflog.Warn(ctx, fmt.Sprintf("sites: walk count mismatch on attempt %d (countBefore=%d, walked=%d, countAfter=%d) — site set was mutated mid-walk, retrying", attempt, countBefore, walked, countAfter))
+		tflog.Warn(ctx, fmt.Sprintf("sites: walk count mismatch on attempt %d (countBefore=%d, walked=%d, countAfter=%d) - site set was mutated mid-walk, retrying", attempt, countBefore, walked, countAfter))
 	}
 
-	resp.Diagnostics.AddError(
-		"Inconsistent Read",
-		fmt.Sprintf("The site list changed during every read attempt; could not obtain a consistent snapshot after %d attempts (last counts: before=%d, walked=%d, after=%d). Retry after concurrent site-mutation activity settles.",
+	config.fromBody(ctx, lastDeduped)
+	diags = resp.State.Set(ctx, &config)
+	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.AddWarning(
+		"Inconsistent Read - site list may be incomplete",
+		fmt.Sprintf("Couldn't get all sites; some sites might be missing.\n\nThe site list changed during every read attempt over %d retries (last counts: before=%d, walked=%d, after=%d). Concurrent site mutation prevented obtaining a consistent snapshot. The data source contains the last walk result; rerun once mutation activity settles for a complete list.",
 			sitesReadMaxAttempts, lastBefore, lastWalk, lastAfter),
 	)
 }
