@@ -107,7 +107,9 @@ func (r *SyncDeviceCredentialResource) Configure(_ context.Context, req resource
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
+// Manual override: composite ID of "<site_id>/<device_credential_id>" so that multiple
+// resources targeting the same site (one per credential type) get distinct Terraform IDs.
+// The framework's id_from_attribute path only supports a single id-marked attribute.
 func (r *SyncDeviceCredentialResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan SyncDeviceCredential
 
@@ -167,15 +169,13 @@ func (r *SyncDeviceCredentialResource) Create(ctx context.Context, req resource.
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
+	plan.Id = types.StringValue(plan.SiteId.ValueString() + "/" + plan.DeviceCredentialId.ValueString())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *SyncDeviceCredentialResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
