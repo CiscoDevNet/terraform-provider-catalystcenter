@@ -29,7 +29,7 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-type ApplyCredentials struct {
+type SyncDeviceCredential struct {
 	Id                 types.String `tfsdk:"id"`
 	SiteId             types.String `tfsdk:"site_id"`
 	DeviceCredentialId types.String `tfsdk:"device_credential_id"`
@@ -39,7 +39,7 @@ type ApplyCredentials struct {
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
-func (data ApplyCredentials) getPath() string {
+func (data SyncDeviceCredential) getPath() string {
 	return "/dna/intent/api/v1/sites/deviceCredentials/apply"
 }
 
@@ -70,7 +70,7 @@ func (data ApplyCredentials) getPath() string {
 // End of section. //template:end getPathIdQuery
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data ApplyCredentials) toBody(ctx context.Context, state ApplyCredentials) string {
+func (data SyncDeviceCredential) toBody(ctx context.Context, state SyncDeviceCredential) string {
 	body := ""
 	put := false
 	if state.Id.ValueString() != "" {
@@ -92,7 +92,7 @@ func (data ApplyCredentials) toBody(ctx context.Context, state ApplyCredentials)
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-func (data *ApplyCredentials) fromBody(ctx context.Context, res gjson.Result) {
+func (data *SyncDeviceCredential) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("siteId"); value.Exists() {
 		data.SiteId = types.StringValue(value.String())
 	} else {
@@ -113,7 +113,7 @@ func (data *ApplyCredentials) fromBody(ctx context.Context, res gjson.Result) {
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *ApplyCredentials) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *SyncDeviceCredential) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("siteId"); value.Exists() && !data.SiteId.IsNull() {
 		data.SiteId = types.StringValue(value.String())
 	} else {
@@ -134,7 +134,7 @@ func (data *ApplyCredentials) updateFromBody(ctx context.Context, res gjson.Resu
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
-func (data *ApplyCredentials) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *SyncDeviceCredential) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.DeviceCredentialId.IsNull() {
 		return false
 	}

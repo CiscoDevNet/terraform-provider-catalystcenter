@@ -1,6 +1,6 @@
 ## 0.5.17 (unreleased)
 
-- Add `catalystcenter_apply_credentials` resource to apply (sync) a device credential already assigned to a site onto the site's network devices, equivalent to the Apply action in Design > Network Settings > Credentials > Manage Credentials. Supports the optional `configure_device` flag to control whether credentials are configured/authenticated on devices or only recorded in inventory
+- Add the `catalystcenter_sync_device_credential` resource to apply (synchronize) a device credential assigned to a site to the site's network devices, equivalent to the Apply action in Design > Network Settings > Credentials > Manage Credentials. Supports the optional `configure_device` flag to control whether credentials are configured and authenticated on devices or only recorded in inventory.
 
 ## 0.5.16
 

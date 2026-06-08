@@ -41,26 +41,26 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &ApplyCredentialsResource{}
+var _ resource.Resource = &SyncDeviceCredentialResource{}
 
-func NewApplyCredentialsResource() resource.Resource {
-	return &ApplyCredentialsResource{}
+func NewSyncDeviceCredentialResource() resource.Resource {
+	return &SyncDeviceCredentialResource{}
 }
 
-type ApplyCredentialsResource struct {
+type SyncDeviceCredentialResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
 	cache                 *ThreadSafeCache
 }
 
-func (r *ApplyCredentialsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_apply_credentials"
+func (r *SyncDeviceCredentialResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_sync_device_credential"
 }
 
-func (r *ApplyCredentialsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *SyncDeviceCredentialResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource applies (syncs) a device credential that is already assigned to a site onto the network devices of that site. It is the equivalent of the Apply action in Design > Network Settings > Credentials > Manage Credentials. The credential must already be assigned to the site (see `catalystcenter_assign_credentials`). Applying at a site also affects child sites that inherit the credential. The endpoint accepts a single credential ID per call (CLI, SNMPv2c Read, SNMPv2c Write or SNMPv3). <p/> This resource only triggers the apply operation on create and waits for the task to complete. It has no read, update, delete or import: changing any attribute forces a new apply, and when the resource is destroyed or refreshed no actions are performed on Catalyst Center.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource applies (syncs) a device credential that is already assigned to a site to the site's network devices. It is the equivalent of the Apply action in Design > Network Settings > Credentials > Manage Credentials. The credential must already be assigned to the site (see `catalystcenter_assign_credentials`). Applying at a site also affects child sites that inherit the credential. The endpoint accepts a single credential ID per call (CLI, SNMPv2c Read, SNMPv2c Write or SNMPv3). <p/> This resource only triggers the apply operation on create and waits for the task to complete. Changing any attribute forces a new apply, and when the resource is destroyed or refreshed no actions are performed on Catalyst Center.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -95,7 +95,7 @@ func (r *ApplyCredentialsResource) Schema(ctx context.Context, req resource.Sche
 	}
 }
 
-func (r *ApplyCredentialsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *SyncDeviceCredentialResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -108,8 +108,8 @@ func (r *ApplyCredentialsResource) Configure(_ context.Context, req resource.Con
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *ApplyCredentialsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan ApplyCredentials
+func (r *SyncDeviceCredentialResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan SyncDeviceCredential
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -121,7 +121,7 @@ func (r *ApplyCredentialsResource) Create(ctx context.Context, req resource.Crea
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, ApplyCredentials{})
+	body := plan.toBody(ctx, SyncDeviceCredential{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -178,8 +178,8 @@ func (r *ApplyCredentialsResource) Create(ctx context.Context, req resource.Crea
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *ApplyCredentialsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state ApplyCredentials
+func (r *SyncDeviceCredentialResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state SyncDeviceCredential
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -199,8 +199,8 @@ func (r *ApplyCredentialsResource) Read(ctx context.Context, req resource.ReadRe
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *ApplyCredentialsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state ApplyCredentials
+func (r *SyncDeviceCredentialResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state SyncDeviceCredential
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -226,8 +226,8 @@ func (r *ApplyCredentialsResource) Update(ctx context.Context, req resource.Upda
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *ApplyCredentialsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state ApplyCredentials
+func (r *SyncDeviceCredentialResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state SyncDeviceCredential
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -249,9 +249,9 @@ func (r *ApplyCredentialsResource) Delete(ctx context.Context, req resource.Dele
 // End of section. //template:end import
 
 // Section below is generated&owned by "gen/generator.go". //template:begin readcache
-func (r *ApplyCredentialsResource) ReadCache(ctx context.Context, req resource.ReadRequest, state ApplyCredentials, params string) (cc.Res, error) {
+func (r *SyncDeviceCredentialResource) ReadCache(ctx context.Context, req resource.ReadRequest, state SyncDeviceCredential, params string) (cc.Res, error) {
 	var err error
-	cacheKey := "ApplyCredentials::"
+	cacheKey := "SyncDeviceCredential::"
 
 	_, cacheSuffix, found := strings.Cut(params, "?")
 	queryPart, err := url.ParseQuery(cacheSuffix)

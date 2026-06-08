@@ -28,16 +28,16 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccCcApplyCredentials(t *testing.T) {
+func TestAccCcSyncDeviceCredential(t *testing.T) {
 	if os.Getenv("INVENTORY") == "" {
 		t.Skip("skipping test, set environment variable INVENTORY")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_apply_credentials.test", "configure_device", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_sync_device_credential.test", "configure_device", "false"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
-		Config: testAccCcApplyCredentialsPrerequisitesConfig + testAccCcApplyCredentialsConfig_all(),
+		Config: testAccCcSyncDeviceCredentialPrerequisitesConfig + testAccCcSyncDeviceCredentialConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -51,7 +51,7 @@ func TestAccCcApplyCredentials(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-const testAccCcApplyCredentialsPrerequisitesConfig = `
+const testAccCcSyncDeviceCredentialPrerequisitesConfig = `
 resource "catalystcenter_credentials_cli" "test" {
   description = "TestCli1"
   username    = "user1"
@@ -75,8 +75,8 @@ resource "catalystcenter_assign_credentials" "test" {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccCcApplyCredentialsConfig_minimum() string {
-	config := `resource "catalystcenter_apply_credentials" "test" {` + "\n"
+func testAccCcSyncDeviceCredentialConfig_minimum() string {
+	config := `resource "catalystcenter_sync_device_credential" "test" {` + "\n"
 	config += `	site_id = catalystcenter_assign_credentials.test.site_id` + "\n"
 	config += `	device_credential_id = catalystcenter_assign_credentials.test.cli_id` + "\n"
 	config += `}` + "\n"
@@ -86,8 +86,8 @@ func testAccCcApplyCredentialsConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccCcApplyCredentialsConfig_all() string {
-	config := `resource "catalystcenter_apply_credentials" "test" {` + "\n"
+func testAccCcSyncDeviceCredentialConfig_all() string {
+	config := `resource "catalystcenter_sync_device_credential" "test" {` + "\n"
 	config += `	site_id = catalystcenter_assign_credentials.test.site_id` + "\n"
 	config += `	device_credential_id = catalystcenter_assign_credentials.test.cli_id` + "\n"
 	config += `	configure_device = false` + "\n"
