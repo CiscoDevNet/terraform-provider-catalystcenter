@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.17 (unreleased)
+
+- Fix `catalystcenter_sites` data source to detect and retry inconsistent reads from `/dna/intent/api/v1/sites`; the API has no documented sort/order parameter, so identical paginated requests can return different site IDs, producing duplicates or missing entries. The data source now dedupes by site ID, validates against `/sites/count` before and after each walk, and emits a warning diagnostic if a consistent snapshot can't be obtained after 4 attempts
+
 ## 0.5.16
 
 - Set explicit default `false` for `merge_fabric_sites` on `catalystcenter_fabric_l3_virtual_network`

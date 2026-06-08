@@ -161,6 +161,12 @@ func (d *SitesDataSource) sitesCount(typeFilter string) (int64, error) {
 	return res.Get("response.count").Int(), nil
 }
 
+// dedupeSitesByID works around a Catalyst Center API defect: /dna/intent/api/v1/sites
+// has no documented sort/order parameter, so the paginated response order is not fixed.
+// Repeated calls with the same limit and offset can return different site IDs across
+// calls, producing duplicates and/or missing entries when results are concatenated.
+// Dedup-by-ID combined with the count-before/count-after snapshot in Read() detects
+// and mitigates the effect.
 func dedupeSitesByID(res gjson.Result) (gjson.Result, int64) {
 	items := res.Get("response").Array()
 	seen := make(map[string]struct{}, len(items))
