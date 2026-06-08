@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.17 (unreleased)
+
+- Add `catalystcenter_apply_credentials` resource to apply (sync) a device credential already assigned to a site onto the site's network devices, equivalent to the Apply action in Design > Network Settings > Credentials > Manage Credentials. Supports the optional `configure_device` flag to control whether credentials are configured/authenticated on devices or only recorded in inventory
+
 ## 0.5.16
 
 - Set explicit default `false` for `merge_fabric_sites` on `catalystcenter_fabric_l3_virtual_network`

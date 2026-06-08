@@ -302,6 +302,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewAnycastGatewayResource,
 		NewAnycastGatewaysResource,
 		NewAPProfileResource,
+		NewApplyCredentialsResource,
 		NewApplyPendingFabricEventsResource,
 		NewAreaResource,
 		NewAreasResource,
