@@ -1,4 +1,4 @@
-## 0.5.17 (unreleased)
+## 0.5.17
 
 - Add the `catalystcenter_sync_device_credential` resource to apply (synchronize) a device credential assigned to a site to the site's network devices, equivalent to the Apply action in Design > Network Settings > Credentials > Manage Credentials. Supports the optional `configure_device` flag to control whether credentials are configured and authenticated on devices or only recorded in inventory.
 - Fix `catalystcenter_sites` data source to detect and retry inconsistent reads from `/dna/intent/api/v1/sites`; the API has no documented sort/order parameter, so identical paginated requests can return different site IDs, producing duplicates or missing entries. The data source now dedupes by site ID, validates against `/sites/count` before and after each walk, and emits a warning diagnostic if a consistent snapshot can't be obtained after 4 attempts
