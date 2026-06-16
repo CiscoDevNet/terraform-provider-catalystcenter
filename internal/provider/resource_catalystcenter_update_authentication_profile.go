@@ -183,6 +183,8 @@ func (r *UpdateAuthenticationProfileResource) Create(ctx context.Context, req re
 
 	if !plan.FabricId.IsUnknown() && !plan.FabricId.IsNull() {
 		params += "&fabricId=" + url.QueryEscape(plan.FabricId.ValueString())
+	} else {
+		params += "&isGlobalAuthenticationProfile=true"
 	}
 
 	res, err := r.client.Get(plan.getPath() + params)

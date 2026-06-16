@@ -1,3 +1,7 @@
+## 0.5.18 (unreleased)
+
+- Fix `catalystcenter_update_authentication_profile` resource to append `isGlobalAuthenticationProfile=true` to the profile lookup during Create when no `fabric_id` is set. Previously the global lookup could match a fabric-scoped profile of the same name (e.g. `Closed Authentication`) and select the wrong `id`, causing the subsequent update to fail with `NCHS20654` / HTTP 404 ("id does not match any global Authentication Profile").
+
 ## 0.5.17
 
 - Add the `catalystcenter_sync_device_credential` resource to apply (synchronize) a device credential assigned to a site to the site's network devices, equivalent to the Apply action in Design > Network Settings > Credentials > Manage Credentials. Supports the optional `configure_device` flag to control whether credentials are configured and authenticated on devices or only recorded in inventory.
