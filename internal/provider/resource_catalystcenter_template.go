@@ -284,7 +284,42 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+		// A failed template POST can leave a partial ("zombie") object behind in
+		// Catalyst Center. Every subsequent apply then re-POSTs the same name, which
+		// CC rejects as a duplicate, producing an infinite create loop that otherwise
+		// requires a manual `terraform import` to break (issue #419). When
+		// allow_existing_on_create is enabled, adopt the already existing template
+		// instead of failing. The lookup is scoped to the template's project so a
+		// same-named template in a different project (e.g. a pre-existing template
+		// that is referenced but intentionally not managed here) is never adopted by
+		// mistake.
+		if !r.AllowExistingOnCreate {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+			return
+		}
+
+		tflog.Info(ctx, fmt.Sprintf("%s: Create POST failed (%s); allow_existing_on_create is true, attempting to adopt an existing template", plan.Name.ValueString(), err))
+
+		existingId, found := r.getExistingTemplateId(ctx, plan.ProjectId.ValueString(), plan.Name.ValueString())
+		if !found {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+			return
+		}
+
+		plan.Id = types.StringValue(existingId)
+
+		// Reconcile the adopted template so its content/params match the plan.
+		updateBody := plan.toBody(ctx, Template{Id: plan.Id})
+		updateRes, updateErr := r.client.Put("/dna/intent/api/v1/template-programmer/template", updateBody)
+		if updateErr != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update adopted object (PUT), got error: %s, %s", updateErr, updateRes.String()))
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("%s: Adopted and reconciled existing template", plan.Id.ValueString()))
+
+		diags = resp.State.Set(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
 		return
 	}
 	data := res.Get("response.data").String()
@@ -304,6 +339,31 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+}
+
+// getExistingTemplateId returns the ID of an existing template identified by name
+// within the given project. Templates are unique per project and the same name can
+// legitimately exist across multiple projects, so the match is scoped to projectId
+// to avoid adopting the wrong object. Mirrors the lookup used by the
+// catalystcenter_template data source.
+func (r *TemplateResource) getExistingTemplateId(ctx context.Context, projectId, name string) (string, bool) {
+	res, err := r.client.Get("/dna/intent/api/v1/template-programmer/template" + "?unCommitted=true")
+	if err != nil {
+		tflog.Warn(ctx, fmt.Sprintf("Failed to list templates while adopting existing template '%s': %s", name, err))
+		return "", false
+	}
+	var id string
+	res.ForEach(func(k, v gjson.Result) bool {
+		if v.Get("name").String() != name {
+			return true
+		}
+		if projectId != "" && v.Get("projectId").String() != projectId {
+			return true
+		}
+		id = v.Get("templateId").String()
+		return false
+	})
+	return id, id != ""
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
