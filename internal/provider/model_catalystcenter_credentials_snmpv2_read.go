@@ -50,14 +50,22 @@ func (data CredentialsSNMPv2Read) toBody(ctx context.Context, state CredentialsS
 	put := false
 	if state.Id.ValueString() != "" {
 		put = true
-		body, _ = sjson.Set(body, "snmpV2cRead.0.id", state.Id.ValueString())
+		body, _ = sjson.Set(body, "snmpV2cRead.id", state.Id.ValueString())
 	}
 	_ = put
 	if !data.Description.IsNull() {
-		body, _ = sjson.Set(body, "snmpV2cRead.0.description", data.Description.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV2cRead.description", data.Description.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV2cRead.0.description", data.Description.ValueString())
+		}
 	}
 	if !data.ReadCommunity.IsNull() {
-		body, _ = sjson.Set(body, "snmpV2cRead.0.readCommunity", data.ReadCommunity.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV2cRead.readCommunity", data.ReadCommunity.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV2cRead.0.readCommunity", data.ReadCommunity.ValueString())
+		}
 	}
 	return body
 }

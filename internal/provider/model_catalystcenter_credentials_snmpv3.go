@@ -55,29 +55,57 @@ func (data CredentialsSNMPv3) toBody(ctx context.Context, state CredentialsSNMPv
 	put := false
 	if state.Id.ValueString() != "" {
 		put = true
-		body, _ = sjson.Set(body, "snmpV3.0.id", state.Id.ValueString())
+		body, _ = sjson.Set(body, "snmpV3.id", state.Id.ValueString())
 	}
 	_ = put
 	if !data.Description.IsNull() {
-		body, _ = sjson.Set(body, "snmpV3.0.description", data.Description.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV3.description", data.Description.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV3.0.description", data.Description.ValueString())
+		}
 	}
 	if !data.Username.IsNull() {
-		body, _ = sjson.Set(body, "snmpV3.0.username", data.Username.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV3.username", data.Username.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV3.0.username", data.Username.ValueString())
+		}
 	}
 	if !data.PrivacyType.IsNull() {
-		body, _ = sjson.Set(body, "snmpV3.0.privacyType", data.PrivacyType.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV3.privacyType", data.PrivacyType.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV3.0.privacyType", data.PrivacyType.ValueString())
+		}
 	}
 	if !data.PrivacyPassword.IsNull() {
-		body, _ = sjson.Set(body, "snmpV3.0.privacyPassword", data.PrivacyPassword.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV3.privacyPassword", data.PrivacyPassword.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV3.0.privacyPassword", data.PrivacyPassword.ValueString())
+		}
 	}
 	if !data.AuthType.IsNull() {
-		body, _ = sjson.Set(body, "snmpV3.0.authType", data.AuthType.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV3.authType", data.AuthType.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV3.0.authType", data.AuthType.ValueString())
+		}
 	}
 	if !data.AuthPassword.IsNull() {
-		body, _ = sjson.Set(body, "snmpV3.0.authPassword", data.AuthPassword.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV3.authPassword", data.AuthPassword.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV3.0.authPassword", data.AuthPassword.ValueString())
+		}
 	}
 	if !data.SnmpMode.IsNull() {
-		body, _ = sjson.Set(body, "snmpV3.0.snmpMode", data.SnmpMode.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV3.snmpMode", data.SnmpMode.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV3.0.snmpMode", data.SnmpMode.ValueString())
+		}
 	}
 	return body
 }
