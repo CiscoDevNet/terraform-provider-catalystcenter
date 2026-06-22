@@ -52,20 +52,36 @@ func (data CredentialsHTTPSRead) toBody(ctx context.Context, state CredentialsHT
 	put := false
 	if state.Id.ValueString() != "" {
 		put = true
-		body, _ = sjson.Set(body, "httpsRead.0.id", state.Id.ValueString())
+		body, _ = sjson.Set(body, "httpsRead.id", state.Id.ValueString())
 	}
 	_ = put
 	if !data.Description.IsNull() {
-		body, _ = sjson.Set(body, "httpsRead.0.description", data.Description.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "httpsRead.description", data.Description.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "httpsRead.0.description", data.Description.ValueString())
+		}
 	}
 	if !data.Username.IsNull() {
-		body, _ = sjson.Set(body, "httpsRead.0.username", data.Username.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "httpsRead.username", data.Username.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "httpsRead.0.username", data.Username.ValueString())
+		}
 	}
 	if !data.Password.IsNull() {
-		body, _ = sjson.Set(body, "httpsRead.0.password", data.Password.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "httpsRead.password", data.Password.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "httpsRead.0.password", data.Password.ValueString())
+		}
 	}
 	if !data.Port.IsNull() {
-		body, _ = sjson.Set(body, "httpsRead.0.port", data.Port.ValueInt64())
+		if put {
+			body, _ = sjson.Set(body, "httpsRead.port", data.Port.ValueInt64())
+		} else {
+			body, _ = sjson.Set(body, "httpsRead.0.port", data.Port.ValueInt64())
+		}
 	}
 	return body
 }

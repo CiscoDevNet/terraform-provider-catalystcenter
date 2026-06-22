@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -36,6 +37,11 @@ func TestAccCcCredentialsSNMPv3(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv3.test", "snmp_mode", "AUTHPRIV"))
 
 	var steps []resource.TestStep
+	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
+		steps = append(steps, resource.TestStep{
+			Config: testAccCcCredentialsSNMPv3Config_minimum(),
+		})
+	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcCredentialsSNMPv3Config_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),

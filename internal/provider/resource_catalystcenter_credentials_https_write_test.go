@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -34,6 +35,11 @@ func TestAccCcCredentialsHTTPSWrite(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_https_write.test", "port", "444"))
 
 	var steps []resource.TestStep
+	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
+		steps = append(steps, resource.TestStep{
+			Config: testAccCcCredentialsHTTPSWriteConfig_minimum(),
+		})
+	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccCcCredentialsHTTPSWriteConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
