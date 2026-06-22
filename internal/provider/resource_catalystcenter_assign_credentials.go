@@ -250,6 +250,44 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body)
 	if err != nil {
+		retryErrorCodes := []string{"NCND00010"}
+		errorCode := res.Get("response.errorCode").String()
+
+		shouldRetry := false
+		for _, code := range retryErrorCodes {
+			if errorCode == code {
+				shouldRetry = true
+				break
+			}
+		}
+
+		if shouldRetry {
+			maxWaitTime := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
+			startTime := time.Now()
+			retryInterval := 15 * time.Second
+
+			for shouldRetry && time.Since(startTime) < maxWaitTime {
+				tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)",
+					plan.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
+				time.Sleep(retryInterval)
+				res, err = r.client.Put(plan.getPath()+params, body)
+
+				if err == nil {
+					shouldRetry = false
+				} else {
+					errorCode = res.Get("response.errorCode").String()
+					shouldRetry = false
+					for _, code := range retryErrorCodes {
+						if errorCode == code {
+							shouldRetry = true
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
@@ -262,7 +300,19 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
+// NOTE: Delete is maintained manually (no generator markers) on purpose.
+// Destroying an assign_credentials resource must unassign only the credential
+// slots that Terraform actually manages at this site (the ones that are non-null
+// in state), so that credentials inherited from a parent site are preserved. The
+// generated version sends a static body that clears all six slots, which also
+// wipes inherited credentials at child sites. Instead we build the body from
+// state (reusing toBody with an empty plan) so each managed slot is sent as null
+// (inherit from the parent site) and unmanaged/inherited slots are omitted. The
+// global site has no parent to inherit from and rejects a partial body with
+// NCND01090; in that case we retry once with every slot present as an empty
+// object ({}, the API's "unset" form), which is correct at the global root since
+// there is nothing to inherit. Transient NCND00010 ("Global Settings Save is in
+// progress") errors are retried.
 func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state AssignCredentials
 
@@ -275,12 +325,83 @@ func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.Del
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
+	// Build the clear body from state: only the slots Terraform manages (non-null
+	// in state) are unassigned (sent as null so they inherit from the parent);
+	// inherited slots are omitted.
+	var empty AssignCredentials
+	body := empty.toBody(ctx, state)
+	if body == "" {
+		// Nothing managed by Terraform to unassign at this site.
+		tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully (nothing to unassign)", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	res, err := r.client.Put(state.getPath(), body)
+
+	// The global site (no parent to inherit from) rejects a partial/null
+	// credential payload with NCND01090. Retry once with every slot present as an
+	// empty object ({}, "unset").
+	if err != nil && res.Get("response.errorCode").String() == "NCND01090" {
+		tflog.Warn(ctx, fmt.Sprintf("%s: NCND01090 detected (likely Global site), retrying delete with full credential payload", state.Id.ValueString()))
+		body = `{"cliCredentialsId":{},"snmpv2cReadCredentialsId":{},"snmpv2cWriteCredentialsId":{},"snmpv3CredentialsId":{},"httpReadCredentialsId":{},"httpWriteCredentialsId":{}}`
+		res, err = r.client.Put(state.getPath(), body)
+	}
+
+	if err != nil {
+		retryErrorCodes := []string{"NCND00010"}
+		errorCode := res.Get("response.errorCode").String()
+
+		shouldRetry := false
+		for _, code := range retryErrorCodes {
+			if errorCode == code {
+				shouldRetry = true
+				break
+			}
+		}
+
+		if shouldRetry {
+			maxWaitTime := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
+			startTime := time.Now()
+			retryInterval := 15 * time.Second
+
+			for shouldRetry && time.Since(startTime) < maxWaitTime {
+				tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)",
+					state.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
+				time.Sleep(retryInterval)
+				res, err = r.client.Put(state.getPath(), body)
+
+				if err == nil {
+					shouldRetry = false
+				} else {
+					errorCode = res.Get("response.errorCode").String()
+					shouldRetry = false
+					for _, code := range retryErrorCodes {
+						if errorCode == code {
+							shouldRetry = true
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+		errorCode := res.Get("response.errorCode").String()
+		if strings.HasPrefix(errorCode, "NCND") {
+			// Log a warning and continue execution when NCND**** error is detected
+			failureReason := res.Get("response.failureReason").String()
+			resp.Diagnostics.AddWarning("Empty input Warning", fmt.Sprintf("Empty input detected (error code: %s, reason %s).", errorCode, failureReason))
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "PUT", err, res.String()))
+			return
+		}
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *AssignCredentialsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
