@@ -1,7 +1,7 @@
 ## 0.5.18 (unreleased)
 
 - Fix `catalystcenter_update_authentication_profile` resource to append `isGlobalAuthenticationProfile=true` to the profile lookup during Create when no `fabric_id` is set. Previously the global lookup could match a fabric-scoped profile of the same name (e.g. `Closed Authentication`) and select the wrong `id`, causing the subsequent update to fail with `NCHS20654` / HTTP 404 ("id does not match any global Authentication Profile").
-- Add support for `allow_existing_on_create` on the `catalystcenter_template` resource: when enabled, a create that conflicts with an existing template adopts it (matched by name within the same project) and reconciles it via PUT instead of erroring.
+- Add support for the global `allow_existing_on_create` provider flag. When enabled, if a template already exists (matched by name within its project), the resource will adopt and update it instead of returning an error.
 
 ## 0.5.17
 
