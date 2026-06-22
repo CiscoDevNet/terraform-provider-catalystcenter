@@ -10,6 +10,7 @@ description: |-
 ## 0.5.18 (unreleased)
 
 - Fix `catalystcenter_update_authentication_profile` resource to append `isGlobalAuthenticationProfile=true` to the profile lookup during Create when no `fabric_id` is set. Previously the global lookup could match a fabric-scoped profile of the same name (e.g. `Closed Authentication`) and select the wrong `id`, causing the subsequent update to fail with `NCHS20654` / HTTP 404 ("id does not match any global Authentication Profile").
+- Round `catalystcenter_floors` bulk resource's `length`, `width` and `height` attributes to 3 decimal places, mirroring the workaround already applied to the singleton `catalystcenter_floor` resource. The Catalyst Center API returns these dimensions with more precision than was submitted, causing perpetual `terraform plan` drift.
 
 ## 0.5.17
 
