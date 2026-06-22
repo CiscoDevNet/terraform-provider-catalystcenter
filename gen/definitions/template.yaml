@@ -9,6 +9,8 @@ put_no_id: true
 id_path: response.data
 id_from_query_path_attribute: templateId
 get_extra_query_params: "?unCommitted=true"
+# Manual updates in the Create function and getExistingTemplateId helper in the resource file to honor allow_existing_on_create (project-scoped adopt of an existing template on create conflict); the generated adopt branch is not emitted because Create is hand-owned. See issue #419.
+allow_existing_on_create: true
 doc_category: Templates
 attributes:
   - model_name: project_id
