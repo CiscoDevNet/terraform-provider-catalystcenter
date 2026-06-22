@@ -1,6 +1,7 @@
 ## 0.5.18 (unreleased)
 
 - Fix `catalystcenter_update_authentication_profile` resource to append `isGlobalAuthenticationProfile=true` to the profile lookup during Create when no `fabric_id` is set. Previously the global lookup could match a fabric-scoped profile of the same name (e.g. `Closed Authentication`) and select the wrong `id`, causing the subsequent update to fail with `NCHS20654` / HTTP 404 ("id does not match any global Authentication Profile").
+- Round `catalystcenter_floors` bulk resource's `length`, `width` and `height` attributes to 3 decimal places, mirroring the workaround already applied to the singleton `catalystcenter_floor` resource. The Catalyst Center API returns these dimensions with more precision than was submitted, causing perpetual `terraform plan` drift.
 - Add support for the global `allow_existing_on_create` provider flag. When enabled, if a template already exists (matched by name within its project), the resource will adopt and update it instead of returning an error.
 - Fix `catalystcenter_assign_credentials` so deleting credentials no longer wipes credentials inherited from a parent site or fails with `NCIM01100`.
 
