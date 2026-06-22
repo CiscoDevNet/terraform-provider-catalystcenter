@@ -1,6 +1,7 @@
 ## 0.5.18 (unreleased)
 
 - Fix `catalystcenter_update_authentication_profile` resource to append `isGlobalAuthenticationProfile=true` to the profile lookup during Create when no `fabric_id` is set. Previously the global lookup could match a fabric-scoped profile of the same name (e.g. `Closed Authentication`) and select the wrong `id`, causing the subsequent update to fail with `NCHS20654` / HTTP 404 ("id does not match any global Authentication Profile").
+- Fix `catalystcenter_assign_credentials` so deleting credentials no longer wipes credentials inherited from a parent site or fails with `NCIM01100`.
 
 ## 0.5.17
 
