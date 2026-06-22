@@ -1015,6 +1015,11 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 				return true
 			},
 		)
+		{{- if $.SkipUnmatchedRows}}
+		if !r.Exists() {
+			continue
+		}
+		{{- end}}
 
 		{{- range .Attributes}}
 		{{- if and .WriteOnly .ExcludeTest }}

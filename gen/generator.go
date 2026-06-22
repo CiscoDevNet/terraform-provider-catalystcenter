@@ -130,6 +130,7 @@ type YamlConfig struct {
 	IdFromAttribute             bool                  `yaml:"id_from_attribute"`
 	DeviceUnreachabilityWarning bool                  `yaml:"device_unreachability_warning"`
 	AllowExistingOnCreate       bool                  `yaml:"allow_existing_on_create"`
+	SkipUnmatchedRows           bool                  `yaml:"skip_unmatched_rows"`
 	PutIdIncludePath            string                `yaml:"put_id_include_path"`
 	PutIdQueryParam             string                `yaml:"put_id_query_param"`
 	PutNoId                     bool                  `yaml:"put_no_id"`
