@@ -1001,6 +1001,57 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- else}}
 	res, err := r.client.Put({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
+	{{- if .RetryOnErrorCodes}}
+	if err != nil {
+		retryErrorCodes := []string{ {{- range $i, $code := .RetryOnErrorCodes}}{{if $i}}, {{end}}"{{$code}}"{{- end}} }
+		errorCode := res.Get("response.errorCode").String()
+
+		shouldRetry := false
+		for _, code := range retryErrorCodes {
+			if errorCode == code {
+				shouldRetry = true
+				break
+			}
+		}
+
+		if shouldRetry {
+			maxWaitTime := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
+			startTime := time.Now()
+			retryInterval := 15 * time.Second
+
+			for shouldRetry && time.Since(startTime) < maxWaitTime {
+				tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)",
+					plan.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
+				time.Sleep(retryInterval)
+
+				{{- if .PostUpdate}}
+				res, err = r.client.Post({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+				{{- else if .PutCreate}}
+				res, err = r.client.Put(plan.getPath() + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+				{{- else if and (hasQueryParam .Attributes) (not .PutId)}}
+				res, err = r.client.Put({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+				{{- else if .PutNoId}}
+				res, err = r.client.Put({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+				{{- else}}
+				res, err = r.client.Put({{if .PutRestEndpoint}}{{if strContains .PutRestEndpoint "%v"}}plan.getPathPut(){{else}}"{{.PutRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + "/" + url.QueryEscape(plan.Id.ValueString()) + params, body {{- if .MaxAsyncWaitTime }}, func(r *cc.Req) { r.MaxAsyncWaitTime={{.MaxAsyncWaitTime}} }{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+				{{- end}}
+
+				if err == nil {
+					shouldRetry = false
+				} else {
+					errorCode = res.Get("response.errorCode").String()
+					shouldRetry = false
+					for _, code := range retryErrorCodes {
+						if errorCode == code {
+							shouldRetry = true
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+	{{- end}}
 	if err != nil {
 	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
@@ -1641,6 +1692,46 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
 	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}){{- if .Mutex }}, cc.UseMutex{{- end}}
+	{{- end}}
+	{{- if and .RetryOnErrorCodes .DeleteNoId}}
+	if err != nil {
+		retryErrorCodes := []string{ {{- range $i, $code := .RetryOnErrorCodes}}{{if $i}}, {{end}}"{{$code}}"{{- end}} }
+		errorCode := res.Get("response.errorCode").String()
+
+		shouldRetry := false
+		for _, code := range retryErrorCodes {
+			if errorCode == code {
+				shouldRetry = true
+				break
+			}
+		}
+
+		if shouldRetry {
+			maxWaitTime := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
+			startTime := time.Now()
+			retryInterval := 15 * time.Second
+
+			for shouldRetry && time.Since(startTime) < maxWaitTime {
+				tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)",
+					state.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
+				time.Sleep(retryInterval)
+				res, err = r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+
+				if err == nil {
+					shouldRetry = false
+				} else {
+					errorCode = res.Get("response.errorCode").String()
+					shouldRetry = false
+					for _, code := range retryErrorCodes {
+						if errorCode == code {
+							shouldRetry = true
+							break
+						}
+					}
+				}
+			}
+		}
+	}
 	{{- end}}
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 	{{- if .PutDelete}}
