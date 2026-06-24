@@ -270,12 +270,6 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 				return true
 			},
 		)
-		// If no element of the response matches this row's id key(s), preserve the
-		// prior state values instead of nulling every field. Nulling would blank
-		// the id key itself, so >=2 unmatched rows would collapse into identical
-		// set elements and trigger "Duplicate Set Element" (see issue #417 /
-		// wireless_profile ssid_details). The matched path (r = v) is unaffected.
-		// Gated by the resource's skip_unmatched_rows flag.
 		if !r.Exists() {
 			continue
 		}
@@ -353,12 +347,6 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 				return true
 			},
 		)
-		// If no element of the response matches this row's id key(s), preserve the
-		// prior state values instead of nulling every field. Nulling would blank
-		// the id key itself, so >=2 unmatched rows would collapse into identical
-		// set elements and trigger "Duplicate Set Element" (see issue #417 /
-		// wireless_profile ssid_details). The matched path (r = v) is unaffected.
-		// Gated by the resource's skip_unmatched_rows flag.
 		if !r.Exists() {
 			continue
 		}
