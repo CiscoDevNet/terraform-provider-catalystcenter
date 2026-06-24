@@ -7,6 +7,11 @@ description: |-
 
 # Changelog
 
+## 0.5.19 (unreleased)
+
+- Fix `catalystcenter_wireless_profile` resource to no longer fail with `Duplicate Set Element` when the controller's `?wirelessProfileName=` GET returns an empty `response`
+- Add support for the global `allow_existing_on_create` provider flag on the `catalystcenter_wireless_profile` resource. When enabled, if a profile already exists, the resource will adopt and update it instead of returning an error.
+
 ## 0.5.17
 
 - Add the `catalystcenter_sync_device_credential` resource to apply (synchronize) a device credential assigned to a site to the site's network devices, equivalent to the Apply action in Design > Network Settings > Credentials > Manage Credentials. Supports the optional `configure_device` flag to control whether credentials are configured and authenticated on devices or only recorded in inventory.
