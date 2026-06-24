@@ -51,72 +51,70 @@ func (data AssignCredentials) getPath() string {
 
 // End of section. //template:end getPath
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
+// NOTE: toBody is maintained manually (no generator markers) on purpose.
+// The generated version only sets slots whose ID is non-null, which means an
+// in-place update that clears a single credential (set -> null) produces a PUT
+// body that omits that slot, so Catalyst Center leaves the existing assignment
+// untouched. The credential object can then not be deleted (NCIM01100 - still
+// associated with a site). To fix this, on update (put) we send null for any
+// slot that was previously set and is now removed. Per the API
+// (PUT .../deviceCredentials), a null value makes the slot inherit from the
+// parent site: this unassigns the site-local credential (so the underlying
+// credential object can be deleted) while keeping the site consistent with the
+// credentials declared higher in the hierarchy - which matches how the data
+// model expresses "no override here, inherit from the parent". Slots that were
+// never set are still omitted, so other inherited credentials (or credentials
+// managed by another assignment) are left untouched. (An empty object {}, by
+// contrast, marks the slot as "unset"/none instead of inheriting, so it is not
+// used for clearing here.)
 func (data AssignCredentials) toBody(ctx context.Context, state AssignCredentials) string {
 	body := ""
-	put := false
-	if state.Id.ValueString() != "" {
-		put = true
+	put := state.Id.ValueString() != ""
+
+	setSlot := func(slot string, plan, prior types.String) {
+		if !plan.IsNull() {
+			body, _ = sjson.Set(body, slot+".credentialsId", plan.ValueString())
+		} else if put && !prior.IsNull() {
+			// Slot was assigned and is now being cleared: send null so the slot
+			// inherits from the parent site (matching the data model), rather than
+			// {} which would leave it unset/none. Other slots are omitted so
+			// unrelated inherited credentials stay intact.
+			body, _ = sjson.SetRaw(body, slot, "null")
+		}
 	}
-	_ = put
-	if !data.CliId.IsNull() {
-		body, _ = sjson.Set(body, "cliCredentialsId.credentialsId", data.CliId.ValueString())
-	}
-	if !data.SnmpV2ReadId.IsNull() {
-		body, _ = sjson.Set(body, "snmpv2cReadCredentialsId.credentialsId", data.SnmpV2ReadId.ValueString())
-	}
-	if !data.SnmpV2WriteId.IsNull() {
-		body, _ = sjson.Set(body, "snmpv2cWriteCredentialsId.credentialsId", data.SnmpV2WriteId.ValueString())
-	}
-	if !data.SnmpV3Id.IsNull() {
-		body, _ = sjson.Set(body, "snmpv3CredentialsId.credentialsId", data.SnmpV3Id.ValueString())
-	}
-	if !data.HttpsReadId.IsNull() {
-		body, _ = sjson.Set(body, "httpReadCredentialsId.credentialsId", data.HttpsReadId.ValueString())
-	}
-	if !data.HttpsWriteId.IsNull() {
-		body, _ = sjson.Set(body, "httpWriteCredentialsId.credentialsId", data.HttpsWriteId.ValueString())
-	}
+
+	setSlot("cliCredentialsId", data.CliId, state.CliId)
+	setSlot("snmpv2cReadCredentialsId", data.SnmpV2ReadId, state.SnmpV2ReadId)
+	setSlot("snmpv2cWriteCredentialsId", data.SnmpV2WriteId, state.SnmpV2WriteId)
+	setSlot("snmpv3CredentialsId", data.SnmpV3Id, state.SnmpV3Id)
+	setSlot("httpReadCredentialsId", data.HttpsReadId, state.HttpsReadId)
+	setSlot("httpWriteCredentialsId", data.HttpsWriteId, state.HttpsWriteId)
+
 	return body
 }
 
-// End of section. //template:end toBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
+// NOTE: fromBody is maintained manually (no generator markers) on purpose.
+// Catalyst Center returns an empty-string objReference ("") for a slot that has
+// no locally assigned credential (e.g. HTTP read/write on a site that inherits
+// or does not set them). The generated version treats "" as a real value
+// (types.StringValue("")), which then differs from a null configuration and
+// produces a permanent diff on every refresh. An empty objReference is never a
+// valid credential id, so we treat it the same as an absent one, i.e. as null.
 func (data *AssignCredentials) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.#(key=\"credential.cli\").value.0.objReferences.0"); value.Exists() {
-		data.CliId = types.StringValue(value.String())
-	} else {
-		data.CliId = types.StringNull()
+	readSlot := func(key string) types.String {
+		if value := res.Get("response.#(key=\"" + key + "\").value.0.objReferences.0"); value.Exists() && value.String() != "" {
+			return types.StringValue(value.String())
+		}
+		return types.StringNull()
 	}
-	if value := res.Get("response.#(key=\"credential.snmp_v2_read\").value.0.objReferences.0"); value.Exists() {
-		data.SnmpV2ReadId = types.StringValue(value.String())
-	} else {
-		data.SnmpV2ReadId = types.StringNull()
-	}
-	if value := res.Get("response.#(key=\"credential.snmp_v2_write\").value.0.objReferences.0"); value.Exists() {
-		data.SnmpV2WriteId = types.StringValue(value.String())
-	} else {
-		data.SnmpV2WriteId = types.StringNull()
-	}
-	if value := res.Get("response.#(key=\"credential.snmp_v3\").value.0.objReferences.0"); value.Exists() {
-		data.SnmpV3Id = types.StringValue(value.String())
-	} else {
-		data.SnmpV3Id = types.StringNull()
-	}
-	if value := res.Get("response.#(key=\"credential.http.read\").value.0.objReferences.0"); value.Exists() {
-		data.HttpsReadId = types.StringValue(value.String())
-	} else {
-		data.HttpsReadId = types.StringNull()
-	}
-	if value := res.Get("response.#(key=\"credential.http.write\").value.0.objReferences.0"); value.Exists() {
-		data.HttpsWriteId = types.StringValue(value.String())
-	} else {
-		data.HttpsWriteId = types.StringNull()
-	}
-}
 
-// End of section. //template:end fromBody
+	data.CliId = readSlot("credential.cli")
+	data.SnmpV2ReadId = readSlot("credential.snmp_v2_read")
+	data.SnmpV2WriteId = readSlot("credential.snmp_v2_write")
+	data.SnmpV3Id = readSlot("credential.snmp_v3")
+	data.HttpsReadId = readSlot("credential.http.read")
+	data.HttpsWriteId = readSlot("credential.http.write")
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *AssignCredentials) updateFromBody(ctx context.Context, res gjson.Result) {

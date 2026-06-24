@@ -50,14 +50,22 @@ func (data CredentialsSNMPv2Write) toBody(ctx context.Context, state Credentials
 	put := false
 	if state.Id.ValueString() != "" {
 		put = true
-		body, _ = sjson.Set(body, "snmpV2cWrite.0.id", state.Id.ValueString())
+		body, _ = sjson.Set(body, "snmpV2cWrite.id", state.Id.ValueString())
 	}
 	_ = put
 	if !data.Description.IsNull() {
-		body, _ = sjson.Set(body, "snmpV2cWrite.0.description", data.Description.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV2cWrite.description", data.Description.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV2cWrite.0.description", data.Description.ValueString())
+		}
 	}
 	if !data.WriteCommunity.IsNull() {
-		body, _ = sjson.Set(body, "snmpV2cWrite.0.writeCommunity", data.WriteCommunity.ValueString())
+		if put {
+			body, _ = sjson.Set(body, "snmpV2cWrite.writeCommunity", data.WriteCommunity.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV2cWrite.0.writeCommunity", data.WriteCommunity.ValueString())
+		}
 	}
 	return body
 }

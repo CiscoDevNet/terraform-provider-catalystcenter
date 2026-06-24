@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"math"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -150,17 +151,17 @@ func (data *Floors) fromBody(ctx context.Context, res gjson.Result) {
 				item.RfModel = types.StringNull()
 			}
 			if cValue := v.Get("width"); cValue.Exists() {
-				item.Width = types.Float64Value(cValue.Float())
+				item.Width = types.Float64Value(math.Round(cValue.Float()*1000) / 1000)
 			} else {
 				item.Width = types.Float64Null()
 			}
 			if cValue := v.Get("length"); cValue.Exists() {
-				item.Length = types.Float64Value(cValue.Float())
+				item.Length = types.Float64Value(math.Round(cValue.Float()*1000) / 1000)
 			} else {
 				item.Length = types.Float64Null()
 			}
 			if cValue := v.Get("height"); cValue.Exists() {
-				item.Height = types.Float64Value(cValue.Float())
+				item.Height = types.Float64Value(math.Round(cValue.Float()*1000) / 1000)
 			} else {
 				item.Height = types.Float64Null()
 			}
@@ -247,17 +248,17 @@ func (data *Floors) updateFromBody(ctx context.Context, res gjson.Result) {
 				floor.RfModel = types.StringNull()
 			}
 			if value := r.Get("width"); value.Exists() && !floor.Width.IsNull() {
-				floor.Width = types.Float64Value(value.Float())
+				floor.Width = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 			} else {
 				floor.Width = types.Float64Null()
 			}
 			if value := r.Get("length"); value.Exists() && !floor.Length.IsNull() {
-				floor.Length = types.Float64Value(value.Float())
+				floor.Length = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 			} else {
 				floor.Length = types.Float64Null()
 			}
 			if value := r.Get("height"); value.Exists() && !floor.Height.IsNull() {
-				floor.Height = types.Float64Value(value.Float())
+				floor.Height = types.Float64Value(math.Round(value.Float()*1000) / 1000)
 			} else {
 				floor.Height = types.Float64Null()
 			}
