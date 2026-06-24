@@ -1,3 +1,8 @@
+## 0.5.19 (unreleased)
+
+- Fix `catalystcenter_wireless_profile` resource to no longer fail with `Duplicate Set Element` when the controller's `?wirelessProfileName=` GET returns an empty `response`
+- Add support for the global `allow_existing_on_create` provider flag on the `catalystcenter_wireless_profile` resource. When enabled, if a profile already exists, the resource will adopt and update it instead of returning an error.
+
 ## 0.5.18
 
 - Fix `catalystcenter_credentials_https_read`/`https_write`/`snmpv2_read`/`snmpv2_write`/`snmpv3` resources to send the correct single-object PUT body (no id in URL) on update, aligning them with the `catalystcenter_credentials_cli` PUT pattern.

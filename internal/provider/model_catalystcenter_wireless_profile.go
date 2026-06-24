@@ -270,6 +270,9 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 				return true
 			},
 		)
+		if !r.Exists() {
+			continue
+		}
 		if value := r.Get("ssidName"); value.Exists() && !data.SsidDetails[i].SsidName.IsNull() {
 			data.SsidDetails[i].SsidName = types.StringValue(value.String())
 		} else {
@@ -344,6 +347,9 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 				return true
 			},
 		)
+		if !r.Exists() {
+			continue
+		}
 		if value := r.Get("apZoneName"); value.Exists() && !data.ApZones[i].ApZoneName.IsNull() {
 			data.ApZones[i].ApZoneName = types.StringValue(value.String())
 		} else {
