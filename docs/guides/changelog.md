@@ -7,7 +7,7 @@ description: |-
 
 # Changelog
 
-## 0.5.19 (unreleased)
+## 0.5.19
 
 - Fix `catalystcenter_wireless_profile` resource to no longer fail with `Duplicate Set Element` when the controller's `?wirelessProfileName=` GET returns an empty `response`
 - Add support for the global `allow_existing_on_create` provider flag on the `catalystcenter_wireless_profile` resource. When enabled, if a profile already exists, the resource will adopt and update it instead of returning an error.
