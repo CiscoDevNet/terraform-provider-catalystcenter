@@ -571,23 +571,35 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 						}
 					}
 
-					// PUT only the matching devices
-					if len(devicesToUpdate) > 0 {
-						plan.Id = types.StringValue(plan.SiteId.ValueString())
-						plan.ProvisionDevices = devicesToUpdate
+				// PUT only the matching devices
+				if len(devicesToUpdate) > 0 {
+					plan.Id = types.StringValue(plan.SiteId.ValueString())
+					plan.ProvisionDevices = devicesToUpdate
 
-						body = plan.toBody(ctx, ProvisionDevices{Id: plan.Id})
-						res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
-						if err != nil {
-							resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
-							return
-						}
-						tflog.Debug(ctx, fmt.Sprintf("%s: Fallback PUT finished successfully", plan.Id.ValueString()))
+					body = plan.toBody(ctx, ProvisionDevices{Id: plan.Id})
+					res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
+					if err != nil {
+						resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+						return
 					}
+					tflog.Debug(ctx, fmt.Sprintf("%s: Fallback PUT finished successfully", plan.Id.ValueString()))
+				}
 
-					plan.ProvisionDevices = allDevices
+				// Filter to plan-managed devices only. GET ?siteId=... returns every device
+				// provisioned at the site (including out-of-band ones). Without this filter
+				// plan.ProvisionDevices grows beyond the plan, triggering Terraform's
+				// "Provider produced inconsistent result after apply". Mirrors Create.
+				var managedDevices []ProvisionDevicesProvisionDevices
+				for _, dev := range allDevices {
+					if _, exists := planMap[dev.NetworkDeviceId.ValueString()]; exists {
+						managedDevices = append(managedDevices, dev)
+					} else {
+						tflog.Debug(ctx, fmt.Sprintf("%s: Filtering out device %s from Update fallback - not in plan", plan.Id.ValueString(), dev.NetworkDeviceId.ValueString()))
+					}
+				}
+				plan.ProvisionDevices = managedDevices
 
-					tflog.Debug(ctx, fmt.Sprintf("%s: All devices", allDevices))
+				tflog.Debug(ctx, fmt.Sprintf("%s: Managed devices after filter: %v", plan.Id.ValueString(), managedDevices))
 
 				}
 			}
