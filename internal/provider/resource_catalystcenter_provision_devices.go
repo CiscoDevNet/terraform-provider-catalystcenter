@@ -597,6 +597,11 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 							tflog.Debug(ctx, fmt.Sprintf("%s: Filtering out device %s from Update fallback - not in plan", plan.Id.ValueString(), dev.NetworkDeviceId.ValueString()))
 						}
 					}
+					if len(managedDevices) == 0 {
+						resp.Diagnostics.AddError("No Devices Found",
+							fmt.Sprintf("No plan-managed provisioned devices found for site %s", plan.SiteId.ValueString()))
+						return
+					}
 					plan.ProvisionDevices = managedDevices
 
 					tflog.Debug(ctx, fmt.Sprintf("%s: Managed devices after filter: %v", plan.Id.ValueString(), managedDevices))
