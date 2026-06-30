@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.20 (unreleased)
+
+- Fix `catalystcenter_provision_devices` resource to filter the `NCHS20405` ("already provisioned device") fallback during Update to only plan-managed devices. The site-scoped GET (`?siteId=`) returns every device provisioned at the site, including out-of-band ones
+
 ## 0.5.19
 
 - Fix `catalystcenter_wireless_profile` resource to no longer fail with `Duplicate Set Element` when the controller's `?wirelessProfileName=` GET returns an empty `response`
