@@ -585,10 +585,7 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 						tflog.Debug(ctx, fmt.Sprintf("%s: Fallback PUT finished successfully", plan.Id.ValueString()))
 					}
 
-					// Filter to plan-managed devices only. GET ?siteId=... returns every device
-					// provisioned at the site (including out-of-band ones). Without this filter
-					// plan.ProvisionDevices grows beyond the plan, triggering Terraform's
-					// "Provider produced inconsistent result after apply". Mirrors Create.
+					// Filter to plan-managed devices only
 					var managedDevices []ProvisionDevicesProvisionDevices
 					for _, dev := range allDevices {
 						if _, exists := planMap[dev.NetworkDeviceId.ValueString()]; exists {
