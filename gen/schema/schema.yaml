@@ -54,6 +54,7 @@ retry_on_error_codes: list(str(), required=False) # List of error codes that tri
 mutex: bool(required=False) # If true, adds a mutex to the resource to prevent multiple concurrent operations (like Create, Update, Delete) on the same resource instance or API endpoint
 allow_existing_on_create: bool(required=False) # If true, creation of resource already existing in target does not fail, but update it to match datamodel instead.
 skip_unmatched_rows: bool(required=False) # If true, in updateFromBody nested list/set rows with no matching element in the response keep their prior state values instead of being nulled (prevents "Duplicate Set Element" collapse when the id key would otherwise be blanked).
+remove_resource_on_empty_response: bool(required=False) # If true, Read treats an HTTP 200 with an empty "response" array as resource-gone (calls RemoveResource). Use for root_list resources whose parent GET returns 200 + empty list after all child rows are deleted out-of-band, so Terraform reconciles (recreate if still in config, or clean no-op/destroy if removed) instead of destroying already-gone rows.
 use_cache: bool(required=False) # Whether to use internal caching for get requests. Especially effective when state has many instances of this particular resource
 cache_rest_endpoint: str(required=False) # Override GET REST endpoint path for cached data
 cache_filter_attributes: list(str(), required=False) # List of model_name attributes to filter cached response by (instead of id). Also stripped from cache key to enable shared caching.

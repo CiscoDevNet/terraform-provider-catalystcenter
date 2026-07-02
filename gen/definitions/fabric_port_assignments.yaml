@@ -5,6 +5,8 @@ res_description: Manages port assignments in SD-Access fabric.
 root_list: true
 update_computed: true
 id_from_attribute: true
+skip_unmatched_rows: true
+remove_resource_on_empty_response: true
 skip_minimum_test: true
 device_unreachability_warning: true
 doc_category: SDA

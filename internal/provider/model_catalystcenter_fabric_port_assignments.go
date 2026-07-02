@@ -211,6 +211,9 @@ func (data *FabricPortAssignments) updateFromBody(ctx context.Context, res gjson
 				return true
 			},
 		)
+		if !r.Exists() {
+			continue
+		}
 		if value := r.Get("id"); value.Exists() && !data.PortAssignments[i].Id.IsNull() {
 			data.PortAssignments[i].Id = types.StringValue(value.String())
 		} else {
