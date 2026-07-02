@@ -131,6 +131,7 @@ type YamlConfig struct {
 	DeviceUnreachabilityWarning bool                  `yaml:"device_unreachability_warning"`
 	AllowExistingOnCreate       bool                  `yaml:"allow_existing_on_create"`
 	SkipUnmatchedRows           bool                  `yaml:"skip_unmatched_rows"`
+	RemoveResourceOnEmptyResponse bool                `yaml:"remove_resource_on_empty_response"`
 	PutIdIncludePath            string                `yaml:"put_id_include_path"`
 	PutIdQueryParam             string                `yaml:"put_id_query_param"`
 	PutNoId                     bool                  `yaml:"put_no_id"`
