@@ -37,6 +37,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -173,19 +174,38 @@ func (r *FabricPortAssignmentsResource) Create(ctx context.Context, req resource
 
 	// Create object
 	body := plan.toBody(ctx, FabricPortAssignments{})
+	var planList []FabricPortAssignments
+	maxElementsPerShard := 20
+	originalList := plan.PortAssignments
+	for i := 0; i < len(originalList); i += maxElementsPerShard {
+		end := i + maxElementsPerShard
+		if end > len(originalList) {
+			end = len(originalList)
+		}
+		chunk := originalList[i:end]
+		currentPlanForShard := plan
+		currentPlanForShard.PortAssignments = chunk
+		planList = append(planList, currentPlanForShard)
+
+	}
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-	if err != nil {
-		errorCode := res.Get("response.errorCode").String()
-		failureReason := res.Get("response.failureReason").String()
-		deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
-		if errorCode == "NCDP10000" || deviceFailureMatch {
-			// Log a warning and continue execution when device is unreachable
-			resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-			return
+	var err error
+	var res gjson.Result
+	for _, pl := range planList {
+		body = pl.toBody(ctx, FabricPortAssignments{})
+		res, err = r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+		if err != nil {
+			errorCode := res.Get("response.errorCode").String()
+			failureReason := res.Get("response.failureReason").String()
+			deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+			if errorCode == "NCDP10000" || deviceFailureMatch {
+				// Log a warning and continue execution when device is unreachable
+				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+			} else {
+				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+				break
+			}
 		}
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.NetworkDeviceId.ValueString()))
@@ -367,20 +387,35 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 	// If there are objects marked for create
 	if len(toCreate.PortAssignments) > 0 {
 
+		maxElementsPerShard := 20
+		var createList []FabricPortAssignments
+		for i := 0; i < len(toCreate.PortAssignments); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(toCreate.PortAssignments))
+			chunk := toCreate.PortAssignments[i:end]
+			currentPlanForShard := plan
+			currentPlanForShard.PortAssignments = chunk
+			createList = append(createList, currentPlanForShard)
+
+		}
+
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.PortAssignments)))
-		body := toCreate.toBody(ctx, FabricPortAssignments{}) // Convert to request body
+		var err error
+		var res gjson.Result
 		params := ""
-		res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-		if err != nil {
-			errorCode := res.Get("response.errorCode").String()
-			failureReason := res.Get("response.failureReason").String()
-			deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
-			if errorCode == "NCDP10000" || deviceFailureMatch {
-				// Log a warning and continue execution when device is unreachable
-				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
-			} else {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-				return
+		for _, pl := range createList {
+			body := pl.toBody(ctx, FabricPortAssignments{}) // Convert to request body
+			res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
+			if err != nil {
+				errorCode := res.Get("response.errorCode").String()
+				failureReason := res.Get("response.failureReason").String()
+				deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+				if errorCode == "NCDP10000" || deviceFailureMatch {
+					// Log a warning and continue execution when device is unreachable
+					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+				} else {
+					resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+					break
+				}
 			}
 		}
 		params += "?fabricId=" + url.QueryEscape(plan.FabricId.ValueString()) + "&networkDeviceId=" + url.QueryEscape(plan.NetworkDeviceId.ValueString())
@@ -398,26 +433,40 @@ func (r *FabricPortAssignmentsResource) Update(ctx context.Context, req resource
 	// Update objects (objects that have different definition in plan and state)
 	if len(toUpdate.PortAssignments) > 0 {
 
-		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.PortAssignments)))
-		planIndexMap := make(map[string]int)
-		for i, v := range plan.PortAssignments {
-			planIndexMap[v.InterfaceName.ValueString()] = i
-		}
-		for _, item := range toUpdate.PortAssignments {
-			toUpdateKey := item.InterfaceName.ValueString()
-			if updatedItem, exists := planMap[toUpdateKey]; exists {
-				if index, found := planIndexMap[toUpdateKey]; found {
-					plan.PortAssignments[index] = updatedItem
-				}
-			}
+		maxElementsPerShard := 20
+		var updateList []FabricPortAssignments
+		for i := 0; i < len(toUpdate.PortAssignments); i += maxElementsPerShard {
+			end := min(i+maxElementsPerShard, len(toUpdate.PortAssignments))
+			chunk := toUpdate.PortAssignments[i:end]
+			currentPlanForShard := plan
+			currentPlanForShard.PortAssignments = chunk
+			updateList = append(updateList, currentPlanForShard)
+
 		}
 
-		body := toUpdate.toBody(ctx, FabricPortAssignments{})
-		params := ""
-		res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-			return
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.PortAssignments)))
+		planIndexMap := make(map[string]int)
+
+		for _, pl := range updateList {
+			for i, v := range plan.PortAssignments {
+				planIndexMap[v.InterfaceName.ValueString()] = i
+			}
+			for _, item := range pl.PortAssignments {
+				toUpdateKey := item.InterfaceName.ValueString()
+				if updatedItem, exists := planMap[toUpdateKey]; exists {
+					if index, found := planIndexMap[toUpdateKey]; found {
+						plan.PortAssignments[index] = updatedItem
+					}
+				}
+			}
+
+			body := pl.toBody(ctx, FabricPortAssignments{})
+			params := ""
+			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
+			if err != nil {
+				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+				break
+			}
 		}
 	}
 

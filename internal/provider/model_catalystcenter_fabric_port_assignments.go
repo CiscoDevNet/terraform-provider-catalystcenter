@@ -186,6 +186,7 @@ func (data *FabricPortAssignments) fromBody(ctx context.Context, res gjson.Resul
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *FabricPortAssignments) updateFromBody(ctx context.Context, res gjson.Result) {
+	var final []FabricPortAssignmentsPortAssignments
 
 	res = res.Get("response")
 	for i := range data.PortAssignments {
@@ -211,9 +212,6 @@ func (data *FabricPortAssignments) updateFromBody(ctx context.Context, res gjson
 				return true
 			},
 		)
-		if !r.Exists() {
-			continue
-		}
 		if value := r.Get("id"); value.Exists() && !data.PortAssignments[i].Id.IsNull() {
 			data.PortAssignments[i].Id = types.StringValue(value.String())
 		} else {
@@ -264,7 +262,11 @@ func (data *FabricPortAssignments) updateFromBody(ctx context.Context, res gjson
 		} else {
 			data.PortAssignments[i].InterfaceDescription = types.StringNull()
 		}
+		if data.PortAssignments[i].Id != types.StringNull() {
+			final = append(final, data.PortAssignments[i])
+		}
 	}
+	data.PortAssignments = final
 }
 
 // End of section. //template:end updateFromBody
