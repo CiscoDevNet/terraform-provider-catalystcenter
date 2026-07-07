@@ -36,6 +36,7 @@ resource "catalystcenter_wireless_profile" "example" {
 
 - `additional_interfaces` (Set of String) These additional interfaces will be configured on the device as independent interfaces in addition to the interfaces mapped to SSIDs. Max Limit 4094
 - `ap_zones` (Attributes Set) AP Zones (see [below for nested schema](#nestedatt--ap_zones))
+- `feature_templates` (Attributes Set) Feature Templates associated to the wireless network profile. (see [below for nested schema](#nestedatt--feature_templates))
 - `ssid_details` (Attributes Set) SSID Details (see [below for nested schema](#nestedatt--ssid_details))
 
 ### Read-Only
@@ -50,6 +51,18 @@ Optional:
 - `ap_zone_name` (String) AP Zone Name
 - `rf_profile_name` (String) RF Profile Name
 - `ssids` (Set of String) ssids part of apZone
+
+
+<a id="nestedatt--feature_templates"></a>
+### Nested Schema for `feature_templates`
+
+Required:
+
+- `id` (String) Feature Template UUID.
+
+Optional:
+
+- `ssids` (Set of String) List of SSIDs the feature template applies to.
 
 
 <a id="nestedatt--ssid_details"></a>

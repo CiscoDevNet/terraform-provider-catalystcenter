@@ -97,6 +97,24 @@ attributes:
         description: ssids part of apZone
         example: mySSID1
         exclude_test: true
+  - model_name: featureTemplates
+    type: Set
+    description: Feature Templates associated to the wireless network profile.
+    response_data_path: response.0.featureTemplates
+    exclude_test: true
+    attributes:
+      - model_name: id
+        type: String
+        id: true
+        description: Feature Template UUID.
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        exclude_test: true
+      - model_name: ssids
+        type: Set
+        element_type: String
+        description: List of SSIDs the feature template applies to.
+        example: mySSID1
+        exclude_test: true
 test_prerequisites: |
   data "catalystcenter_site" "test" {
     name_hierarchy = "Global"

@@ -136,6 +136,23 @@ func (d *WirelessProfileDataSource) Schema(ctx context.Context, req datasource.S
 					},
 				},
 			},
+			"feature_templates": schema.SetNestedAttribute{
+				MarkdownDescription: "Feature Templates associated to the wireless network profile.",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "Feature Template UUID.",
+							Computed:            true,
+						},
+						"ssids": schema.SetAttribute{
+							MarkdownDescription: "List of SSIDs the feature template applies to.",
+							ElementType:         types.StringType,
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

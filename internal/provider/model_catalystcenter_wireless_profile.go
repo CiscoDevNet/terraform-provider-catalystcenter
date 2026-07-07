@@ -31,11 +31,12 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type WirelessProfile struct {
-	Id                   types.String                 `tfsdk:"id"`
-	WirelessProfileName  types.String                 `tfsdk:"wireless_profile_name"`
-	SsidDetails          []WirelessProfileSsidDetails `tfsdk:"ssid_details"`
-	AdditionalInterfaces types.Set                    `tfsdk:"additional_interfaces"`
-	ApZones              []WirelessProfileApZones     `tfsdk:"ap_zones"`
+	Id                   types.String                      `tfsdk:"id"`
+	WirelessProfileName  types.String                      `tfsdk:"wireless_profile_name"`
+	SsidDetails          []WirelessProfileSsidDetails      `tfsdk:"ssid_details"`
+	AdditionalInterfaces types.Set                         `tfsdk:"additional_interfaces"`
+	ApZones              []WirelessProfileApZones          `tfsdk:"ap_zones"`
+	FeatureTemplates     []WirelessProfileFeatureTemplates `tfsdk:"feature_templates"`
 }
 
 type WirelessProfileSsidDetails struct {
@@ -54,6 +55,11 @@ type WirelessProfileApZones struct {
 	ApZoneName    types.String `tfsdk:"ap_zone_name"`
 	RfProfileName types.String `tfsdk:"rf_profile_name"`
 	Ssids         types.Set    `tfsdk:"ssids"`
+}
+
+type WirelessProfileFeatureTemplates struct {
+	Id    types.String `tfsdk:"id"`
+	Ssids types.Set    `tfsdk:"ssids"`
 }
 
 // End of section. //template:end types
@@ -135,6 +141,21 @@ func (data WirelessProfile) toBody(ctx context.Context, state WirelessProfile) s
 				itemBody, _ = sjson.Set(itemBody, "ssids", values)
 			}
 			body, _ = sjson.SetRaw(body, "apZones.-1", itemBody)
+		}
+	}
+	if len(data.FeatureTemplates) > 0 {
+		body, _ = sjson.Set(body, "featureTemplates", []interface{}{})
+		for _, item := range data.FeatureTemplates {
+			itemBody := ""
+			if !item.Id.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
+			if !item.Ssids.IsNull() {
+				var values []string
+				item.Ssids.ElementsAs(ctx, &values, false)
+				itemBody, _ = sjson.Set(itemBody, "ssids", values)
+			}
+			body, _ = sjson.SetRaw(body, "featureTemplates.-1", itemBody)
 		}
 	}
 	return body
@@ -233,6 +254,24 @@ func (data *WirelessProfile) fromBody(ctx context.Context, res gjson.Result) {
 				item.Ssids = types.SetNull(types.StringType)
 			}
 			data.ApZones = append(data.ApZones, item)
+			return true
+		})
+	}
+	if value := res.Get("response.0.featureTemplates"); value.Exists() && len(value.Array()) > 0 {
+		data.FeatureTemplates = make([]WirelessProfileFeatureTemplates, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := WirelessProfileFeatureTemplates{}
+			if cValue := v.Get("id"); cValue.Exists() {
+				item.Id = types.StringValue(cValue.String())
+			} else {
+				item.Id = types.StringNull()
+			}
+			if cValue := v.Get("ssids"); cValue.Exists() && len(cValue.Array()) > 0 {
+				item.Ssids = helpers.GetStringSet(cValue.Array())
+			} else {
+				item.Ssids = types.SetNull(types.StringType)
+			}
+			data.FeatureTemplates = append(data.FeatureTemplates, item)
 			return true
 		})
 	}
@@ -366,6 +405,43 @@ func (data *WirelessProfile) updateFromBody(ctx context.Context, res gjson.Resul
 			data.ApZones[i].Ssids = types.SetNull(types.StringType)
 		}
 	}
+	for i := range data.FeatureTemplates {
+		keys := [...]string{"id"}
+		keyValues := [...]string{data.FeatureTemplates[i].Id.ValueString()}
+
+		var r gjson.Result
+		res.Get("response.0.featureTemplates").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if !r.Exists() {
+			continue
+		}
+		if value := r.Get("id"); value.Exists() && !data.FeatureTemplates[i].Id.IsNull() {
+			data.FeatureTemplates[i].Id = types.StringValue(value.String())
+		} else {
+			data.FeatureTemplates[i].Id = types.StringNull()
+		}
+		if value := r.Get("ssids"); value.Exists() && !data.FeatureTemplates[i].Ssids.IsNull() {
+			data.FeatureTemplates[i].Ssids = helpers.GetStringSet(value.Array())
+		} else {
+			data.FeatureTemplates[i].Ssids = types.SetNull(types.StringType)
+		}
+	}
 }
 
 // End of section. //template:end updateFromBody
@@ -379,6 +455,9 @@ func (data *WirelessProfile) isNull(ctx context.Context, res gjson.Result) bool 
 		return false
 	}
 	if len(data.ApZones) > 0 {
+		return false
+	}
+	if len(data.FeatureTemplates) > 0 {
 		return false
 	}
 	return true
