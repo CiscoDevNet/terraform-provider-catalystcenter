@@ -1,12 +1,10 @@
 ---
 name: Wireless CleanAir Configuration
 rest_endpoint: /dna/intent/api/v1/featureTemplates/wireless/cleanAirConfigurations
-delete_rest_endpoint: /dna/intent/api/v1/featureTemplates/wireless/cleanAirConfigurations
 id_path: response.data
 id_from_query_path: response
 id_from_query_path_attribute: id
 put_id: true
-data_source_no_id: true
 mutex: true
 res_description: This resource manages a Wireless CleanAir Configuration feature template. CleanAir feature templates define spectrum-intelligence settings (per radio band) that detect and classify RF interferers, and can be attached to wireless network profiles.
 doc_category: Wireless

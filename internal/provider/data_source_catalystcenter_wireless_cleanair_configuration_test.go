@@ -101,7 +101,7 @@ func testAccDataSourceCcWirelessCleanAirConfigurationConfig() string {
 
 	config += `
 		data "catalystcenter_wireless_cleanair_configuration" "test" {
-			depends_on = [catalystcenter_wireless_cleanair_configuration.test]
+			id = catalystcenter_wireless_cleanair_configuration.test.id
 		}
 	`
 	return config

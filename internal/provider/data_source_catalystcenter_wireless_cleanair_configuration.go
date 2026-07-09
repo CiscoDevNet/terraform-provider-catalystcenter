@@ -60,7 +60,7 @@ func (d *WirelessCleanAirConfigurationDataSource) Schema(ctx context.Context, re
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Computed:            true,
+				Required:            true,
 			},
 			"design_name": schema.StringAttribute{
 				MarkdownDescription: "The name of the CleanAir feature template. Forbidden characters are `% & < > [ ] ' /`.",

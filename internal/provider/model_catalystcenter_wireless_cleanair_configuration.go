@@ -75,10 +75,6 @@ func (data WirelessCleanAirConfiguration) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 
-func (data WirelessCleanAirConfiguration) getPathDelete() string {
-	return "/dna/intent/api/v1/featureTemplates/wireless/cleanAirConfigurations"
-}
-
 // End of section. //template:end getPathDelete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathGet
@@ -192,12 +188,6 @@ func (data WirelessCleanAirConfiguration) toBody(ctx context.Context, state Wire
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *WirelessCleanAirConfiguration) fromBody(ctx context.Context, res gjson.Result) {
-	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get("response.id"); value.Exists() {
-		data.Id = types.StringValue(value.String())
-	} else {
-		data.Id = types.StringNull()
-	}
 	if value := res.Get("response.designName"); value.Exists() {
 		data.DesignName = types.StringValue(value.String())
 	} else {
