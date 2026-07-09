@@ -1687,19 +1687,19 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
 	{{- if not .NoDelete}}
-	{{- if .PutDelete}}
+	{{- if or .PutDelete .PostDelete}}
 	{{- if .DeleteNoId}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.{{if .PostDelete}}Post{{else}}Put{{end}}({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.{{if .PostDelete}}Post{{else}}Put{{end}}({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if hasDeleteQueryParam .Attributes }}
 	{{- $queryParams := generateQueryParamString "DELETE" "state" .Attributes }}
 	{{- if $queryParams }}
 	params := {{$queryParams}}
 	{{- end}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+	res, err := r.client.{{if .PostDelete}}Post{{else}}Put{{end}}({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + params, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
-	res, err := r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}){{- if .Mutex }}, cc.UseMutex{{- end}}
+	res, err := r.client.{{if .PostDelete}}Post{{else}}Put{{end}}({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()), {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}){{- if .Mutex }}, cc.UseMutex{{- end}}
 	{{- end}}
 	{{- if and .RetryOnErrorCodes .DeleteNoId}}
 	if err != nil {
@@ -1723,7 +1723,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 				tflog.Warn(ctx, fmt.Sprintf("%s: Error code %s encountered, waiting %v before retry (elapsed: %v, max: %v)",
 					state.Id.ValueString(), errorCode, retryInterval, time.Since(startTime), maxWaitTime))
 				time.Sleep(retryInterval)
-				res, err = r.client.Put({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
+				res, err = r.client.{{if .PostDelete}}Post{{else}}Put{{end}}({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 
 				if err == nil {
 					shouldRetry = false
@@ -1742,14 +1742,14 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	}
 	{{- end}}
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-	{{- if .PutDelete}}
+	{{- if or .PutDelete .PostDelete}}
 		errorCode := res.Get("response.errorCode").String()
 		if strings.HasPrefix(errorCode, "NCND") {
 			// Log a warning and continue execution when NCND**** error is detected
 			failureReason := res.Get("response.failureReason").String()
 			resp.Diagnostics.AddWarning("Empty input Warning", fmt.Sprintf("Empty input detected (error code: %s, reason %s).", errorCode, failureReason))
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "PUT", err, res.String()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "{{if .PostDelete}}POST{{else}}PUT{{end}}", err, res.String()))
 			return
 		}
 	{{- else}}

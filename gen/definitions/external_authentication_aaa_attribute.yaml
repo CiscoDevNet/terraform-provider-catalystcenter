@@ -1,0 +1,37 @@
+---
+name: External Authentication AAA Attribute
+rest_endpoint: /dna/system/api/v1/users/external-servers/aaa-attribute
+get_no_id: true
+delete_no_id: true
+data_source_no_id: true
+import_no_id: true
+post_update: true
+id_from_attribute: true
+skip_minimum_test: true
+test_tags: [SYSTEM]
+doc_category: System
+res_description:
+  Configure the custom AAA attribute used for external user role mapping in Catalyst Center. When
+  not configured, Catalyst Center uses the protocol default (`cisco-av-pair` for TACACS or
+  `Cisco-AVPair` for RADIUS).
+attributes:
+  - model_name: attributeName
+    tf_name: name
+    type: String
+    mandatory: true
+    id: true
+    response_data_path: response.aaa-attributes.0.attributeName
+    description: Name of the custom AAA attribute.
+    example: memberOf
+test_prerequisites: |
+  resource "catalystcenter_authentication_policy_server" "aaa" {
+    authentication_port = 1812
+    accounting_port     = 1813
+    ip_address          = "198.18.133.111"
+    port                = 49
+    protocol            = "RADIUS_TACACS"
+    retries             = 3
+    timeout_seconds     = 4
+    role                = "primary"
+    shared_secret       = "C1sco12345"
+  }

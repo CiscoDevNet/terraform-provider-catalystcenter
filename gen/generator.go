@@ -117,6 +117,7 @@ type YamlConfig struct {
 	PostUpdate                    bool                  `yaml:"post_update"`
 	PutCreate                     bool                  `yaml:"put_create"`
 	PutDelete                     bool                  `yaml:"put_delete"`
+	PostDelete                    bool                  `yaml:"post_delete"`
 	UpdateComputed                bool                  `yaml:"update_computed"`
 	DeleteIterative               bool                  `yaml:"delete_iterative"`
 	RootList                      bool                  `yaml:"root_list"`
