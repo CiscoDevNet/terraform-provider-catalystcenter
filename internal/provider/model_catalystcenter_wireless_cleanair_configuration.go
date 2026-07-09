@@ -34,8 +34,8 @@ type WirelessCleanAirConfiguration struct {
 	Id                              types.String `tfsdk:"id"`
 	DesignName                      types.String `tfsdk:"design_name"`
 	RadioBand                       types.String `tfsdk:"radio_band"`
-	CleanAirEnable                  types.Bool   `tfsdk:"clean_air_enable"`
-	DeviceReporting                 types.Bool   `tfsdk:"device_reporting"`
+	CleanAir                        types.Bool   `tfsdk:"clean_air"`
+	CleanAirDeviceReporting         types.Bool   `tfsdk:"clean_air_device_reporting"`
 	PersistentDevicePropagation     types.Bool   `tfsdk:"persistent_device_propagation"`
 	Description                     types.String `tfsdk:"description"`
 	UnlockedAttributes              types.List   `tfsdk:"unlocked_attributes"`
@@ -107,11 +107,11 @@ func (data WirelessCleanAirConfiguration) toBody(ctx context.Context, state Wire
 	if !data.RadioBand.IsNull() {
 		body, _ = sjson.Set(body, "featureAttributes.radioBand", data.RadioBand.ValueString())
 	}
-	if !data.CleanAirEnable.IsNull() {
-		body, _ = sjson.Set(body, "featureAttributes.cleanAir", data.CleanAirEnable.ValueBool())
+	if !data.CleanAir.IsNull() {
+		body, _ = sjson.Set(body, "featureAttributes.cleanAir", data.CleanAir.ValueBool())
 	}
-	if !data.DeviceReporting.IsNull() {
-		body, _ = sjson.Set(body, "featureAttributes.cleanAirDeviceReporting", data.DeviceReporting.ValueBool())
+	if !data.CleanAirDeviceReporting.IsNull() {
+		body, _ = sjson.Set(body, "featureAttributes.cleanAirDeviceReporting", data.CleanAirDeviceReporting.ValueBool())
 	}
 	if !data.PersistentDevicePropagation.IsNull() {
 		body, _ = sjson.Set(body, "featureAttributes.persistentDevicePropagation", data.PersistentDevicePropagation.ValueBool())
@@ -199,14 +199,14 @@ func (data *WirelessCleanAirConfiguration) fromBody(ctx context.Context, res gjs
 		data.RadioBand = types.StringNull()
 	}
 	if value := res.Get("response.featureAttributes.cleanAir"); value.Exists() {
-		data.CleanAirEnable = types.BoolValue(value.Bool())
+		data.CleanAir = types.BoolValue(value.Bool())
 	} else {
-		data.CleanAirEnable = types.BoolNull()
+		data.CleanAir = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.cleanAirDeviceReporting"); value.Exists() {
-		data.DeviceReporting = types.BoolValue(value.Bool())
+		data.CleanAirDeviceReporting = types.BoolValue(value.Bool())
 	} else {
-		data.DeviceReporting = types.BoolNull()
+		data.CleanAirDeviceReporting = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.persistentDevicePropagation"); value.Exists() {
 		data.PersistentDevicePropagation = types.BoolValue(value.Bool())
@@ -226,97 +226,97 @@ func (data *WirelessCleanAirConfiguration) fromBody(ctx context.Context, res gjs
 	if value := res.Get("response.featureAttributes.interferersFeatures.bleBeacon"); value.Exists() {
 		data.BleBeacon = types.BoolValue(value.Bool())
 	} else {
-		data.BleBeacon = types.BoolValue(false)
+		data.BleBeacon = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.bluetoothPagingInquiry"); value.Exists() {
 		data.BluetoothPagingInquiry = types.BoolValue(value.Bool())
 	} else {
-		data.BluetoothPagingInquiry = types.BoolValue(false)
+		data.BluetoothPagingInquiry = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.bluetoothScoAcl"); value.Exists() {
 		data.BluetoothScoAcl = types.BoolValue(value.Bool())
 	} else {
-		data.BluetoothScoAcl = types.BoolValue(false)
+		data.BluetoothScoAcl = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.continuousTransmitter"); value.Exists() {
 		data.ContinuousTransmitter = types.BoolValue(value.Bool())
 	} else {
-		data.ContinuousTransmitter = types.BoolValue(false)
+		data.ContinuousTransmitter = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.genericDect"); value.Exists() {
 		data.GenericDect = types.BoolValue(value.Bool())
 	} else {
-		data.GenericDect = types.BoolValue(false)
+		data.GenericDect = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.genericTdd"); value.Exists() {
 		data.GenericTdd = types.BoolValue(value.Bool())
 	} else {
-		data.GenericTdd = types.BoolValue(false)
+		data.GenericTdd = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.jammer"); value.Exists() {
 		data.Jammer = types.BoolValue(value.Bool())
 	} else {
-		data.Jammer = types.BoolValue(false)
+		data.Jammer = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.microwaveOven"); value.Exists() {
 		data.MicrowaveOven = types.BoolValue(value.Bool())
 	} else {
-		data.MicrowaveOven = types.BoolValue(false)
+		data.MicrowaveOven = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.motorolaCanopy"); value.Exists() {
 		data.MotorolaCanopy = types.BoolValue(value.Bool())
 	} else {
-		data.MotorolaCanopy = types.BoolValue(false)
+		data.MotorolaCanopy = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.siFhss"); value.Exists() {
 		data.SiFhss = types.BoolValue(value.Bool())
 	} else {
-		data.SiFhss = types.BoolValue(false)
+		data.SiFhss = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.spectrum80211Fh"); value.Exists() {
 		data.Spectrum80211Fh = types.BoolValue(value.Bool())
 	} else {
-		data.Spectrum80211Fh = types.BoolValue(false)
+		data.Spectrum80211Fh = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.spectrum80211NonStandardChannel"); value.Exists() {
 		data.Spectrum80211NonStandardChannel = types.BoolValue(value.Bool())
 	} else {
-		data.Spectrum80211NonStandardChannel = types.BoolValue(false)
+		data.Spectrum80211NonStandardChannel = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.spectrum802154"); value.Exists() {
 		data.Spectrum802154 = types.BoolValue(value.Bool())
 	} else {
-		data.Spectrum802154 = types.BoolValue(false)
+		data.Spectrum802154 = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.spectrumInverted"); value.Exists() {
 		data.SpectrumInverted = types.BoolValue(value.Bool())
 	} else {
-		data.SpectrumInverted = types.BoolValue(false)
+		data.SpectrumInverted = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.superAg"); value.Exists() {
 		data.SuperAg = types.BoolValue(value.Bool())
 	} else {
-		data.SuperAg = types.BoolValue(false)
+		data.SuperAg = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.videoCamera"); value.Exists() {
 		data.VideoCamera = types.BoolValue(value.Bool())
 	} else {
-		data.VideoCamera = types.BoolValue(false)
+		data.VideoCamera = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.wimaxFixed"); value.Exists() {
 		data.WimaxFixed = types.BoolValue(value.Bool())
 	} else {
-		data.WimaxFixed = types.BoolValue(false)
+		data.WimaxFixed = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.wimaxMobile"); value.Exists() {
 		data.WimaxMobile = types.BoolValue(value.Bool())
 	} else {
-		data.WimaxMobile = types.BoolValue(false)
+		data.WimaxMobile = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.xbox"); value.Exists() {
 		data.Xbox = types.BoolValue(value.Bool())
 	} else {
-		data.Xbox = types.BoolValue(false)
+		data.Xbox = types.BoolNull()
 	}
 }
 
@@ -334,15 +334,15 @@ func (data *WirelessCleanAirConfiguration) updateFromBody(ctx context.Context, r
 	} else {
 		data.RadioBand = types.StringNull()
 	}
-	if value := res.Get("response.featureAttributes.cleanAir"); value.Exists() && !data.CleanAirEnable.IsNull() {
-		data.CleanAirEnable = types.BoolValue(value.Bool())
+	if value := res.Get("response.featureAttributes.cleanAir"); value.Exists() && !data.CleanAir.IsNull() {
+		data.CleanAir = types.BoolValue(value.Bool())
 	} else {
-		data.CleanAirEnable = types.BoolNull()
+		data.CleanAir = types.BoolNull()
 	}
-	if value := res.Get("response.featureAttributes.cleanAirDeviceReporting"); value.Exists() && !data.DeviceReporting.IsNull() {
-		data.DeviceReporting = types.BoolValue(value.Bool())
+	if value := res.Get("response.featureAttributes.cleanAirDeviceReporting"); value.Exists() && !data.CleanAirDeviceReporting.IsNull() {
+		data.CleanAirDeviceReporting = types.BoolValue(value.Bool())
 	} else {
-		data.DeviceReporting = types.BoolNull()
+		data.CleanAirDeviceReporting = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.persistentDevicePropagation"); value.Exists() && !data.PersistentDevicePropagation.IsNull() {
 		data.PersistentDevicePropagation = types.BoolValue(value.Bool())
@@ -361,97 +361,97 @@ func (data *WirelessCleanAirConfiguration) updateFromBody(ctx context.Context, r
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.bleBeacon"); value.Exists() && !data.BleBeacon.IsNull() {
 		data.BleBeacon = types.BoolValue(value.Bool())
-	} else if data.BleBeacon.ValueBool() != false {
+	} else {
 		data.BleBeacon = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.bluetoothPagingInquiry"); value.Exists() && !data.BluetoothPagingInquiry.IsNull() {
 		data.BluetoothPagingInquiry = types.BoolValue(value.Bool())
-	} else if data.BluetoothPagingInquiry.ValueBool() != false {
+	} else {
 		data.BluetoothPagingInquiry = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.bluetoothScoAcl"); value.Exists() && !data.BluetoothScoAcl.IsNull() {
 		data.BluetoothScoAcl = types.BoolValue(value.Bool())
-	} else if data.BluetoothScoAcl.ValueBool() != false {
+	} else {
 		data.BluetoothScoAcl = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.continuousTransmitter"); value.Exists() && !data.ContinuousTransmitter.IsNull() {
 		data.ContinuousTransmitter = types.BoolValue(value.Bool())
-	} else if data.ContinuousTransmitter.ValueBool() != false {
+	} else {
 		data.ContinuousTransmitter = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.genericDect"); value.Exists() && !data.GenericDect.IsNull() {
 		data.GenericDect = types.BoolValue(value.Bool())
-	} else if data.GenericDect.ValueBool() != false {
+	} else {
 		data.GenericDect = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.genericTdd"); value.Exists() && !data.GenericTdd.IsNull() {
 		data.GenericTdd = types.BoolValue(value.Bool())
-	} else if data.GenericTdd.ValueBool() != false {
+	} else {
 		data.GenericTdd = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.jammer"); value.Exists() && !data.Jammer.IsNull() {
 		data.Jammer = types.BoolValue(value.Bool())
-	} else if data.Jammer.ValueBool() != false {
+	} else {
 		data.Jammer = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.microwaveOven"); value.Exists() && !data.MicrowaveOven.IsNull() {
 		data.MicrowaveOven = types.BoolValue(value.Bool())
-	} else if data.MicrowaveOven.ValueBool() != false {
+	} else {
 		data.MicrowaveOven = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.motorolaCanopy"); value.Exists() && !data.MotorolaCanopy.IsNull() {
 		data.MotorolaCanopy = types.BoolValue(value.Bool())
-	} else if data.MotorolaCanopy.ValueBool() != false {
+	} else {
 		data.MotorolaCanopy = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.siFhss"); value.Exists() && !data.SiFhss.IsNull() {
 		data.SiFhss = types.BoolValue(value.Bool())
-	} else if data.SiFhss.ValueBool() != false {
+	} else {
 		data.SiFhss = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.spectrum80211Fh"); value.Exists() && !data.Spectrum80211Fh.IsNull() {
 		data.Spectrum80211Fh = types.BoolValue(value.Bool())
-	} else if data.Spectrum80211Fh.ValueBool() != false {
+	} else {
 		data.Spectrum80211Fh = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.spectrum80211NonStandardChannel"); value.Exists() && !data.Spectrum80211NonStandardChannel.IsNull() {
 		data.Spectrum80211NonStandardChannel = types.BoolValue(value.Bool())
-	} else if data.Spectrum80211NonStandardChannel.ValueBool() != false {
+	} else {
 		data.Spectrum80211NonStandardChannel = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.spectrum802154"); value.Exists() && !data.Spectrum802154.IsNull() {
 		data.Spectrum802154 = types.BoolValue(value.Bool())
-	} else if data.Spectrum802154.ValueBool() != false {
+	} else {
 		data.Spectrum802154 = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.spectrumInverted"); value.Exists() && !data.SpectrumInverted.IsNull() {
 		data.SpectrumInverted = types.BoolValue(value.Bool())
-	} else if data.SpectrumInverted.ValueBool() != false {
+	} else {
 		data.SpectrumInverted = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.superAg"); value.Exists() && !data.SuperAg.IsNull() {
 		data.SuperAg = types.BoolValue(value.Bool())
-	} else if data.SuperAg.ValueBool() != false {
+	} else {
 		data.SuperAg = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.videoCamera"); value.Exists() && !data.VideoCamera.IsNull() {
 		data.VideoCamera = types.BoolValue(value.Bool())
-	} else if data.VideoCamera.ValueBool() != false {
+	} else {
 		data.VideoCamera = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.wimaxFixed"); value.Exists() && !data.WimaxFixed.IsNull() {
 		data.WimaxFixed = types.BoolValue(value.Bool())
-	} else if data.WimaxFixed.ValueBool() != false {
+	} else {
 		data.WimaxFixed = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.wimaxMobile"); value.Exists() && !data.WimaxMobile.IsNull() {
 		data.WimaxMobile = types.BoolValue(value.Bool())
-	} else if data.WimaxMobile.ValueBool() != false {
+	} else {
 		data.WimaxMobile = types.BoolNull()
 	}
 	if value := res.Get("response.featureAttributes.interferersFeatures.xbox"); value.Exists() && !data.Xbox.IsNull() {
 		data.Xbox = types.BoolValue(value.Bool())
-	} else if data.Xbox.ValueBool() != false {
+	} else {
 		data.Xbox = types.BoolNull()
 	}
 }
@@ -466,10 +466,10 @@ func (data *WirelessCleanAirConfiguration) isNull(ctx context.Context, res gjson
 	if !data.RadioBand.IsNull() {
 		return false
 	}
-	if !data.CleanAirEnable.IsNull() {
+	if !data.CleanAir.IsNull() {
 		return false
 	}
-	if !data.DeviceReporting.IsNull() {
+	if !data.CleanAirDeviceReporting.IsNull() {
 		return false
 	}
 	if !data.PersistentDevicePropagation.IsNull() {

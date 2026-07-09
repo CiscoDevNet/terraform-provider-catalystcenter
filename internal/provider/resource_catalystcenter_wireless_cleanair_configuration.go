@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -76,6 +75,9 @@ func (r *WirelessCleanAirConfigurationResource) Schema(ctx context.Context, req 
 			"design_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The name of the CleanAir feature template. Forbidden characters are `% & < > [ ] ' /`.").String,
 				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(1, 64),
+				},
 			},
 			"radio_band": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The radio band the CleanAir configuration applies to.").AddStringEnumDescription("2_4GHZ", "5GHZ", "6GHZ").String,
@@ -84,11 +86,11 @@ func (r *WirelessCleanAirConfigurationResource) Schema(ctx context.Context, req 
 					stringvalidator.OneOf("2_4GHZ", "5GHZ", "6GHZ"),
 				},
 			},
-			"clean_air_enable": schema.BoolAttribute{
+			"clean_air": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable CleanAir spectrum intelligence on the radio band.").String,
 				Optional:            true,
 			},
-			"device_reporting": schema.BoolAttribute{
+			"clean_air_device_reporting": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable reporting of CleanAir interferer devices.").String,
 				Optional:            true,
 			},
@@ -106,118 +108,80 @@ func (r *WirelessCleanAirConfigurationResource) Schema(ctx context.Context, req 
 				Optional:            true,
 			},
 			"ble_beacon": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect BLE Beacon interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect BLE Beacon interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"bluetooth_paging_inquiry": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Bluetooth Paging Inquiry interferers. Applicable to 2.4GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Bluetooth Paging Inquiry interferers. Applicable to 2.4GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"bluetooth_sco_acl": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Bluetooth SCO and ACL interferers. Applicable to 2.4GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Bluetooth SCO and ACL interferers. Applicable to 2.4GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"continuous_transmitter": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Continuous Transmitter interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Continuous Transmitter interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"generic_dect": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Generic DECT interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Generic DECT interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"generic_tdd": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Generic TDD Transmitter interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Generic TDD Transmitter interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"jammer": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Jammer interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Jammer interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"microwave_oven": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Microwave Oven interferers. Applicable to 2.4GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Microwave Oven interferers. Applicable to 2.4GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"motorola_canopy": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Motorola Canopy interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Motorola Canopy interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"si_fhss": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect SI FHSS interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect SI FHSS interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"spectrum_80211_fh": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect 802.11 FH interferers. Applicable to 2.4GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect 802.11 FH interferers. Applicable to 2.4GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"spectrum_80211_non_standard_channel": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect 802.11 Non Standard Channel interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect 802.11 Non Standard Channel interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"spectrum_802154": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect 802.15.4 interferers. Applicable to 2.4GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect 802.15.4 interferers. Applicable to 2.4GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"spectrum_inverted": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Spectrum Inverted interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Spectrum Inverted interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"super_ag": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Super AG interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Super AG interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"video_camera": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Video Camera interferers. Applicable to 2.4GHz and 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Video Camera interferers. Applicable to 2.4GHz and 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"wimax_fixed": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect WiMax Fixed interferers. Applicable to 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect WiMax Fixed interferers. Applicable to 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"wimax_mobile": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect WiMax Mobile interferers. Applicable to 5GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect WiMax Mobile interferers. Applicable to 5GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"xbox": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Detect Xbox interferers. Applicable to 2.4GHz.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Detect Xbox interferers. Applicable to 2.4GHz.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 		},
 	}

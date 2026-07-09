@@ -30,11 +30,11 @@ data "catalystcenter_wireless_cleanair_configuration" "example" {
 - `ble_beacon` (Boolean) Detect BLE Beacon interferers. Applicable to 2.4GHz and 5GHz.
 - `bluetooth_paging_inquiry` (Boolean) Detect Bluetooth Paging Inquiry interferers. Applicable to 2.4GHz.
 - `bluetooth_sco_acl` (Boolean) Detect Bluetooth SCO and ACL interferers. Applicable to 2.4GHz.
-- `clean_air_enable` (Boolean) Enable CleanAir spectrum intelligence on the radio band.
+- `clean_air` (Boolean) Enable CleanAir spectrum intelligence on the radio band.
+- `clean_air_device_reporting` (Boolean) Enable reporting of CleanAir interferer devices.
 - `continuous_transmitter` (Boolean) Detect Continuous Transmitter interferers. Applicable to 2.4GHz and 5GHz.
 - `description` (String) Description of the CleanAir feature template.
 - `design_name` (String) The name of the CleanAir feature template. Forbidden characters are `% & < > [ ] ' /`.
-- `device_reporting` (Boolean) Enable reporting of CleanAir interferer devices.
 - `generic_dect` (Boolean) Detect Generic DECT interferers. Applicable to 2.4GHz and 5GHz.
 - `generic_tdd` (Boolean) Detect Generic TDD Transmitter interferers. Applicable to 2.4GHz and 5GHz.
 - `jammer` (Boolean) Detect Jammer interferers. Applicable to 2.4GHz and 5GHz.

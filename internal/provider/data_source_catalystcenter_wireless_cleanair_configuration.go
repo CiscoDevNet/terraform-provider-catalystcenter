@@ -70,11 +70,11 @@ func (d *WirelessCleanAirConfigurationDataSource) Schema(ctx context.Context, re
 				MarkdownDescription: "The radio band the CleanAir configuration applies to.",
 				Computed:            true,
 			},
-			"clean_air_enable": schema.BoolAttribute{
+			"clean_air": schema.BoolAttribute{
 				MarkdownDescription: "Enable CleanAir spectrum intelligence on the radio band.",
 				Computed:            true,
 			},
-			"device_reporting": schema.BoolAttribute{
+			"clean_air_device_reporting": schema.BoolAttribute{
 				MarkdownDescription: "Enable reporting of CleanAir interferer devices.",
 				Computed:            true,
 			},

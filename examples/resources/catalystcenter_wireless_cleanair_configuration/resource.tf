@@ -1,8 +1,8 @@
 resource "catalystcenter_wireless_cleanair_configuration" "example" {
   design_name                         = "cleanAir_802_11b_custom"
   radio_band                          = "2_4GHZ"
-  clean_air_enable                    = true
-  device_reporting                    = true
+  clean_air                           = true
+  clean_air_device_reporting          = true
   persistent_device_propagation       = true
   ble_beacon                          = true
   bluetooth_paging_inquiry            = true

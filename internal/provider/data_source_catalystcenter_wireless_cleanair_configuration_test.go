@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,11 +29,14 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcWirelessCleanAirConfiguration(t *testing.T) {
+	if os.Getenv("CC315") == "" {
+		t.Skip("skipping test, set environment variable CC315")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "design_name", "cleanAir_802_11b_custom"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "radio_band", "2_4GHZ"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "clean_air_enable", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "device_reporting", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "clean_air", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "clean_air_device_reporting", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "persistent_device_propagation", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "ble_beacon", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_cleanair_configuration.test", "bluetooth_paging_inquiry", "true"))
@@ -75,8 +79,8 @@ func testAccDataSourceCcWirelessCleanAirConfigurationConfig() string {
 	config := `resource "catalystcenter_wireless_cleanair_configuration" "test" {` + "\n"
 	config += `	design_name = "cleanAir_802_11b_custom"` + "\n"
 	config += `	radio_band = "2_4GHZ"` + "\n"
-	config += `	clean_air_enable = true` + "\n"
-	config += `	device_reporting = true` + "\n"
+	config += `	clean_air = true` + "\n"
+	config += `	clean_air_device_reporting = true` + "\n"
 	config += `	persistent_device_propagation = true` + "\n"
 	config += `	ble_beacon = true` + "\n"
 	config += `	bluetooth_paging_inquiry = true` + "\n"

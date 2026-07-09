@@ -16,8 +16,8 @@ This resource manages a Wireless CleanAir Configuration feature template. CleanA
 resource "catalystcenter_wireless_cleanair_configuration" "example" {
   design_name                         = "cleanAir_802_11b_custom"
   radio_band                          = "2_4GHZ"
-  clean_air_enable                    = true
-  device_reporting                    = true
+  clean_air                           = true
+  clean_air_device_reporting          = true
   persistent_device_propagation       = true
   ble_beacon                          = true
   bluetooth_paging_inquiry            = true
@@ -53,48 +53,29 @@ resource "catalystcenter_wireless_cleanair_configuration" "example" {
 ### Optional
 
 - `ble_beacon` (Boolean) Detect BLE Beacon interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `bluetooth_paging_inquiry` (Boolean) Detect Bluetooth Paging Inquiry interferers. Applicable to 2.4GHz.
-  - Default value: `false`
 - `bluetooth_sco_acl` (Boolean) Detect Bluetooth SCO and ACL interferers. Applicable to 2.4GHz.
-  - Default value: `false`
-- `clean_air_enable` (Boolean) Enable CleanAir spectrum intelligence on the radio band.
+- `clean_air` (Boolean) Enable CleanAir spectrum intelligence on the radio band.
+- `clean_air_device_reporting` (Boolean) Enable reporting of CleanAir interferer devices.
 - `continuous_transmitter` (Boolean) Detect Continuous Transmitter interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `description` (String) Description of the CleanAir feature template.
-- `device_reporting` (Boolean) Enable reporting of CleanAir interferer devices.
 - `generic_dect` (Boolean) Detect Generic DECT interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `generic_tdd` (Boolean) Detect Generic TDD Transmitter interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `jammer` (Boolean) Detect Jammer interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `microwave_oven` (Boolean) Detect Microwave Oven interferers. Applicable to 2.4GHz.
-  - Default value: `false`
 - `motorola_canopy` (Boolean) Detect Motorola Canopy interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `persistent_device_propagation` (Boolean) Enable persistent device propagation.
 - `si_fhss` (Boolean) Detect SI FHSS interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `spectrum_80211_fh` (Boolean) Detect 802.11 FH interferers. Applicable to 2.4GHz.
-  - Default value: `false`
 - `spectrum_80211_non_standard_channel` (Boolean) Detect 802.11 Non Standard Channel interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `spectrum_802154` (Boolean) Detect 802.15.4 interferers. Applicable to 2.4GHz.
-  - Default value: `false`
 - `spectrum_inverted` (Boolean) Detect Spectrum Inverted interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `super_ag` (Boolean) Detect Super AG interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `unlocked_attributes` (List of String) List of feature attributes that are unlocked (editable) for this template.
 - `video_camera` (Boolean) Detect Video Camera interferers. Applicable to 2.4GHz and 5GHz.
-  - Default value: `false`
 - `wimax_fixed` (Boolean) Detect WiMax Fixed interferers. Applicable to 5GHz.
-  - Default value: `false`
 - `wimax_mobile` (Boolean) Detect WiMax Mobile interferers. Applicable to 5GHz.
-  - Default value: `false`
 - `xbox` (Boolean) Detect Xbox interferers. Applicable to 2.4GHz.
-  - Default value: `false`
 
 ### Read-Only
 

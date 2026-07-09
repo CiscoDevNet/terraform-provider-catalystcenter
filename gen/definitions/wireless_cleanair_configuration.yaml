@@ -2,17 +2,18 @@
 name: Wireless CleanAir Configuration
 rest_endpoint: /dna/intent/api/v1/featureTemplates/wireless/cleanAirConfigurations
 id_path: response.data
-id_from_query_path: response
-id_from_query_path_attribute: id
 put_id: true
 mutex: true
 res_description: This resource manages a Wireless CleanAir Configuration feature template. CleanAir feature templates define spectrum-intelligence settings (per radio band) that detect and classify RF interferers, and can be attached to wireless network profiles.
 doc_category: Wireless
+test_tags: [CC315]
 attributes:
   - model_name: designName
     type: String
     mandatory: true
     description: The name of the CleanAir feature template. Forbidden characters are `% & < > [ ] ' /`.
+    string_max_length: 64
+    string_min_length: 1
     example: cleanAir_802_11b_custom
     response_data_path: response.designName
   - model_name: radioBand
@@ -24,14 +25,12 @@ attributes:
     description: The radio band the CleanAir configuration applies to.
     example: 2_4GHZ
   - model_name: cleanAir
-    tf_name: clean_air_enable
     data_path: featureAttributes
     response_data_path: response.featureAttributes.cleanAir
     type: Bool
     description: Enable CleanAir spectrum intelligence on the radio band.
     example: true
   - model_name: cleanAirDeviceReporting
-    tf_name: device_reporting
     data_path: featureAttributes
     response_data_path: response.featureAttributes.cleanAirDeviceReporting
     type: Bool
@@ -58,83 +57,63 @@ attributes:
     example: cleanAir
     exclude_test: true
   - model_name: bleBeacon
-    tf_name: ble_beacon
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.bleBeacon
     type: Bool
-    default_value: false
     description: Detect BLE Beacon interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: bluetoothPagingInquiry
-    tf_name: bluetooth_paging_inquiry
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.bluetoothPagingInquiry
     type: Bool
-    default_value: false
     description: Detect Bluetooth Paging Inquiry interferers. Applicable to 2.4GHz.
     example: true
   - model_name: bluetoothScoAcl
-    tf_name: bluetooth_sco_acl
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.bluetoothScoAcl
     type: Bool
-    default_value: false
     description: Detect Bluetooth SCO and ACL interferers. Applicable to 2.4GHz.
     example: true
   - model_name: continuousTransmitter
-    tf_name: continuous_transmitter
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.continuousTransmitter
     type: Bool
-    default_value: false
     description: Detect Continuous Transmitter interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: genericDect
-    tf_name: generic_dect
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.genericDect
     type: Bool
-    default_value: false
     description: Detect Generic DECT interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: genericTdd
-    tf_name: generic_tdd
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.genericTdd
     type: Bool
-    default_value: false
     description: Detect Generic TDD Transmitter interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: jammer
-    tf_name: jammer
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.jammer
     type: Bool
-    default_value: false
     description: Detect Jammer interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: microwaveOven
-    tf_name: microwave_oven
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.microwaveOven
     type: Bool
-    default_value: false
     description: Detect Microwave Oven interferers. Applicable to 2.4GHz.
     example: true
   - model_name: motorolaCanopy
-    tf_name: motorola_canopy
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.motorolaCanopy
     type: Bool
-    default_value: false
     description: Detect Motorola Canopy interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: siFhss
-    tf_name: si_fhss
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.siFhss
     type: Bool
-    default_value: false
     description: Detect SI FHSS interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: spectrum80211Fh
@@ -142,7 +121,6 @@ attributes:
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.spectrum80211Fh
     type: Bool
-    default_value: false
     description: Detect 802.11 FH interferers. Applicable to 2.4GHz.
     example: true
   - model_name: spectrum80211NonStandardChannel
@@ -150,7 +128,6 @@ attributes:
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.spectrum80211NonStandardChannel
     type: Bool
-    default_value: false
     description: Detect 802.11 Non Standard Channel interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: spectrum802154
@@ -158,56 +135,41 @@ attributes:
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.spectrum802154
     type: Bool
-    default_value: false
     description: Detect 802.15.4 interferers. Applicable to 2.4GHz.
     example: true
   - model_name: spectrumInverted
-    tf_name: spectrum_inverted
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.spectrumInverted
     type: Bool
-    default_value: false
     description: Detect Spectrum Inverted interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: superAg
-    tf_name: super_ag
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.superAg
     type: Bool
-    default_value: false
     description: Detect Super AG interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: videoCamera
-    tf_name: video_camera
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.videoCamera
     type: Bool
-    default_value: false
     description: Detect Video Camera interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: wimaxFixed
-    tf_name: wimax_fixed
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.wimaxFixed
     type: Bool
-    default_value: false
     description: Detect WiMax Fixed interferers. Applicable to 5GHz.
     example: true
   - model_name: wimaxMobile
-    tf_name: wimax_mobile
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.wimaxMobile
     type: Bool
-    default_value: false
     description: Detect WiMax Mobile interferers. Applicable to 5GHz.
     example: true
   - model_name: xbox
-    tf_name: xbox
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.xbox
     type: Bool
-    default_value: false
     description: Detect Xbox interferers. Applicable to 2.4GHz.
     example: true
-
-
