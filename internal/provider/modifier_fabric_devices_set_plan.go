@@ -84,6 +84,13 @@ func (m fabricDevicesSetPlanModifier) PlanModifySet(ctx context.Context, req pla
 			// role change (add/remove of a non-wireless role) intact.
 			if rolesDifferOnlyByAutoRoles(planRoles, stateRoles) {
 				p.DeviceRoles = s.DeviceRoles
+				// The nested `id` is Computed with no UseStateForUnknown, so once this
+				// element is seen as changed it becomes unknown in the plan. Left unknown,
+				// the reconstructed set element would never match prior state and the diff
+				// would persist despite the roles now matching. Re-adopt the state id.
+				if p.Id.IsUnknown() || p.Id.IsNull() {
+					p.Id = s.Id
+				}
 				changed = true
 			}
 			break
