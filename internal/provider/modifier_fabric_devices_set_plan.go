@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -51,42 +52,72 @@ func (m fabricDevicesSetPlanModifier) PlanModifySet(ctx context.Context, req pla
 		return
 	}
 
+	// Index prior-state elements by their natural key (network_device_id). A Terraform
+	// set can technically hold two objects that share a network_device_id but differ in
+	// other fields, which makes correlation ambiguous; skip such keys rather than risk
+	// copying the wrong computed values.
+	stateByKey := make(map[string]*FabricDevicesFabricDevices, len(state))
+	ambiguousKeys := make(map[string]bool)
+	for j := range state {
+		s := &state[j]
+		if s.NetworkDeviceId.IsNull() || s.NetworkDeviceId.IsUnknown() {
+			continue
+		}
+		key := s.NetworkDeviceId.ValueString()
+		if _, seen := stateByKey[key]; seen {
+			ambiguousKeys[key] = true
+			continue
+		}
+		stateByKey[key] = s
+	}
+
 	changed := false
 	for i := range planned {
 		p := &planned[i]
 		if p.NetworkDeviceId.IsNull() || p.NetworkDeviceId.IsUnknown() {
 			continue
 		}
-		if p.DeviceRoles.IsNull() || p.DeviceRoles.IsUnknown() {
+		key := p.NetworkDeviceId.ValueString()
+		if ambiguousKeys[key] {
+			continue
+		}
+		s, ok := stateByKey[key]
+		if !ok {
+			// Genuinely new element (no prior-state counterpart) - leave its computed id
+			// unknown so a real create diff is produced.
 			continue
 		}
 
-		// Match the planned device to its prior-state counterpart by network_device_id.
-		for j := range state {
-			s := state[j]
-			if !p.NetworkDeviceId.Equal(s.NetworkDeviceId) {
-				continue
-			}
-			if s.DeviceRoles.IsNull() || s.DeviceRoles.IsUnknown() {
-				break
-			}
-
+		// Reconcile the controller-added WIRELESS_CONTROLLER_NODE role first, so the role
+		// comparison in fabricDeviceConfigEqual treats an auto-added-only difference as a
+		// no-op. Copy state roles into the plan only when the plan is a strict subset of
+		// the state and every extra role is a controller-added wireless role.
+		if !p.DeviceRoles.IsNull() && !p.DeviceRoles.IsUnknown() &&
+			!s.DeviceRoles.IsNull() && !s.DeviceRoles.IsUnknown() {
 			var planRoles, stateRoles []string
 			resp.Diagnostics.Append(p.DeviceRoles.ElementsAs(ctx, &planRoles, false)...)
 			resp.Diagnostics.Append(s.DeviceRoles.ElementsAs(ctx, &stateRoles, false)...)
 			if resp.Diagnostics.HasError() {
 				return
 			}
-
-			// Copy the state roles into the plan only when the plan is a strict subset of
-			// the state and every extra role in the state is a controller-added wireless
-			// role. This suppresses the auto-added-role drift while leaving any genuine
-			// role change (add/remove of a non-wireless role) intact.
 			if rolesDifferOnlyByAutoRoles(planRoles, stateRoles) {
 				p.DeviceRoles = s.DeviceRoles
 				changed = true
 			}
-			break
+		}
+
+		// UseStateForUnknown for the computed-only `id`. fabric_devices is a Set, so element
+		// identity is the hash of the whole nested object; a null/unknown `id` in the plan
+		// hashes differently from the concrete `id` in state, making an otherwise-identical
+		// element show up as remove+add. Propagate the state id only once the element's
+		// user-managed fields already match state, so genuine changes still surface a diff.
+		if (p.Id.IsNull() || p.Id.IsUnknown()) && !s.Id.IsNull() && !s.Id.IsUnknown() &&
+			fabricDeviceConfigEqual(ctx, p, s, &resp.Diagnostics) {
+			if resp.Diagnostics.HasError() {
+				return
+			}
+			p.Id = s.Id
+			changed = true
 		}
 	}
 
@@ -135,6 +166,52 @@ func rolesDifferOnlyByAutoRoles(planRoles, stateRoles []string) bool {
 		extras++
 	}
 	return extras > 0
+}
+
+// fabricDeviceConfigEqual reports whether every user-managed (non-computed) field of the
+// planned element already matches state. The computed `id` is excluded because it is the
+// value being propagated. device_roles is compared after the auto-role normalization, so an
+// auto-added-only difference is already treated as equal.
+func fabricDeviceConfigEqual(ctx context.Context, p, s *FabricDevicesFabricDevices, diags *diag.Diagnostics) bool {
+	if !p.NetworkDeviceId.Equal(s.NetworkDeviceId) ||
+		!p.FabricId.Equal(s.FabricId) ||
+		!p.LocalAutonomousSystemNumber.Equal(s.LocalAutonomousSystemNumber) ||
+		!p.DefaultExit.Equal(s.DefaultExit) ||
+		!p.ImportExternalRoutes.Equal(s.ImportExternalRoutes) ||
+		!p.BorderPriority.Equal(s.BorderPriority) ||
+		!p.PrependAutonomousSystemCount.Equal(s.PrependAutonomousSystemCount) {
+		return false
+	}
+	return setsEqual(ctx, p.DeviceRoles, s.DeviceRoles, diags) &&
+		setsEqual(ctx, p.BorderTypes, s.BorderTypes, diags)
+}
+
+// setsEqual compares two string sets by membership, treating null and empty as equal.
+func setsEqual(ctx context.Context, a, b types.Set, diags *diag.Diagnostics) bool {
+	if a.IsUnknown() || b.IsUnknown() {
+		return false
+	}
+	var av, bv []string
+	if !a.IsNull() {
+		diags.Append(a.ElementsAs(ctx, &av, false)...)
+	}
+	if !b.IsNull() {
+		diags.Append(b.ElementsAs(ctx, &bv, false)...)
+	}
+	if len(av) != len(bv) {
+		return false
+	}
+	m := make(map[string]int, len(av))
+	for _, r := range av {
+		m[r]++
+	}
+	for _, r := range bv {
+		m[r]--
+		if m[r] < 0 {
+			return false
+		}
+	}
+	return true
 }
 
 // fabricDevicesAttributeTypes must mirror the FabricDevicesFabricDevices schema.
