@@ -28,6 +28,7 @@ attributes:
   - tf_name: fabric_devices
     type: Set
     mandatory: true
+    custom_modifier: fabricDevicesSetPlanModifier
     description: List of fabric devices to be managed in bulk
     response_data_path: response
     max_elements_in_root_list: 10

@@ -86,6 +86,9 @@ func (r *FabricDevicesResource) Schema(ctx context.Context, req resource.SchemaR
 			"fabric_devices": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of fabric devices to be managed in bulk").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.Set{
+					fabricDevicesSetPlanModifier{},
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
