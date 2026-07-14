@@ -394,6 +394,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewWirelessProfilePolicyTagResource,
 		NewWirelessProfileSiteTagResource,
 		NewWirelessRFProfileResource,
+		NewWirelessRRMFRAConfigurationResource,
 		NewWirelessSSIDResource,
 	}
 }
@@ -482,6 +483,7 @@ func (p *CcProvider) DataSources(ctx context.Context) []func() datasource.DataSo
 		NewWirelessProfilePolicyTagDataSource,
 		NewWirelessProfileSiteTagDataSource,
 		NewWirelessRFProfileDataSource,
+		NewWirelessRRMFRAConfigurationDataSource,
 		NewWirelessSSIDDataSource,
 	}
 }

@@ -1,0 +1,58 @@
+---
+name: Wireless RRM FRA Configuration
+rest_endpoint: /dna/intent/api/v1/featureTemplates/wireless/rrmFraConfigurations
+id_path: response.data
+put_id: true
+mutex: true
+res_description: This resource manages a Wireless RRM Flexible Radio Assignment (FRA) Configuration feature template. FRA feature templates define global/controller-level FRA settings per radio band pair and can be attached to wireless network profiles.
+doc_category: Wireless
+test_tags: [CC315]
+attributes:
+  - model_name: designName
+    type: String
+    mandatory: true
+    description: The name of the RRM FRA feature template. Forbidden characters are `% & < > [ ] ' /`.
+    string_max_length: 64
+    string_min_length: 1
+    example: Test
+    response_data_path: response.designName
+  - model_name: radioBand
+    data_path: featureAttributes
+    response_data_path: response.featureAttributes.radioBand
+    type: String
+    mandatory: true
+    enum_values: [2_4GHZ_5GHZ, 5GHZ_6GHZ]
+    description: Radio band pair the FRA configuration applies to. `5GHZ_6GHZ` is supported only on IOS-XE Wireless Controllers running 17.9.1 and above.
+    example: 2_4GHZ_5GHZ
+  - model_name: fraFreeze
+    data_path: featureAttributes
+    response_data_path: response.featureAttributes.fraFreeze
+    type: Bool
+    description: Enable Flexible Radio Assignment freeze. Supported on IOS-XE Wireless Controllers running version >= 17.6 for `2_4GHZ_5GHZ` and version >= 17.9 for `5GHZ_6GHZ`.
+    example: true
+  - model_name: fraStatus
+    data_path: featureAttributes
+    response_data_path: response.featureAttributes.fraStatus
+    type: Bool
+    description: Enable Flexible Radio Assignment.
+    example: true
+  - model_name: fraInterval
+    data_path: featureAttributes
+    response_data_path: response.featureAttributes.fraInterval
+    type: Int64
+    description: Flexible Radio Assignment interval in hours (for example, `3` for 3 hours).
+    example: 3
+  - model_name: fraSensitivity
+    data_path: featureAttributes
+    response_data_path: response.featureAttributes.fraSensitivity
+    type: String
+    enum_values: [LOW, MEDIUM, HIGH, HIGHER, EVEN_HIGHER, SUPER_HIGH]
+    description: Flexible Radio Assignment sensitivity. Values `HIGHER`, `EVEN_HIGHER`, and `SUPER_HIGH` are supported only on IOS-XE Wireless Controllers running 17.5 and above and only for the `2_4GHZ_5GHZ` radio band.
+    example: MEDIUM
+  - model_name: unlockedAttributes
+    type: List
+    element_type: String
+    response_data_path: response.unlockedAttributes
+    description: Feature attributes unlocked in the design that can be changed at device provision time. Only attributes defined under `featureAttributes` are allowed.
+    example: fraInterval
+    exclude_test: true

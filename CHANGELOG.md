@@ -1,3 +1,7 @@
+## 0.5.21 (unreleased)
+
+- Add `catalystcenter_wireless_rrm_fra_configuration` resource and data source to manage RRM Flexible Radio Assignment (FRA) feature templates
+
 ## 0.5.20
 
 - Add `catalystcenter_wireless_cleanair_configuration` resource and data source to manage CleanAir feature templates
