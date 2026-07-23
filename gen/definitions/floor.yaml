@@ -45,18 +45,21 @@ attributes:
     type: Float64
     mandatory: true
     description: Width
+    decimal_places: 3
     example: 40
   - model_name: length
     response_data_path: response.length
     type: Float64
     mandatory: true
     description: Length
+    decimal_places: 3
     example: 50.5
   - model_name: height
     response_data_path: response.height
     type: Float64
     mandatory: true
     description: Height
+    decimal_places: 3
     example: 3.5
   - model_name: unitsOfMeasure
     get_query_param: true

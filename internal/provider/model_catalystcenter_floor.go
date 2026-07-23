@@ -88,6 +88,7 @@ func (data Floor) toBody(ctx context.Context, state Floor) string {
 
 // End of section. //template:end toBody
 
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Floor) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.parentId"); value.Exists() {
 		data.ParentId = types.StringValue(value.String())
@@ -131,6 +132,9 @@ func (data *Floor) fromBody(ctx context.Context, res gjson.Result) {
 	}
 }
 
+// End of section. //template:end fromBody
+
+// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.parentId"); value.Exists() && !data.ParentId.IsNull() {
 		data.ParentId = types.StringValue(value.String())
@@ -173,6 +177,8 @@ func (data *Floor) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.UnitsOfMeasure = types.StringNull()
 	}
 }
+
+// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Floor) isNull(ctx context.Context, res gjson.Result) bool {
