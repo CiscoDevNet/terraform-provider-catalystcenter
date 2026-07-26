@@ -140,8 +140,10 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 			existingFabricIds = append(existingFabricIds, plan.FabricSiteId.ValueString())
 		}
 
+		existingAnchoredSiteId := res.Get("response.0.anchoredSiteId").String()
+
 		// Create object
-		body := plan.toBody(ctx, VirtualNetworkToFabricSite{}, existingFabricIds)
+		body := plan.toBody(ctx, VirtualNetworkToFabricSite{}, existingFabricIds, existingAnchoredSiteId)
 
 		params = ""
 		res, err = r.client.Put(plan.getPath()+params, body, cc.UseMutex)
@@ -306,7 +308,9 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 			}
 		}
 
-		body := state.toBody(ctx, VirtualNetworkToFabricSite{}, newFabricIds)
+		existingAnchoredSiteId := res.Get("response.0.anchoredSiteId").String()
+
+		body := state.toBody(ctx, VirtualNetworkToFabricSite{}, newFabricIds, existingAnchoredSiteId)
 
 		res, err = r.client.Put(state.getPath(), body, cc.UseMutex)
 		if err != nil {

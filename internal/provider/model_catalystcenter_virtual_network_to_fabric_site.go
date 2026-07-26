@@ -49,7 +49,7 @@ func (data VirtualNetworkToFabricSite) getPath() string {
 
 // End of section. //template:end getPathDelete
 
-func (data VirtualNetworkToFabricSite) toBody(ctx context.Context, state VirtualNetworkToFabricSite, fabricIds []string) string {
+func (data VirtualNetworkToFabricSite) toBody(ctx context.Context, state VirtualNetworkToFabricSite, fabricIds []string, anchoredSiteId string) string {
 	body := ""
 	put := false
 	if state.Id.ValueString() != "" {
@@ -64,6 +64,11 @@ func (data VirtualNetworkToFabricSite) toBody(ctx context.Context, state Virtual
 	}
 	if len(fabricIds) > 0 {
 		body, _ = sjson.Set(body, "0.fabricIds", fabricIds)
+	}
+	// Preserve the anchor on an anchored VN. Catalyst Center rejects a multi-fabric
+	// update that omits anchoredSiteId (NCHS20464), interpreting it as a re-anchor.
+	if anchoredSiteId != "" {
+		body, _ = sjson.Set(body, "0.anchoredSiteId", anchoredSiteId)
 	}
 	return body
 }
