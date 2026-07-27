@@ -190,6 +190,7 @@ type YamlConfigAttribute struct {
 	Mandatory                 bool                  `yaml:"mandatory"`
 	Computed                  bool                  `yaml:"computed"`
 	ComputedRefreshValue      bool                  `yaml:"computed_refresh_value"`
+	NoUseStateForUnknown      bool                  `yaml:"no_use_state_for_unknown"`
 	WriteOnly                 bool                  `yaml:"write_only"`
 	ExcludeFromPut            bool                  `yaml:"exclude_from_put"`
 	ExcludeTest               bool                  `yaml:"exclude_test"`
