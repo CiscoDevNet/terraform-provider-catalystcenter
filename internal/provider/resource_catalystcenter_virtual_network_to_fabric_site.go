@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -105,6 +106,23 @@ func (r *VirtualNetworkToFabricSiteResource) Configure(_ context.Context, req re
 
 // End of section. //template:end model
 
+// vnFabricIdsLocks serializes the read-modify-write of a virtual network's
+// fabricIds array. Catalyst Center models VN-to-fabric membership as a single
+// fabricIds array that is replaced wholesale on PUT /sda/layer3VirtualNetworks,
+// so concurrent associations of the same VN to different fabric sites must not
+// interleave their GET->modify->PUT or they overwrite each other's updates,
+// producing transient membership churn that surfaces as NCHS20216 on dependent
+// resources. Defined here (outside the generated template sections) so that
+// `go generate` does not overwrite it.
+var vnFabricIdsLocks sync.Map
+
+func lockVirtualNetworkFabricIds(virtualNetworkName string) func() {
+	value, _ := vnFabricIdsLocks.LoadOrStore(virtualNetworkName, &sync.Mutex{})
+	mutex := value.(*sync.Mutex)
+	mutex.Lock()
+	return mutex.Unlock
+}
+
 func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan VirtualNetworkToFabricSite
 
@@ -116,6 +134,8 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 	}
 
 	MAX_RETRIES := 3
+	unlock := lockVirtualNetworkFabricIds(plan.VirtualNetworkName.ValueString())
+	defer unlock()
 	for try := 0; try <= MAX_RETRIES; try++ {
 		params := ""
 		params += "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
@@ -280,6 +300,8 @@ func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req res
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
 	MAX_RETRIES := 3
+	unlock := lockVirtualNetworkFabricIds(state.VirtualNetworkName.ValueString())
+	defer unlock()
 	for try := 1; try <= MAX_RETRIES; try++ {
 
 		params := ""
