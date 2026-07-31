@@ -1,3 +1,7 @@
+## 0.5.24
+
+- Add `catalystcenter_wireless_pre_auth_acl` resource and data source to manage wireless Pre-Auth ACLs (`/dna/intent/api/v1/wirelessSettings/preAuthAcls`) used by Guest Web-Auth (CWA/EWA) and Enterprise-Posturing SSIDs (Catalyst Center 3.x)
+
 ## 0.5.23
 
 - Add `catalystcenter_lan_automation_link` resource to add or delete Layer 3 links between LAN-automated devices via the DAY-N `updateDevice` API (`ADD_LINK` / `DELETE_LINK`)
