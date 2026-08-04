@@ -203,6 +203,7 @@ type YamlConfigAttribute struct {
 	MaxInt                    int64                 `yaml:"max_int"`
 	MinFloat                  float64               `yaml:"min_float"`
 	MaxFloat                  float64               `yaml:"max_float"`
+	DecimalPlaces             int64                 `yaml:"decimal_places"`
 	StringPatterns            []string              `yaml:"string_patterns"`
 	StringMinLength           int64                 `yaml:"string_min_length"`
 	StringMaxLength           int64                 `yaml:"string_max_length"`
@@ -724,6 +725,22 @@ func ImportAttributes(config YamlConfig) []YamlConfigAttribute {
 	return r
 }
 
+// Templating helper function to build the Float64 read expression for a gjson value.
+// varName is the gjson result variable at the render site (e.g. "value", "cValue", "fv").
+// When the attribute sets decimal_places, the value is rounded to that many decimals to
+// prevent precision drift (e.g. CatC returning 5-decimal lat/long against a 6-decimal
+// config). Otherwise it returns the plain .Float() call.
+func FloatReadExpr(varName string, attr YamlConfigAttribute) string {
+	if attr.DecimalPlaces > 0 {
+		factor := "1"
+		for i := int64(0); i < attr.DecimalPlaces; i++ {
+			factor += "0"
+		}
+		return fmt.Sprintf("math.Round(%s.Float()*%s) / %s", varName, factor, factor)
+	}
+	return varName + ".Float()"
+}
+
 // Templating helper function to subtract one number from another
 func Subtract(a, b int) int {
 	return a - b
@@ -771,6 +788,7 @@ var functions = template.FuncMap{
 	"hasKeyPart":                         HasKeyPart,
 	"getKeyPartAttributes":               GetKeyPartAttributes,
 	"importAttributes":                   ImportAttributes,
+	"floatReadExpr":                      FloatReadExpr,
 	"subtract":                           Subtract,
 }
 

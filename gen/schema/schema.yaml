@@ -106,6 +106,7 @@ attribute:
   max_int: int(required=False) # Maximum value of an integer, only relevant if type is "Int64"
   min_float: num(required=False) # Minimum value of a float, only relevant if type is "Float"
   max_float: num(required=False) # Maximum value of a float, only relevant if type is "Float"
+  decimal_places: int(required=False) # Round Float64 values read from the API to this many decimal places (prevents precision drift), only relevant if type is "Float64"
   string_patterns: list(str(), required=False) # List of regular expressions that the string must match, only relevant if type is "String"
   string_min_length: int(required=False) # Minimum length of a string, only relevant if type is "String"
   string_max_length: int(required=False) # Maximum length of a string, only relevant if type is "String"

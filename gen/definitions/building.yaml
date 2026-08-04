@@ -36,11 +36,13 @@ attributes:
     response_data_path: response.latitude
     type: Float64
     description: Latitude
+    decimal_places: 5
     example: 37.338
   - model_name: longitude
     response_data_path: response.longitude
     type: Float64
     description: Longitude
+    decimal_places: 5
     example: -121.832
 test_prerequisites: |
   data "catalystcenter_site" "test" {
