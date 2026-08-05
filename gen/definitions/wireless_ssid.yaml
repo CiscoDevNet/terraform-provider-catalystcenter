@@ -161,6 +161,7 @@ attributes:
     attributes:
       - model_name: priority
         type: String
+        id: true
         description: Priority
         mandatory: true
       - model_name: passphraseType
@@ -171,6 +172,7 @@ attributes:
         description: Passphrase Type
       - model_name: passphrase
         type: String
+        write_only: true
         description: Passphrase
   - model_name: clientRateLimit
     type: Int64

@@ -1,5 +1,6 @@
 ## 0.5.24 (unreleased)
 
+- Fix `catalystcenter_wireless_ssid` resource to no longer produce a perpetual diff on `multi_psk_settings`; the PSK passphrase is now treated as write-only, since Catalyst Center does not return it on read
 - Fix `catalystcenter_virtual_network_to_fabric_site` resource to preserve the anchor site when associating or unassociating an anchored virtual network, which previously failed with `NCHS20464`
 - Fix `catalystcenter_virtual_network_to_fabric_site` resource to serialize concurrent associations of the same virtual network to different fabric sites, which could overwrite each other and fail with `NCHS20216`
 - Fix `catalystcenter_anycast_gateways` resource to no longer inherit a sibling gateway's auto-assigned `vlan_id`/`vlan_name` when adding a gateway to an existing set, which sent a wrong-VLAN update
