@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.5.24 (unreleased)
+
+- Fix `catalystcenter_wireless_ssid` resource to no longer produce a perpetual diff on `multi_psk_settings`; the PSK passphrase is now treated as write-only, since Catalyst Center does not return it on read
+
 ## 0.5.23
 
 - Add `catalystcenter_lan_automation_link` resource to add or delete Layer 3 links between LAN-automated devices via the DAY-N `updateDevice` API (`ADD_LINK` / `DELETE_LINK`)
