@@ -159,7 +159,7 @@ func (d *WirelessSSIDDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"priority": schema.StringAttribute{
+						"priority": schema.Int64Attribute{
 							MarkdownDescription: "Priority",
 							Computed:            true,
 						},

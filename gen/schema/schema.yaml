@@ -93,6 +93,7 @@ attribute:
   mandatory: bool(required=False) # Set to true if the attribute is mandatory
   computed: bool(required=False) # Set to true if the attribute is computed
   computed_refresh_value: bool(required=False) # Set to true if the computed value should be refreshed on every update (no UseStateForUnknown). Needs to be used in conjunction with `computed`
+  no_use_state_for_unknown: bool(required=False) # Set to true to suppress the UseStateForUnknown plan modifier on a computed attribute (prevents stale value inheritance, e.g. vlan_id/vlan_name across set-nested anycast gateways)
   write_only: bool(required=False) # Set to true if the attribute is write-only, meaning we cannot read the value
   exclude_from_put: bool(required=False) # Set to true if the attribute should be excluded from the PUT request
   exclude_test: bool(required=False) # Exclude attribute from example (documentation) and acceptance test
@@ -106,6 +107,7 @@ attribute:
   max_int: int(required=False) # Maximum value of an integer, only relevant if type is "Int64"
   min_float: num(required=False) # Minimum value of a float, only relevant if type is "Float"
   max_float: num(required=False) # Maximum value of a float, only relevant if type is "Float"
+  decimal_places: int(required=False) # Round Float64 values read from the API to this many decimal places (prevents precision drift), only relevant if type is "Float64"
   string_patterns: list(str(), required=False) # List of regular expressions that the string must match, only relevant if type is "String"
   string_min_length: int(required=False) # Minimum length of a string, only relevant if type is "String"
   string_max_length: int(required=False) # Maximum length of a string, only relevant if type is "String"

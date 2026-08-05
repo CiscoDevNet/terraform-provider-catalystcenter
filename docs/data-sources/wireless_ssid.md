@@ -103,4 +103,4 @@ Read-Only:
 
 - `passphrase` (String) Passphrase
 - `passphrase_type` (String) Passphrase Type
-- `priority` (String) Priority
+- `priority` (Number) Priority

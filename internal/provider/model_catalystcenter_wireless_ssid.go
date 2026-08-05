@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -104,7 +105,7 @@ type WirelessSSID struct {
 }
 
 type WirelessSSIDMultiPskSettings struct {
-	Priority       types.String `tfsdk:"priority"`
+	Priority       types.Int64  `tfsdk:"priority"`
 	PassphraseType types.String `tfsdk:"passphrase_type"`
 	Passphrase     types.String `tfsdk:"passphrase"`
 }
@@ -203,7 +204,7 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 		for _, item := range data.MultiPskSettings {
 			itemBody := ""
 			if !item.Priority.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "priority", item.Priority.ValueString())
+				itemBody, _ = sjson.Set(itemBody, "priority", item.Priority.ValueInt64())
 			}
 			if !item.PassphraseType.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "passphraseType", item.PassphraseType.ValueString())
@@ -464,19 +465,14 @@ func (data *WirelessSSID) fromBody(ctx context.Context, res gjson.Result) {
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := WirelessSSIDMultiPskSettings{}
 			if cValue := v.Get("priority"); cValue.Exists() {
-				item.Priority = types.StringValue(cValue.String())
+				item.Priority = types.Int64Value(cValue.Int())
 			} else {
-				item.Priority = types.StringNull()
+				item.Priority = types.Int64Null()
 			}
 			if cValue := v.Get("passphraseType"); cValue.Exists() {
 				item.PassphraseType = types.StringValue(cValue.String())
 			} else {
 				item.PassphraseType = types.StringNull()
-			}
-			if cValue := v.Get("passphrase"); cValue.Exists() {
-				item.Passphrase = types.StringValue(cValue.String())
-			} else {
-				item.Passphrase = types.StringNull()
 			}
 			data.MultiPskSettings = append(data.MultiPskSettings, item)
 			return true
@@ -809,8 +805,8 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 		data.ProtectedManagementFrame = types.StringNull()
 	}
 	for i := range data.MultiPskSettings {
-		keys := [...]string{"priority", "passphraseType", "passphrase"}
-		keyValues := [...]string{data.MultiPskSettings[i].Priority.ValueString(), data.MultiPskSettings[i].PassphraseType.ValueString(), data.MultiPskSettings[i].Passphrase.ValueString()}
+		keys := [...]string{"priority"}
+		keyValues := [...]string{strconv.FormatInt(data.MultiPskSettings[i].Priority.ValueInt64(), 10)}
 
 		var r gjson.Result
 		res.Get("multiPSKSettings").ForEach(
@@ -832,19 +828,14 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 			},
 		)
 		if value := r.Get("priority"); value.Exists() && !data.MultiPskSettings[i].Priority.IsNull() {
-			data.MultiPskSettings[i].Priority = types.StringValue(value.String())
+			data.MultiPskSettings[i].Priority = types.Int64Value(value.Int())
 		} else {
-			data.MultiPskSettings[i].Priority = types.StringNull()
+			data.MultiPskSettings[i].Priority = types.Int64Null()
 		}
 		if value := r.Get("passphraseType"); value.Exists() && !data.MultiPskSettings[i].PassphraseType.IsNull() {
 			data.MultiPskSettings[i].PassphraseType = types.StringValue(value.String())
 		} else {
 			data.MultiPskSettings[i].PassphraseType = types.StringNull()
-		}
-		if value := r.Get("passphrase"); value.Exists() && !data.MultiPskSettings[i].Passphrase.IsNull() {
-			data.MultiPskSettings[i].Passphrase = types.StringValue(value.String())
-		} else {
-			data.MultiPskSettings[i].Passphrase = types.StringNull()
 		}
 	}
 	if value := res.Get("clientRateLimit"); value.Exists() && !data.ClientRateLimit.IsNull() {

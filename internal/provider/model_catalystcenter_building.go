@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"math"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -102,12 +103,12 @@ func (data *Building) fromBody(ctx context.Context, res gjson.Result) {
 		data.Address = types.StringNull()
 	}
 	if value := res.Get("response.latitude"); value.Exists() {
-		data.Latitude = types.Float64Value(value.Float())
+		data.Latitude = types.Float64Value(math.Round(value.Float()*100000) / 100000)
 	} else {
 		data.Latitude = types.Float64Null()
 	}
 	if value := res.Get("response.longitude"); value.Exists() {
-		data.Longitude = types.Float64Value(value.Float())
+		data.Longitude = types.Float64Value(math.Round(value.Float()*100000) / 100000)
 	} else {
 		data.Longitude = types.Float64Null()
 	}
@@ -138,12 +139,12 @@ func (data *Building) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Address = types.StringNull()
 	}
 	if value := res.Get("response.latitude"); value.Exists() && !data.Latitude.IsNull() {
-		data.Latitude = types.Float64Value(value.Float())
+		data.Latitude = types.Float64Value(math.Round(value.Float()*100000) / 100000)
 	} else {
 		data.Latitude = types.Float64Null()
 	}
 	if value := res.Get("response.longitude"); value.Exists() && !data.Longitude.IsNull() {
-		data.Longitude = types.Float64Value(value.Float())
+		data.Longitude = types.Float64Value(math.Round(value.Float()*100000) / 100000)
 	} else {
 		data.Longitude = types.Float64Null()
 	}

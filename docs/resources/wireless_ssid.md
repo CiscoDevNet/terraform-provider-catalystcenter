@@ -145,7 +145,8 @@ resource "catalystcenter_wireless_ssid" "example" {
 
 Required:
 
-- `priority` (String) Priority
+- `priority` (Number) Priority
+  - Range: `0`-`4`
 
 Optional:
 
