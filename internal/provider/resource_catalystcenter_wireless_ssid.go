@@ -204,9 +204,12 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"priority": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Priority").String,
+						"priority": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Priority").AddIntegerRangeDescription(0, 4).String,
 							Required:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(0, 4),
+							},
 						},
 						"passphrase_type": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Passphrase Type").AddStringEnumDescription("ASCII", "HEX").String,

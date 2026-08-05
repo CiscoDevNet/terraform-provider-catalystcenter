@@ -160,10 +160,12 @@ attributes:
     exclude_test: true
     attributes:
       - model_name: priority
-        type: String
+        type: Int64
         id: true
         description: Priority
         mandatory: true
+        min_int: 0
+        max_int: 4
       - model_name: passphraseType
         type: String
         enum_values:
