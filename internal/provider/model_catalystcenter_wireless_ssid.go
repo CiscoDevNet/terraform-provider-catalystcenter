@@ -473,11 +473,6 @@ func (data *WirelessSSID) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.PassphraseType = types.StringNull()
 			}
-			if cValue := v.Get("passphrase"); cValue.Exists() {
-				item.Passphrase = types.StringValue(cValue.String())
-			} else {
-				item.Passphrase = types.StringNull()
-			}
 			data.MultiPskSettings = append(data.MultiPskSettings, item)
 			return true
 		})
@@ -809,8 +804,8 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 		data.ProtectedManagementFrame = types.StringNull()
 	}
 	for i := range data.MultiPskSettings {
-		keys := [...]string{"priority", "passphraseType", "passphrase"}
-		keyValues := [...]string{data.MultiPskSettings[i].Priority.ValueString(), data.MultiPskSettings[i].PassphraseType.ValueString(), data.MultiPskSettings[i].Passphrase.ValueString()}
+		keys := [...]string{"priority"}
+		keyValues := [...]string{data.MultiPskSettings[i].Priority.ValueString()}
 
 		var r gjson.Result
 		res.Get("multiPSKSettings").ForEach(
@@ -840,11 +835,6 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 			data.MultiPskSettings[i].PassphraseType = types.StringValue(value.String())
 		} else {
 			data.MultiPskSettings[i].PassphraseType = types.StringNull()
-		}
-		if value := r.Get("passphrase"); value.Exists() && !data.MultiPskSettings[i].Passphrase.IsNull() {
-			data.MultiPskSettings[i].Passphrase = types.StringValue(value.String())
-		} else {
-			data.MultiPskSettings[i].Passphrase = types.StringNull()
 		}
 	}
 	if value := res.Get("clientRateLimit"); value.Exists() && !data.ClientRateLimit.IsNull() {
