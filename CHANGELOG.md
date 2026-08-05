@@ -1,8 +1,8 @@
-## 0.5.24
+## 0.5.24 (unreleased)
 
-- Fix `catalystcenter_virtual_network_to_fabric_site` resource to preserve the anchor on an anchored VN during `fabricIds` read-modify-write (single- and multi-state). The Create/Delete PUT now carries the existing `anchoredSiteId`, so associating or unassociating an anchored VN no longer trips `NCHS20464` (Catalyst Center misreading the omitted anchor as a re-anchor).
-- Fix `catalystcenter_virtual_network_to_fabric_site` resource to serialize the `fabricIds` read-modify-write per virtual network. Concurrent associations of the same VN to different sites could interleave their GET→modify→PUT and overwrite one another (surfacing as `NCHS20216`); a per-VN mutex now serializes these operations.
-- Fix `catalystcenter_anycast_gateways` resource to prevent `vlan_id`/`vlan_name` inheritance across set-nested gateways. Adding a gateway to an existing set could leak a sibling's auto-assigned VLAN via the default `UseStateForUnknown`, corrupting the diff and sending a wrong-VLAN PUT; the new `no_use_state_for_unknown` flag keeps these computed values `(known after apply)` and recomputed from Catalyst Center.
+- Fix `catalystcenter_virtual_network_to_fabric_site` resource to preserve the anchor site when associating or unassociating an anchored virtual network, which previously failed with `NCHS20464`
+- Fix `catalystcenter_virtual_network_to_fabric_site` resource to serialize concurrent associations of the same virtual network to different fabric sites, which could overwrite each other and fail with `NCHS20216`
+- Fix `catalystcenter_anycast_gateways` resource to no longer inherit a sibling gateway's auto-assigned `vlan_id`/`vlan_name` when adding a gateway to an existing set, which sent a wrong-VLAN update
 
 ## 0.5.23
 
