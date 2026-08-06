@@ -8,7 +8,7 @@ description: |-
 # Changelog
 
 
-## 0.5.24 (unreleased)
+## 0.5.24
 
 - Add `catalystcenter_wireless_pre_auth_acl` resource and data source to manage wireless Pre-Auth ACLs (`/dna/intent/api/v1/wirelessSettings/preAuthAcls`) used by Guest Web-Auth (CWA/EWA) and Enterprise-Posturing SSIDs (Catalyst Center 3.x)
 - Fix `catalystcenter_wireless_ssid` resource to no longer produce a perpetual diff on `multi_psk_settings`; the PSK passphrase is now treated as write-only, since Catalyst Center does not return it on read
