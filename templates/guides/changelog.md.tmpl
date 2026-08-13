@@ -8,6 +8,10 @@ description: |-
 # Changelog
 
 
+## 0.5.25 (unreleased)
+
+- Add `radius_profiling` (`isRadiusProfilingEnabled`) and `policy_profile_name` (`policyProfileName`) attributes to `catalystcenter_wireless_ssid` resource and data source to enable RADIUS client profiling (requires at least one AAA/PSN server) and set the WLAN policy profile name; both require Catalyst Center 3.1.3 or later
+
 ## 0.5.24
 
 - Add `catalystcenter_wireless_pre_auth_acl` resource and data source to manage wireless Pre-Auth ACLs (`/dna/intent/api/v1/wirelessSettings/preAuthAcls`) used by Guest Web-Auth (CWA/EWA) and Enterprise-Posturing SSIDs (Catalyst Center 3.x)
