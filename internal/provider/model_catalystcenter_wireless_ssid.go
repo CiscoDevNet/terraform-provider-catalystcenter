@@ -55,6 +55,7 @@ type WirelessSSID struct {
 	MftClientProtection                    types.String                   `tfsdk:"mft_client_protection"`
 	NasOptions                             types.Set                      `tfsdk:"nas_options"`
 	ProfileName                            types.String                   `tfsdk:"profile_name"`
+	PolicyProfileName                      types.String                   `tfsdk:"policy_profile_name"`
 	AaaOverride                            types.Bool                     `tfsdk:"aaa_override"`
 	CoverageHoleDetection                  types.Bool                     `tfsdk:"coverage_hole_detection"`
 	ProtectedManagementFrame               types.String                   `tfsdk:"protected_management_frame"`
@@ -102,6 +103,7 @@ type WirelessSSID struct {
 	Hex                                    types.Bool                     `tfsdk:"hex"`
 	RandomMacFilter                        types.Bool                     `tfsdk:"random_mac_filter"`
 	FastTransitionOverTheDistributedSystem types.Bool                     `tfsdk:"fast_transition_over_the_distributed_system"`
+	RadiusProfiling                        types.Bool                     `tfsdk:"radius_profiling"`
 }
 
 type WirelessSSIDMultiPskSettings struct {
@@ -189,6 +191,9 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 	}
 	if !data.ProfileName.IsNull() {
 		body, _ = sjson.Set(body, "profileName", data.ProfileName.ValueString())
+	}
+	if !data.PolicyProfileName.IsNull() {
+		body, _ = sjson.Set(body, "policyProfileName", data.PolicyProfileName.ValueString())
 	}
 	if !data.AaaOverride.IsNull() {
 		body, _ = sjson.Set(body, "aaaOverride", data.AaaOverride.ValueBool())
@@ -348,6 +353,9 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 	if !data.FastTransitionOverTheDistributedSystem.IsNull() {
 		body, _ = sjson.Set(body, "fastTransitionOverTheDistributedSystemEnable", data.FastTransitionOverTheDistributedSystem.ValueBool())
 	}
+	if !data.RadiusProfiling.IsNull() {
+		body, _ = sjson.Set(body, "isRadiusProfilingEnabled", data.RadiusProfiling.ValueBool())
+	}
 	return body
 }
 
@@ -444,6 +452,11 @@ func (data *WirelessSSID) fromBody(ctx context.Context, res gjson.Result) {
 		data.ProfileName = types.StringValue(value.String())
 	} else {
 		data.ProfileName = types.StringNull()
+	}
+	if value := res.Get("policyProfileName"); value.Exists() {
+		data.PolicyProfileName = types.StringValue(value.String())
+	} else {
+		data.PolicyProfileName = types.StringNull()
 	}
 	if value := res.Get("aaaOverride"); value.Exists() {
 		data.AaaOverride = types.BoolValue(value.Bool())
@@ -693,6 +706,11 @@ func (data *WirelessSSID) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.FastTransitionOverTheDistributedSystem = types.BoolNull()
 	}
+	if value := res.Get("isRadiusProfilingEnabled"); value.Exists() {
+		data.RadiusProfiling = types.BoolValue(value.Bool())
+	} else {
+		data.RadiusProfiling = types.BoolNull()
+	}
 }
 
 // End of section. //template:end fromBody
@@ -788,6 +806,11 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 		data.ProfileName = types.StringValue(value.String())
 	} else {
 		data.ProfileName = types.StringNull()
+	}
+	if value := res.Get("policyProfileName"); value.Exists() && !data.PolicyProfileName.IsNull() {
+		data.PolicyProfileName = types.StringValue(value.String())
+	} else {
+		data.PolicyProfileName = types.StringNull()
 	}
 	if value := res.Get("aaaOverride"); value.Exists() && !data.AaaOverride.IsNull() {
 		data.AaaOverride = types.BoolValue(value.Bool())
@@ -1053,6 +1076,11 @@ func (data *WirelessSSID) updateFromBody(ctx context.Context, res gjson.Result) 
 	} else {
 		data.FastTransitionOverTheDistributedSystem = types.BoolNull()
 	}
+	if value := res.Get("isRadiusProfilingEnabled"); value.Exists() && !data.RadiusProfiling.IsNull() {
+		data.RadiusProfiling = types.BoolValue(value.Bool())
+	} else {
+		data.RadiusProfiling = types.BoolNull()
+	}
 }
 
 // End of section. //template:end updateFromBody
@@ -1114,6 +1142,9 @@ func (data *WirelessSSID) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.ProfileName.IsNull() {
+		return false
+	}
+	if !data.PolicyProfileName.IsNull() {
 		return false
 	}
 	if !data.AaaOverride.IsNull() {
@@ -1255,6 +1286,9 @@ func (data *WirelessSSID) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.FastTransitionOverTheDistributedSystem.IsNull() {
+		return false
+	}
+	if !data.RadiusProfiling.IsNull() {
 		return false
 	}
 	return true
