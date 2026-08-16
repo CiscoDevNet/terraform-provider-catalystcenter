@@ -1,5 +1,6 @@
 ---
 name: PnP Device
+# manual updates to Read function in resource file
 rest_endpoint: /dna/intent/api/v1/onboarding/pnp-device
 id_path: id
 id_from_query_path: "0"
