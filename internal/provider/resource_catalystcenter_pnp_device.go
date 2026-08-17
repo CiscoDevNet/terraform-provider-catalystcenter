@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -167,7 +168,15 @@ func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateReque
 	resp.Diagnostics.Append(diags...)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
+// Custom read: hardened against the PnP empty-serial device-adoption bug.
+// The generated template queries by the state serial number and blindly
+// accepts element 0 of the response. When the state serial becomes empty
+// (e.g. a prior empty HTTP 200 response nulled the identity fields), that
+// produces a "?serialNumber=" query which Catalyst Center answers with an
+// unrelated PnP device. The provider would then adopt that device (including
+// its id) into this resource. We guard against that by refusing to query with
+// an empty serial and by requiring the returned primary serial (or a stack
+// member serial) to match, case-insensitively, before writing state.
 func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state PnPDevice
 
@@ -180,14 +189,49 @@ func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
+	// Never issue an empty "?serialNumber=" query. Catalyst Center returns an
+	// unrelated device for an empty serial, which would be silently adopted
+	// into this resource. A missing serial means the resource is no longer
+	// resolvable, so remove it from state and let Terraform plan a re-create.
+	serial := state.SerialNumber.ValueString()
+	if serial == "" {
+		tflog.Warn(ctx, fmt.Sprintf("%s: state serial number is empty; removing resource from state instead of issuing an empty serialNumber query", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	params := ""
-	params += "?serialNumber=" + url.QueryEscape(state.SerialNumber.ValueString())
+	params += "?serialNumber=" + url.QueryEscape(serial)
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	// Require the requested serial to match before writing state. Catalyst
+	// Center may answer with an empty array (HTTP 200) when the device is
+	// temporarily absent, or an unrelated device for a malformed query. Accept
+	// a match against the returned primary serial or, for stacks, any stack
+	// member serial. Comparison is case-insensitive to tolerate serial casing
+	// drift. Otherwise remove the resource rather than adopting another device
+	// or nulling this resource's identity fields.
+	returnedSerial := res.Get("0.deviceInfo.serialNumber").String()
+	matched := strings.EqualFold(returnedSerial, serial)
+	if !matched {
+		res.Get("0.deviceInfo.stackInfo.stackMemberList.#.serialNumber").ForEach(func(_, member gjson.Result) bool {
+			if strings.EqualFold(member.String(), serial) {
+				matched = true
+				return false
+			}
+			return true
+		})
+	}
+	if !matched {
+		tflog.Warn(ctx, fmt.Sprintf("%s: no PnP device matching serial %q (API returned primary serial %q); removing resource from state", state.Id.ValueString(), serial, returnedSerial))
+		resp.State.RemoveResource(ctx)
 		return
 	}
 
@@ -203,8 +247,6 @@ func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *PnPDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
