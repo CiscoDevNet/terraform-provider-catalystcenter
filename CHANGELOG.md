@@ -1,5 +1,5 @@
 
-## 0.5.25 (unreleased)
+## 0.5.25
 
 - Add `radius_profiling` (`isRadiusProfilingEnabled`) and `policy_profile_name` (`policyProfileName`) attributes to `catalystcenter_wireless_ssid` resource and data source to enable RADIUS client profiling (requires at least one AAA/PSN server) and set the WLAN policy profile name; both require Catalyst Center 3.1.3 or later
 - Fix `catalystcenter_pnp_device` resource to no longer adopt an unrelated PnP device when the state serial number is empty. Read now skips the empty `serialNumber` query and requires the returned device (primary or stack member serial, case-insensitive) to match before writing state, removing the resource from state otherwise, which causes it to be re-created on the next apply
