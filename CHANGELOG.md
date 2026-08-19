@@ -1,4 +1,8 @@
 
+## 0.6.0 (unreleased)
+
+- Update `go-catalystcenter` dependency to `v0.2.0` to add a `UserAgent` option for setting a custom HTTP User-Agent string on authentication, API, and async task-polling requests
+
 ## 0.5.25
 
 - Add `radius_profiling` (`isRadiusProfilingEnabled`) and `policy_profile_name` (`policyProfileName`) attributes to `catalystcenter_wireless_ssid` resource and data source to enable RADIUS client profiling (requires at least one AAA/PSN server) and set the WLAN policy profile name; both require Catalyst Center 3.1.3 or later
