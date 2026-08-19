@@ -34,7 +34,6 @@ func TestAccCcDeviceReplacement(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_replacement.test", "faulty_device_id", "12345678-1234-1234-1234-123456789012"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_replacement.test", "replacement_status", "MARKED-FOR-REPLACEMENT"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
@@ -62,7 +61,7 @@ func TestAccCcDeviceReplacement(t *testing.T) {
 func testAccCcDeviceReplacementConfig_minimum() string {
 	config := `resource "catalystcenter_device_replacement" "test" {` + "\n"
 	config += `	faulty_device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	replacement_status = "MARKED-FOR-REPLACEMENT"` + "\n"
+	config += `	inventory_state = "MARK_FOR_REPLACEMENT"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -73,7 +72,6 @@ func testAccCcDeviceReplacementConfig_minimum() string {
 func testAccCcDeviceReplacementConfig_all() string {
 	config := `resource "catalystcenter_device_replacement" "test" {` + "\n"
 	config += `	faulty_device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	replacement_status = "MARKED-FOR-REPLACEMENT"` + "\n"
 	config += `}` + "\n"
 	return config
 }

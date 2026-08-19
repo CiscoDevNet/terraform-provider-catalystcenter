@@ -34,7 +34,6 @@ func TestAccDataSourceCcDeviceReplacement(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_replacement.test", "faulty_device_id", "12345678-1234-1234-1234-123456789012"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_device_replacement.test", "replacement_status", "MARKED-FOR-REPLACEMENT"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -56,7 +55,6 @@ func TestAccDataSourceCcDeviceReplacement(t *testing.T) {
 func testAccDataSourceCcDeviceReplacementConfig() string {
 	config := `resource "catalystcenter_device_replacement" "test" {` + "\n"
 	config += `	faulty_device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	replacement_status = "MARKED-FOR-REPLACEMENT"` + "\n"
 	config += `}` + "\n"
 
 	config += `

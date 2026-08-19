@@ -17,16 +17,27 @@ res_description:
   <p/>
   When this resource is destroyed or refreshed, no actions are performed on Catalyst Center.'
 attributes:
-  - model_name: faultyDeviceSerialNumber
+  - model_name: faultyDeviceId
     type: String
     mandatory: true
     requires_replace: true
-    id: true
-    description: Serial number of the faulty device to be replaced
-    example: FOC12345678
+    description: The ID of the faulty device. Used at apply time to read the live replacement record; the physical workflow fires only when a record exists whose faulty serial differs from replacement_device_serial_number.
+    example: 12345678-1234-1234-1234-123456789012
+    exclude_test: true
   - model_name: replacementDeviceSerialNumber
     type: String
     mandatory: true
     requires_replace: true
     description: Serial number of the replacement device
     example: FOC87654321
+  - model_name: faultyDeviceSerialNumber
+    type: String
+    computed: true
+    description: Serial number of the faulty device to be replaced, read from the live Catalyst Center replacement record.
+    exclude_test: true
+  - model_name: executed
+    type: Bool
+    computed: true
+    no_use_state_for_unknown: true
+    description: Whether the physical replacement workflow has been triggered on Catalyst Center for this instance.
+    exclude_test: true

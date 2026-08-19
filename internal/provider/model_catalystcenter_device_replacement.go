@@ -32,6 +32,7 @@ import (
 type DeviceReplacement struct {
 	Id                            types.String `tfsdk:"id"`
 	FaultyDeviceId                types.String `tfsdk:"faulty_device_id"`
+	InventoryState                types.String `tfsdk:"inventory_state"`
 	ReplacementStatus             types.String `tfsdk:"replacement_status"`
 	Family                        types.String `tfsdk:"family"`
 	FaultyDeviceName              types.String `tfsdk:"faulty_device_name"`
@@ -89,7 +90,10 @@ func (data DeviceReplacement) toBody(ctx context.Context, state DeviceReplacemen
 	if !data.FaultyDeviceId.IsNull() {
 		body, _ = sjson.Set(body, "0.faultyDeviceId", data.FaultyDeviceId.ValueString())
 	}
-	if !data.ReplacementStatus.IsNull() {
+	if !data.InventoryState.IsNull() {
+		body, _ = sjson.Set(body, "inventoryState", data.InventoryState.ValueString())
+	}
+	if data.ReplacementStatus.ValueString() != "" && !data.ReplacementStatus.IsNull() {
 		body, _ = sjson.Set(body, "0.replacementStatus", data.ReplacementStatus.ValueString())
 	}
 	if data.Family.ValueString() != "" && !data.Family.IsNull() {
@@ -142,6 +146,11 @@ func (data *DeviceReplacement) fromBody(ctx context.Context, res gjson.Result) {
 		data.FaultyDeviceId = types.StringValue(value.String())
 	} else {
 		data.FaultyDeviceId = types.StringNull()
+	}
+	if value := res.Get("inventoryState"); value.Exists() {
+		data.InventoryState = types.StringValue(value.String())
+	} else {
+		data.InventoryState = types.StringNull()
 	}
 	if value := res.Get("replacementStatus"); value.Exists() {
 		data.ReplacementStatus = types.StringValue(value.String())
@@ -240,6 +249,9 @@ func (data *DeviceReplacement) updateFromBody(ctx context.Context, res gjson.Res
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *DeviceReplacement) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.FaultyDeviceId.IsNull() {
+		return false
+	}
+	if !data.InventoryState.IsNull() {
 		return false
 	}
 	if !data.ReplacementStatus.IsNull() {

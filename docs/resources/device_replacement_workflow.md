@@ -14,7 +14,6 @@ This resource triggers the device replacement workflow on Catalyst Center. The f
 
 ```terraform
 resource "catalystcenter_device_replacement_workflow" "example" {
-  faulty_device_serial_number      = "FOC12345678"
   replacement_device_serial_number = "FOC87654321"
 }
 ```
@@ -24,8 +23,13 @@ resource "catalystcenter_device_replacement_workflow" "example" {
 
 ### Required
 
-- `faulty_device_serial_number` (String) Serial number of the faulty device to be replaced
+- `faulty_device_id` (String) The ID of the faulty device. Used at apply time to read the live replacement record; the physical workflow fires only when a record exists whose faulty serial differs from replacement_device_serial_number.
 - `replacement_device_serial_number` (String) Serial number of the replacement device
+
+### Optional
+
+- `executed` (Boolean) Whether the physical replacement workflow has been triggered on Catalyst Center for this instance.
+- `faulty_device_serial_number` (String) Serial number of the faulty device to be replaced, read from the live Catalyst Center replacement record.
 
 ### Read-Only
 

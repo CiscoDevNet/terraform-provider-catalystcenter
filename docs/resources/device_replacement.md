@@ -14,8 +14,7 @@ This resource can manage a Device Replacement.
 
 ```terraform
 resource "catalystcenter_device_replacement" "example" {
-  faulty_device_id   = "12345678-1234-1234-1234-123456789012"
-  replacement_status = "MARKED-FOR-REPLACEMENT"
+  faulty_device_id = "12345678-1234-1234-1234-123456789012"
 }
 ```
 
@@ -25,7 +24,7 @@ resource "catalystcenter_device_replacement" "example" {
 ### Required
 
 - `faulty_device_id` (String) The ID of the faulty device to be replaced
-- `replacement_status` (String) The replacement status of the device. Use MARKED-FOR-REPLACEMENT to mark the device for replacement.
+- `inventory_state` (String) The data-model lifecycle state of the device (e.g. MARK_FOR_REPLACEMENT). Membership is gated in the module to MARK_FOR_REPLACEMENT devices; carried so the provider can key its marking decision on operator intent.
 
 ### Optional
 
@@ -39,6 +38,7 @@ resource "catalystcenter_device_replacement" "example" {
 - `readiness_check_task_id` (String) The ID of the readiness check task
 - `replacement_device_platform` (String) The platform of the replacement device
 - `replacement_device_serial_number` (String) The serial number of the replacement device
+- `replacement_status` (String) The replacement status of the device as reported by Catalyst Center.
 - `replacement_time` (Number) The replacement time of the device replacement entry
 - `workflow_failed_step` (String) The failed step of the replacement workflow
 - `workflow_id` (String) The ID of the replacement workflow

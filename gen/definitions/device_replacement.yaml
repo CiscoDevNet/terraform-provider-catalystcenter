@@ -21,14 +21,19 @@ attributes:
     data_source_query: true
     description: The ID of the faulty device to be replaced
     example: 12345678-1234-1234-1234-123456789012
+  - model_name: inventoryState
+    type: String
+    mandatory: true
+    description: The data-model lifecycle state of the device (e.g. MARK_FOR_REPLACEMENT). Membership is gated in the module to MARK_FOR_REPLACEMENT devices; carried so the provider can key its marking decision on operator intent.
+    example: MARK_FOR_REPLACEMENT
+    exclude_test: true
   - model_name: replacementStatus
     data_path: "0"
     response_data_path: replacementStatus
     type: String
-    mandatory: true
-    requires_replace: true
-    description: The replacement status of the device. Use MARKED-FOR-REPLACEMENT to mark the device for replacement.
-    example: MARKED-FOR-REPLACEMENT
+    computed: true
+    description: The replacement status of the device as reported by Catalyst Center.
+    exclude_test: true
   - model_name: family
     response_data_path: family
     type: String

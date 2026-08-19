@@ -79,11 +79,16 @@ func (r *DeviceReplacementResource) Schema(ctx context.Context, req resource.Sch
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"replacement_status": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The replacement status of the device. Use MARKED-FOR-REPLACEMENT to mark the device for replacement.").String,
+			"inventory_state": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The data-model lifecycle state of the device (e.g. MARK_FOR_REPLACEMENT). Membership is gated in the module to MARK_FOR_REPLACEMENT devices; carried so the provider can key its marking decision on operator intent.").String,
 				Required:            true,
+			},
+			"replacement_status": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The replacement status of the device as reported by Catalyst Center.").String,
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"family": schema.StringAttribute{
@@ -216,28 +221,45 @@ func (r *DeviceReplacementResource) Create(ctx context.Context, req resource.Cre
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Create object
-	body := plan.toBody(ctx, DeviceReplacement{})
-
-	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	// Adopt an existing replacement record if Catalyst Center already has one for
+	// this faulty device; otherwise post the mark. Membership is gated in the
+	// module to devices explicitly flagged MARK_FOR_REPLACEMENT.
+	existing, err := r.client.Get(plan.getPath())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, existing.String()))
 		return
 	}
-	params = ""
-	res, err = r.client.Get(plan.getPath() + params)
+	existingItem := existing.Get("response.#(faultyDeviceId==\"" + plan.FaultyDeviceId.ValueString() + "\")")
+
+	if !existingItem.Exists() {
+		markPlan := plan
+		markPlan.ReplacementStatus = types.StringValue("MARKED-FOR-REPLACEMENT")
+		body := markPlan.toBody(ctx, DeviceReplacement{})
+		res, err := r.client.Post(plan.getPath(), body)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
+	}
+
+	res, err := r.client.Get(plan.getPath())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.#(faultyDeviceId==\"" + plan.FaultyDeviceId.ValueString() + "\").id").String())
+	itemRes := res.Get("response.#(faultyDeviceId==\"" + plan.FaultyDeviceId.ValueString() + "\")")
+	plan.Id = types.StringValue(itemRes.Get("id").String())
+
+	if value := itemRes.Get("replacementStatus"); value.Exists() && value.Type != gjson.Null {
+		plan.ReplacementStatus = types.StringValue(value.String())
+	} else {
+		plan.ReplacementStatus = types.StringValue("MARKED-FOR-REPLACEMENT")
+	}
 
 	// Read back the created object to populate computed attributes only.
 	// We must NOT call fromBody here because it would overwrite plan values
 	// (e.g. optional fields the user didn't set, or replacement_status which
 	// the API may change from MARKED-FOR-REPLACEMENT to READY-FOR-REPLACEMENT).
-	itemRes := res.Get("response.#(faultyDeviceId==\"" + plan.FaultyDeviceId.ValueString() + "\")")
 	// Populate all computed-only fields from the API response
 	if value := itemRes.Get("family"); value.Exists() && value.Type != gjson.Null {
 		plan.Family = types.StringValue(value.String())
@@ -349,7 +371,7 @@ func (r *DeviceReplacementResource) Read(ctx context.Context, req resource.ReadR
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
+// Section below has custom code (not generated). Do not add template markers.
 func (r *DeviceReplacementResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state DeviceReplacement
 
@@ -368,12 +390,35 @@ func (r *DeviceReplacementResource) Update(ctx context.Context, req resource.Upd
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
-	params := ""
-	res, err := r.client.Put(plan.getPath()+params, body)
+	existing, err := r.client.Get(plan.getPath())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, existing.String()))
 		return
+	}
+	existingItem := existing.Get("response.#(faultyDeviceId==\"" + plan.FaultyDeviceId.ValueString() + "\")")
+
+	if !existingItem.Exists() {
+		markPlan := plan
+		markPlan.ReplacementStatus = types.StringValue("MARKED-FOR-REPLACEMENT")
+		body := markPlan.toBody(ctx, state)
+		res, err := r.client.Post(plan.getPath(), body)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+			return
+		}
+	}
+
+	res, err := r.client.Get(plan.getPath())
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	itemRes := res.Get("response.#(faultyDeviceId==\"" + plan.FaultyDeviceId.ValueString() + "\")")
+	plan.Id = types.StringValue(itemRes.Get("id").String())
+	if value := itemRes.Get("replacementStatus"); value.Exists() && value.Type != gjson.Null {
+		plan.ReplacementStatus = types.StringValue(value.String())
+	} else {
+		plan.ReplacementStatus = types.StringValue("MARKED-FOR-REPLACEMENT")
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -381,8 +426,6 @@ func (r *DeviceReplacementResource) Update(ctx context.Context, req resource.Upd
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Custom Delete: unmarks device by sending PUT with replacementStatus=NON-FAULTY (only if currently marked)
 func (r *DeviceReplacementResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

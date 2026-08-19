@@ -33,7 +33,6 @@ func TestAccCcDeviceReplacementWorkflow(t *testing.T) {
 		t.Skip("skipping test, set environment variable INVENTORY")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_replacement_workflow.test", "faulty_device_serial_number", "FOC12345678"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device_replacement_workflow.test", "replacement_device_serial_number", "FOC87654321"))
 
 	var steps []resource.TestStep
@@ -57,7 +56,7 @@ func TestAccCcDeviceReplacementWorkflow(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccCcDeviceReplacementWorkflowConfig_minimum() string {
 	config := `resource "catalystcenter_device_replacement_workflow" "test" {` + "\n"
-	config += `	faulty_device_serial_number = "FOC12345678"` + "\n"
+	config += `	faulty_device_id = "12345678-1234-1234-1234-123456789012"` + "\n"
 	config += `	replacement_device_serial_number = "FOC87654321"` + "\n"
 	config += `}` + "\n"
 	return config
@@ -68,7 +67,6 @@ func testAccCcDeviceReplacementWorkflowConfig_minimum() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccCcDeviceReplacementWorkflowConfig_all() string {
 	config := `resource "catalystcenter_device_replacement_workflow" "test" {` + "\n"
-	config += `	faulty_device_serial_number = "FOC12345678"` + "\n"
 	config += `	replacement_device_serial_number = "FOC87654321"` + "\n"
 	config += `}` + "\n"
 	return config

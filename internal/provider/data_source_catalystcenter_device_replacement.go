@@ -70,8 +70,12 @@ func (d *DeviceReplacementDataSource) Schema(ctx context.Context, req datasource
 				Optional:            true,
 				Computed:            true,
 			},
+			"inventory_state": schema.StringAttribute{
+				MarkdownDescription: "The data-model lifecycle state of the device (e.g. MARK_FOR_REPLACEMENT). Membership is gated in the module to MARK_FOR_REPLACEMENT devices; carried so the provider can key its marking decision on operator intent.",
+				Computed:            true,
+			},
 			"replacement_status": schema.StringAttribute{
-				MarkdownDescription: "The replacement status of the device. Use MARKED-FOR-REPLACEMENT to mark the device for replacement.",
+				MarkdownDescription: "The replacement status of the device as reported by Catalyst Center.",
 				Computed:            true,
 			},
 			"family": schema.StringAttribute{

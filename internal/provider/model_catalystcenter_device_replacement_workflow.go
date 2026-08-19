@@ -31,8 +31,10 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type DeviceReplacementWorkflow struct {
 	Id                            types.String `tfsdk:"id"`
-	FaultyDeviceSerialNumber      types.String `tfsdk:"faulty_device_serial_number"`
+	FaultyDeviceId                types.String `tfsdk:"faulty_device_id"`
 	ReplacementDeviceSerialNumber types.String `tfsdk:"replacement_device_serial_number"`
+	FaultyDeviceSerialNumber      types.String `tfsdk:"faulty_device_serial_number"`
+	Executed                      types.Bool   `tfsdk:"executed"`
 }
 
 // End of section. //template:end types
@@ -64,7 +66,7 @@ func (data DeviceReplacementWorkflow) getPath() string {
 
 // End of section. //template:end getPathIdQuery
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
+// Section below has custom code (not generated). Do not add template markers.
 func (data DeviceReplacementWorkflow) toBody(ctx context.Context, state DeviceReplacementWorkflow) string {
 	body := ""
 	put := false
@@ -72,28 +74,36 @@ func (data DeviceReplacementWorkflow) toBody(ctx context.Context, state DeviceRe
 		put = true
 	}
 	_ = put
-	if !data.FaultyDeviceSerialNumber.IsNull() {
-		body, _ = sjson.Set(body, "faultyDeviceSerialNumber", data.FaultyDeviceSerialNumber.ValueString())
-	}
 	if !data.ReplacementDeviceSerialNumber.IsNull() {
 		body, _ = sjson.Set(body, "replacementDeviceSerialNumber", data.ReplacementDeviceSerialNumber.ValueString())
+	}
+	if data.FaultyDeviceSerialNumber.ValueString() != "" && !data.FaultyDeviceSerialNumber.IsNull() {
+		body, _ = sjson.Set(body, "faultyDeviceSerialNumber", data.FaultyDeviceSerialNumber.ValueString())
 	}
 	return body
 }
 
-// End of section. //template:end toBody
-
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *DeviceReplacementWorkflow) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("faultyDeviceSerialNumber"); value.Exists() {
-		data.FaultyDeviceSerialNumber = types.StringValue(value.String())
+	if value := res.Get("faultyDeviceId"); value.Exists() {
+		data.FaultyDeviceId = types.StringValue(value.String())
 	} else {
-		data.FaultyDeviceSerialNumber = types.StringNull()
+		data.FaultyDeviceId = types.StringNull()
 	}
 	if value := res.Get("replacementDeviceSerialNumber"); value.Exists() {
 		data.ReplacementDeviceSerialNumber = types.StringValue(value.String())
 	} else {
 		data.ReplacementDeviceSerialNumber = types.StringNull()
+	}
+	if value := res.Get("faultyDeviceSerialNumber"); value.Exists() {
+		data.FaultyDeviceSerialNumber = types.StringValue(value.String())
+	} else {
+		data.FaultyDeviceSerialNumber = types.StringNull()
+	}
+	if value := res.Get("executed"); value.Exists() {
+		data.Executed = types.BoolValue(value.Bool())
+	} else {
+		data.Executed = types.BoolNull()
 	}
 }
 
@@ -101,15 +111,25 @@ func (data *DeviceReplacementWorkflow) fromBody(ctx context.Context, res gjson.R
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *DeviceReplacementWorkflow) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("faultyDeviceSerialNumber"); value.Exists() && !data.FaultyDeviceSerialNumber.IsNull() {
-		data.FaultyDeviceSerialNumber = types.StringValue(value.String())
+	if value := res.Get("faultyDeviceId"); value.Exists() && !data.FaultyDeviceId.IsNull() {
+		data.FaultyDeviceId = types.StringValue(value.String())
 	} else {
-		data.FaultyDeviceSerialNumber = types.StringNull()
+		data.FaultyDeviceId = types.StringNull()
 	}
 	if value := res.Get("replacementDeviceSerialNumber"); value.Exists() && !data.ReplacementDeviceSerialNumber.IsNull() {
 		data.ReplacementDeviceSerialNumber = types.StringValue(value.String())
 	} else {
 		data.ReplacementDeviceSerialNumber = types.StringNull()
+	}
+	if value := res.Get("faultyDeviceSerialNumber"); value.Exists() && !data.FaultyDeviceSerialNumber.IsNull() {
+		data.FaultyDeviceSerialNumber = types.StringValue(value.String())
+	} else {
+		data.FaultyDeviceSerialNumber = types.StringNull()
+	}
+	if value := res.Get("executed"); value.Exists() && !data.Executed.IsNull() {
+		data.Executed = types.BoolValue(value.Bool())
+	} else {
+		data.Executed = types.BoolNull()
 	}
 }
 
@@ -117,7 +137,16 @@ func (data *DeviceReplacementWorkflow) updateFromBody(ctx context.Context, res g
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *DeviceReplacementWorkflow) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.FaultyDeviceId.IsNull() {
+		return false
+	}
 	if !data.ReplacementDeviceSerialNumber.IsNull() {
+		return false
+	}
+	if !data.FaultyDeviceSerialNumber.IsNull() {
+		return false
+	}
+	if !data.Executed.IsNull() {
 		return false
 	}
 	return true
