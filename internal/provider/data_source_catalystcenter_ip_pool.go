@@ -120,11 +120,11 @@ func (d *IPPoolDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
 	params := ""
-	res, err := d.client.Get(config.getPath() + params)
+	res, err := getAllPagesByID(ctx, d.client, config.getPath()+params)
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", config.Id.ValueString()))
-		res, err = d.client.Get(config.getFallbackPath() + params)
+		res, err = getAllPagesByID(ctx, d.client, config.getFallbackPath()+params)
 	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))

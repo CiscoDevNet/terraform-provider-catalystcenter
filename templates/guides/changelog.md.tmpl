@@ -11,6 +11,7 @@ description: |-
 ## 0.6.0 (unreleased)
 
 - Update `go-catalystcenter` dependency to `v0.2.0` to add a `UserAgent` option for setting a custom HTTP User-Agent string on authentication, API, and async task-polling requests
+- Fix `catalystcenter_ip_pool` and `catalystcenter_ip_pool_reservation` resources and their data sources (as well as the `catalystcenter_ip_pools` data source) to fully walk the paginated "get all" list endpoints using offset/limit, so read/import see every object instead of only the API's default first page. This mainly affects the `/dna/intent/api/v1/global-pool` fallback endpoint, whose default page size is 25, preventing `Cannot import non-existent remote object` and spurious re-creation once the pool count exceeds the default page size
 
 ## 0.5.25
 

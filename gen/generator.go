@@ -105,6 +105,7 @@ type YamlConfig struct {
 	FallbackRestEndpoint          string                `yaml:"fallback_rest_endpoint"`
 	GetNoId                       bool                  `yaml:"get_no_id"`
 	GetFromAll                    bool                  `yaml:"get_from_all"`
+	Paginate                      bool                  `yaml:"paginate"`
 	GetRequiresId                 bool                  `yaml:"get_requires_id"`
 	GetExtraQueryParams           string                `yaml:"get_extra_query_params"`
 	NoDelete                      bool                  `yaml:"no_delete"`

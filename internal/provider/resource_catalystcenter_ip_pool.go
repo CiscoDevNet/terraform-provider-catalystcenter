@@ -170,12 +170,12 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 	params = ""
 	useFallback := false
-	res, err = r.client.Get(plan.getPath() + params)
+	res, err = getAllPagesByID(ctx, r.client, plan.getPath()+params)
 
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
-		res, err = r.client.Get(plan.getFallbackPath() + params)
+		res, err = getAllPagesByID(ctx, r.client, plan.getFallbackPath()+params)
 		useFallback = true
 	}
 	if err != nil {
@@ -228,7 +228,7 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", state.Id.ValueString()))
-		res, err = r.client.Get(state.getFallbackPath() + params)
+		res, err = getAllPagesByID(ctx, r.client, state.getFallbackPath()+params)
 	}
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)
@@ -353,7 +353,7 @@ func (r *IPPoolResource) ReadCache(ctx context.Context, req resource.ReadRequest
 		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
 		r.cache.Delete(cacheKey)
 	}
-	res, err := r.client.Get(state.getPath() + params)
+	res, err := getAllPagesByID(ctx, r.client, state.getPath()+params)
 	singleRes := res
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))

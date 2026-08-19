@@ -4,6 +4,7 @@ fallback_rest_endpoint: /dna/intent/api/v1/global-pool
 id_from_query_path: response
 id_from_query_path_attribute: id
 get_from_all: true
+paginate: true
 skip_minimum_test: true
 put_id: true
 import_no_id: true

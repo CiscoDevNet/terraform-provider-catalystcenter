@@ -732,13 +732,13 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if and .FallbackRestEndpoint $id.FallbackResponseModelName }}
 	useFallback := false
 	{{- end}}
-	res, err = r.client.Get({{if .IdQueryRestEndpoint}}plan.getPathIdQuery(){{else if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params)
+	res, err = {{if .Paginate}}getAllPagesByID(ctx, r.client, {{if .IdQueryRestEndpoint}}plan.getPathIdQuery(){{else if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params){{else}}r.client.Get({{if .IdQueryRestEndpoint}}plan.getPathIdQuery(){{else if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params){{end}}
 	{{- if .FallbackRestEndpoint }}
 
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
-		res, err = r.client.Get(plan.getFallbackPath() + params)
+		res, err = {{if .Paginate}}getAllPagesByID(ctx, r.client, plan.getFallbackPath() + params){{else}}r.client.Get(plan.getFallbackPath() + params){{end}}
 		{{- if $id.FallbackResponseModelName }}
 		useFallback = true
 		{{- end}}
@@ -791,13 +791,13 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
-	res, err = r.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params)
+	res, err = {{if .Paginate}}getAllPagesByID(ctx, r.client, {{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params){{else}}r.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}plan.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}plan.getPath(){{end}} + params){{end}}
 	{{- if .FallbackRestEndpoint }}
 
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
-		res, err = r.client.Get(plan.getFallbackPath() + params)
+		res, err = {{if .Paginate}}getAllPagesByID(ctx, r.client, plan.getFallbackPath() + params){{else}}r.client.Get(plan.getFallbackPath() + params){{end}}
 	}
 	{{- end}}
 	if err != nil {
@@ -908,14 +908,14 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	{{- if .UseCache}}
 	res, err := r.ReadCache(ctx, req, state, params)
 	{{- else}}
-	res, err := r.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}state.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}state.getPath(){{end}} + params)
+	res, err := {{if .Paginate}}getAllPagesByID(ctx, r.client, {{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}state.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}state.getPath(){{end}} + params){{else}}r.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}state.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}state.getPath(){{end}} + params){{end}}
 	{{- end}}
 	{{- if .FallbackRestEndpoint }}
 
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", state.Id.ValueString()))
-		res, err = r.client.Get(state.getFallbackPath() + params)
+		res, err = {{if .Paginate}}getAllPagesByID(ctx, r.client, state.getFallbackPath() + params){{else}}r.client.Get(state.getFallbackPath() + params){{end}}
 	}
 	{{- end}}
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
@@ -1426,13 +1426,13 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- if .GetExtraQueryParams}}
 		params += "{{.GetExtraQueryParams}}"
 		{{- end}}
-		res, err = r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params)
+		res, err = {{if .Paginate}}getAllPagesByID(ctx, r.client, {{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params){{else}}r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}plan.getPath(){{end}} + params){{end}}
 		{{- if .FallbackRestEndpoint }}
 
 		// Try fallback endpoint if primary fails with 404 or 500
 		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 			tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", plan.Id.ValueString()))
-			res, err = r.client.Get(plan.getFallbackPath() + params)
+			res, err = {{if .Paginate}}getAllPagesByID(ctx, r.client, plan.getFallbackPath() + params){{else}}r.client.Get(plan.getFallbackPath() + params){{end}}
 		}
 		{{- end}}
 		if err != nil {
@@ -1546,13 +1546,13 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		{{- if .GetExtraQueryParams}}
 		getParams += "{{.GetExtraQueryParams}}"
 		{{- end}}
-		getRes, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + getParams)
+		getRes, err := {{if .Paginate}}getAllPagesByID(ctx, r.client, {{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + getParams){{else}}r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + getParams){{end}}
 		{{- if .FallbackRestEndpoint }}
 
 		// Try fallback endpoint if primary fails with 404 or 500
 		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 			tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", state.Id.ValueString()))
-			getRes, err = r.client.Get(state.getFallbackPath() + getParams)
+			getRes, err = {{if .Paginate}}getAllPagesByID(ctx, r.client, state.getFallbackPath() + getParams){{else}}r.client.Get(state.getFallbackPath() + getParams){{end}}
 		}
 		{{- end}}
 		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
@@ -1960,7 +1960,7 @@ func (r *{{camelCase .Name}}Resource) ReadCache(ctx context.Context, req resourc
 	singleRes = cc.Body{}.SetRaw("response", singleRes.Raw).Res()
 	{{- end}}
 	{{- else}}
-	res, err := r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params)
+	res, err := {{if .Paginate}}getAllPagesByID(ctx, r.client, {{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params){{else}}r.client.Get({{if .GetRestEndpoint}}"{{.GetRestEndpoint}}"{{else}}state.getPath(){{end}} + params){{end}}
 	singleRes := res
 	{{- end}}
 	if err == nil {

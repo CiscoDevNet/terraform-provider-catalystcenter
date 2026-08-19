@@ -253,12 +253,12 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 	{{- if .GetExtraQueryParams}}
 	params += "{{.GetExtraQueryParams}}"
 	{{- end}}
-	res, err := d.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}config.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}config.getPath(){{end}} + params)
+	res, err := {{if .Paginate}}getAllPagesByID(ctx, d.client, {{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}config.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}config.getPath(){{end}} + params){{else}}d.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}config.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}config.getPath(){{end}} + params){{end}}
 	{{- if .FallbackRestEndpoint}}
 	// Try fallback endpoint if primary fails with 404 or 500
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Primary endpoint returned 404 or 500, trying fallback endpoint", config.Id.ValueString()))
-		res, err = d.client.Get(config.getFallbackPath() + params)
+		res, err = {{if .Paginate}}getAllPagesByID(ctx, d.client, config.getFallbackPath() + params){{else}}d.client.Get(config.getFallbackPath() + params){{end}}
 	}
 	{{- end}}
 	if err != nil {

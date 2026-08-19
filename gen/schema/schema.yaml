@@ -12,6 +12,7 @@ fallback_rest_endpoint: str(required=False) # Fallback REST endpoint path if the
 get_no_id: bool(required=False) # Set to true if the GET request does not require an ID
 data_source_no_id: bool(required=False) # Set to true if id in data source should be optional
 get_from_all: bool(required=False) # Set to true if GET does not support querying individual objects
+paginate: bool(required=False) # Set to true if the get-all list endpoint(s) are paginated (offset/limit) and every page must be fetched and merged. Requires the response to be a "response" array whose items carry an "id". Typically combined with get_from_all.
 get_requires_id: bool(required=False) # Set to true if the GET request requires an ID in the URL path
 get_extra_query_params: str(required=False) # Additional query parameters for GET request
 no_delete: bool(required=False) # Set to true if the DELETE request is not supported
