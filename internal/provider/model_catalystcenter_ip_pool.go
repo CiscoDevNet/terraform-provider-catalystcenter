@@ -55,7 +55,7 @@ func (data IPPool) getPath() string {
 // Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
 
 func (data IPPool) getFallbackPath() string {
-	return "/dna/intent/api/v1/global-pool"
+	return "/dna/intent/api/v1/global-pool?limit=500"
 }
 
 // End of section. //template:end getFallbackPath
