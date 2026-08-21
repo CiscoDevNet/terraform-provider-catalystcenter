@@ -160,6 +160,7 @@ func (r *FabricDevicesResource) Configure(_ context.Context, req resource.Config
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricDevicesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricDevices
 
 	// Read plan
@@ -227,6 +228,7 @@ func (r *FabricDevicesResource) Create(ctx context.Context, req resource.CreateR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricDevicesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricDevices
 
 	// Read state
@@ -266,6 +268,7 @@ func (r *FabricDevicesResource) Read(ctx context.Context, req resource.ReadReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricDevicesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricDevices
 
 	// Read plan
@@ -504,6 +507,7 @@ func (r *FabricDevicesResource) Update(ctx context.Context, req resource.UpdateR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricDevicesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricDevices
 
 	// Read state

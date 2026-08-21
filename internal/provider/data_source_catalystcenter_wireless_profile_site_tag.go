@@ -102,6 +102,7 @@ func (d *WirelessProfileSiteTagDataSource) Configure(_ context.Context, req data
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *WirelessProfileSiteTagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config WirelessProfileSiteTag
 
 	// Read config

@@ -133,6 +133,7 @@ func (r *BuildingsResource) Configure(_ context.Context, req resource.ConfigureR
 }
 
 func (r *BuildingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Buildings
 
 	// Read plan
@@ -271,6 +272,7 @@ func (r *BuildingsResource) Create(ctx context.Context, req resource.CreateReque
 }
 
 func (r *BuildingsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Buildings
 
 	// Read state
@@ -321,6 +323,7 @@ func (r *BuildingsResource) Read(ctx context.Context, req resource.ReadRequest, 
 }
 
 func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Buildings
 
 	// Read plan
@@ -562,6 +565,7 @@ func (r *BuildingsResource) Update(ctx context.Context, req resource.UpdateReque
 }
 
 func (r *BuildingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Buildings
 
 	// Read state

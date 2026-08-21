@@ -99,6 +99,7 @@ func (r *CredentialsSNMPv2WriteResource) Configure(_ context.Context, req resour
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *CredentialsSNMPv2WriteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan CredentialsSNMPv2Write
 
 	// Read plan
@@ -137,6 +138,7 @@ func (r *CredentialsSNMPv2WriteResource) Create(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *CredentialsSNMPv2WriteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state CredentialsSNMPv2Write
 
 	// Read state
@@ -180,6 +182,7 @@ func (r *CredentialsSNMPv2WriteResource) Read(ctx context.Context, req resource.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *CredentialsSNMPv2WriteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state CredentialsSNMPv2Write
 
 	// Read plan
@@ -215,6 +218,7 @@ func (r *CredentialsSNMPv2WriteResource) Update(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *CredentialsSNMPv2WriteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state CredentialsSNMPv2Write
 
 	// Read state

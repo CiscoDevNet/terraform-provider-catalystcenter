@@ -100,6 +100,7 @@ func (r *AssignDevicesToTagResource) Configure(_ context.Context, req resource.C
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AssignDevicesToTagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AssignDevicesToTag
 
 	// Read plan
@@ -132,6 +133,7 @@ func (r *AssignDevicesToTagResource) Create(ctx context.Context, req resource.Cr
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignDevicesToTagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignDevicesToTag
 
 	// Read state

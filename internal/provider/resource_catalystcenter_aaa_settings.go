@@ -156,6 +156,7 @@ func (r *AAASettingsResource) Configure(_ context.Context, req resource.Configur
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AAASettingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AAASettings
 
 	// Read plan
@@ -188,6 +189,7 @@ func (r *AAASettingsResource) Create(ctx context.Context, req resource.CreateReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AAASettingsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AAASettings
 
 	// Read state
@@ -227,6 +229,7 @@ func (r *AAASettingsResource) Read(ctx context.Context, req resource.ReadRequest
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AAASettingsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AAASettings
 
 	// Read plan
@@ -262,6 +265,7 @@ func (r *AAASettingsResource) Update(ctx context.Context, req resource.UpdateReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AAASettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AAASettings
 
 	// Read state

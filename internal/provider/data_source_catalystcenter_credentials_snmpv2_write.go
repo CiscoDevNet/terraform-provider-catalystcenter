@@ -98,6 +98,7 @@ func (d *CredentialsSNMPv2WriteDataSource) Configure(_ context.Context, req data
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *CredentialsSNMPv2WriteDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config CredentialsSNMPv2Write
 
 	// Read config

@@ -96,6 +96,7 @@ func (r *AreaResource) Configure(_ context.Context, req resource.ConfigureReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Area
 	cacheKey := "Area::"
 	r.cache.DeletePattern(cacheKey)
@@ -152,6 +153,7 @@ func (r *AreaResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AreaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Area
 
 	// Read state
@@ -191,6 +193,7 @@ func (r *AreaResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AreaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Area
 	cacheKey := "Area::"
 	r.cache.DeletePattern(cacheKey)
@@ -228,6 +231,7 @@ func (r *AreaResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AreaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Area
 	cacheKey := "Area::"
 	r.cache.DeletePattern(cacheKey)

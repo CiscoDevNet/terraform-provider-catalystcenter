@@ -110,6 +110,7 @@ func (r *CredentialsHTTPSReadResource) Configure(_ context.Context, req resource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *CredentialsHTTPSReadResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan CredentialsHTTPSRead
 
 	// Read plan
@@ -148,6 +149,7 @@ func (r *CredentialsHTTPSReadResource) Create(ctx context.Context, req resource.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *CredentialsHTTPSReadResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state CredentialsHTTPSRead
 
 	// Read state
@@ -191,6 +193,7 @@ func (r *CredentialsHTTPSReadResource) Read(ctx context.Context, req resource.Re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *CredentialsHTTPSReadResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state CredentialsHTTPSRead
 
 	// Read plan
@@ -226,6 +229,7 @@ func (r *CredentialsHTTPSReadResource) Update(ctx context.Context, req resource.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *CredentialsHTTPSReadResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state CredentialsHTTPSRead
 
 	// Read state

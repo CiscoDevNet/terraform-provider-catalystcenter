@@ -117,6 +117,7 @@ func (r *FabricEWLCResource) Configure(_ context.Context, req resource.Configure
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricEWLCResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricEWLC
 
 	// Read plan
@@ -157,6 +158,7 @@ func (r *FabricEWLCResource) Create(ctx context.Context, req resource.CreateRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricEWLCResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricEWLC
 
 	// Read state
@@ -178,6 +180,7 @@ func (r *FabricEWLCResource) Read(ctx context.Context, req resource.ReadRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricEWLCResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricEWLC
 
 	// Read plan

@@ -123,6 +123,7 @@ func (r *Dot11beProfileResource) Configure(_ context.Context, req resource.Confi
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *Dot11beProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Dot11beProfile
 
 	// Read plan
@@ -162,6 +163,7 @@ func (r *Dot11beProfileResource) Create(ctx context.Context, req resource.Create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *Dot11beProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Dot11beProfile
 
 	// Read state
@@ -201,6 +203,7 @@ func (r *Dot11beProfileResource) Read(ctx context.Context, req resource.ReadRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *Dot11beProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Dot11beProfile
 
 	// Read plan
@@ -236,6 +239,7 @@ func (r *Dot11beProfileResource) Update(ctx context.Context, req resource.Update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *Dot11beProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Dot11beProfile
 
 	// Read state

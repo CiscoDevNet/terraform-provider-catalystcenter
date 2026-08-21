@@ -188,6 +188,7 @@ func (r *LANAutomationResource) Configure(_ context.Context, req resource.Config
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *LANAutomationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan LANAutomation
 
 	// Read plan
@@ -220,6 +221,7 @@ func (r *LANAutomationResource) Create(ctx context.Context, req resource.CreateR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *LANAutomationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state LANAutomation
 
 	// Read state
@@ -259,6 +261,7 @@ func (r *LANAutomationResource) Read(ctx context.Context, req resource.ReadReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *LANAutomationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state LANAutomation
 
 	// Read plan
