@@ -305,6 +305,7 @@ func (data *FabricDevices) fromBodyUnknowns(ctx context.Context, res gjson.Resul
 				return true
 			},
 		)
+		_ = r
 		if data.FabricDevices[i].Id.IsUnknown() {
 			if value := r.Get("id"); value.Exists() && !data.FabricDevices[i].Id.IsNull() {
 				data.FabricDevices[i].Id = types.StringValue(value.String())

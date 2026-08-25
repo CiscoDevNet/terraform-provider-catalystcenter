@@ -31,6 +31,7 @@ data "catalystcenter_anycast_gateway" "example" {
 
 ### Read-Only
 
+- `additional_ip_pools` (Attributes List) Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN) (see [below for nested schema](#nestedatt--additional_ip_pools))
 - `auto_generate_vlan_name` (Boolean) This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN
 - `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
 - `group_based_policy_enforcement_enabled` (Boolean) Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false)
@@ -47,3 +48,11 @@ data "catalystcenter_anycast_gateway" "example" {
 - `vlan_id` (Number) ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
 - `vlan_name` (String) Name of the VLAN of the anycast gateway
 - `wireless_pool` (Boolean) Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
+
+<a id="nestedatt--additional_ip_pools"></a>
+### Nested Schema for `additional_ip_pools`
+
+Read-Only:
+
+- `name` (String) Name of the additional IP pool associated with the anycast gateway
+- `order` (Number) Sequence in which this IP pool will be used

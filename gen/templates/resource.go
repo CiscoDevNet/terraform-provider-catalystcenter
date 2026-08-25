@@ -1570,9 +1570,15 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		}
 
 		existingNoPut := make(map[string]types.{{$noPutAttrType}})
+		{{- range .Attributes}}{{- if eq .Type "Set"}}{{- range .Attributes}}{{- if and .NoPut (ne .ModelName $noPutAttr)}}
+		existing{{toGoName .ModelName}} := make(map[string]types.{{.Type}})
+		{{- end}}{{- end}}{{- end}}{{- end}}
 		for _, item := range getState.{{toGoName $items}} {
 			updateKey := {{$idValue}}
 			existingNoPut[updateKey] = item.{{toGoName $noPutAttr}}
+			{{- range .Attributes}}{{- if eq .Type "Set"}}{{- range .Attributes}}{{- if and .NoPut (ne .ModelName $noPutAttr)}}
+			existing{{toGoName .ModelName}}[updateKey] = item.{{toGoName .ModelName}}
+			{{- end}}{{- end}}{{- end}}{{- end}}
 		}
 		{{- end}}
 
@@ -1586,6 +1592,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					{{- if ne $noPutAttr ""}}
 					updatedItem.{{toGoName $noPutAttr}} = existingNoPut[toUpdateKey]
+					{{- range $.Attributes}}{{- if eq .Type "Set"}}{{- range .Attributes}}{{- if and .NoPut (ne .ModelName $noPutAttr)}}
+					if v, ok := existing{{toGoName .ModelName}}[toUpdateKey]; ok {
+						updatedItem.{{toGoName .ModelName}} = v
+					}
+					{{- end}}{{- end}}{{- end}}{{- end}}
 					{{- end}}
 					plan.{{toGoName $items}}[toUpdateKey] = updatedItem
 				}
@@ -1603,7 +1614,16 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					if index, found := planIndexMap[toUpdateKey]; found {
 						{{- if ne $noPutAttr ""}}
-						pl.{{toGoName $items}}[itemInd].{{toGoName $noPutAttr}} = existingNoPut[toUpdateKey]
+						if noPutValue, noPutOk := existingNoPut[toUpdateKey]; noPutOk {
+							updatedItem.{{toGoName $noPutAttr}} = noPutValue
+							pl.{{toGoName $items}}[itemInd].{{toGoName $noPutAttr}} = noPutValue
+						}
+						{{- range $.Attributes}}{{- if eq .Type "Set"}}{{- range .Attributes}}{{- if and .NoPut (ne .ModelName $noPutAttr)}}
+						if v, ok := existing{{toGoName .ModelName}}[toUpdateKey]; ok {
+							updatedItem.{{toGoName .ModelName}} = v
+							pl.{{toGoName $items}}[itemInd].{{toGoName .ModelName}} = v
+						}
+						{{- end}}{{- end}}{{- end}}{{- end}}
 						{{- end}}
 						plan.{{toGoName $items}}[index] = updatedItem
 					}

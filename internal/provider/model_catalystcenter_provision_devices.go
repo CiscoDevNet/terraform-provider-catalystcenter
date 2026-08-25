@@ -206,6 +206,7 @@ func (data *ProvisionDevices) fromBodyUnknowns(ctx context.Context, res gjson.Re
 				return true
 			},
 		)
+		_ = r
 		if data.ProvisionDevices[i].Id.IsUnknown() {
 			if value := r.Get("id"); value.Exists() && !data.ProvisionDevices[i].Id.IsNull() {
 				data.ProvisionDevices[i].Id = types.StringValue(value.String())
