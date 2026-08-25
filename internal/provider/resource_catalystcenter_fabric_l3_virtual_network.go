@@ -110,6 +110,10 @@ func (r *FabricL3VirtualNetworkResource) Configure(_ context.Context, req resour
 
 // End of section. //template:end model
 
+// Interface assertion placed outside the generated marker section so `go generate`
+// does not strip it (the generator template does not emit ResourceWithModifyPlan).
+var _ resource.ResourceWithModifyPlan = &FabricL3VirtualNetworkResource{}
+
 func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FabricL3VirtualNetwork
 
@@ -448,6 +452,40 @@ func (r *FabricL3VirtualNetworkResource) Read(ctx context.Context, req resource.
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+}
+
+// ModifyPlan rejects anchor-site replacement at plan time so `terraform plan` fails fast,
+// rather than surfacing the error mid-apply from Update(). Catalyst Center does not allow
+// changing the anchor site of an existing L3 VN (the GUI blocks it too). Adding an anchor
+// (null -> X) and removing it (X -> null) stay allowed and fall through to Update().
+func (r *FabricL3VirtualNetworkResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.State.Raw.IsNull() || req.Plan.Raw.IsNull() {
+		return
+	}
+
+	var state, plan FabricL3VirtualNetwork
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if state.AnchoredSiteId.IsNull() || state.AnchoredSiteId.IsUnknown() {
+		return
+	}
+	if plan.AnchoredSiteId.IsNull() || plan.AnchoredSiteId.IsUnknown() {
+		return
+	}
+
+	stateAnchor := state.AnchoredSiteId.ValueString()
+	planAnchor := plan.AnchoredSiteId.ValueString()
+	if stateAnchor != "" && planAnchor != "" && stateAnchor != planAnchor {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("anchored_site_id"),
+			"Invalid Configuration",
+			"Catalyst Center does not allow changing the anchor site of an existing Layer 3 Virtual Network (the same restriction applies in the Catalyst Center GUI). To move the anchor to a different fabric site, first remove the anchor (apply), then add the new anchor in a subsequent apply, or destroy and recreate the resource.",
+		)
+	}
 }
 
 func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
