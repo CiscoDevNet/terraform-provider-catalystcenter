@@ -484,9 +484,9 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 	// Verified via live API testing: Catalyst Center accepts adding an anchor to an
 	// existing VN and removing the anchor while keeping fabric_ids. Those transitions
 	// are allowed here and executed by applyFabricIdsAnchorAware / the unassociate path.
-	// Only in-place anchor *replacement* (one non-empty anchor site to a different
-	// non-empty anchor site) remains blocked, because that transition — especially with
-	// multi-fabric membership — has not been verified against Catalyst Center.
+	// In-place anchor *replacement* (one non-empty anchor site to a different non-empty
+	// anchor site) is blocked: Catalyst Center itself does not support re-anchoring an
+	// existing L3 VN — the CatC GUI does not allow changing the anchor site either.
 	stateAnchor := ""
 	if !state.AnchoredSiteId.IsNull() {
 		stateAnchor = state.AnchoredSiteId.ValueString()
@@ -504,7 +504,7 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 	if anchorReplaced {
 		resp.Diagnostics.AddError(
 			"Invalid Configuration",
-			"Changing anchored_site_id from one non-empty fabric site to another in a single update is blocked by this provider. Remove the anchor first (apply), then add the new anchor in a subsequent apply, or destroy and recreate the resource.",
+			"Catalyst Center does not allow changing the anchor site of an existing Layer 3 Virtual Network (the same restriction applies in the Catalyst Center GUI). To move the anchor to a different fabric site, first remove the anchor (apply), then add the new anchor in a subsequent apply, or destroy and recreate the resource.",
 		)
 		return
 	}
