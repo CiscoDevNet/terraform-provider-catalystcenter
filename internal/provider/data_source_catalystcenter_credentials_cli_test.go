@@ -31,6 +31,7 @@ func TestAccDataSourceCcCredentialsCLI(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_cli.test", "description", "My CLI credentials"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_cli.test", "username", "user1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_cli.test", "password_wo_version", "1"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -53,7 +54,8 @@ func testAccDataSourceCcCredentialsCLIConfig() string {
 	config := `resource "catalystcenter_credentials_cli" "test" {` + "\n"
 	config += `	description = "My CLI credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
-	config += `	password = "password1"` + "\n"
+	config += `	password_wo = "password1"` + "\n"
+	config += `	password_wo_version = 1` + "\n"
 	config += `}` + "\n"
 
 	config += `

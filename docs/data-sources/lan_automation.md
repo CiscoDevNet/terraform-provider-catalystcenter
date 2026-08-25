@@ -34,7 +34,8 @@ data "catalystcenter_lan_automation" "example" {
 - `host_name_file_id` (String) File ID of the CSV file containing the host name list.
 - `host_name_prefix` (String) Host name prefix which shall be assigned to the discovered device.
 - `ip_pools` (Attributes List) The list of IP pools with its name and role. (see [below for nested schema](#nestedatt--ip_pools))
-- `isis_domain_password` (String) ISIS domain password.
+- `isis_domain_password_wo` (String) ISIS domain password.
+- `isis_domain_password_wo_version` (Number) Rotation trigger for `isis_domain_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `multicast_enabled` (Boolean) To enable underlay native multicast.
 - `peer_device_management_ip_address` (String) Secondary seed management IP address.
 - `primary_device_interface_names` (Set of String) The list of interfaces on primary seed via which the discovered devices are connected.

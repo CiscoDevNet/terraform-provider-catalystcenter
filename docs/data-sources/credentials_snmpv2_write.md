@@ -28,4 +28,5 @@ data "catalystcenter_credentials_snmpv2_write" "example" {
 
 ### Read-Only
 
-- `write_community` (String) Write community
+- `write_community_wo` (String) Write community
+- `write_community_wo_version` (Number) Rotation trigger for `write_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.

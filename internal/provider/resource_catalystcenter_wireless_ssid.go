@@ -97,8 +97,14 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 					stringvalidator.OneOf("WPA2_ENTERPRISE", "WPA2_PERSONAL", "OPEN", "WPA3_ENTERPRISE", "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "WPA2_WPA3_ENTERPRISE", "OPEN-SECURED"),
 				},
 			},
-			"passphrase": schema.StringAttribute{
+			"passphrase_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"passphrase_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"fast_lane": schema.BoolAttribute{
@@ -222,8 +228,14 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 								stringvalidator.OneOf("ASCII", "HEX"),
 							},
 						},
-						"passphrase": schema.StringAttribute{
+						"passphrase_wo": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Passphrase").String,
+							Optional:            true,
+							WriteOnly:           true,
+							Sensitive:           true,
+						},
+						"passphrase_wo_version": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 							Optional:            true,
 						},
 					},
@@ -460,6 +472,24 @@ func (r *WirelessSSIDResource) Create(ctx context.Context, req resource.CreateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	// Write-only value "passphrase_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase_wo"), &plan.PassphraseWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only values in list "multi_psk_settings" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element.
+	{
+		var cfgMultiPskSettings []WirelessSSIDMultiPskSettings
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("multi_psk_settings"), &cfgMultiPskSettings)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.MultiPskSettings {
+			if i < len(cfgMultiPskSettings) {
+				plan.MultiPskSettings[i].PassphraseWo = cfgMultiPskSettings[i].PassphraseWo
+			}
+		}
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
@@ -546,6 +576,24 @@ func (r *WirelessSSIDResource) Update(ctx context.Context, req resource.UpdateRe
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+	// Write-only value "passphrase_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "passphrase_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase_wo"), &plan.PassphraseWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only values in list "multi_psk_settings" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element. Read unconditionally for the same reason as the top-level secrets above (full-object replace PUT requires every secret present).
+	{
+		var cfgMultiPskSettings []WirelessSSIDMultiPskSettings
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("multi_psk_settings"), &cfgMultiPskSettings)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.MultiPskSettings {
+			if i < len(cfgMultiPskSettings) {
+				plan.MultiPskSettings[i].PassphraseWo = cfgMultiPskSettings[i].PassphraseWo
+			}
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))

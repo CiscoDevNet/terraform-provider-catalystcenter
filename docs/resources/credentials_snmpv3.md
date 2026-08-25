@@ -14,13 +14,15 @@ This resource can manage a Credentials SNMPv3.
 
 ```terraform
 resource "catalystcenter_credentials_snmpv3" "example" {
-  description      = "My SNMPv3 credentials"
-  username         = "user1"
-  privacy_type     = "AES128"
-  privacy_password = "password1"
-  auth_type        = "SHA"
-  auth_password    = "password1"
-  snmp_mode        = "AUTHPRIV"
+  description                 = "My SNMPv3 credentials"
+  username                    = "user1"
+  privacy_type                = "AES128"
+  privacy_password_wo         = "password1"
+  privacy_password_wo_version = 1
+  auth_type                   = "SHA"
+  auth_password_wo            = "password1"
+  auth_password_wo_version    = 1
+  snmp_mode                   = "AUTHPRIV"
 }
 ```
 
@@ -36,10 +38,14 @@ resource "catalystcenter_credentials_snmpv3" "example" {
 
 ### Optional
 
-- `auth_password` (String) Authentication password
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
+- `auth_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Authentication password
+- `auth_password_wo_version` (Number) Rotation trigger for `auth_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `auth_type` (String) Authentication type
   - Choices: `SHA`, `MD5`
-- `privacy_password` (String) Privacy password
+- `privacy_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Privacy password
+- `privacy_password_wo_version` (Number) Rotation trigger for `privacy_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `privacy_type` (String) Privacy type
   - Choices: `AES128`, `AES192`, `AES256`
 

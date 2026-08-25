@@ -32,6 +32,7 @@ func TestAccDataSourceCcUser(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_user.test", "first_name", "john"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_user.test", "last_name", "doe"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_user.test", "username", "johndoe"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_user.test", "password_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_user.test", "email", "john.doe@example.com"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -70,7 +71,8 @@ func testAccDataSourceCcUserConfig() string {
 	config += `	first_name = "john"` + "\n"
 	config += `	last_name = "doe"` + "\n"
 	config += `	username = "johndoe"` + "\n"
-	config += `	password = "C1sco1357"` + "\n"
+	config += `	password_wo = "C1sco1357"` + "\n"
+	config += `	password_wo_version = 1` + "\n"
 	config += `	email = "john.doe@example.com"` + "\n"
 	config += `	role_ids = [catalystcenter_role.test.id]` + "\n"
 	config += `}` + "\n"

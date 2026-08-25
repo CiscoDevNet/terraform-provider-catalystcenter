@@ -70,8 +70,12 @@ func (d *CredentialsSNMPv2ReadDataSource) Schema(ctx context.Context, req dataso
 				Optional:            true,
 				Computed:            true,
 			},
-			"read_community": schema.StringAttribute{
+			"read_community_wo": schema.StringAttribute{
 				MarkdownDescription: "Read community",
+				Computed:            true,
+			},
+			"read_community_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `read_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 				Computed:            true,
 			},
 		},

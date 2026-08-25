@@ -74,12 +74,20 @@ func (d *CredentialsCLIDataSource) Schema(ctx context.Context, req datasource.Sc
 				MarkdownDescription: "Username",
 				Computed:            true,
 			},
-			"password": schema.StringAttribute{
+			"password_wo": schema.StringAttribute{
 				MarkdownDescription: "Password",
 				Computed:            true,
 			},
-			"enable_password": schema.StringAttribute{
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
+			"enable_password_wo": schema.StringAttribute{
 				MarkdownDescription: "Enable password",
+				Computed:            true,
+			},
+			"enable_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 				Computed:            true,
 			},
 		},

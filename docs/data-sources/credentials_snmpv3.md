@@ -28,9 +28,11 @@ data "catalystcenter_credentials_snmpv3" "example" {
 
 ### Read-Only
 
-- `auth_password` (String) Authentication password
+- `auth_password_wo` (String) Authentication password
+- `auth_password_wo_version` (Number) Rotation trigger for `auth_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `auth_type` (String) Authentication type
-- `privacy_password` (String) Privacy password
+- `privacy_password_wo` (String) Privacy password
+- `privacy_password_wo_version` (Number) Rotation trigger for `privacy_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `privacy_type` (String) Privacy type
 - `snmp_mode` (String) SNMP mode
 - `username` (String) Username

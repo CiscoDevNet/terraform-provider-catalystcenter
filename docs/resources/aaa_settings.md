@@ -14,19 +14,21 @@ This resource can manage an AAA Settings.
 
 ```terraform
 resource "catalystcenter_aaa_settings" "example" {
-  site_id                         = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
-  network_aaa_server_type         = "AAA"
-  network_aaa_protocol            = "RADIUS"
-  network_aaa_pan                 = "1.2.3.4"
-  network_aaa_primary_server_ip   = "1.2.3.4"
-  network_aaa_secondary_server_ip = "1.2.3.5"
-  network_aaa_shared_secret       = "Secret123"
-  client_aaa_server_type          = "AAA"
-  client_aaa_protocol             = "RADIUS"
-  client_aaa_pan                  = "1.2.3.4"
-  client_aaa_primary_server_ip    = "1.2.3.4"
-  client_aaa_secondary_server_ip  = "1.2.3.5"
-  client_aaa_shared_secret        = "Secret123"
+  site_id                              = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  network_aaa_server_type              = "AAA"
+  network_aaa_protocol                 = "RADIUS"
+  network_aaa_pan                      = "1.2.3.4"
+  network_aaa_primary_server_ip        = "1.2.3.4"
+  network_aaa_secondary_server_ip      = "1.2.3.5"
+  network_aaa_shared_secret_wo         = "Secret123"
+  network_aaa_shared_secret_wo_version = 1
+  client_aaa_server_type               = "AAA"
+  client_aaa_protocol                  = "RADIUS"
+  client_aaa_pan                       = "1.2.3.4"
+  client_aaa_primary_server_ip         = "1.2.3.4"
+  client_aaa_secondary_server_ip       = "1.2.3.5"
+  client_aaa_shared_secret_wo          = "Secret123"
+  client_aaa_shared_secret_wo_version  = 1
 }
 ```
 
@@ -39,6 +41,8 @@ resource "catalystcenter_aaa_settings" "example" {
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `client_aaa_pan` (String) Administration Node. Required for ISE
 - `client_aaa_primary_server_ip` (String) The server to use as a primary
 - `client_aaa_protocol` (String) Server protocol
@@ -46,7 +50,8 @@ resource "catalystcenter_aaa_settings" "example" {
 - `client_aaa_secondary_server_ip` (String) The server to use as a secondary
 - `client_aaa_server_type` (String) Type of client AAA server
   - Choices: `AAA`, `ISE`
-- `client_aaa_shared_secret` (String) Only relevant for server type `ISE`, shared secret
+- `client_aaa_shared_secret_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Only relevant for server type `ISE`, shared secret
+- `client_aaa_shared_secret_wo_version` (Number) Rotation trigger for `client_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `network_aaa_pan` (String) Administration Node. Required for ISE
 - `network_aaa_primary_server_ip` (String) The server to use as a primary
 - `network_aaa_protocol` (String) Server protocol
@@ -54,7 +59,8 @@ resource "catalystcenter_aaa_settings" "example" {
 - `network_aaa_secondary_server_ip` (String) The server to use as a secondary
 - `network_aaa_server_type` (String) Type of network AAA server
   - Choices: `AAA`, `ISE`
-- `network_aaa_shared_secret` (String) Only relevant for server type `ISE`, shared secret
+- `network_aaa_shared_secret_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Only relevant for server type `ISE`, shared secret
+- `network_aaa_shared_secret_wo_version` (Number) Rotation trigger for `network_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 
 ### Read-Only
 

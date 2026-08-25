@@ -73,8 +73,12 @@ func (d *WirelessSSIDDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "L2 Authentication Type. If authType is not open, then at least one RSN Cipher Suite and corresponding valid AKM must be enabled.",
 				Computed:            true,
 			},
-			"passphrase": schema.StringAttribute{
+			"passphrase_wo": schema.StringAttribute{
 				MarkdownDescription: "Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters",
+				Computed:            true,
+			},
+			"passphrase_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 				Computed:            true,
 			},
 			"fast_lane": schema.BoolAttribute{
@@ -171,8 +175,12 @@ func (d *WirelessSSIDDataSource) Schema(ctx context.Context, req datasource.Sche
 							MarkdownDescription: "Passphrase Type",
 							Computed:            true,
 						},
-						"passphrase": schema.StringAttribute{
+						"passphrase_wo": schema.StringAttribute{
 							MarkdownDescription: "Passphrase",
+							Computed:            true,
+						},
+						"passphrase_wo_version": schema.Int64Attribute{
+							MarkdownDescription: "Rotation trigger for `passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 							Computed:            true,
 						},
 					},

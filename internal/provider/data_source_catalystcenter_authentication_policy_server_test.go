@@ -39,6 +39,7 @@ func TestAccDataSourceCcAuthenticationPolicyServer(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_authentication_policy_server.test", "protocol", "RADIUS"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_authentication_policy_server.test", "retries", "2"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_authentication_policy_server.test", "role", "secondary"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_authentication_policy_server.test", "shared_secret_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_authentication_policy_server.test", "timeout_seconds", "2"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -70,7 +71,8 @@ func testAccDataSourceCcAuthenticationPolicyServerConfig() string {
 	config += `	protocol = "RADIUS"` + "\n"
 	config += `	retries = 2` + "\n"
 	config += `	role = "secondary"` + "\n"
-	config += `	shared_secret = "Cisco123"` + "\n"
+	config += `	shared_secret_wo = "Cisco123"` + "\n"
+	config += `	shared_secret_wo_version = 1` + "\n"
 	config += `	timeout_seconds = 2` + "\n"
 	config += `}` + "\n"
 

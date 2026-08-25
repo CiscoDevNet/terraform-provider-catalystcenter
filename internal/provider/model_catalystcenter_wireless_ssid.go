@@ -38,7 +38,8 @@ type WirelessSSID struct {
 	SiteId                                 types.String                   `tfsdk:"site_id"`
 	Ssid                                   types.String                   `tfsdk:"ssid"`
 	AuthType                               types.String                   `tfsdk:"auth_type"`
-	Passphrase                             types.String                   `tfsdk:"passphrase"`
+	PassphraseWo                           types.String                   `tfsdk:"passphrase_wo"`
+	PassphraseWoVersion                    types.Int64                    `tfsdk:"passphrase_wo_version"`
 	FastLane                               types.Bool                     `tfsdk:"fast_lane"`
 	MacFiltering                           types.Bool                     `tfsdk:"mac_filtering"`
 	SsidRadioType                          types.String                   `tfsdk:"ssid_radio_type"`
@@ -107,9 +108,10 @@ type WirelessSSID struct {
 }
 
 type WirelessSSIDMultiPskSettings struct {
-	Priority       types.Int64  `tfsdk:"priority"`
-	PassphraseType types.String `tfsdk:"passphrase_type"`
-	Passphrase     types.String `tfsdk:"passphrase"`
+	Priority            types.Int64  `tfsdk:"priority"`
+	PassphraseType      types.String `tfsdk:"passphrase_type"`
+	PassphraseWo        types.String `tfsdk:"passphrase_wo"`
+	PassphraseWoVersion types.Int64  `tfsdk:"passphrase_wo_version"`
 }
 
 // End of section. //template:end types
@@ -139,8 +141,8 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 	if !data.AuthType.IsNull() {
 		body, _ = sjson.Set(body, "authType", data.AuthType.ValueString())
 	}
-	if !data.Passphrase.IsNull() {
-		body, _ = sjson.Set(body, "passphrase", data.Passphrase.ValueString())
+	if !data.PassphraseWo.IsNull() {
+		body, _ = sjson.Set(body, "passphrase", data.PassphraseWo.ValueString())
 	}
 	if !data.FastLane.IsNull() {
 		body, _ = sjson.Set(body, "isFastLaneEnabled", data.FastLane.ValueBool())
@@ -214,8 +216,8 @@ func (data WirelessSSID) toBody(ctx context.Context, state WirelessSSID) string 
 			if !item.PassphraseType.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "passphraseType", item.PassphraseType.ValueString())
 			}
-			if !item.Passphrase.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "passphrase", item.Passphrase.ValueString())
+			if !item.PassphraseWo.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "passphrase", item.PassphraseWo.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "multiPSKSettings.-1", itemBody)
 		}
@@ -1093,7 +1095,10 @@ func (data *WirelessSSID) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.AuthType.IsNull() {
 		return false
 	}
-	if !data.Passphrase.IsNull() {
+	if !data.PassphraseWo.IsNull() {
+		return false
+	}
+	if !data.PassphraseWoVersion.IsNull() {
 		return false
 	}
 	if !data.FastLane.IsNull() {

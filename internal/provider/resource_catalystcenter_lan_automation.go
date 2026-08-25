@@ -122,8 +122,14 @@ func (r *LANAutomationResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: helpers.NewAttributeDescription("File ID of the CSV file containing the host name list.").String,
 				Optional:            true,
 			},
-			"isis_domain_password": schema.StringAttribute{
+			"isis_domain_password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"isis_domain_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `isis_domain_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"redistribute_isis_to_bgp": schema.BoolAttribute{
@@ -193,6 +199,11 @@ func (r *LANAutomationResource) Create(ctx context.Context, req resource.CreateR
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "isis_domain_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password_wo"), &plan.IsisDomainPasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -270,6 +281,11 @@ func (r *LANAutomationResource) Update(ctx context.Context, req resource.UpdateR
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "isis_domain_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "isis_domain_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password_wo"), &plan.IsisDomainPasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -30,6 +30,7 @@ import (
 func TestAccDataSourceCcCredentialsSNMPv2Write(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_snmpv2_write.test", "description", "My SNMPv2 write credentials"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_snmpv2_write.test", "write_community_wo_version", "1"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -51,7 +52,8 @@ func TestAccDataSourceCcCredentialsSNMPv2Write(t *testing.T) {
 func testAccDataSourceCcCredentialsSNMPv2WriteConfig() string {
 	config := `resource "catalystcenter_credentials_snmpv2_write" "test" {` + "\n"
 	config += `	description = "My SNMPv2 write credentials"` + "\n"
-	config += `	write_community = "community1"` + "\n"
+	config += `	write_community_wo = "community1"` + "\n"
+	config += `	write_community_wo_version = 1` + "\n"
 	config += `}` + "\n"
 
 	config += `
