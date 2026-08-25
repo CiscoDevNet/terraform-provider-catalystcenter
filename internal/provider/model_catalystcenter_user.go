@@ -31,13 +31,14 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type User struct {
-	Id        types.String `tfsdk:"id"`
-	FirstName types.String `tfsdk:"first_name"`
-	LastName  types.String `tfsdk:"last_name"`
-	Username  types.String `tfsdk:"username"`
-	Password  types.String `tfsdk:"password"`
-	Email     types.String `tfsdk:"email"`
-	RoleIds   types.Set    `tfsdk:"role_ids"`
+	Id                types.String `tfsdk:"id"`
+	FirstName         types.String `tfsdk:"first_name"`
+	LastName          types.String `tfsdk:"last_name"`
+	Username          types.String `tfsdk:"username"`
+	PasswordWo        types.String `tfsdk:"password_wo"`
+	PasswordWoVersion types.Int64  `tfsdk:"password_wo_version"`
+	Email             types.String `tfsdk:"email"`
+	RoleIds           types.Set    `tfsdk:"role_ids"`
 }
 
 // End of section. //template:end types
@@ -67,8 +68,8 @@ func (data User) toBody(ctx context.Context, state User) string {
 	if !data.Username.IsNull() {
 		body, _ = sjson.Set(body, "username", data.Username.ValueString())
 	}
-	if !data.Password.IsNull() {
-		body, _ = sjson.Set(body, "password", data.Password.ValueString())
+	if !data.PasswordWo.IsNull() {
+		body, _ = sjson.Set(body, "password", data.PasswordWo.ValueString())
 	}
 	if !data.Email.IsNull() {
 		body, _ = sjson.Set(body, "email", data.Email.ValueString())
@@ -156,7 +157,10 @@ func (data *User) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Username.IsNull() {
 		return false
 	}
-	if !data.Password.IsNull() {
+	if !data.PasswordWo.IsNull() {
+		return false
+	}
+	if !data.PasswordWoVersion.IsNull() {
 		return false
 	}
 	if !data.Email.IsNull() {

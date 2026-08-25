@@ -14,10 +14,11 @@ This resource can manage a Credentials HTTPS Read.
 
 ```terraform
 resource "catalystcenter_credentials_https_read" "example" {
-  description = "My HTTPS read credentials"
-  username    = "user1"
-  password    = "password1"
-  port        = 444
+  description         = "My HTTPS read credentials"
+  username            = "user1"
+  password_wo         = "password1"
+  password_wo_version = 1
+  port                = 444
 }
 ```
 
@@ -27,11 +28,14 @@ resource "catalystcenter_credentials_https_read" "example" {
 ### Required
 
 - `description` (String) The description of the HTTPS credentials
-- `password` (String) Password
 - `username` (String) Username
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
+- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password
+- `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `port` (Number) HTTPS port
   - Default value: `443`
 

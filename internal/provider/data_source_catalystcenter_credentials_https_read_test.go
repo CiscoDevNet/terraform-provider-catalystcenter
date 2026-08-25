@@ -31,6 +31,7 @@ func TestAccDataSourceCcCredentialsHTTPSRead(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_https_read.test", "description", "My HTTPS read credentials"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_https_read.test", "username", "user1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_https_read.test", "password_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_credentials_https_read.test", "port", "444"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -54,7 +55,8 @@ func testAccDataSourceCcCredentialsHTTPSReadConfig() string {
 	config := `resource "catalystcenter_credentials_https_read" "test" {` + "\n"
 	config += `	description = "My HTTPS read credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
-	config += `	password = "password1"` + "\n"
+	config += `	password_wo = "password1"` + "\n"
+	config += `	password_wo_version = 1` + "\n"
 	config += `	port = 444` + "\n"
 	config += `}` + "\n"
 

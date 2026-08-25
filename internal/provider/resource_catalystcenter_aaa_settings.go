@@ -104,8 +104,14 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				MarkdownDescription: helpers.NewAttributeDescription("The server to use as a secondary").String,
 				Optional:            true,
 			},
-			"network_aaa_shared_secret": schema.StringAttribute{
+			"network_aaa_shared_secret_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"network_aaa_shared_secret_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `network_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"client_aaa_server_type": schema.StringAttribute{
@@ -134,8 +140,14 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				MarkdownDescription: helpers.NewAttributeDescription("The server to use as a secondary").String,
 				Optional:            true,
 			},
-			"client_aaa_shared_secret": schema.StringAttribute{
+			"client_aaa_shared_secret_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"client_aaa_shared_secret_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `client_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 		},
@@ -161,6 +173,16 @@ func (r *AAASettingsResource) Create(ctx context.Context, req resource.CreateReq
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "network_aaa_shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret_wo"), &plan.NetworkAaaSharedSecretWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "client_aaa_shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret_wo"), &plan.ClientAaaSharedSecretWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -238,6 +260,16 @@ func (r *AAASettingsResource) Update(ctx context.Context, req resource.UpdateReq
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "network_aaa_shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "network_aaa_shared_secret_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret_wo"), &plan.NetworkAaaSharedSecretWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "client_aaa_shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "client_aaa_shared_secret_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret_wo"), &plan.ClientAaaSharedSecretWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -77,9 +77,15 @@ func (r *CredentialsSNMPv2ReadResource) Schema(ctx context.Context, req resource
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"read_community": schema.StringAttribute{
+			"read_community_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Read community").String,
-				Required:            true,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"read_community_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `read_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
 			},
 		},
 	}
@@ -104,6 +110,11 @@ func (r *CredentialsSNMPv2ReadResource) Create(ctx context.Context, req resource
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "read_community_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo"), &plan.ReadCommunityWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -191,6 +202,11 @@ func (r *CredentialsSNMPv2ReadResource) Update(ctx context.Context, req resource
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "read_community_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "read_community_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo"), &plan.ReadCommunityWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

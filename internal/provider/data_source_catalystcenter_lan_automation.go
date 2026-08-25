@@ -107,8 +107,12 @@ func (d *LANAutomationDataSource) Schema(ctx context.Context, req datasource.Sch
 				MarkdownDescription: "File ID of the CSV file containing the host name list.",
 				Computed:            true,
 			},
-			"isis_domain_password": schema.StringAttribute{
+			"isis_domain_password_wo": schema.StringAttribute{
 				MarkdownDescription: "ISIS domain password.",
+				Computed:            true,
+			},
+			"isis_domain_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `isis_domain_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 				Computed:            true,
 			},
 			"redistribute_isis_to_bgp": schema.BoolAttribute{

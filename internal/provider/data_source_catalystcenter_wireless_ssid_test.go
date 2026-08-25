@@ -31,6 +31,7 @@ func TestAccDataSourceCcWirelessSSID(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_ssid.test", "ssid", "mySSID1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_ssid.test", "auth_type", "WPA3_PERSONAL"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_ssid.test", "passphrase_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_ssid.test", "fast_lane", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_ssid.test", "mac_filtering", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_ssid.test", "ssid_radio_type", "Triple band operation(2.4GHz, 5GHz and 6GHz)"))
@@ -82,7 +83,8 @@ func testAccDataSourceCcWirelessSSIDConfig() string {
 	config += `	site_id = data.catalystcenter_site.test.id` + "\n"
 	config += `	ssid = "mySSID1"` + "\n"
 	config += `	auth_type = "WPA3_PERSONAL"` + "\n"
-	config += `	passphrase = "Cisco123"` + "\n"
+	config += `	passphrase_wo = "Cisco123"` + "\n"
+	config += `	passphrase_wo_version = 1` + "\n"
 	config += `	fast_lane = false` + "\n"
 	config += `	mac_filtering = false` + "\n"
 	config += `	ssid_radio_type = "Triple band operation(2.4GHz, 5GHz and 6GHz)"` + "\n"

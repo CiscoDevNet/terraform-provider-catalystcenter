@@ -30,6 +30,7 @@ data "catalystcenter_user" "example" {
 - `email` (String) Email address
 - `first_name` (String) The first name
 - `last_name` (String) The last name
-- `password` (String) The password
+- `password_wo` (String) The password
+- `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `role_ids` (Set of String) List of role IDs
 - `username` (String) The username

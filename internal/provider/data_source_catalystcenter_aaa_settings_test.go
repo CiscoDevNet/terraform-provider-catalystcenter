@@ -38,11 +38,13 @@ func TestAccDataSourceCcAAASettings(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_pan", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_primary_server_ip", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_secondary_server_ip", "1.2.3.5"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "network_aaa_shared_secret_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_server_type", "AAA"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_protocol", "RADIUS"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_pan", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_primary_server_ip", "1.2.3.4"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_secondary_server_ip", "1.2.3.5"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_aaa_settings.test", "client_aaa_shared_secret_wo_version", "1"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -77,13 +79,15 @@ func testAccDataSourceCcAAASettingsConfig() string {
 	config += `	network_aaa_pan = "1.2.3.4"` + "\n"
 	config += `	network_aaa_primary_server_ip = "1.2.3.4"` + "\n"
 	config += `	network_aaa_secondary_server_ip = "1.2.3.5"` + "\n"
-	config += `	network_aaa_shared_secret = "Secret123"` + "\n"
+	config += `	network_aaa_shared_secret_wo = "Secret123"` + "\n"
+	config += `	network_aaa_shared_secret_wo_version = 1` + "\n"
 	config += `	client_aaa_server_type = "AAA"` + "\n"
 	config += `	client_aaa_protocol = "RADIUS"` + "\n"
 	config += `	client_aaa_pan = "1.2.3.4"` + "\n"
 	config += `	client_aaa_primary_server_ip = "1.2.3.4"` + "\n"
 	config += `	client_aaa_secondary_server_ip = "1.2.3.5"` + "\n"
-	config += `	client_aaa_shared_secret = "Secret123"` + "\n"
+	config += `	client_aaa_shared_secret_wo = "Secret123"` + "\n"
+	config += `	client_aaa_shared_secret_wo_version = 1` + "\n"
 	config += `}` + "\n"
 
 	config += `

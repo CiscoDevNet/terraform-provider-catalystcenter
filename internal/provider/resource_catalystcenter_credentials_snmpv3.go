@@ -90,8 +90,14 @@ func (r *CredentialsSNMPv3Resource) Schema(ctx context.Context, req resource.Sch
 					stringvalidator.OneOf("AES128", "AES192", "AES256"),
 				},
 			},
-			"privacy_password": schema.StringAttribute{
+			"privacy_password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Privacy password").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"privacy_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `privacy_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"auth_type": schema.StringAttribute{
@@ -101,8 +107,14 @@ func (r *CredentialsSNMPv3Resource) Schema(ctx context.Context, req resource.Sch
 					stringvalidator.OneOf("SHA", "MD5"),
 				},
 			},
-			"auth_password": schema.StringAttribute{
+			"auth_password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Authentication password").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"auth_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `auth_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"snmp_mode": schema.StringAttribute{
@@ -135,6 +147,16 @@ func (r *CredentialsSNMPv3Resource) Create(ctx context.Context, req resource.Cre
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "privacy_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("privacy_password_wo"), &plan.PrivacyPasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "auth_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("auth_password_wo"), &plan.AuthPasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -222,6 +244,16 @@ func (r *CredentialsSNMPv3Resource) Update(ctx context.Context, req resource.Upd
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "privacy_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "privacy_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("privacy_password_wo"), &plan.PrivacyPasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "auth_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "auth_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("auth_password_wo"), &plan.AuthPasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

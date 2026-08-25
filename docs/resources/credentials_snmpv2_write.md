@@ -14,8 +14,9 @@ This resource can manage a Credentials SNMPv2 Write.
 
 ```terraform
 resource "catalystcenter_credentials_snmpv2_write" "example" {
-  description     = "My SNMPv2 write credentials"
-  write_community = "community1"
+  description                = "My SNMPv2 write credentials"
+  write_community_wo         = "community1"
+  write_community_wo_version = 1
 }
 ```
 
@@ -25,7 +26,13 @@ resource "catalystcenter_credentials_snmpv2_write" "example" {
 ### Required
 
 - `description` (String) The description of the SNMPv2 credentials
-- `write_community` (String) Write community
+
+### Optional
+
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
+- `write_community_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Write community
+- `write_community_wo_version` (Number) Rotation trigger for `write_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 
 ### Read-Only
 

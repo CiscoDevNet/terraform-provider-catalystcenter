@@ -30,14 +30,16 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type CredentialsSNMPv3 struct {
-	Id              types.String `tfsdk:"id"`
-	Description     types.String `tfsdk:"description"`
-	Username        types.String `tfsdk:"username"`
-	PrivacyType     types.String `tfsdk:"privacy_type"`
-	PrivacyPassword types.String `tfsdk:"privacy_password"`
-	AuthType        types.String `tfsdk:"auth_type"`
-	AuthPassword    types.String `tfsdk:"auth_password"`
-	SnmpMode        types.String `tfsdk:"snmp_mode"`
+	Id                       types.String `tfsdk:"id"`
+	Description              types.String `tfsdk:"description"`
+	Username                 types.String `tfsdk:"username"`
+	PrivacyType              types.String `tfsdk:"privacy_type"`
+	PrivacyPasswordWo        types.String `tfsdk:"privacy_password_wo"`
+	PrivacyPasswordWoVersion types.Int64  `tfsdk:"privacy_password_wo_version"`
+	AuthType                 types.String `tfsdk:"auth_type"`
+	AuthPasswordWo           types.String `tfsdk:"auth_password_wo"`
+	AuthPasswordWoVersion    types.Int64  `tfsdk:"auth_password_wo_version"`
+	SnmpMode                 types.String `tfsdk:"snmp_mode"`
 }
 
 // End of section. //template:end types
@@ -79,11 +81,11 @@ func (data CredentialsSNMPv3) toBody(ctx context.Context, state CredentialsSNMPv
 			body, _ = sjson.Set(body, "snmpV3.0.privacyType", data.PrivacyType.ValueString())
 		}
 	}
-	if !data.PrivacyPassword.IsNull() {
+	if !data.PrivacyPasswordWo.IsNull() {
 		if put {
-			body, _ = sjson.Set(body, "snmpV3.privacyPassword", data.PrivacyPassword.ValueString())
+			body, _ = sjson.Set(body, "snmpV3.privacyPassword", data.PrivacyPasswordWo.ValueString())
 		} else {
-			body, _ = sjson.Set(body, "snmpV3.0.privacyPassword", data.PrivacyPassword.ValueString())
+			body, _ = sjson.Set(body, "snmpV3.0.privacyPassword", data.PrivacyPasswordWo.ValueString())
 		}
 	}
 	if !data.AuthType.IsNull() {
@@ -93,11 +95,11 @@ func (data CredentialsSNMPv3) toBody(ctx context.Context, state CredentialsSNMPv
 			body, _ = sjson.Set(body, "snmpV3.0.authType", data.AuthType.ValueString())
 		}
 	}
-	if !data.AuthPassword.IsNull() {
+	if !data.AuthPasswordWo.IsNull() {
 		if put {
-			body, _ = sjson.Set(body, "snmpV3.authPassword", data.AuthPassword.ValueString())
+			body, _ = sjson.Set(body, "snmpV3.authPassword", data.AuthPasswordWo.ValueString())
 		} else {
-			body, _ = sjson.Set(body, "snmpV3.0.authPassword", data.AuthPassword.ValueString())
+			body, _ = sjson.Set(body, "snmpV3.0.authPassword", data.AuthPasswordWo.ValueString())
 		}
 	}
 	if !data.SnmpMode.IsNull() {
@@ -185,13 +187,19 @@ func (data *CredentialsSNMPv3) isNull(ctx context.Context, res gjson.Result) boo
 	if !data.PrivacyType.IsNull() {
 		return false
 	}
-	if !data.PrivacyPassword.IsNull() {
+	if !data.PrivacyPasswordWo.IsNull() {
+		return false
+	}
+	if !data.PrivacyPasswordWoVersion.IsNull() {
 		return false
 	}
 	if !data.AuthType.IsNull() {
 		return false
 	}
-	if !data.AuthPassword.IsNull() {
+	if !data.AuthPasswordWo.IsNull() {
+		return false
+	}
+	if !data.AuthPasswordWoVersion.IsNull() {
 		return false
 	}
 	if !data.SnmpMode.IsNull() {

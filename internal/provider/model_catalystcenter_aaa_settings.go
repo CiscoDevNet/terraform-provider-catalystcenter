@@ -33,20 +33,22 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type AAASettings struct {
-	Id                          types.String `tfsdk:"id"`
-	SiteId                      types.String `tfsdk:"site_id"`
-	NetworkAaaServerType        types.String `tfsdk:"network_aaa_server_type"`
-	NetworkAaaProtocol          types.String `tfsdk:"network_aaa_protocol"`
-	NetworkAaaPan               types.String `tfsdk:"network_aaa_pan"`
-	NetworkAaaPrimaryServerIp   types.String `tfsdk:"network_aaa_primary_server_ip"`
-	NetworkAaaSecondaryServerIp types.String `tfsdk:"network_aaa_secondary_server_ip"`
-	NetworkAaaSharedSecret      types.String `tfsdk:"network_aaa_shared_secret"`
-	ClientAaaServerType         types.String `tfsdk:"client_aaa_server_type"`
-	ClientAaaProtocol           types.String `tfsdk:"client_aaa_protocol"`
-	ClientAaaPan                types.String `tfsdk:"client_aaa_pan"`
-	ClientAaaPrimaryServerIp    types.String `tfsdk:"client_aaa_primary_server_ip"`
-	ClientAaaSecondaryServerIp  types.String `tfsdk:"client_aaa_secondary_server_ip"`
-	ClientAaaSharedSecret       types.String `tfsdk:"client_aaa_shared_secret"`
+	Id                              types.String `tfsdk:"id"`
+	SiteId                          types.String `tfsdk:"site_id"`
+	NetworkAaaServerType            types.String `tfsdk:"network_aaa_server_type"`
+	NetworkAaaProtocol              types.String `tfsdk:"network_aaa_protocol"`
+	NetworkAaaPan                   types.String `tfsdk:"network_aaa_pan"`
+	NetworkAaaPrimaryServerIp       types.String `tfsdk:"network_aaa_primary_server_ip"`
+	NetworkAaaSecondaryServerIp     types.String `tfsdk:"network_aaa_secondary_server_ip"`
+	NetworkAaaSharedSecretWo        types.String `tfsdk:"network_aaa_shared_secret_wo"`
+	NetworkAaaSharedSecretWoVersion types.Int64  `tfsdk:"network_aaa_shared_secret_wo_version"`
+	ClientAaaServerType             types.String `tfsdk:"client_aaa_server_type"`
+	ClientAaaProtocol               types.String `tfsdk:"client_aaa_protocol"`
+	ClientAaaPan                    types.String `tfsdk:"client_aaa_pan"`
+	ClientAaaPrimaryServerIp        types.String `tfsdk:"client_aaa_primary_server_ip"`
+	ClientAaaSecondaryServerIp      types.String `tfsdk:"client_aaa_secondary_server_ip"`
+	ClientAaaSharedSecretWo         types.String `tfsdk:"client_aaa_shared_secret_wo"`
+	ClientAaaSharedSecretWoVersion  types.Int64  `tfsdk:"client_aaa_shared_secret_wo_version"`
 }
 
 // End of section. //template:end types
@@ -85,8 +87,8 @@ func (data AAASettings) toBody(ctx context.Context, state AAASettings) string {
 	if !data.NetworkAaaSecondaryServerIp.IsNull() {
 		body, _ = sjson.Set(body, "aaaNetwork.secondaryServerIp", data.NetworkAaaSecondaryServerIp.ValueString())
 	}
-	if !data.NetworkAaaSharedSecret.IsNull() {
-		body, _ = sjson.Set(body, "aaaNetwork.sharedSecret", data.NetworkAaaSharedSecret.ValueString())
+	if !data.NetworkAaaSharedSecretWo.IsNull() {
+		body, _ = sjson.Set(body, "aaaNetwork.sharedSecret", data.NetworkAaaSharedSecretWo.ValueString())
 	}
 	if !data.ClientAaaServerType.IsNull() {
 		body, _ = sjson.Set(body, "aaaClient.serverType", data.ClientAaaServerType.ValueString())
@@ -103,8 +105,8 @@ func (data AAASettings) toBody(ctx context.Context, state AAASettings) string {
 	if !data.ClientAaaSecondaryServerIp.IsNull() {
 		body, _ = sjson.Set(body, "aaaClient.secondaryServerIp", data.ClientAaaSecondaryServerIp.ValueString())
 	}
-	if !data.ClientAaaSharedSecret.IsNull() {
-		body, _ = sjson.Set(body, "aaaClient.sharedSecret", data.ClientAaaSharedSecret.ValueString())
+	if !data.ClientAaaSharedSecretWo.IsNull() {
+		body, _ = sjson.Set(body, "aaaClient.sharedSecret", data.ClientAaaSharedSecretWo.ValueString())
 	}
 	return body
 }
@@ -243,7 +245,10 @@ func (data *AAASettings) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.NetworkAaaSecondaryServerIp.IsNull() {
 		return false
 	}
-	if !data.NetworkAaaSharedSecret.IsNull() {
+	if !data.NetworkAaaSharedSecretWo.IsNull() {
+		return false
+	}
+	if !data.NetworkAaaSharedSecretWoVersion.IsNull() {
 		return false
 	}
 	if !data.ClientAaaServerType.IsNull() {
@@ -261,7 +266,10 @@ func (data *AAASettings) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.ClientAaaSecondaryServerIp.IsNull() {
 		return false
 	}
-	if !data.ClientAaaSharedSecret.IsNull() {
+	if !data.ClientAaaSharedSecretWo.IsNull() {
+		return false
+	}
+	if !data.ClientAaaSharedSecretWoVersion.IsNull() {
 		return false
 	}
 	return true

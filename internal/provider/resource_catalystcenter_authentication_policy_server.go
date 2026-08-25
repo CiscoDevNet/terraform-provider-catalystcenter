@@ -100,12 +100,24 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 							MarkdownDescription: helpers.NewAttributeDescription("Fully-qualified domain name of the Cisco ISE server").String,
 							Required:            true,
 						},
-						"password": schema.StringAttribute{
+						"password_wo": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Password of the Cisco ISE server").String,
-							Required:            true,
+							Optional:            true,
+							WriteOnly:           true,
+							Sensitive:           true,
 						},
-						"sshkey": schema.StringAttribute{
+						"password_wo_version": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+							Optional:            true,
+						},
+						"sshkey_wo": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("SSH key of the Cisco ISE server").String,
+							Optional:            true,
+							WriteOnly:           true,
+							Sensitive:           true,
+						},
+						"sshkey_wo_version": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `sshkey_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 							Optional:            true,
 						},
 						"ip_address": schema.StringAttribute{
@@ -170,9 +182,15 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 					stringvalidator.OneOf("primary", "secondary"),
 				},
 			},
-			"shared_secret": schema.StringAttribute{
+			"shared_secret_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Shared secret between devices and authentication and policy server").String,
-				Required:            true,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"shared_secret_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
 			},
 			"timeout_seconds": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Number of seconds before timing out between devices and authentication and policy server. The range is from 2 to 20").AddIntegerRangeDescription(2, 20).String,
@@ -188,12 +206,24 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 					stringvalidator.OneOf("KEYWRAP", "RADSEC"),
 				},
 			},
-			"message_key": schema.StringAttribute{
+			"message_key_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Message key used to encrypt shared secret").String,
 				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
 			},
-			"encryption_key": schema.StringAttribute{
+			"message_key_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `message_key_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
+			},
+			"encryption_key_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Encryption key used to encrypt shared secret").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"encryption_key_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `encryption_key_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"external_cisco_ise_ip_addr_dtos": schema.ListNestedAttribute{
@@ -245,6 +275,35 @@ func (r *AuthenticationPolicyServerResource) Create(ctx context.Context, req res
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+	// Write-only value "shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("shared_secret_wo"), &plan.SharedSecretWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "message_key_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("message_key_wo"), &plan.MessageKeyWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "encryption_key_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("encryption_key_wo"), &plan.EncryptionKeyWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only values in list "cisco_ise_dtos" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element.
+	{
+		var cfgCiscoIseDtos []AuthenticationPolicyServerCiscoIseDtos
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("cisco_ise_dtos"), &cfgCiscoIseDtos)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.CiscoIseDtos {
+			if i < len(cfgCiscoIseDtos) {
+				plan.CiscoIseDtos[i].PasswordWo = cfgCiscoIseDtos[i].PasswordWo
+				plan.CiscoIseDtos[i].SshkeyWo = cfgCiscoIseDtos[i].SshkeyWo
+			}
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
@@ -332,6 +391,35 @@ func (r *AuthenticationPolicyServerResource) Update(ctx context.Context, req res
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+	// Write-only value "shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "shared_secret_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("shared_secret_wo"), &plan.SharedSecretWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "message_key_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "message_key_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("message_key_wo"), &plan.MessageKeyWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "encryption_key_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "encryption_key_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("encryption_key_wo"), &plan.EncryptionKeyWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only values in list "cisco_ise_dtos" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element. Read unconditionally for the same reason as the top-level secrets above (full-object replace PUT requires every secret present).
+	{
+		var cfgCiscoIseDtos []AuthenticationPolicyServerCiscoIseDtos
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("cisco_ise_dtos"), &cfgCiscoIseDtos)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.CiscoIseDtos {
+			if i < len(cfgCiscoIseDtos) {
+				plan.CiscoIseDtos[i].PasswordWo = cfgCiscoIseDtos[i].PasswordWo
+				plan.CiscoIseDtos[i].SshkeyWo = cfgCiscoIseDtos[i].SshkeyWo
+			}
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))

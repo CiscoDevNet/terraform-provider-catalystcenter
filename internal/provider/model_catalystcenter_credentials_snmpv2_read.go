@@ -30,9 +30,10 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type CredentialsSNMPv2Read struct {
-	Id            types.String `tfsdk:"id"`
-	Description   types.String `tfsdk:"description"`
-	ReadCommunity types.String `tfsdk:"read_community"`
+	Id                     types.String `tfsdk:"id"`
+	Description            types.String `tfsdk:"description"`
+	ReadCommunityWo        types.String `tfsdk:"read_community_wo"`
+	ReadCommunityWoVersion types.Int64  `tfsdk:"read_community_wo_version"`
 }
 
 // End of section. //template:end types
@@ -60,11 +61,11 @@ func (data CredentialsSNMPv2Read) toBody(ctx context.Context, state CredentialsS
 			body, _ = sjson.Set(body, "snmpV2cRead.0.description", data.Description.ValueString())
 		}
 	}
-	if !data.ReadCommunity.IsNull() {
+	if !data.ReadCommunityWo.IsNull() {
 		if put {
-			body, _ = sjson.Set(body, "snmpV2cRead.readCommunity", data.ReadCommunity.ValueString())
+			body, _ = sjson.Set(body, "snmpV2cRead.readCommunity", data.ReadCommunityWo.ValueString())
 		} else {
-			body, _ = sjson.Set(body, "snmpV2cRead.0.readCommunity", data.ReadCommunity.ValueString())
+			body, _ = sjson.Set(body, "snmpV2cRead.0.readCommunity", data.ReadCommunityWo.ValueString())
 		}
 	}
 	return body
@@ -99,7 +100,10 @@ func (data *CredentialsSNMPv2Read) isNull(ctx context.Context, res gjson.Result)
 	if !data.Description.IsNull() {
 		return false
 	}
-	if !data.ReadCommunity.IsNull() {
+	if !data.ReadCommunityWo.IsNull() {
+		return false
+	}
+	if !data.ReadCommunityWoVersion.IsNull() {
 		return false
 	}
 	return true

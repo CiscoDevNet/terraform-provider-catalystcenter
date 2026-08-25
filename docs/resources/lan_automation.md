@@ -23,12 +23,13 @@ resource "catalystcenter_lan_automation" "example" {
       ip_pool_role = "MAIN_POOL"
     }
   ]
-  multicast_enabled        = true
-  host_name_prefix         = "TEST"
-  isis_domain_password     = "cisco123"
-  redistribute_isis_to_bgp = true
-  discovery_level          = 2
-  discovery_timeout        = 20
+  multicast_enabled               = true
+  host_name_prefix                = "TEST"
+  isis_domain_password_wo         = "cisco123"
+  isis_domain_password_wo_version = 1
+  redistribute_isis_to_bgp        = true
+  discovery_level                 = 2
+  discovery_timeout               = 20
   discovery_devices = [
     {
       device_serial_number         = "FOC12345678"
@@ -52,6 +53,8 @@ resource "catalystcenter_lan_automation" "example" {
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `discovery_devices` (Attributes Set) List of specific devices that will be LAN Automated in this session (see [below for nested schema](#nestedatt--discovery_devices))
 - `discovery_level` (Number) Level below primary seed device upto which the new devices will be LAN Automated by this session, level + seed = tier
   - Range: `1`-`5`
@@ -60,7 +63,8 @@ resource "catalystcenter_lan_automation" "example" {
   - Range: `20`-`10080`
 - `host_name_file_id` (String) File ID of the CSV file containing the host name list.
 - `host_name_prefix` (String) Host name prefix which shall be assigned to the discovered device.
-- `isis_domain_password` (String) ISIS domain password.
+- `isis_domain_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) ISIS domain password.
+- `isis_domain_password_wo_version` (Number) Rotation trigger for `isis_domain_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `multicast_enabled` (Boolean) To enable underlay native multicast.
 - `peer_device_management_ip_address` (String) Secondary seed management IP address.
 - `redistribute_isis_to_bgp` (Boolean) Advertise LAN Automation summary route into BGP.
