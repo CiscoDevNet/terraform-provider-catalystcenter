@@ -481,8 +481,12 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 	}
 
 	// Anchor-mutation guard.
-	// Catalyst Center does not allow adding, changing, or removing the anchor on
-	// an existing L3 VN that still has fabric associations.
+	// Verified via live API testing: Catalyst Center accepts adding an anchor to an
+	// existing VN and removing the anchor while keeping fabric_ids. Those transitions
+	// are allowed here and executed by applyFabricIdsAnchorAware / the unassociate path.
+	// Only in-place anchor *replacement* (one non-empty anchor site to a different
+	// non-empty anchor site) remains blocked, because that transition — especially with
+	// multi-fabric membership — has not been verified against Catalyst Center.
 	stateAnchor := ""
 	if !state.AnchoredSiteId.IsNull() {
 		stateAnchor = state.AnchoredSiteId.ValueString()
@@ -496,10 +500,11 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 	planFabricIdsEmpty := plan.FabricIds.IsNull() || len(planFabricIdsForAnchorCheck) == 0
 	anchorRemovedWithEmptyFabricIds := stateAnchor != "" && planAnchor == "" && planFabricIdsEmpty
 
-	if stateAnchor != planAnchor && !anchorRemovedWithEmptyFabricIds {
+	anchorReplaced := stateAnchor != "" && planAnchor != "" && stateAnchor != planAnchor
+	if anchorReplaced {
 		resp.Diagnostics.AddError(
 			"Invalid Configuration",
-			"Catalyst Center does not allow adding, changing, or removing the anchor of an existing Layer 3 Virtual Network. The only permitted anchor mutation via Update is removing the anchor together with emptying fabric_ids (effectively unassociating the VN from all fabric sites). For any other anchor change you must destroy and recreate the resource.",
+			"Changing anchored_site_id from one non-empty fabric site to another in a single update is blocked by this provider. Remove the anchor first (apply), then add the new anchor in a subsequent apply, or destroy and recreate the resource.",
 		)
 		return
 	}
