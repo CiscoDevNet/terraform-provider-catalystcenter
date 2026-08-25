@@ -408,6 +408,7 @@ func (data *PlannedAccessPointPosition) fromBodyUnknowns(ctx context.Context, re
 				return true
 			},
 		)
+		_ = r
 		if data.Radios[i].RadioId.IsUnknown() {
 			if value := r.Get("id"); value.Exists() && !data.Radios[i].RadioId.IsNull() {
 				data.Radios[i].RadioId = types.StringValue(value.String())

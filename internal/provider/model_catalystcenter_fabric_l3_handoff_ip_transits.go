@@ -334,6 +334,7 @@ func (data *FabricL3HandoffIPTransits) fromBodyUnknowns(ctx context.Context, res
 				return true
 			},
 		)
+		_ = r
 		if data.L3Handoffs[i].Id.IsUnknown() {
 			if value := r.Get("id"); value.Exists() && !data.L3Handoffs[i].Id.IsNull() {
 				data.L3Handoffs[i].Id = types.StringValue(value.String())

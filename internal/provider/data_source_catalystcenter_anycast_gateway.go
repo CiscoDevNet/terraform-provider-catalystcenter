@@ -73,6 +73,22 @@ func (d *AnycastGatewayDataSource) Schema(ctx context.Context, req datasource.Sc
 				MarkdownDescription: "Name of the IP pool associated with the anycast gateway",
 				Required:            true,
 			},
+			"additional_ip_pools": schema.ListNestedAttribute{
+				MarkdownDescription: "Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN)",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							MarkdownDescription: "Name of the additional IP pool associated with the anycast gateway",
+							Computed:            true,
+						},
+						"order": schema.Int64Attribute{
+							MarkdownDescription: "Sequence in which this IP pool will be used",
+							Computed:            true,
+						},
+					},
+				},
+			},
 			"tcp_mss_adjustment": schema.Int64Attribute{
 				MarkdownDescription: "TCP maximum segment size adjustment",
 				Computed:            true,
