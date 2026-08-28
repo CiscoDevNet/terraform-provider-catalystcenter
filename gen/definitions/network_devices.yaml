@@ -26,6 +26,10 @@ attributes:
       - model_name: platformId
         type: String
         example: C9KV-UADP-8P
+      - model_name: serialNumber
+        type: String
+        description: Serial number of the network device. For devices whose hostname or management IP address is not known ahead of time (for example access points before they are claimed), this is the only stable identifier.
+        example: FXS2000Q2T0
       - model_name: role
         type: String
         example: CORE
