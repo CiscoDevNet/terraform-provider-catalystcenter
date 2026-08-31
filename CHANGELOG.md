@@ -1,6 +1,7 @@
 
 ## 0.6.0 (unreleased)
 
+- Add write-only support for secret attributes on `catalystcenter_aaa_settings`, `catalystcenter_authentication_policy_server`, `catalystcenter_credentials_cli`, `catalystcenter_credentials_https_read`, `catalystcenter_credentials_https_write`, `catalystcenter_credentials_snmpv2_read`, `catalystcenter_credentials_snmpv2_write`, `catalystcenter_credentials_snmpv3`, `catalystcenter_lan_automation`, `catalystcenter_user` and `catalystcenter_wireless_ssid`. Each secret gains an `<attr>_wo` [write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) variant that is never persisted to Terraform state, paired with an `<attr>_wo_version` integer that must be incremented to rotate the value. The existing attribute keeps working and is deprecated, and exactly one of the two spellings may be set; using the `_wo` form requires Terraform 1.11 or later
 - Update `go-catalystcenter` dependency to `v0.2.0` to add a `UserAgent` option for setting a custom HTTP User-Agent string on authentication, API, and async task-polling requests
 
 ## 0.5.25
