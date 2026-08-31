@@ -196,6 +196,7 @@ type YamlConfigAttribute struct {
 	WoVersion                 bool                  `yaml:"-"` // Internal: marks a generated "<attr>_wo_version" companion attribute (state-only rotation trigger)
 	LegacyWriteOnlyTF         bool                  `yaml:"-"` // Internal: marks the deprecated state-storing twin of a "<attr>_wo" write-only attribute
 	WoBaseName                string                `yaml:"-"` // Internal: on a "<attr>_wo" attribute, the name of its deprecated legacy twin
+	MutualExclusivityNote     string                `yaml:"-"` // Internal: documentation note carried by both halves of a write_only_tf pair
 	DeprecationMessage        string                `yaml:"deprecation_message"`
 	ExcludeFromPut            bool                  `yaml:"exclude_from_put"`
 	ExcludeTest               bool                  `yaml:"exclude_test"`
@@ -957,6 +958,16 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		}
 		baseName := attr.TfName
 
+		// Both halves of the pair document the constraint the validators enforce.
+		// tfplugindocs derives Required/Optional from the schema booleans alone, so a
+		// mandatory secret reachable through either spelling would otherwise be listed as
+		// merely Optional twice, with nothing saying one of them has to be supplied.
+		// Computed from the original attribute, before Mandatory is cleared below.
+		exclusivity := fmt.Sprintf("Only one of `%s` and `%s_wo` can be set.", baseName, baseName)
+		if attr.Mandatory {
+			exclusivity = fmt.Sprintf("Exactly one of `%s` and `%s_wo` must be set.", baseName, baseName)
+		}
+
 		// The legacy attribute keeps its name and its place in the schema so existing
 		// configurations are untouched. It is no longer Mandatory on its own, because the
 		// "_wo" variant is an equally valid way to supply the secret; ExactlyOneOf carries
@@ -979,6 +990,7 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		// The message names the attribute because it is surfaced as a resource-level
 		// warning, which Terraform renders without an attribute path.
 		legacy.DeprecationMessage = fmt.Sprintf("The `%s` attribute stores the secret in Terraform state. Use `%s_wo` together with `%s_wo_version` instead, which keeps it out of state.", baseName, baseName, baseName)
+		legacy.MutualExclusivityNote = exclusivity
 		newAttrs = append(newAttrs, legacy)
 
 		// The write-only variant is always Optional in the schema, because the legacy
@@ -988,6 +1000,7 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		wo := attr
 		wo.TfName = baseName + "_wo"
 		wo.WoBaseName = baseName
+		wo.MutualExclusivityNote = exclusivity
 		newAttrs = append(newAttrs, wo)
 
 		// requires_replace secrets rotate by recreate, so a state-stored version int

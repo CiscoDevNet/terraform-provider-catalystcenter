@@ -64,8 +64,10 @@ resource "catalystcenter_lan_automation" "example" {
 - `host_name_file_id` (String) File ID of the CSV file containing the host name list.
 - `host_name_prefix` (String) Host name prefix which shall be assigned to the discovered device.
 - `isis_domain_password` (String, Sensitive) ISIS domain password.
+  - Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.
   - Deprecated: The `isis_domain_password` attribute stores the secret in Terraform state. Use `isis_domain_password_wo` together with `isis_domain_password_wo_version` instead, which keeps it out of state.
 - `isis_domain_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) ISIS domain password.
+  - Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.
 - `isis_domain_password_wo_version` (Number) Rotation trigger for `isis_domain_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `multicast_enabled` (Boolean) To enable underlay native multicast.
 - `peer_device_management_ip_address` (String) Secondary seed management IP address.

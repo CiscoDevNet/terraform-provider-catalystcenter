@@ -49,6 +49,16 @@ func (d *AttributeDescription) AddStringEnumDescription(values ...string) *Attri
 	return d
 }
 
+// AddMutualExclusivityDescription records that an attribute is one of a mutually
+// exclusive pair. The generated documentation renders attributes as Required or Optional
+// purely from the schema booleans, so a secret that must be supplied through exactly one
+// of two spellings would otherwise appear simply as Optional, with nothing indicating
+// that one of the two is in fact mandatory.
+func (d *AttributeDescription) AddMutualExclusivityDescription(note string) *AttributeDescription {
+	d.String = fmt.Sprintf("%s\n  - %s", d.String, note)
+	return d
+}
+
 // AddDeprecationDescription marks the attribute as deprecated in the generated
 // documentation. It is used instead of the schema's DeprecationMessage for attributes
 // holding secrets: DeprecationMessage makes the framework raise an attribute-scoped

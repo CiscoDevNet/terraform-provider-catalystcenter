@@ -105,12 +105,12 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				Optional:            true,
 			},
 			"network_aaa_shared_secret": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddDeprecationDescription("The `network_aaa_shared_secret` attribute stores the secret in Terraform state. Use `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.").AddDeprecationDescription("The `network_aaa_shared_secret` attribute stores the secret in Terraform state. Use `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"network_aaa_shared_secret_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
@@ -150,12 +150,12 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				Optional:            true,
 			},
 			"client_aaa_shared_secret": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddDeprecationDescription("The `client_aaa_shared_secret` attribute stores the secret in Terraform state. Use `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.").AddDeprecationDescription("The `client_aaa_shared_secret` attribute stores the secret in Terraform state. Use `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"client_aaa_shared_secret_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,

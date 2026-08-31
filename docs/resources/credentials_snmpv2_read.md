@@ -32,8 +32,10 @@ resource "catalystcenter_credentials_snmpv2_read" "example" {
 > **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
 
 - `read_community` (String, Sensitive) Read community
+  - Exactly one of `read_community` and `read_community_wo` must be set.
   - Deprecated: The `read_community` attribute stores the secret in Terraform state. Use `read_community_wo` together with `read_community_wo_version` instead, which keeps it out of state.
 - `read_community_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Read community
+  - Exactly one of `read_community` and `read_community_wo` must be set.
 - `read_community_wo_version` (Number) Rotation trigger for `read_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 
 ### Read-Only

@@ -84,12 +84,12 @@ func (r *CredentialsCLIResource) Schema(ctx context.Context, req resource.Schema
 				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Password").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("Exactly one of `password` and `password_wo` must be set.").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"password_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Password").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("Exactly one of `password` and `password_wo` must be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
@@ -103,12 +103,12 @@ func (r *CredentialsCLIResource) Schema(ctx context.Context, req resource.Schema
 				Optional:            true,
 			},
 			"enable_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable password").AddDeprecationDescription("The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable password").AddMutualExclusivityDescription("Only one of `enable_password` and `enable_password_wo` can be set.").AddDeprecationDescription("The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"enable_password_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable password").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable password").AddMutualExclusivityDescription("Only one of `enable_password` and `enable_password_wo` can be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,

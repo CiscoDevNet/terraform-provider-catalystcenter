@@ -91,12 +91,12 @@ func (r *CredentialsSNMPv3Resource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"privacy_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Privacy password").AddDeprecationDescription("The `privacy_password` attribute stores the secret in Terraform state. Use `privacy_password_wo` together with `privacy_password_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Privacy password").AddMutualExclusivityDescription("Only one of `privacy_password` and `privacy_password_wo` can be set.").AddDeprecationDescription("The `privacy_password` attribute stores the secret in Terraform state. Use `privacy_password_wo` together with `privacy_password_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"privacy_password_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Privacy password").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Privacy password").AddMutualExclusivityDescription("Only one of `privacy_password` and `privacy_password_wo` can be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
@@ -117,12 +117,12 @@ func (r *CredentialsSNMPv3Resource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"auth_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Authentication password").AddDeprecationDescription("The `auth_password` attribute stores the secret in Terraform state. Use `auth_password_wo` together with `auth_password_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Authentication password").AddMutualExclusivityDescription("Only one of `auth_password` and `auth_password_wo` can be set.").AddDeprecationDescription("The `auth_password` attribute stores the secret in Terraform state. Use `auth_password_wo` together with `auth_password_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"auth_password_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Authentication password").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Authentication password").AddMutualExclusivityDescription("Only one of `auth_password` and `auth_password_wo` can be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,

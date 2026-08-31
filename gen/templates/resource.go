@@ -109,6 +109,9 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					{{- if .DefaultValue -}}
 					.AddDefaultValueDescription("{{.DefaultValue}}")
 					{{- end -}}
+					{{- if len .MutualExclusivityNote -}}
+					.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+					{{- end -}}
 					{{- if len .DeprecationMessage -}}
 					.AddDeprecationDescription("{{.DeprecationMessage}}")
 					{{- end -}}

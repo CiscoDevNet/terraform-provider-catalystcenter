@@ -123,12 +123,12 @@ func (r *LANAutomationResource) Schema(ctx context.Context, req resource.SchemaR
 				Optional:            true,
 			},
 			"isis_domain_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").AddDeprecationDescription("The `isis_domain_password` attribute stores the secret in Terraform state. Use `isis_domain_password_wo` together with `isis_domain_password_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").AddMutualExclusivityDescription("Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.").AddDeprecationDescription("The `isis_domain_password` attribute stores the secret in Terraform state. Use `isis_domain_password_wo` together with `isis_domain_password_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"isis_domain_password_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").AddMutualExclusivityDescription("Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
