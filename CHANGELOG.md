@@ -2,6 +2,7 @@
 ## 0.6.0 (unreleased)
 
 - Update `go-catalystcenter` dependency to `v0.2.0` to add a `UserAgent` option for setting a custom HTTP User-Agent string on authentication, API, and async task-polling requests
+- Fix `catalystcenter_area`, `catalystcenter_building` and `catalystcenter_floor` resources to remove the object from Terraform state when it no longer exists in Catalyst Center, so it is re-created instead of failing an update with `NCMP00002: No site found`
 
 ## 0.5.25
 
