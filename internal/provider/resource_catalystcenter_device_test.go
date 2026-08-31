@@ -30,14 +30,7 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcDevice(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "enable_password_wo_version", "1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "http_password_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "ip_address", "1.2.3.4"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "password_wo_version", "1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_auth_passphrase_wo_version", "1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_priv_passphrase_wo_version", "1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_ro_community_wo_version", "1"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_device.test", "snmp_rw_community_wo_version", "1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -70,18 +63,14 @@ func TestAccCcDevice(t *testing.T) {
 func testAccCcDeviceConfig_minimum() string {
 	config := `resource "catalystcenter_device" "test" {` + "\n"
 	config += `	cli_transport = "ssh"` + "\n"
-	config += `	enable_password_wo = "cisco123"` + "\n"
-	config += `	enable_password_wo_version = 1` + "\n"
+	config += `	enable_password = "cisco123"` + "\n"
 	config += `	ip_address = "1.2.3.4"` + "\n"
-	config += `	password_wo = "cisco123"` + "\n"
-	config += `	password_wo_version = 1` + "\n"
+	config += `	password = "cisco123"` + "\n"
 	config += `	serial_number = "FOC12345678"` + "\n"
-	config += `	snmp_auth_passphrase_wo = "cisco123"` + "\n"
-	config += `	snmp_auth_passphrase_wo_version = 1` + "\n"
+	config += `	snmp_auth_passphrase = "cisco123"` + "\n"
 	config += `	snmp_auth_protocol = "sha"` + "\n"
 	config += `	snmp_mode = "authPriv"` + "\n"
-	config += `	snmp_priv_passphrase_wo = "cisco123"` + "\n"
-	config += `	snmp_priv_passphrase_wo_version = 1` + "\n"
+	config += `	snmp_priv_passphrase = "cisco123"` + "\n"
 	config += `	snmp_priv_protocol = "AES128"` + "\n"
 	config += `	snmp_user_name = "admin"` + "\n"
 	config += `	snmp_version = "v3"` + "\n"
@@ -97,31 +86,24 @@ func testAccCcDeviceConfig_all() string {
 	config := `resource "catalystcenter_device" "test" {` + "\n"
 	config += `	cli_transport = "ssh"` + "\n"
 	config += `	compute_device = false` + "\n"
-	config += `	enable_password_wo = "cisco123"` + "\n"
-	config += `	enable_password_wo_version = 1` + "\n"
+	config += `	enable_password = "cisco123"` + "\n"
 	config += `	extended_discovery_info = "DISCOVER_WITH_CANNED_DATA"` + "\n"
-	config += `	http_password_wo = "cisco123"` + "\n"
-	config += `	http_password_wo_version = 1` + "\n"
+	config += `	http_password = "cisco123"` + "\n"
 	config += `	http_port = "80"` + "\n"
 	config += `	http_secure = true` + "\n"
 	config += `	http_user_name = "admin"` + "\n"
 	config += `	ip_address = "1.2.3.4"` + "\n"
 	config += `	meraki_org_ids = ["12345678901234567890"]` + "\n"
 	config += `	netconf_port = "830"` + "\n"
-	config += `	password_wo = "cisco123"` + "\n"
-	config += `	password_wo_version = 1` + "\n"
+	config += `	password = "cisco123"` + "\n"
 	config += `	serial_number = "FOC12345678"` + "\n"
-	config += `	snmp_auth_passphrase_wo = "cisco123"` + "\n"
-	config += `	snmp_auth_passphrase_wo_version = 1` + "\n"
+	config += `	snmp_auth_passphrase = "cisco123"` + "\n"
 	config += `	snmp_auth_protocol = "sha"` + "\n"
 	config += `	snmp_mode = "authPriv"` + "\n"
-	config += `	snmp_priv_passphrase_wo = "cisco123"` + "\n"
-	config += `	snmp_priv_passphrase_wo_version = 1` + "\n"
+	config += `	snmp_priv_passphrase = "cisco123"` + "\n"
 	config += `	snmp_priv_protocol = "AES128"` + "\n"
-	config += `	snmp_ro_community_wo = "com1"` + "\n"
-	config += `	snmp_ro_community_wo_version = 1` + "\n"
-	config += `	snmp_rw_community_wo = "com2"` + "\n"
-	config += `	snmp_rw_community_wo_version = 1` + "\n"
+	config += `	snmp_ro_community = "com1"` + "\n"
+	config += `	snmp_rw_community = "com2"` + "\n"
 	config += `	snmp_retry = 3` + "\n"
 	config += `	snmp_timeout = 10` + "\n"
 	config += `	snmp_user_name = "admin"` + "\n"

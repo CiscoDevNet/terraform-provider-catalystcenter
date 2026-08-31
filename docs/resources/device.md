@@ -14,39 +14,32 @@ This resource can manage a Device.
 
 ```terraform
 resource "catalystcenter_device" "example" {
-  cli_transport                   = "ssh"
-  compute_device                  = false
-  enable_password_wo              = "cisco123"
-  enable_password_wo_version      = 1
-  extended_discovery_info         = "DISCOVER_WITH_CANNED_DATA"
-  http_password_wo                = "cisco123"
-  http_password_wo_version        = 1
-  http_port                       = "80"
-  http_secure                     = true
-  http_user_name                  = "admin"
-  ip_address                      = "1.2.3.4"
-  meraki_org_ids                  = ["12345678901234567890"]
-  netconf_port                    = "830"
-  password_wo                     = "cisco123"
-  password_wo_version             = 1
-  serial_number                   = "FOC12345678"
-  snmp_auth_passphrase_wo         = "cisco123"
-  snmp_auth_passphrase_wo_version = 1
-  snmp_auth_protocol              = "sha"
-  snmp_mode                       = "authPriv"
-  snmp_priv_passphrase_wo         = "cisco123"
-  snmp_priv_passphrase_wo_version = 1
-  snmp_priv_protocol              = "AES128"
-  snmp_ro_community_wo            = "com1"
-  snmp_ro_community_wo_version    = 1
-  snmp_rw_community_wo            = "com2"
-  snmp_rw_community_wo_version    = 1
-  snmp_retry                      = 3
-  snmp_timeout                    = 10
-  snmp_user_name                  = "admin"
-  snmp_version                    = "v3"
-  type                            = "NETWORK_DEVICE"
-  user_name                       = "admin"
+  cli_transport           = "ssh"
+  compute_device          = false
+  enable_password         = "cisco123"
+  extended_discovery_info = "DISCOVER_WITH_CANNED_DATA"
+  http_password           = "cisco123"
+  http_port               = "80"
+  http_secure             = true
+  http_user_name          = "admin"
+  ip_address              = "1.2.3.4"
+  meraki_org_ids          = ["12345678901234567890"]
+  netconf_port            = "830"
+  password                = "cisco123"
+  serial_number           = "FOC12345678"
+  snmp_auth_passphrase    = "cisco123"
+  snmp_auth_protocol      = "sha"
+  snmp_mode               = "authPriv"
+  snmp_priv_passphrase    = "cisco123"
+  snmp_priv_protocol      = "AES128"
+  snmp_ro_community       = "com1"
+  snmp_rw_community       = "com2"
+  snmp_retry              = 3
+  snmp_timeout            = 10
+  snmp_user_name          = "admin"
+  snmp_version            = "v3"
+  type                    = "NETWORK_DEVICE"
+  user_name               = "admin"
 }
 ```
 
@@ -59,55 +52,32 @@ resource "catalystcenter_device" "example" {
 
 ### Optional
 
-> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
-
 - `cli_transport` (String) CLI transport
   - Choices: `telnet`, `ssh`
 - `compute_device` (Boolean) Compute device
-- `enable_password` (String, Sensitive) CLI enable password of the device
-  - Deprecated: The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.
-- `enable_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) CLI enable password of the device
-- `enable_password_wo_version` (Number) Rotation trigger for `enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
+- `enable_password` (String) CLI enable password of the device
 - `extended_discovery_info` (String) This field holds that info as whether to add device with canned data or not.
   - Choices: `DISCOVER_WITH_CANNED_DATA`
-- `http_password` (String, Sensitive) HTTP password of the device
-  - Deprecated: The `http_password` attribute stores the secret in Terraform state. Use `http_password_wo` together with `http_password_wo_version` instead, which keeps it out of state.
-- `http_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) HTTP password of the device
-- `http_password_wo_version` (Number) Rotation trigger for `http_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
+- `http_password` (String) HTTP password of the device
 - `http_port` (String) HTTP port of the device
 - `http_secure` (Boolean) Enable HTTPS
 - `http_user_name` (String) HTTP username of the device
 - `meraki_org_ids` (Set of String) Selected Meraki organizations for which the devices needs to be imported
 - `netconf_port` (String) NETCONF port of the device
-- `password` (String, Sensitive) CLI password of the device
-  - Deprecated: The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.
-- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) CLI password of the device
-- `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
+- `password` (String) CLI password of the device
 - `serial_number` (String) Serial number of the device
-- `snmp_auth_passphrase` (String, Sensitive) SNMPv3 authentication passphrase of the device
-  - Deprecated: The `snmp_auth_passphrase` attribute stores the secret in Terraform state. Use `snmp_auth_passphrase_wo` together with `snmp_auth_passphrase_wo_version` instead, which keeps it out of state.
-- `snmp_auth_passphrase_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) SNMPv3 authentication passphrase of the device
-- `snmp_auth_passphrase_wo_version` (Number) Rotation trigger for `snmp_auth_passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
+- `snmp_auth_passphrase` (String) SNMPv3 authentication passphrase of the device
 - `snmp_auth_protocol` (String) SNMPv3 authentication protocol of the device
   - Choices: `sha`, `md5`
 - `snmp_mode` (String) SNMPv3 mode of the device
   - Choices: `noAuthnoPriv`, `authNoPriv`, `authPriv`
-- `snmp_priv_passphrase` (String, Sensitive) SNMPv3 privacy passphrase of the device
-  - Deprecated: The `snmp_priv_passphrase` attribute stores the secret in Terraform state. Use `snmp_priv_passphrase_wo` together with `snmp_priv_passphrase_wo_version` instead, which keeps it out of state.
-- `snmp_priv_passphrase_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) SNMPv3 privacy passphrase of the device
-- `snmp_priv_passphrase_wo_version` (Number) Rotation trigger for `snmp_priv_passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
+- `snmp_priv_passphrase` (String) SNMPv3 privacy passphrase of the device
 - `snmp_priv_protocol` (String) SNMPv3 privacy protocol of the device
   - Choices: `AES128`
 - `snmp_retry` (Number) SNMP retry count
   - Range: `0`-`3`
-- `snmp_ro_community` (String, Sensitive) SNMPv2 read-only community of the device
-  - Deprecated: The `snmp_ro_community` attribute stores the secret in Terraform state. Use `snmp_ro_community_wo` together with `snmp_ro_community_wo_version` instead, which keeps it out of state.
-- `snmp_ro_community_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) SNMPv2 read-only community of the device
-- `snmp_ro_community_wo_version` (Number) Rotation trigger for `snmp_ro_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
-- `snmp_rw_community` (String, Sensitive) SNMPv2 read-write community of the device
-  - Deprecated: The `snmp_rw_community` attribute stores the secret in Terraform state. Use `snmp_rw_community_wo` together with `snmp_rw_community_wo_version` instead, which keeps it out of state.
-- `snmp_rw_community_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) SNMPv2 read-write community of the device
-- `snmp_rw_community_wo_version` (Number) Rotation trigger for `snmp_rw_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
+- `snmp_ro_community` (String) SNMPv2 read-only community of the device
+- `snmp_rw_community` (String) SNMPv2 read-write community of the device
 - `snmp_timeout` (Number) SNMP timeout in seconds
   - Range: `0`-`300`
 - `snmp_user_name` (String) SNMPv3 username of the device
