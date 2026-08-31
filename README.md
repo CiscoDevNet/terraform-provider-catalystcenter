@@ -16,7 +16,7 @@ Documentation: <https://registry.terraform.io/providers/CiscoDevNet/catalystcent
 
 ## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) >= 1.0
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.11
 - [Go](https://golang.org/doc/install) >= 1.25
 
 ## Building The Provider

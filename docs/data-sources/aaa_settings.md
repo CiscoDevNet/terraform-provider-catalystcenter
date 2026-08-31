@@ -33,6 +33,8 @@ data "catalystcenter_aaa_settings" "example" {
 - `client_aaa_secondary_server_ip` (String) The server to use as a secondary
 - `client_aaa_server_type` (String) Type of client AAA server
 - `client_aaa_shared_secret` (String) Only relevant for server type `ISE`, shared secret
+- `client_aaa_shared_secret_wo` (String) Only relevant for server type `ISE`, shared secret
+- `client_aaa_shared_secret_wo_version` (Number) Rotation trigger for `client_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `id` (String) The id of the object
 - `network_aaa_pan` (String) Administration Node. Required for ISE
 - `network_aaa_primary_server_ip` (String) The server to use as a primary
@@ -40,3 +42,5 @@ data "catalystcenter_aaa_settings" "example" {
 - `network_aaa_secondary_server_ip` (String) The server to use as a secondary
 - `network_aaa_server_type` (String) Type of network AAA server
 - `network_aaa_shared_secret` (String) Only relevant for server type `ISE`, shared secret
+- `network_aaa_shared_secret_wo` (String) Only relevant for server type `ISE`, shared secret
+- `network_aaa_shared_secret_wo_version` (Number) Rotation trigger for `network_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.

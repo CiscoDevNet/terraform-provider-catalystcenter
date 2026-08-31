@@ -123,7 +123,18 @@ func (r *LANAutomationResource) Schema(ctx context.Context, req resource.SchemaR
 				Optional:            true,
 			},
 			"isis_domain_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").AddMutualExclusivityDescription("Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.").AddDeprecationDescription("The `isis_domain_password` attribute stores the secret in Terraform state. Use `isis_domain_password_wo` together with `isis_domain_password_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"isis_domain_password_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").AddMutualExclusivityDescription("Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"isis_domain_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `isis_domain_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"redistribute_isis_to_bgp": schema.BoolAttribute{
@@ -184,6 +195,41 @@ func (r *LANAutomationResource) Configure(_ context.Context, req resource.Config
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
+// ValidateConfig enforces the relationship between a deprecated secret attribute, its
+// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
+// deprecation warning for the old attribute.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
+func (r *LANAutomationResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var legacyIsisDomainPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password"), &legacyIsisDomainPassword)...)
+	var woIsisDomainPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password_wo"), &woIsisDomainPassword)...)
+	var woVersionIsisDomainPassword types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password_wo_version"), &woVersionIsisDomainPassword)...)
+	if !legacyIsisDomainPassword.IsNull() && !woIsisDomainPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.",
+		)
+	}
+	if !woIsisDomainPassword.IsNull() && woVersionIsisDomainPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`isis_domain_password_wo_version` must be set when `isis_domain_password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	if !legacyIsisDomainPassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `isis_domain_password` attribute stores the secret in Terraform state. Use `isis_domain_password_wo` together with `isis_domain_password_wo_version` instead, which keeps it out of state.")
+	}
+}
+
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -193,6 +239,11 @@ func (r *LANAutomationResource) Create(ctx context.Context, req resource.CreateR
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "isis_domain_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password_wo"), &plan.IsisDomainPasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -270,6 +321,11 @@ func (r *LANAutomationResource) Update(ctx context.Context, req resource.UpdateR
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "isis_domain_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "isis_domain_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password_wo"), &plan.IsisDomainPasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
