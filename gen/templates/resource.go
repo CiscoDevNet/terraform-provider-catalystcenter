@@ -228,11 +228,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- end}}
 							{{- end}}
 							{{- if .WriteOnlyTF}}
-							{{- if or .Id .Reference .Mandatory}}
-							Required:            true,
-							{{- else}}
 							Optional:            true,
-							{{- end}}
 							WriteOnly:           true,
 							Sensitive:           true,
 							{{- else}}
@@ -333,11 +329,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- end}}
 										{{- end}}
 										{{- if .WriteOnlyTF}}
-										{{- if or .Id .Reference .Mandatory}}
-										Required:            true,
-										{{- else}}
 										Optional:            true,
-										{{- end}}
 										WriteOnly:           true,
 										Sensitive:           true,
 										{{- else}}
@@ -434,11 +426,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- end}}
 													{{- end}}
 													{{- if .WriteOnlyTF}}
-													{{- if or .Id .Reference .Mandatory}}
-													Required:            true,
-													{{- else}}
 													Optional:            true,
-													{{- end}}
 													WriteOnly:           true,
 													Sensitive:           true,
 													{{- else}}

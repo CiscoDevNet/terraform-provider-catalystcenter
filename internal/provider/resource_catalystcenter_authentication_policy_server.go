@@ -107,7 +107,7 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 						},
 						"password_wo": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Password of the Cisco ISE server").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").String,
-							Required:            true,
+							Optional:            true,
 							WriteOnly:           true,
 							Sensitive:           true,
 						},

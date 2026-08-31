@@ -92,8 +92,6 @@ Required:
 
 - `fqdn` (String) Fully-qualified domain name of the Cisco ISE server
 - `ip_address` (String) IP Address of the Cisco ISE Server
-- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password of the Cisco ISE server
-  - **Required**: exactly one of `password` and `password_wo` must be set.
 - `subscriber_name` (String) Subscriber name of the Cisco ISE server
 - `user_name` (String) User name of the Cisco ISE server
 
@@ -103,6 +101,8 @@ Optional:
 - `password` (String, Sensitive) Password of the Cisco ISE server
   - **Required**: exactly one of `password` and `password_wo` must be set.
   - Deprecated: The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.
+- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password of the Cisco ISE server
+  - **Required**: exactly one of `password` and `password_wo` must be set.
 - `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `sshkey` (String, Sensitive) SSH key of the Cisco ISE server
   - Only one of `sshkey` and `sshkey_wo` can be set.

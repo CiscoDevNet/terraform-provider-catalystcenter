@@ -986,6 +986,16 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		if attr.Type != "String" {
 			panic(fmt.Sprintf("write_only_tf is only supported on String attributes, but %q has type %q", attr.TfName, attr.Type))
 		}
+		// write_only_tf relies on write_only to keep the secret out of the read path.
+		// fromBody and updateFromBody skip attributes on .WriteOnly alone, so a secret
+		// flagged write_only_tf without it would have the API response written back into
+		// its "_wo" field on every read. The framework nulls write-only attributes before
+		// they reach state, so that is currently dead work rather than a leak, but it
+		// leaves the guarantee resting entirely on framework behaviour. Require the flags
+		// together instead.
+		if !attr.WriteOnly {
+			panic(fmt.Sprintf("write_only_tf requires write_only to be set as well, but %q sets only write_only_tf", attr.TfName))
+		}
 		baseName := attr.TfName
 
 		// Both halves of the pair document the constraint the validators enforce.
