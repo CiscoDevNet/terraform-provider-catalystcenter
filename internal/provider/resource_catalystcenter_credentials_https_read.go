@@ -25,14 +25,12 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -94,10 +92,6 @@ func (r *CredentialsHTTPSReadResource) Schema(ctx context.Context, req resource.
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
-				Validators: []validator.String{
-					stringvalidator.AlsoRequires(path.MatchRoot("password_wo_version")),
-					stringvalidator.ExactlyOneOf(path.MatchRoot("password")),
-				},
 			},
 			"password_wo_version": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
@@ -123,16 +117,42 @@ func (r *CredentialsHTTPSReadResource) Configure(_ context.Context, req resource
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
-// ValidateConfig raises the deprecation warnings for secret attributes that have a
-// write-only replacement. They are raised here, at resource level, rather than through
-// the schema's DeprecationMessage: the framework raises that one against the attribute
-// path, and Terraform renders an attribute-scoped diagnostic together with the offending
-// configuration line, which would print the secret itself into plan output and CI logs.
-// The message therefore names the attribute explicitly.
+// ValidateConfig enforces the relationship between a deprecated secret attribute, its
+// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
+// deprecation warning for the old attribute.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly.
 func (r *CredentialsHTTPSReadResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var deprecatedPassword types.String
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &deprecatedPassword)...)
-	if !deprecatedPassword.IsNull() {
+	var legacyPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &legacyPassword)...)
+	var woPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &woPassword)...)
+	var woVersionPassword types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo_version"), &woVersionPassword)...)
+	if !legacyPassword.IsNull() && !woPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `password` and `password_wo` can be set.",
+		)
+	}
+	if legacyPassword.IsNull() && woPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Exactly one of `password` and `password_wo` must be set.",
+		)
+	}
+	if !woPassword.IsNull() && woVersionPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`password_wo_version` must be set when `password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	if !legacyPassword.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.")
 	}
 }

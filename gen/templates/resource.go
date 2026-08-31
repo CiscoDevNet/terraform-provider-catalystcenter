@@ -142,16 +142,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				Computed:            true,
 				{{- end}}
 				{{- end}}
-				{{- if .WriteOnlyTF}}
-				Validators: []validator.String{
-					stringvalidator.AlsoRequires(path.MatchRoot("{{.TfName}}_version")),
-					{{- if .Mandatory}}
-					stringvalidator.ExactlyOneOf(path.MatchRoot("{{.WoBaseName}}")),
-					{{- else}}
-					stringvalidator.ConflictsWith(path.MatchRoot("{{.WoBaseName}}")),
-					{{- end}}
-				},
-				{{- else if len .EnumValues}}
+				{{- if len .EnumValues}}
 				{{- if eq .Type "Int64" }}
 		                Validators: []validator.Int64{
 		                    int64validator.OneOf({{range .EnumValues}}{{.}}, {{end}}),
@@ -252,11 +243,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							Computed:            true,
 							{{- end}}
 							{{- end}}
-							{{- if .WriteOnlyTF}}
-							Validators: []validator.String{
-								stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("{{.TfName}}_version")),
-							},
-							{{- else if len .EnumValues}}
+							{{- if len .EnumValues}}
 							Validators: []validator.String{
 								stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 							},
@@ -348,11 +335,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										Computed:            true,
 										{{- end}}
 										{{- end}}
-										{{- if .WriteOnlyTF}}
-										Validators: []validator.String{
-											stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("{{.TfName}}_version")),
-										},
-										{{- else if len .EnumValues}}
+										{{- if len .EnumValues}}
 										Validators: []validator.String{
 											stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 										},
@@ -444,11 +427,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													Computed:            true,
 													{{- end}}
 													{{- end}}
-													{{- if .WriteOnlyTF}}
-													Validators: []validator.String{
-														stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("{{.TfName}}_version")),
-													},
-													{{- else if len .EnumValues}}
+													{{- if len .EnumValues}}
 													Validators: []validator.String{
 														stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 													},
@@ -559,17 +538,50 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 }
 {{- if legacyWriteOnlyTFAttributes .}}
 
-// ValidateConfig raises the deprecation warnings for secret attributes that have a
-// write-only replacement. They are raised here, at resource level, rather than through
-// the schema's DeprecationMessage: the framework raises that one against the attribute
-// path, and Terraform renders an attribute-scoped diagnostic together with the offending
-// configuration line, which would print the secret itself into plan output and CI logs.
-// The message therefore names the attribute explicitly.
+// ValidateConfig enforces the relationship between a deprecated secret attribute, its
+// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
+// deprecation warning for the old attribute.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly.
 func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	{{- range legacyWriteOnlyTFAttributes .}}
-	var deprecated{{toGoName .TfName}} types.String
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &deprecated{{toGoName .TfName}})...)
-	if !deprecated{{toGoName .TfName}}.IsNull() {
+	{{- $go := toGoName .TfName}}
+	var legacy{{$go}} types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &legacy{{$go}})...)
+	var wo{{$go}} types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}_wo"), &wo{{$go}})...)
+	{{- if .WoPairHasVersion}}
+	var woVersion{{$go}} types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}_wo_version"), &woVersion{{$go}})...)
+	{{- end}}
+	if !legacy{{$go}}.IsNull() && !wo{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `{{.TfName}}` and `{{.TfName}}_wo` can be set.",
+		)
+	}
+	{{- if .WoPairMandatory}}
+	if legacy{{$go}}.IsNull() && wo{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Exactly one of `{{.TfName}}` and `{{.TfName}}_wo` must be set.",
+		)
+	}
+	{{- end}}
+	{{- if .WoPairHasVersion}}
+	if !wo{{$go}}.IsNull() && woVersion{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`{{.TfName}}_wo_version` must be set when `{{.TfName}}_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	{{- end}}
+	if !legacy{{$go}}.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "{{.DeprecationMessage}}")
 	}
 	{{- end}}

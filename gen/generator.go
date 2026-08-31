@@ -197,6 +197,8 @@ type YamlConfigAttribute struct {
 	LegacyWriteOnlyTF         bool                  `yaml:"-"` // Internal: marks the deprecated state-storing twin of a "<attr>_wo" write-only attribute
 	WoBaseName                string                `yaml:"-"` // Internal: on a "<attr>_wo" attribute, the name of its deprecated legacy twin
 	MutualExclusivityNote     string                `yaml:"-"` // Internal: documentation note carried by both halves of a write_only_tf pair
+	WoPairMandatory           bool                  `yaml:"-"` // Internal: on a deprecated twin, whether the pair must supply the secret through one of its halves
+	WoPairHasVersion          bool                  `yaml:"-"` // Internal: on a deprecated twin, whether a "_wo_version" companion was generated
 	DeprecationMessage        string                `yaml:"deprecation_message"`
 	ExcludeFromPut            bool                  `yaml:"exclude_from_put"`
 	ExcludeTest               bool                  `yaml:"exclude_test"`
@@ -995,6 +997,8 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		// warning, which Terraform renders without an attribute path.
 		legacy.DeprecationMessage = fmt.Sprintf("The `%s` attribute stores the secret in Terraform state. Use `%s_wo` together with `%s_wo_version` instead, which keeps it out of state.", baseName, baseName, baseName)
 		legacy.MutualExclusivityNote = exclusivity
+		legacy.WoPairMandatory = attr.Mandatory
+		legacy.WoPairHasVersion = !attr.RequiresReplace
 		newAttrs = append(newAttrs, legacy)
 
 		// The write-only variant is always Optional in the schema, because the legacy

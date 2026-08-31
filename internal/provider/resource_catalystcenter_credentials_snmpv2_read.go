@@ -25,13 +25,11 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -89,10 +87,6 @@ func (r *CredentialsSNMPv2ReadResource) Schema(ctx context.Context, req resource
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
-				Validators: []validator.String{
-					stringvalidator.AlsoRequires(path.MatchRoot("read_community_wo_version")),
-					stringvalidator.ExactlyOneOf(path.MatchRoot("read_community")),
-				},
 			},
 			"read_community_wo_version": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `read_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
@@ -112,16 +106,42 @@ func (r *CredentialsSNMPv2ReadResource) Configure(_ context.Context, req resourc
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
-// ValidateConfig raises the deprecation warnings for secret attributes that have a
-// write-only replacement. They are raised here, at resource level, rather than through
-// the schema's DeprecationMessage: the framework raises that one against the attribute
-// path, and Terraform renders an attribute-scoped diagnostic together with the offending
-// configuration line, which would print the secret itself into plan output and CI logs.
-// The message therefore names the attribute explicitly.
+// ValidateConfig enforces the relationship between a deprecated secret attribute, its
+// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
+// deprecation warning for the old attribute.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly.
 func (r *CredentialsSNMPv2ReadResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var deprecatedReadCommunity types.String
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community"), &deprecatedReadCommunity)...)
-	if !deprecatedReadCommunity.IsNull() {
+	var legacyReadCommunity types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community"), &legacyReadCommunity)...)
+	var woReadCommunity types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo"), &woReadCommunity)...)
+	var woVersionReadCommunity types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo_version"), &woVersionReadCommunity)...)
+	if !legacyReadCommunity.IsNull() && !woReadCommunity.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `read_community` and `read_community_wo` can be set.",
+		)
+	}
+	if legacyReadCommunity.IsNull() && woReadCommunity.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Exactly one of `read_community` and `read_community_wo` must be set.",
+		)
+	}
+	if !woReadCommunity.IsNull() && woVersionReadCommunity.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`read_community_wo_version` must be set when `read_community_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	if !legacyReadCommunity.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `read_community` attribute stores the secret in Terraform state. Use `read_community_wo` together with `read_community_wo_version` instead, which keeps it out of state.")
 	}
 }
