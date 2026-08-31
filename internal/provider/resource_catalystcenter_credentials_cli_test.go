@@ -32,6 +32,7 @@ func TestAccCcCredentialsCLI(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_cli.test", "description", "My CLI credentials"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_cli.test", "username", "user1"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_cli.test", "password_wo_version", "1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -65,7 +66,8 @@ func testAccCcCredentialsCLIConfig_minimum() string {
 	config := `resource "catalystcenter_credentials_cli" "test" {` + "\n"
 	config += `	description = "My CLI credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
-	config += `	password = "password1"` + "\n"
+	config += `	password_wo = "password1"` + "\n"
+	config += `	password_wo_version = 1` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -77,7 +79,8 @@ func testAccCcCredentialsCLIConfig_all() string {
 	config := `resource "catalystcenter_credentials_cli" "test" {` + "\n"
 	config += `	description = "My CLI credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
-	config += `	password = "password1"` + "\n"
+	config += `	password_wo = "password1"` + "\n"
+	config += `	password_wo_version = 1` + "\n"
 	config += `}` + "\n"
 	return config
 }

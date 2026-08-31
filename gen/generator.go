@@ -192,6 +192,11 @@ type YamlConfigAttribute struct {
 	ComputedRefreshValue      bool                  `yaml:"computed_refresh_value"`
 	NoUseStateForUnknown      bool                  `yaml:"no_use_state_for_unknown"`
 	WriteOnly                 bool                  `yaml:"write_only"`
+	WriteOnlyTF               bool                  `yaml:"write_only_tf"`
+	WoVersion                 bool                  `yaml:"-"` // Internal: marks a generated "<attr>_wo_version" companion attribute (state-only rotation trigger)
+	LegacyWriteOnlyTF         bool                  `yaml:"-"` // Internal: marks the deprecated state-storing twin of a "<attr>_wo" write-only attribute
+	WoBaseName                string                `yaml:"-"` // Internal: on a "<attr>_wo" attribute, the name of its deprecated legacy twin
+	DeprecationMessage        string                `yaml:"deprecation_message"`
 	ExcludeFromPut            bool                  `yaml:"exclude_from_put"`
 	ExcludeTest               bool                  `yaml:"exclude_test"`
 	ExcludeExample            bool                  `yaml:"exclude_example"`
@@ -747,6 +752,46 @@ func Subtract(a, b int) int {
 	return a - b
 }
 
+// HasWriteOnlyTFChildren reports whether a list/set attribute has at least one direct
+// child flagged write_only_tf (after augmentation, these children are the renamed "_wo"
+// leaves — detectable via the still-set WriteOnlyTF flag, which augmentWriteOnlyTF
+// preserves on the renamed attribute). Used by resource.go to decide whether to emit the
+// "read the whole parent list from config" block for nested write-only secrets.
+func HasWriteOnlyTFChildren(attr YamlConfigAttribute) bool {
+	for _, child := range attr.Attributes {
+		if child.WriteOnlyTF {
+			return true
+		}
+	}
+	return false
+}
+
+// WriteOnlyTFChildren returns the direct children of a list/set attribute that are flagged
+// write_only_tf (the renamed "_wo" leaves). Used to copy each write-only leaf from the
+// config-read temp back into the plan element in the generated nested config-read block.
+func WriteOnlyTFChildren(attr YamlConfigAttribute) []YamlConfigAttribute {
+	r := []YamlConfigAttribute{}
+	for _, child := range attr.Attributes {
+		if child.WriteOnlyTF {
+			r = append(r, child)
+		}
+	}
+	return r
+}
+
+// WriteOnlyTFParentLists returns the top-level list/set attributes that contain at least
+// one write_only_tf child. Emitted once per parent list in the Create/Update config-read
+// codegen.
+func WriteOnlyTFParentLists(config YamlConfig) []YamlConfigAttribute {
+	r := []YamlConfigAttribute{}
+	for _, attr := range config.Attributes {
+		if HasWriteOnlyTFChildren(attr) {
+			r = append(r, attr)
+		}
+	}
+	return r
+}
+
 // Map of templating functions
 var functions = template.FuncMap{
 	"toGoName":                           ToGoName,
@@ -791,6 +836,9 @@ var functions = template.FuncMap{
 	"importAttributes":                   ImportAttributes,
 	"floatReadExpr":                      FloatReadExpr,
 	"subtract":                           Subtract,
+	"hasWriteOnlyTFChildren":             HasWriteOnlyTFChildren,
+	"writeOnlyTFChildren":                WriteOnlyTFChildren,
+	"writeOnlyTFParentLists":             WriteOnlyTFParentLists,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {
@@ -829,6 +877,12 @@ func augmentConfig(config *YamlConfig) {
 	for ia := range config.Attributes {
 		augmentAttribute(&config.Attributes[ia])
 	}
+	// For each top-level attribute marked write_only_tf, rename it to "<tf_name>_wo"
+	// (the Terraform-core write-only attribute) and inject a companion
+	// "<tf_name>_wo_version" (Int64, Optional) that IS stored in state and drives
+	// rotation. The base name (before "_wo") is derived once, since augmentAttribute
+	// has already populated TfName.
+	augmentWriteOnlyTF(config)
 	if config.DsDescription == "" {
 		config.DsDescription = fmt.Sprintf("This data source can read the %s.", config.Name)
 	}
@@ -840,6 +894,102 @@ func augmentConfig(config *YamlConfig) {
 			config.ResDescription = fmt.Sprintf("This resource can manage a %s.", config.Name)
 		}
 	}
+}
+
+// augmentWriteOnlyTF expands every attribute flagged write_only_tf into three
+// coexisting attributes, so that adding write-only support is backwards compatible:
+//
+//	<tf_name>              the original attribute, kept and deprecated. Still Optional
+//	                       and still written to the same API path, so existing
+//	                       configurations keep working. The secret remains in state.
+//	<tf_name>_wo           the Terraform-core write-only variant. Same ModelName /
+//	                       DataPath / PutDataPath, so the secret reaches the same API
+//	                       field, but it is never persisted to plan or state.
+//	<tf_name>_wo_version   Int64, Optional, stored in state, never sent to the API.
+//	                       The rotation trigger for the write-only variant.
+//
+// The legacy attribute and the "_wo" variant are mutually exclusive; the schema
+// template emits ExactlyOneOf when the secret is mandatory and ConflictsWith when it
+// is optional. Because both carry the same ModelName, toBody writes whichever of the
+// two is non-null to the same JSON path, and the validators guarantee they are never
+// both set.
+func augmentWriteOnlyTF(config *YamlConfig) {
+	config.Attributes = rewriteWriteOnlyTF(config.Attributes)
+}
+
+// rewriteWriteOnlyTF walks a single attribute list. For each attribute it first
+// recurses into any nested children (list-of-objects), so a write-only secret nested
+// arbitrarily deep is expanded too. Then, if the attribute itself is flagged
+// write_only_tf, it is replaced by the legacy/"_wo"/"_wo_version" triple described on
+// augmentWriteOnlyTF. Nested secrets get a per-element version companion, matching the
+// per-element rotation granularity of the enclosing list.
+func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
+	newAttrs := make([]YamlConfigAttribute, 0, len(attrs))
+	for _, attr := range attrs {
+		if len(attr.Attributes) > 0 {
+			attr.Attributes = rewriteWriteOnlyTF(attr.Attributes)
+		}
+		if !attr.WriteOnlyTF {
+			newAttrs = append(newAttrs, attr)
+			continue
+		}
+		// The generated "_wo" schema entry emits []validator.String, so a non-String
+		// secret would not compile. Fail here rather than at build time, with a message
+		// that names the offending attribute.
+		if attr.Type != "String" {
+			panic(fmt.Sprintf("write_only_tf is only supported on String attributes, but %q has type %q", attr.TfName, attr.Type))
+		}
+		baseName := attr.TfName
+
+		// The legacy attribute keeps its name and its place in the schema so existing
+		// configurations are untouched. It is no longer Mandatory on its own, because the
+		// "_wo" variant is an equally valid way to supply the secret; ExactlyOneOf carries
+		// that requirement instead. It is excluded from the generated acceptance tests so
+		// the test configurations exercise the write-only path and do not trip the
+		// mutual-exclusion validator by setting both spellings.
+		legacy := attr
+		legacy.WriteOnlyTF = false
+		legacy.LegacyWriteOnlyTF = true
+		legacy.Mandatory = false
+		legacy.ExcludeTest = true
+		legacy.ExcludeExample = true
+		legacy.DeprecationMessage = fmt.Sprintf("Use `%s_wo` together with `%s_wo_version` instead. This attribute stores the secret in Terraform state.", baseName, baseName)
+		newAttrs = append(newAttrs, legacy)
+
+		// The write-only variant is always Optional in the schema, because the legacy
+		// attribute is an equally valid way to supply the secret. Mandatory is kept so the
+		// template can pick ExactlyOneOf (the secret must come from one of the two) over
+		// ConflictsWith (at most one of the two) for the mutual-exclusion validator.
+		wo := attr
+		wo.TfName = baseName + "_wo"
+		wo.WoBaseName = baseName
+		newAttrs = append(newAttrs, wo)
+
+		// requires_replace secrets rotate by recreate, so a state-stored version int
+		// (which can only drive an in-place update) is meaningless. Convert to write-only
+		// but drop the version companion.
+		if attr.RequiresReplace {
+			continue
+		}
+
+		version := YamlConfigAttribute{
+			TfName:      baseName + "_wo_version",
+			Type:        "Int64",
+			WoVersion:   true,
+			Description: fmt.Sprintf("Rotation trigger for `%s_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.", baseName),
+			Example:     "1",
+			ExcludeTest: attr.ExcludeTest,
+		}
+		// The version belongs in the minimum test configuration exactly when its "_wo"
+		// secret does, since the schema requires the pair together. The minimum template
+		// selects on Mandatory/MinimumTestValue and does not consult ExcludeTest, so both
+		// conditions have to be mirrored here or the version would be emitted alone.
+		if !attr.ExcludeTest && (attr.Mandatory || attr.MinimumTestValue != "") {
+			version.MinimumTestValue = "1"
+		}
+		newAttrs = append(newAttrs, version)
+	}
+	return newAttrs
 }
 
 func getTemplateSection(content, name string) string {

@@ -53,7 +53,8 @@ func testAccDataSourceCcCredentialsCLIConfig() string {
 	config := `resource "catalystcenter_credentials_cli" "test" {` + "\n"
 	config += `	description = "My CLI credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
-	config += `	password = "password1"` + "\n"
+	config += `	password_wo = "password1"` + "\n"
+	config += `	password_wo_version = 1` + "\n"
 	config += `}` + "\n"
 
 	config += `

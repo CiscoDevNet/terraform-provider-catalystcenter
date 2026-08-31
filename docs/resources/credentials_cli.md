@@ -14,9 +14,10 @@ This resource can manage a Credentials CLI.
 
 ```terraform
 resource "catalystcenter_credentials_cli" "example" {
-  description = "My CLI credentials"
-  username    = "user1"
-  password    = "password1"
+  description         = "My CLI credentials"
+  username            = "user1"
+  password_wo         = "password1"
+  password_wo_version = 1
 }
 ```
 
@@ -26,12 +27,18 @@ resource "catalystcenter_credentials_cli" "example" {
 ### Required
 
 - `description` (String) The description of the CLI credentials
-- `password` (String) Password
 - `username` (String) Username
 
 ### Optional
 
-- `enable_password` (String) Enable password
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
+- `enable_password` (String, Sensitive, Deprecated) Enable password
+- `enable_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Enable password
+- `enable_password_wo_version` (Number) Rotation trigger for `enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
+- `password` (String, Sensitive, Deprecated) Password
+- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password
+- `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 
 ### Read-Only
 

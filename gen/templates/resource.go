@@ -119,6 +119,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				ElementType:         types.StringType,
 				{{- end}}
 				{{- end}}
+				{{- if .WriteOnlyTF}}
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				{{- else}}
+				{{- if .LegacyWriteOnlyTF}}
+				Sensitive:           true,
+				{{- end}}
 				{{- if or .Id .MatchId (and .Reference (not .Computed)) .Mandatory}}
 				Required:            true,
 				{{- else}}
@@ -127,7 +135,20 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- if or (len .DefaultValue) .Computed}}
 				Computed:            true,
 				{{- end}}
-				{{- if len .EnumValues}}
+				{{- end}}
+				{{- if len .DeprecationMessage}}
+				DeprecationMessage:  "{{.DeprecationMessage}}",
+				{{- end}}
+				{{- if .WriteOnlyTF}}
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("{{.TfName}}_version")),
+					{{- if .Mandatory}}
+					stringvalidator.ExactlyOneOf(path.MatchRoot("{{.WoBaseName}}")),
+					{{- else}}
+					stringvalidator.ConflictsWith(path.MatchRoot("{{.WoBaseName}}")),
+					{{- end}}
+				},
+				{{- else if len .EnumValues}}
 				{{- if eq .Type "Int64" }}
 		                Validators: []validator.Int64{
 		                    int64validator.OneOf({{range .EnumValues}}{{.}}, {{end}}),
@@ -206,6 +227,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							ElementType:         types.StringType,
 							{{- end}}
 							{{- end}}
+							{{- if .WriteOnlyTF}}
+							{{- if or .Id .Reference .Mandatory}}
+							Required:            true,
+							{{- else}}
+							Optional:            true,
+							{{- end}}
+							WriteOnly:           true,
+							Sensitive:           true,
+							{{- else}}
 							{{- if or (and .Id (not .ComputedRefreshValue)) .Reference .Mandatory }}
 							Required:            true,
 							{{- else if and (not .Computed) (not .ComputedRefreshValue) }}
@@ -218,7 +248,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- if or (len .DefaultValue) .Computed}}
 							Computed:            true,
 							{{- end}}
-							{{- if len .EnumValues}}
+							{{- end}}
+							{{- if .WriteOnlyTF}}
+							Validators: []validator.String{
+								stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("{{.TfName}}_version")),
+							},
+							{{- else if len .EnumValues}}
 							Validators: []validator.String{
 								stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 							},
@@ -292,6 +327,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										ElementType:         types.StringType,
 										{{- end}}
 										{{- end}}
+										{{- if .WriteOnlyTF}}
+										{{- if or .Id .Reference .Mandatory}}
+										Required:            true,
+										{{- else}}
+										Optional:            true,
+										{{- end}}
+										WriteOnly:           true,
+										Sensitive:           true,
+										{{- else}}
 										{{- if or .Id .Reference .Mandatory}}
 										Required:            true,
 										{{- else}}
@@ -300,7 +344,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- if or (len .DefaultValue) .Computed}}
 										Computed:            true,
 										{{- end}}
-										{{- if len .EnumValues}}
+										{{- end}}
+										{{- if .WriteOnlyTF}}
+										Validators: []validator.String{
+											stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("{{.TfName}}_version")),
+										},
+										{{- else if len .EnumValues}}
 										Validators: []validator.String{
 											stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 										},
@@ -374,6 +423,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													ElementType:         types.StringType,
 													{{- end}}
 													{{- end}}
+													{{- if .WriteOnlyTF}}
+													{{- if or .Id .Reference .Mandatory}}
+													Required:            true,
+													{{- else}}
+													Optional:            true,
+													{{- end}}
+													WriteOnly:           true,
+													Sensitive:           true,
+													{{- else}}
 													{{- if or .Id .Reference .Mandatory}}
 													Required:            true,
 													{{- else}}
@@ -382,7 +440,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- if or (len .DefaultValue) .Computed}}
 													Computed:            true,
 													{{- end}}
-													{{- if len .EnumValues}}
+													{{- end}}
+													{{- if .WriteOnlyTF}}
+													Validators: []validator.String{
+														stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("{{.TfName}}_version")),
+													},
+													{{- else if len .EnumValues}}
 													Validators: []validator.String{
 														stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 													},
@@ -508,6 +571,34 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	{{- range .Attributes}}
+	{{- if .WriteOnlyTF}}
+	// Write-only value "{{.TfName}}" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &plan.{{toGoName .TfName}})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	{{- end}}
+	{{- end}}
+	{{- range writeOnlyTFParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	// Write-only values in list "{{.TfName}}" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element.
+	{
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.{{$parentGo}} {
+			if i < len(cfg{{$parentGo}}) {
+				{{- range writeOnlyTFChildren .}}
+				plan.{{$parentGo}}[i].{{toGoName .TfName}} = cfg{{$parentGo}}[i].{{toGoName .TfName}}
+				{{- end}}
+			}
+		}
+	}
+	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
@@ -984,6 +1075,34 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	{{- range .Attributes}}
+	{{- if .WriteOnlyTF}}
+	// Write-only value "{{.TfName}}" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "{{.TfName}}_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &plan.{{toGoName .TfName}})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	{{- end}}
+	{{- end}}
+	{{- range writeOnlyTFParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	// Write-only values in list "{{.TfName}}" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element. Read unconditionally for the same reason as the top-level secrets above (full-object replace PUT requires every secret present).
+	{
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.{{$parentGo}} {
+			if i < len(cfg{{$parentGo}}) {
+				{{- range writeOnlyTFChildren .}}
+				plan.{{$parentGo}}[i].{{toGoName .TfName}} = cfg{{$parentGo}}[i].{{toGoName .TfName}}
+				{{- end}}
+			}
+		}
+	}
+	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 	{{- if not .NoUpdate}}
