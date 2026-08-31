@@ -85,6 +85,7 @@ attributes:
     data_path: "0"
     response_data_path: response.0.isisDomainPwd
     write_only: true
+    write_only_tf: true
     tf_name: isis_domain_password
     type: String
     description: ISIS domain password.

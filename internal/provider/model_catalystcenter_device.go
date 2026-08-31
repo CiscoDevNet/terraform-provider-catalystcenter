@@ -30,34 +30,48 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type Device struct {
-	Id                    types.String                  `tfsdk:"id"`
-	CliTransport          types.String                  `tfsdk:"cli_transport"`
-	ComputeDevice         types.Bool                    `tfsdk:"compute_device"`
-	EnablePassword        types.String                  `tfsdk:"enable_password"`
-	ExtendedDiscoveryInfo types.String                  `tfsdk:"extended_discovery_info"`
-	HttpPassword          types.String                  `tfsdk:"http_password"`
-	HttpPort              types.String                  `tfsdk:"http_port"`
-	HttpSecure            types.Bool                    `tfsdk:"http_secure"`
-	HttpUserName          types.String                  `tfsdk:"http_user_name"`
-	IpAddress             types.String                  `tfsdk:"ip_address"`
-	MerakiOrgIds          types.Set                     `tfsdk:"meraki_org_ids"`
-	NetconfPort           types.String                  `tfsdk:"netconf_port"`
-	Password              types.String                  `tfsdk:"password"`
-	SerialNumber          types.String                  `tfsdk:"serial_number"`
-	SnmpAuthPassphrase    types.String                  `tfsdk:"snmp_auth_passphrase"`
-	SnmpAuthProtocol      types.String                  `tfsdk:"snmp_auth_protocol"`
-	SnmpMode              types.String                  `tfsdk:"snmp_mode"`
-	SnmpPrivPassphrase    types.String                  `tfsdk:"snmp_priv_passphrase"`
-	SnmpPrivProtocol      types.String                  `tfsdk:"snmp_priv_protocol"`
-	SnmpRoCommunity       types.String                  `tfsdk:"snmp_ro_community"`
-	SnmpRwCommunity       types.String                  `tfsdk:"snmp_rw_community"`
-	SnmpRetry             types.Int64                   `tfsdk:"snmp_retry"`
-	SnmpTimeout           types.Int64                   `tfsdk:"snmp_timeout"`
-	SnmpUserName          types.String                  `tfsdk:"snmp_user_name"`
-	SnmpVersion           types.String                  `tfsdk:"snmp_version"`
-	Type                  types.String                  `tfsdk:"type"`
-	UpdateMgmtIpAddresses []DeviceUpdateMgmtIpAddresses `tfsdk:"update_mgmt_ip_addresses"`
-	UserName              types.String                  `tfsdk:"user_name"`
+	Id                          types.String                  `tfsdk:"id"`
+	CliTransport                types.String                  `tfsdk:"cli_transport"`
+	ComputeDevice               types.Bool                    `tfsdk:"compute_device"`
+	EnablePassword              types.String                  `tfsdk:"enable_password"`
+	EnablePasswordWo            types.String                  `tfsdk:"enable_password_wo"`
+	EnablePasswordWoVersion     types.Int64                   `tfsdk:"enable_password_wo_version"`
+	ExtendedDiscoveryInfo       types.String                  `tfsdk:"extended_discovery_info"`
+	HttpPassword                types.String                  `tfsdk:"http_password"`
+	HttpPasswordWo              types.String                  `tfsdk:"http_password_wo"`
+	HttpPasswordWoVersion       types.Int64                   `tfsdk:"http_password_wo_version"`
+	HttpPort                    types.String                  `tfsdk:"http_port"`
+	HttpSecure                  types.Bool                    `tfsdk:"http_secure"`
+	HttpUserName                types.String                  `tfsdk:"http_user_name"`
+	IpAddress                   types.String                  `tfsdk:"ip_address"`
+	MerakiOrgIds                types.Set                     `tfsdk:"meraki_org_ids"`
+	NetconfPort                 types.String                  `tfsdk:"netconf_port"`
+	Password                    types.String                  `tfsdk:"password"`
+	PasswordWo                  types.String                  `tfsdk:"password_wo"`
+	PasswordWoVersion           types.Int64                   `tfsdk:"password_wo_version"`
+	SerialNumber                types.String                  `tfsdk:"serial_number"`
+	SnmpAuthPassphrase          types.String                  `tfsdk:"snmp_auth_passphrase"`
+	SnmpAuthPassphraseWo        types.String                  `tfsdk:"snmp_auth_passphrase_wo"`
+	SnmpAuthPassphraseWoVersion types.Int64                   `tfsdk:"snmp_auth_passphrase_wo_version"`
+	SnmpAuthProtocol            types.String                  `tfsdk:"snmp_auth_protocol"`
+	SnmpMode                    types.String                  `tfsdk:"snmp_mode"`
+	SnmpPrivPassphrase          types.String                  `tfsdk:"snmp_priv_passphrase"`
+	SnmpPrivPassphraseWo        types.String                  `tfsdk:"snmp_priv_passphrase_wo"`
+	SnmpPrivPassphraseWoVersion types.Int64                   `tfsdk:"snmp_priv_passphrase_wo_version"`
+	SnmpPrivProtocol            types.String                  `tfsdk:"snmp_priv_protocol"`
+	SnmpRoCommunity             types.String                  `tfsdk:"snmp_ro_community"`
+	SnmpRoCommunityWo           types.String                  `tfsdk:"snmp_ro_community_wo"`
+	SnmpRoCommunityWoVersion    types.Int64                   `tfsdk:"snmp_ro_community_wo_version"`
+	SnmpRwCommunity             types.String                  `tfsdk:"snmp_rw_community"`
+	SnmpRwCommunityWo           types.String                  `tfsdk:"snmp_rw_community_wo"`
+	SnmpRwCommunityWoVersion    types.Int64                   `tfsdk:"snmp_rw_community_wo_version"`
+	SnmpRetry                   types.Int64                   `tfsdk:"snmp_retry"`
+	SnmpTimeout                 types.Int64                   `tfsdk:"snmp_timeout"`
+	SnmpUserName                types.String                  `tfsdk:"snmp_user_name"`
+	SnmpVersion                 types.String                  `tfsdk:"snmp_version"`
+	Type                        types.String                  `tfsdk:"type"`
+	UpdateMgmtIpAddresses       []DeviceUpdateMgmtIpAddresses `tfsdk:"update_mgmt_ip_addresses"`
+	UserName                    types.String                  `tfsdk:"user_name"`
 }
 
 type DeviceUpdateMgmtIpAddresses struct {
@@ -91,11 +105,17 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	if !data.EnablePassword.IsNull() {
 		body, _ = sjson.Set(body, "enablePassword", data.EnablePassword.ValueString())
 	}
+	if !data.EnablePasswordWo.IsNull() {
+		body, _ = sjson.Set(body, "enablePassword", data.EnablePasswordWo.ValueString())
+	}
 	if !data.ExtendedDiscoveryInfo.IsNull() {
 		body, _ = sjson.Set(body, "extendedDiscoveryInfo", data.ExtendedDiscoveryInfo.ValueString())
 	}
 	if !data.HttpPassword.IsNull() {
 		body, _ = sjson.Set(body, "httpPassword", data.HttpPassword.ValueString())
+	}
+	if !data.HttpPasswordWo.IsNull() {
+		body, _ = sjson.Set(body, "httpPassword", data.HttpPasswordWo.ValueString())
 	}
 	if !data.HttpPort.IsNull() {
 		body, _ = sjson.Set(body, "httpPort", data.HttpPort.ValueString())
@@ -120,11 +140,17 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	if !data.Password.IsNull() {
 		body, _ = sjson.Set(body, "password", data.Password.ValueString())
 	}
+	if !data.PasswordWo.IsNull() {
+		body, _ = sjson.Set(body, "password", data.PasswordWo.ValueString())
+	}
 	if !data.SerialNumber.IsNull() {
 		body, _ = sjson.Set(body, "serialNumber", data.SerialNumber.ValueString())
 	}
 	if !data.SnmpAuthPassphrase.IsNull() {
 		body, _ = sjson.Set(body, "snmpAuthPassphrase", data.SnmpAuthPassphrase.ValueString())
+	}
+	if !data.SnmpAuthPassphraseWo.IsNull() {
+		body, _ = sjson.Set(body, "snmpAuthPassphrase", data.SnmpAuthPassphraseWo.ValueString())
 	}
 	if !data.SnmpAuthProtocol.IsNull() {
 		body, _ = sjson.Set(body, "snmpAuthProtocol", data.SnmpAuthProtocol.ValueString())
@@ -135,14 +161,23 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	if !data.SnmpPrivPassphrase.IsNull() {
 		body, _ = sjson.Set(body, "snmpPrivPassphrase", data.SnmpPrivPassphrase.ValueString())
 	}
+	if !data.SnmpPrivPassphraseWo.IsNull() {
+		body, _ = sjson.Set(body, "snmpPrivPassphrase", data.SnmpPrivPassphraseWo.ValueString())
+	}
 	if !data.SnmpPrivProtocol.IsNull() {
 		body, _ = sjson.Set(body, "snmpPrivProtocol", data.SnmpPrivProtocol.ValueString())
 	}
 	if !data.SnmpRoCommunity.IsNull() {
 		body, _ = sjson.Set(body, "snmpROCommunity", data.SnmpRoCommunity.ValueString())
 	}
+	if !data.SnmpRoCommunityWo.IsNull() {
+		body, _ = sjson.Set(body, "snmpROCommunity", data.SnmpRoCommunityWo.ValueString())
+	}
 	if !data.SnmpRwCommunity.IsNull() {
 		body, _ = sjson.Set(body, "snmpRWCommunity", data.SnmpRwCommunity.ValueString())
+	}
+	if !data.SnmpRwCommunityWo.IsNull() {
+		body, _ = sjson.Set(body, "snmpRWCommunity", data.SnmpRwCommunityWo.ValueString())
 	}
 	if !data.SnmpRetry.IsNull() {
 		body, _ = sjson.Set(body, "snmpRetry", data.SnmpRetry.ValueInt64())
@@ -213,10 +248,22 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.EnablePassword.IsNull() {
 		return false
 	}
+	if !data.EnablePasswordWo.IsNull() {
+		return false
+	}
+	if !data.EnablePasswordWoVersion.IsNull() {
+		return false
+	}
 	if !data.ExtendedDiscoveryInfo.IsNull() {
 		return false
 	}
 	if !data.HttpPassword.IsNull() {
+		return false
+	}
+	if !data.HttpPasswordWo.IsNull() {
+		return false
+	}
+	if !data.HttpPasswordWoVersion.IsNull() {
 		return false
 	}
 	if !data.HttpPort.IsNull() {
@@ -240,10 +287,22 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Password.IsNull() {
 		return false
 	}
+	if !data.PasswordWo.IsNull() {
+		return false
+	}
+	if !data.PasswordWoVersion.IsNull() {
+		return false
+	}
 	if !data.SerialNumber.IsNull() {
 		return false
 	}
 	if !data.SnmpAuthPassphrase.IsNull() {
+		return false
+	}
+	if !data.SnmpAuthPassphraseWo.IsNull() {
+		return false
+	}
+	if !data.SnmpAuthPassphraseWoVersion.IsNull() {
 		return false
 	}
 	if !data.SnmpAuthProtocol.IsNull() {
@@ -255,13 +314,31 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.SnmpPrivPassphrase.IsNull() {
 		return false
 	}
+	if !data.SnmpPrivPassphraseWo.IsNull() {
+		return false
+	}
+	if !data.SnmpPrivPassphraseWoVersion.IsNull() {
+		return false
+	}
 	if !data.SnmpPrivProtocol.IsNull() {
 		return false
 	}
 	if !data.SnmpRoCommunity.IsNull() {
 		return false
 	}
+	if !data.SnmpRoCommunityWo.IsNull() {
+		return false
+	}
+	if !data.SnmpRoCommunityWoVersion.IsNull() {
+		return false
+	}
 	if !data.SnmpRwCommunity.IsNull() {
+		return false
+	}
+	if !data.SnmpRwCommunityWo.IsNull() {
+		return false
+	}
+	if !data.SnmpRwCommunityWoVersion.IsNull() {
 		return false
 	}
 	if !data.SnmpRetry.IsNull() {

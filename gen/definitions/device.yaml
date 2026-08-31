@@ -21,8 +21,9 @@ attributes:
     example: false
   - model_name: enablePassword
     write_only: true
+    write_only_tf: true
     type: String
-    description: CLI enable password of the device 
+    description: CLI enable password of the device
     example: cisco123
     minimum_test_value: '"cisco123"'
   - model_name: extendedDiscoveryInfo
@@ -33,6 +34,7 @@ attributes:
     example: DISCOVER_WITH_CANNED_DATA
   - model_name: httpPassword
     write_only: true
+    write_only_tf: true
     type: String
     description: HTTP password of the device
     example: cisco123
@@ -74,6 +76,7 @@ attributes:
     example: "830"
   - model_name: password
     write_only: true
+    write_only_tf: true
     type: String
     description: CLI password of the device
     example: cisco123
@@ -87,6 +90,7 @@ attributes:
     minimum_test_value: '"FOC12345678"'
   - model_name: snmpAuthPassphrase
     write_only: true
+    write_only_tf: true
     type: String
     description: SNMPv3 authentication passphrase of the device
     example: cisco123
@@ -107,6 +111,7 @@ attributes:
     minimum_test_value: '"authPriv"'
   - model_name: snmpPrivPassphrase
     write_only: true
+    write_only_tf: true
     type: String
     description: SNMPv3 privacy passphrase of the device
     example: cisco123
@@ -120,12 +125,14 @@ attributes:
     minimum_test_value: '"AES128"'
   - model_name: snmpROCommunity
     write_only: true
+    write_only_tf: true
     tf_name: snmp_ro_community
     type: String
     description: SNMPv2 read-only community of the device
     example: com1
   - model_name: snmpRWCommunity
     write_only: true
+    write_only_tf: true
     tf_name: snmp_rw_community
     type: String
     description: SNMPv2 read-write community of the device

@@ -969,6 +969,12 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		legacy.Mandatory = false
 		legacy.ExcludeTest = true
 		legacy.ExcludeExample = true
+		// MinimumTestValue has to be cleared as well, not just ExcludeTest: the minimum
+		// test configuration selects attributes on MinimumTestValue without consulting
+		// ExcludeTest, so a secret carrying one (every catalystcenter_device secret does)
+		// would otherwise be emitted alongside its "_wo" twin and trip the
+		// mutual-exclusion validator.
+		legacy.MinimumTestValue = ""
 		// The message names the attribute because it is surfaced as a resource-level
 		// warning, which Terraform renders without an attribute path.
 		legacy.DeprecationMessage = fmt.Sprintf("The `%s` attribute stores the secret in Terraform state. Use `%s_wo` together with `%s_wo_version` instead, which keeps it out of state.", baseName, baseName, baseName)

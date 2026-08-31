@@ -31,6 +31,7 @@ import (
 func TestAccCcCredentialsSNMPv2Read(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv2_read.test", "description", "My SNMPv2 read credentials"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv2_read.test", "read_community_wo_version", "1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -63,7 +64,8 @@ func TestAccCcCredentialsSNMPv2Read(t *testing.T) {
 func testAccCcCredentialsSNMPv2ReadConfig_minimum() string {
 	config := `resource "catalystcenter_credentials_snmpv2_read" "test" {` + "\n"
 	config += `	description = "My SNMPv2 read credentials"` + "\n"
-	config += `	read_community = "community1"` + "\n"
+	config += `	read_community_wo = "community1"` + "\n"
+	config += `	read_community_wo_version = 1` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -74,7 +76,8 @@ func testAccCcCredentialsSNMPv2ReadConfig_minimum() string {
 func testAccCcCredentialsSNMPv2ReadConfig_all() string {
 	config := `resource "catalystcenter_credentials_snmpv2_read" "test" {` + "\n"
 	config += `	description = "My SNMPv2 read credentials"` + "\n"
-	config += `	read_community = "community1"` + "\n"
+	config += `	read_community_wo = "community1"` + "\n"
+	config += `	read_community_wo_version = 1` + "\n"
 	config += `}` + "\n"
 	return config
 }

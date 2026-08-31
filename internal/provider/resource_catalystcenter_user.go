@@ -25,11 +25,13 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
@@ -83,8 +85,23 @@ func (r *UserResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Required:            true,
 			},
 			"password": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The password").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The password").String,
-				Required:            true,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("password_wo_version")),
+					stringvalidator.ExactlyOneOf(path.MatchRoot("password")),
+				},
+			},
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
 			},
 			"email": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Email address").String,
@@ -109,6 +126,20 @@ func (r *UserResource) Configure(_ context.Context, req resource.ConfigureReques
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
+// ValidateConfig raises the deprecation warnings for secret attributes that have a
+// write-only replacement. They are raised here, at resource level, rather than through
+// the schema's DeprecationMessage: the framework raises that one against the attribute
+// path, and Terraform renders an attribute-scoped diagnostic together with the offending
+// configuration line, which would print the secret itself into plan output and CI logs.
+// The message therefore names the attribute explicitly.
+func (r *UserResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var deprecatedPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &deprecatedPassword)...)
+	if !deprecatedPassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.")
+	}
+}
+
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -118,6 +149,11 @@ func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, r
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &plan.PasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -199,6 +235,11 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &plan.PasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -85,7 +85,22 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Optional:            true,
 			},
 			"enable_password": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("CLI enable password of the device").AddDeprecationDescription("The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"enable_password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("CLI enable password of the device").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("enable_password_wo_version")),
+					stringvalidator.ConflictsWith(path.MatchRoot("enable_password")),
+				},
+			},
+			"enable_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"extended_discovery_info": schema.StringAttribute{
@@ -96,7 +111,22 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"http_password": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("HTTP password of the device").AddDeprecationDescription("The `http_password` attribute stores the secret in Terraform state. Use `http_password_wo` together with `http_password_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"http_password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("HTTP password of the device").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("http_password_wo_version")),
+					stringvalidator.ConflictsWith(path.MatchRoot("http_password")),
+				},
+			},
+			"http_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `http_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"http_port": schema.StringAttribute{
@@ -128,7 +158,22 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Optional:            true,
 			},
 			"password": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("CLI password of the device").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("CLI password of the device").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("password_wo_version")),
+					stringvalidator.ConflictsWith(path.MatchRoot("password")),
+				},
+			},
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"serial_number": schema.StringAttribute{
@@ -136,7 +181,22 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Optional:            true,
 			},
 			"snmp_auth_passphrase": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 authentication passphrase of the device").AddDeprecationDescription("The `snmp_auth_passphrase` attribute stores the secret in Terraform state. Use `snmp_auth_passphrase_wo` together with `snmp_auth_passphrase_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"snmp_auth_passphrase_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 authentication passphrase of the device").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("snmp_auth_passphrase_wo_version")),
+					stringvalidator.ConflictsWith(path.MatchRoot("snmp_auth_passphrase")),
+				},
+			},
+			"snmp_auth_passphrase_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `snmp_auth_passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"snmp_auth_protocol": schema.StringAttribute{
@@ -154,7 +214,22 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"snmp_priv_passphrase": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 privacy passphrase of the device").AddDeprecationDescription("The `snmp_priv_passphrase` attribute stores the secret in Terraform state. Use `snmp_priv_passphrase_wo` together with `snmp_priv_passphrase_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"snmp_priv_passphrase_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv3 privacy passphrase of the device").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("snmp_priv_passphrase_wo_version")),
+					stringvalidator.ConflictsWith(path.MatchRoot("snmp_priv_passphrase")),
+				},
+			},
+			"snmp_priv_passphrase_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `snmp_priv_passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"snmp_priv_protocol": schema.StringAttribute{
@@ -165,11 +240,41 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"snmp_ro_community": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("SNMPv2 read-only community of the device").AddDeprecationDescription("The `snmp_ro_community` attribute stores the secret in Terraform state. Use `snmp_ro_community_wo` together with `snmp_ro_community_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"snmp_ro_community_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv2 read-only community of the device").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("snmp_ro_community_wo_version")),
+					stringvalidator.ConflictsWith(path.MatchRoot("snmp_ro_community")),
+				},
+			},
+			"snmp_ro_community_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `snmp_ro_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"snmp_rw_community": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("SNMPv2 read-write community of the device").AddDeprecationDescription("The `snmp_rw_community` attribute stores the secret in Terraform state. Use `snmp_rw_community_wo` together with `snmp_rw_community_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"snmp_rw_community_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SNMPv2 read-write community of the device").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.AlsoRequires(path.MatchRoot("snmp_rw_community_wo_version")),
+					stringvalidator.ConflictsWith(path.MatchRoot("snmp_rw_community")),
+				},
+			},
+			"snmp_rw_community_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `snmp_rw_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"snmp_retry": schema.Int64Attribute{
@@ -238,6 +343,50 @@ func (r *DeviceResource) Configure(_ context.Context, req resource.ConfigureRequ
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
+// ValidateConfig raises the deprecation warnings for secret attributes that have a
+// write-only replacement. They are raised here, at resource level, rather than through
+// the schema's DeprecationMessage: the framework raises that one against the attribute
+// path, and Terraform renders an attribute-scoped diagnostic together with the offending
+// configuration line, which would print the secret itself into plan output and CI logs.
+// The message therefore names the attribute explicitly.
+func (r *DeviceResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var deprecatedEnablePassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password"), &deprecatedEnablePassword)...)
+	if !deprecatedEnablePassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.")
+	}
+	var deprecatedHttpPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("http_password"), &deprecatedHttpPassword)...)
+	if !deprecatedHttpPassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `http_password` attribute stores the secret in Terraform state. Use `http_password_wo` together with `http_password_wo_version` instead, which keeps it out of state.")
+	}
+	var deprecatedPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &deprecatedPassword)...)
+	if !deprecatedPassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.")
+	}
+	var deprecatedSnmpAuthPassphrase types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_auth_passphrase"), &deprecatedSnmpAuthPassphrase)...)
+	if !deprecatedSnmpAuthPassphrase.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `snmp_auth_passphrase` attribute stores the secret in Terraform state. Use `snmp_auth_passphrase_wo` together with `snmp_auth_passphrase_wo_version` instead, which keeps it out of state.")
+	}
+	var deprecatedSnmpPrivPassphrase types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_priv_passphrase"), &deprecatedSnmpPrivPassphrase)...)
+	if !deprecatedSnmpPrivPassphrase.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `snmp_priv_passphrase` attribute stores the secret in Terraform state. Use `snmp_priv_passphrase_wo` together with `snmp_priv_passphrase_wo_version` instead, which keeps it out of state.")
+	}
+	var deprecatedSnmpRoCommunity types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_ro_community"), &deprecatedSnmpRoCommunity)...)
+	if !deprecatedSnmpRoCommunity.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `snmp_ro_community` attribute stores the secret in Terraform state. Use `snmp_ro_community_wo` together with `snmp_ro_community_wo_version` instead, which keeps it out of state.")
+	}
+	var deprecatedSnmpRwCommunity types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_rw_community"), &deprecatedSnmpRwCommunity)...)
+	if !deprecatedSnmpRwCommunity.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `snmp_rw_community` attribute stores the secret in Terraform state. Use `snmp_rw_community_wo` together with `snmp_rw_community_wo_version` instead, which keeps it out of state.")
+	}
+}
+
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -247,6 +396,41 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "enable_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password_wo"), &plan.EnablePasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "http_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("http_password_wo"), &plan.HttpPasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &plan.PasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "snmp_auth_passphrase_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_auth_passphrase_wo"), &plan.SnmpAuthPassphraseWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "snmp_priv_passphrase_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_priv_passphrase_wo"), &plan.SnmpPrivPassphraseWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "snmp_ro_community_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_ro_community_wo"), &plan.SnmpRoCommunityWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "snmp_rw_community_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_rw_community_wo"), &plan.SnmpRwCommunityWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -330,6 +514,41 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "enable_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "enable_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password_wo"), &plan.EnablePasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "http_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "http_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("http_password_wo"), &plan.HttpPasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &plan.PasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "snmp_auth_passphrase_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "snmp_auth_passphrase_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_auth_passphrase_wo"), &plan.SnmpAuthPassphraseWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "snmp_priv_passphrase_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "snmp_priv_passphrase_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_priv_passphrase_wo"), &plan.SnmpPrivPassphraseWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "snmp_ro_community_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "snmp_ro_community_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_ro_community_wo"), &plan.SnmpRoCommunityWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "snmp_rw_community_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "snmp_rw_community_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("snmp_rw_community_wo"), &plan.SnmpRwCommunityWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
