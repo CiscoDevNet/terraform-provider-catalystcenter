@@ -49,6 +49,17 @@ func (d *AttributeDescription) AddStringEnumDescription(values ...string) *Attri
 	return d
 }
 
+// AddDeprecationDescription marks the attribute as deprecated in the generated
+// documentation. It is used instead of the schema's DeprecationMessage for attributes
+// holding secrets: DeprecationMessage makes the framework raise an attribute-scoped
+// warning, and Terraform renders such a warning with the offending configuration line,
+// which would print the secret itself into plan output and CI logs. The equivalent
+// runtime warning is raised at resource level by ValidateConfig instead.
+func (d *AttributeDescription) AddDeprecationDescription(message string) *AttributeDescription {
+	d.String = fmt.Sprintf("%s\n  - Deprecated: %s", d.String, message)
+	return d
+}
+
 func (d *AttributeDescription) AddIntegerRangeDescription(min, max int64) *AttributeDescription {
 	d.String = fmt.Sprintf("%s\n  - Range: `%v`-`%v`", d.String, min, max)
 	return d

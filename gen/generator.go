@@ -779,6 +779,21 @@ func WriteOnlyTFChildren(attr YamlConfigAttribute) []YamlConfigAttribute {
 	return r
 }
 
+// LegacyWriteOnlyTFAttributes returns the top-level deprecated twins of write-only
+// secrets, i.e. the attributes kept for backwards compatibility when their "_wo" variant
+// was generated. resource.go emits one ValidateConfig deprecation warning per entry.
+// Nested secrets are not included: they would need a per-element walk of the enclosing
+// list, and their deprecation is currently only surfaced in the documentation.
+func LegacyWriteOnlyTFAttributes(config YamlConfig) []YamlConfigAttribute {
+	r := []YamlConfigAttribute{}
+	for _, attr := range config.Attributes {
+		if attr.LegacyWriteOnlyTF {
+			r = append(r, attr)
+		}
+	}
+	return r
+}
+
 // WriteOnlyTFParentLists returns the top-level list/set attributes that contain at least
 // one write_only_tf child. Emitted once per parent list in the Create/Update config-read
 // codegen.
@@ -839,6 +854,7 @@ var functions = template.FuncMap{
 	"hasWriteOnlyTFChildren":             HasWriteOnlyTFChildren,
 	"writeOnlyTFChildren":                WriteOnlyTFChildren,
 	"writeOnlyTFParentLists":             WriteOnlyTFParentLists,
+	"legacyWriteOnlyTFAttributes":        LegacyWriteOnlyTFAttributes,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {
@@ -953,7 +969,9 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		legacy.Mandatory = false
 		legacy.ExcludeTest = true
 		legacy.ExcludeExample = true
-		legacy.DeprecationMessage = fmt.Sprintf("Use `%s_wo` together with `%s_wo_version` instead. This attribute stores the secret in Terraform state.", baseName, baseName)
+		// The message names the attribute because it is surfaced as a resource-level
+		// warning, which Terraform renders without an attribute path.
+		legacy.DeprecationMessage = fmt.Sprintf("The `%s` attribute stores the secret in Terraform state. Use `%s_wo` together with `%s_wo_version` instead, which keeps it out of state.", baseName, baseName, baseName)
 		newAttrs = append(newAttrs, legacy)
 
 		// The write-only variant is always Optional in the schema, because the legacy

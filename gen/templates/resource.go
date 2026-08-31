@@ -109,6 +109,9 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					{{- if .DefaultValue -}}
 					.AddDefaultValueDescription("{{.DefaultValue}}")
 					{{- end -}}
+					{{- if len .DeprecationMessage -}}
+					.AddDeprecationDescription("{{.DeprecationMessage}}")
+					{{- end -}}
 					.String,
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
@@ -135,9 +138,6 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- if or (len .DefaultValue) .Computed}}
 				Computed:            true,
 				{{- end}}
-				{{- end}}
-				{{- if len .DeprecationMessage}}
-				DeprecationMessage:  "{{.DeprecationMessage}}",
 				{{- end}}
 				{{- if .WriteOnlyTF}}
 				Validators: []validator.String{
@@ -554,6 +554,24 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
+{{- if legacyWriteOnlyTFAttributes .}}
+
+// ValidateConfig raises the deprecation warnings for secret attributes that have a
+// write-only replacement. They are raised here, at resource level, rather than through
+// the schema's DeprecationMessage: the framework raises that one against the attribute
+// path, and Terraform renders an attribute-scoped diagnostic together with the offending
+// configuration line, which would print the secret itself into plan output and CI logs.
+// The message therefore names the attribute explicitly.
+func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	{{- range legacyWriteOnlyTFAttributes .}}
+	var deprecated{{toGoName .TfName}} types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &deprecated{{toGoName .TfName}})...)
+	if !deprecated{{toGoName .TfName}}.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "{{.DeprecationMessage}}")
+	}
+	{{- end}}
+}
+{{- end}}
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create

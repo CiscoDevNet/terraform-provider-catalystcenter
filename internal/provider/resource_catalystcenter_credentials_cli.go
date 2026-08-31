@@ -84,10 +84,9 @@ func (r *CredentialsCLIResource) Schema(ctx context.Context, req resource.Schema
 				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Password").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Password").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
-				DeprecationMessage:  "Use `password_wo` together with `password_wo_version` instead. This attribute stores the secret in Terraform state.",
 			},
 			"password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Password").String,
@@ -104,10 +103,9 @@ func (r *CredentialsCLIResource) Schema(ctx context.Context, req resource.Schema
 				Optional:            true,
 			},
 			"enable_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable password").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable password").AddDeprecationDescription("The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
-				DeprecationMessage:  "Use `enable_password_wo` together with `enable_password_wo_version` instead. This attribute stores the secret in Terraform state.",
 			},
 			"enable_password_wo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable password").String,
@@ -135,6 +133,25 @@ func (r *CredentialsCLIResource) Configure(_ context.Context, req resource.Confi
 	r.client = req.ProviderData.(*CcProviderData).Client
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 	r.cache = req.ProviderData.(*CcProviderData).Cache
+}
+
+// ValidateConfig raises the deprecation warnings for secret attributes that have a
+// write-only replacement. They are raised here, at resource level, rather than through
+// the schema's DeprecationMessage: the framework raises that one against the attribute
+// path, and Terraform renders an attribute-scoped diagnostic together with the offending
+// configuration line, which would print the secret itself into plan output and CI logs.
+// The message therefore names the attribute explicitly.
+func (r *CredentialsCLIResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var deprecatedPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &deprecatedPassword)...)
+	if !deprecatedPassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.")
+	}
+	var deprecatedEnablePassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password"), &deprecatedEnablePassword)...)
+	if !deprecatedEnablePassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.")
+	}
 }
 
 // End of section. //template:end model
