@@ -80,12 +80,12 @@ func (r *CredentialsSNMPv2ReadResource) Schema(ctx context.Context, req resource
 				},
 			},
 			"read_community": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Read community").AddMutualExclusivityDescription("Exactly one of `read_community` and `read_community_wo` must be set.").AddDeprecationDescription("The `read_community` attribute stores the secret in Terraform state. Use `read_community_wo` together with `read_community_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Read community").AddMutualExclusivityDescription("**Required**: exactly one of `read_community` and `read_community_wo` must be set.").AddDeprecationDescription("The `read_community` attribute stores the secret in Terraform state. Use `read_community_wo` together with `read_community_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"read_community_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Read community").AddMutualExclusivityDescription("Exactly one of `read_community` and `read_community_wo` must be set.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Read community").AddMutualExclusivityDescription("**Required**: exactly one of `read_community` and `read_community_wo` must be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,

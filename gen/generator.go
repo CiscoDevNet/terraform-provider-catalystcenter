@@ -963,9 +963,13 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		// mandatory secret reachable through either spelling would otherwise be listed as
 		// merely Optional twice, with nothing saying one of them has to be supplied.
 		// Computed from the original attribute, before Mandatory is cleared below.
+		// A mandatory secret leads with "**Required**" because the pair is listed under
+		// the documentation's Optional heading: neither half can carry the schema's
+		// Required flag without making that spelling the only usable one, so the word has
+		// to come from the description instead.
 		exclusivity := fmt.Sprintf("Only one of `%s` and `%s_wo` can be set.", baseName, baseName)
 		if attr.Mandatory {
-			exclusivity = fmt.Sprintf("Exactly one of `%s` and `%s_wo` must be set.", baseName, baseName)
+			exclusivity = fmt.Sprintf("**Required**: exactly one of `%s` and `%s_wo` must be set.", baseName, baseName)
 		}
 
 		// The legacy attribute keeps its name and its place in the schema so existing

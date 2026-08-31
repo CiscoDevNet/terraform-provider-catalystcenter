@@ -85,12 +85,12 @@ func (r *CredentialsHTTPSReadResource) Schema(ctx context.Context, req resource.
 				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("Exactly one of `password` and `password_wo` must be set.").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"password_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("Exactly one of `password` and `password_wo` must be set.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,

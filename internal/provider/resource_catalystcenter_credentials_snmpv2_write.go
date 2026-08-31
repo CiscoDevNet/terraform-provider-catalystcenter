@@ -80,12 +80,12 @@ func (r *CredentialsSNMPv2WriteResource) Schema(ctx context.Context, req resourc
 				},
 			},
 			"write_community": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Write community").AddMutualExclusivityDescription("Exactly one of `write_community` and `write_community_wo` must be set.").AddDeprecationDescription("The `write_community` attribute stores the secret in Terraform state. Use `write_community_wo` together with `write_community_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Write community").AddMutualExclusivityDescription("**Required**: exactly one of `write_community` and `write_community_wo` must be set.").AddDeprecationDescription("The `write_community` attribute stores the secret in Terraform state. Use `write_community_wo` together with `write_community_wo_version` instead, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
 			"write_community_wo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Write community").AddMutualExclusivityDescription("Exactly one of `write_community` and `write_community_wo` must be set.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Write community").AddMutualExclusivityDescription("**Required**: exactly one of `write_community` and `write_community_wo` must be set.").String,
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
