@@ -29,5 +29,9 @@ data "catalystcenter_credentials_cli" "example" {
 ### Read-Only
 
 - `enable_password` (String) Enable password
+- `enable_password_wo` (String) Enable password
+- `enable_password_wo_version` (Number) Rotation trigger for `enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `password` (String) Password
+- `password_wo` (String) Password
+- `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `username` (String) Username
