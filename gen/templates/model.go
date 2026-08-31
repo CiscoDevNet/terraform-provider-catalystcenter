@@ -1022,7 +1022,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 		{{- end}}
 
 		{{- range .Attributes}}
-		{{- if and .WriteOnly .ExcludeTest }}
+		{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") }}
 		if value := r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
 			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "value" .}}{{else}}value.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
 		} else {{if .DefaultValue}}if data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{

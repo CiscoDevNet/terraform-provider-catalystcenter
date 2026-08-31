@@ -126,7 +126,8 @@ func (r *CredentialsHTTPSWriteResource) Configure(_ context.Context, req resourc
 // attribute path, and Terraform renders an attribute-scoped diagnostic together with the
 // offending configuration line - which for a secret prints the value itself into plan
 // output and CI logs. A resource-scoped diagnostic is rendered against the resource block
-// header instead, so the messages name the attributes explicitly.
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
 func (r *CredentialsHTTPSWriteResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var legacyPassword types.String
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &legacyPassword)...)

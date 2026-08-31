@@ -797,6 +797,32 @@ func LegacyWriteOnlyTFAttributes(config YamlConfig) []YamlConfigAttribute {
 	return r
 }
 
+// LegacyWriteOnlyTFChildren returns the deprecated twins of write-only secrets nested
+// directly inside a list/set attribute. ValidateConfig applies the same pair checks to
+// them, once per list element.
+func LegacyWriteOnlyTFChildren(attr YamlConfigAttribute) []YamlConfigAttribute {
+	r := []YamlConfigAttribute{}
+	for _, child := range attr.Attributes {
+		if child.LegacyWriteOnlyTF {
+			r = append(r, child)
+		}
+	}
+	return r
+}
+
+// LegacyWriteOnlyTFParentLists returns the top-level list/set attributes holding at least
+// one deprecated twin of a write-only secret. ValidateConfig reads each such list from the
+// configuration once and walks its elements.
+func LegacyWriteOnlyTFParentLists(config YamlConfig) []YamlConfigAttribute {
+	r := []YamlConfigAttribute{}
+	for _, attr := range config.Attributes {
+		if len(LegacyWriteOnlyTFChildren(attr)) > 0 {
+			r = append(r, attr)
+		}
+	}
+	return r
+}
+
 // WriteOnlyTFParentLists returns the top-level list/set attributes that contain at least
 // one write_only_tf child. Emitted once per parent list in the Create/Update config-read
 // codegen.
@@ -858,6 +884,8 @@ var functions = template.FuncMap{
 	"writeOnlyTFChildren":                WriteOnlyTFChildren,
 	"writeOnlyTFParentLists":             WriteOnlyTFParentLists,
 	"legacyWriteOnlyTFAttributes":        LegacyWriteOnlyTFAttributes,
+	"legacyWriteOnlyTFChildren":          LegacyWriteOnlyTFChildren,
+	"legacyWriteOnlyTFParentLists":       LegacyWriteOnlyTFParentLists,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {

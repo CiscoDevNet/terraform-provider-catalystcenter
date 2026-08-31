@@ -211,6 +211,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								{{- if .DefaultValue -}}
 								.AddDefaultValueDescription("{{.DefaultValue}}")
 								{{- end -}}
+								{{- if len .MutualExclusivityNote -}}
+								.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+								{{- end -}}
+								{{- if len .DeprecationMessage -}}
+								.AddDeprecationDescription("{{.DeprecationMessage}}")
+								{{- end -}}
 								.String,
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
@@ -230,6 +236,9 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							WriteOnly:           true,
 							Sensitive:           true,
 							{{- else}}
+							{{- if .LegacyWriteOnlyTF}}
+							Sensitive:           true,
+							{{- end}}
 							{{- if or (and .Id (not .ComputedRefreshValue)) .Reference .Mandatory }}
 							Required:            true,
 							{{- else if and (not .Computed) (not .ComputedRefreshValue) }}
@@ -307,6 +316,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											{{- if .DefaultValue -}}
 											.AddDefaultValueDescription("{{.DefaultValue}}")
 											{{- end -}}
+											{{- if len .MutualExclusivityNote -}}
+											.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+											{{- end -}}
+											{{- if len .DeprecationMessage -}}
+											.AddDeprecationDescription("{{.DeprecationMessage}}")
+											{{- end -}}
 											.String,
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
@@ -326,6 +341,9 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										WriteOnly:           true,
 										Sensitive:           true,
 										{{- else}}
+										{{- if .LegacyWriteOnlyTF}}
+										Sensitive:           true,
+										{{- end}}
 										{{- if or .Id .Reference .Mandatory}}
 										Required:            true,
 										{{- else}}
@@ -399,6 +417,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 														{{- if .DefaultValue -}}
 														.AddDefaultValueDescription("{{.DefaultValue}}")
 														{{- end -}}
+														{{- if len .MutualExclusivityNote -}}
+														.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+														{{- end -}}
+														{{- if len .DeprecationMessage -}}
+														.AddDeprecationDescription("{{.DeprecationMessage}}")
+														{{- end -}}
 														.String,
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
@@ -418,6 +442,9 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													WriteOnly:           true,
 													Sensitive:           true,
 													{{- else}}
+													{{- if .LegacyWriteOnlyTF}}
+													Sensitive:           true,
+													{{- end}}
 													{{- if or .Id .Reference .Mandatory}}
 													Required:            true,
 													{{- else}}
@@ -536,7 +563,7 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
-{{- if legacyWriteOnlyTFAttributes .}}
+{{- if or (legacyWriteOnlyTFAttributes .) (legacyWriteOnlyTFParentLists .)}}
 
 // ValidateConfig enforces the relationship between a deprecated secret attribute, its
 // write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
@@ -547,7 +574,8 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 // attribute path, and Terraform renders an attribute-scoped diagnostic together with the
 // offending configuration line - which for a secret prints the value itself into plan
 // output and CI logs. A resource-scoped diagnostic is rendered against the resource block
-// header instead, so the messages name the attributes explicitly.
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
 func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	{{- range legacyWriteOnlyTFAttributes .}}
 	{{- $go := toGoName .TfName}}
@@ -583,6 +611,48 @@ func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req re
 	{{- end}}
 	if !legacy{{$go}}.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "{{.DeprecationMessage}}")
+	}
+	{{- end}}
+	{{- range legacyWriteOnlyTFParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	{
+		// Secrets nested in "{{$parentTf}}" are validated per element. A list that cannot be
+		// read as a whole - because it is still unknown at validation time - is skipped
+		// rather than reported, since there is nothing to check yet.
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		if diags := req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}}); !diags.HasError() {
+			for i := range cfg{{$parentGo}} {
+				{{- range legacyWriteOnlyTFChildren .}}
+				{{- $go := toGoName .TfName}}
+				if !cfg{{$parentGo}}[i].{{$go}}.IsNull() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("Only one of `{{.TfName}}` and `{{.TfName}}_wo` can be set in `{{$parentTf}}` element %d.", i),
+					)
+				}
+				{{- if .WoPairMandatory}}
+				if cfg{{$parentGo}}[i].{{$go}}.IsNull() && cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("Exactly one of `{{.TfName}}` and `{{.TfName}}_wo` must be set in `{{$parentTf}}` element %d.", i),
+					)
+				}
+				{{- end}}
+				{{- if .WoPairHasVersion}}
+				if !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() && cfg{{$parentGo}}[i].{{$go}}WoVersion.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("`{{.TfName}}_wo_version` must be set when `{{.TfName}}_wo` is used in `{{$parentTf}}` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
+					)
+				}
+				{{- end}}
+				if !cfg{{$parentGo}}[i].{{$go}}.IsNull() {
+					resp.Diagnostics.AddWarning("Attribute Deprecated", fmt.Sprintf("{{.DeprecationMessage}} (`{{$parentTf}}` element %d)", i))
+				}
+				{{- end}}
+			}
+		}
 	}
 	{{- end}}
 }

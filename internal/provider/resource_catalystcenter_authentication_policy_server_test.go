@@ -39,6 +39,7 @@ func TestAccCcAuthenticationPolicyServer(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_authentication_policy_server.test", "protocol", "RADIUS"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_authentication_policy_server.test", "retries", "2"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_authentication_policy_server.test", "role", "secondary"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_authentication_policy_server.test", "shared_secret_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_authentication_policy_server.test", "timeout_seconds", "2"))
 
 	var steps []resource.TestStep
@@ -70,7 +71,8 @@ func testAccCcAuthenticationPolicyServerConfig_minimum() string {
 	config += `	protocol = "RADIUS"` + "\n"
 	config += `	retries = 2` + "\n"
 	config += `	role = "secondary"` + "\n"
-	config += `	shared_secret = "Cisco123"` + "\n"
+	config += `	shared_secret_wo = "Cisco123"` + "\n"
+	config += `	shared_secret_wo_version = 1` + "\n"
 	config += `	timeout_seconds = 2` + "\n"
 	config += `}` + "\n"
 	return config
@@ -91,7 +93,8 @@ func testAccCcAuthenticationPolicyServerConfig_all() string {
 	config += `	protocol = "RADIUS"` + "\n"
 	config += `	retries = 2` + "\n"
 	config += `	role = "secondary"` + "\n"
-	config += `	shared_secret = "Cisco123"` + "\n"
+	config += `	shared_secret_wo = "Cisco123"` + "\n"
+	config += `	shared_secret_wo_version = 1` + "\n"
 	config += `	timeout_seconds = 2` + "\n"
 	config += `}` + "\n"
 	return config
