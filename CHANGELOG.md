@@ -1,6 +1,7 @@
 
 ## 0.6.0 (unreleased)
 
+- Fix `catalystcenter_anycast_gateways` resource to send the Catalyst Center-generated `vlan_name` when updating a gateway created with `auto_generate_vlan_name`, which previously omitted `vlanName` from the PUT and failed with `NCHS20599` (`vlanName must not be null or empty`)
 - Update `go-catalystcenter` dependency to `v0.2.0` to add a `UserAgent` option for setting a custom HTTP User-Agent string on authentication, API, and async task-polling requests
 
 ## 0.5.25
