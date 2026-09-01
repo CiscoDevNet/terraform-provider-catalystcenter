@@ -124,25 +124,25 @@ func (r *CredentialsSNMPv2WriteResource) ValidateConfig(ctx context.Context, req
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("write_community_wo"), &woWriteCommunity)...)
 	var woVersionWriteCommunity types.Int64
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("write_community_wo_version"), &woVersionWriteCommunity)...)
-	if !legacyWriteCommunity.IsNull() && !woWriteCommunity.IsNull() {
+	if !legacyWriteCommunity.IsUnknown() && !woWriteCommunity.IsUnknown() && !legacyWriteCommunity.IsNull() && !woWriteCommunity.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Only one of `write_community` and `write_community_wo` can be set.",
 		)
 	}
-	if legacyWriteCommunity.IsNull() && woWriteCommunity.IsNull() {
+	if !legacyWriteCommunity.IsUnknown() && !woWriteCommunity.IsUnknown() && legacyWriteCommunity.IsNull() && woWriteCommunity.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Exactly one of `write_community` and `write_community_wo` must be set.",
 		)
 	}
-	if !woWriteCommunity.IsNull() && woVersionWriteCommunity.IsNull() {
+	if !woWriteCommunity.IsUnknown() && !woVersionWriteCommunity.IsUnknown() && !woWriteCommunity.IsNull() && woVersionWriteCommunity.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"`write_community_wo_version` must be set when `write_community_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacyWriteCommunity.IsNull() {
+	if !legacyWriteCommunity.IsUnknown() && !legacyWriteCommunity.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `write_community` attribute stores the secret in Terraform state. Use `write_community_wo` together with `write_community_wo_version` instead, which keeps it out of state.")
 	}
 }

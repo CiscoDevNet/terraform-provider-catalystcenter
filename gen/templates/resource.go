@@ -575,14 +575,14 @@ func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req re
 	var woVersion{{$go}} types.Int64
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}_wo_version"), &woVersion{{$go}})...)
 	{{- end}}
-	if !legacy{{$go}}.IsNull() && !wo{{$go}}.IsNull() {
+	if !legacy{{$go}}.IsUnknown() && !wo{{$go}}.IsUnknown() && !legacy{{$go}}.IsNull() && !wo{{$go}}.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Only one of `{{.TfName}}` and `{{.TfName}}_wo` can be set.",
 		)
 	}
 	{{- if .WoPairMandatory}}
-	if legacy{{$go}}.IsNull() && wo{{$go}}.IsNull() {
+	if !legacy{{$go}}.IsUnknown() && !wo{{$go}}.IsUnknown() && legacy{{$go}}.IsNull() && wo{{$go}}.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Exactly one of `{{.TfName}}` and `{{.TfName}}_wo` must be set.",
@@ -590,14 +590,14 @@ func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req re
 	}
 	{{- end}}
 	{{- if .WoPairHasVersion}}
-	if !wo{{$go}}.IsNull() && woVersion{{$go}}.IsNull() {
+	if !wo{{$go}}.IsUnknown() && !woVersion{{$go}}.IsUnknown() && !wo{{$go}}.IsNull() && woVersion{{$go}}.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"`{{.TfName}}_wo_version` must be set when `{{.TfName}}_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
 	{{- end}}
-	if !legacy{{$go}}.IsNull() {
+	if !legacy{{$go}}.IsUnknown() && !legacy{{$go}}.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "{{.DeprecationMessage}}")
 	}
 	{{- end}}
@@ -613,14 +613,14 @@ func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req re
 			for i := range cfg{{$parentGo}} {
 				{{- range legacyWriteOnlyTFChildren .}}
 				{{- $go := toGoName .TfName}}
-				if !cfg{{$parentGo}}[i].{{$go}}.IsNull() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
+				if !cfg{{$parentGo}}[i].{{$go}}.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}.IsNull() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
 					resp.Diagnostics.AddError(
 						"Invalid Attribute Combination",
 						fmt.Sprintf("Only one of `{{.TfName}}` and `{{.TfName}}_wo` can be set in `{{$parentTf}}` element %d.", i),
 					)
 				}
 				{{- if .WoPairMandatory}}
-				if cfg{{$parentGo}}[i].{{$go}}.IsNull() && cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
+				if !cfg{{$parentGo}}[i].{{$go}}.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && cfg{{$parentGo}}[i].{{$go}}.IsNull() && cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
 					resp.Diagnostics.AddError(
 						"Invalid Attribute Combination",
 						fmt.Sprintf("Exactly one of `{{.TfName}}` and `{{.TfName}}_wo` must be set in `{{$parentTf}}` element %d.", i),
@@ -628,14 +628,14 @@ func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req re
 				}
 				{{- end}}
 				{{- if .WoPairHasVersion}}
-				if !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() && cfg{{$parentGo}}[i].{{$go}}WoVersion.IsNull() {
+				if !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}WoVersion.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() && cfg{{$parentGo}}[i].{{$go}}WoVersion.IsNull() {
 					resp.Diagnostics.AddError(
 						"Invalid Attribute Combination",
 						fmt.Sprintf("`{{.TfName}}_wo_version` must be set when `{{.TfName}}_wo` is used in `{{$parentTf}}` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
 					)
 				}
 				{{- end}}
-				if !cfg{{$parentGo}}[i].{{$go}}.IsNull() {
+				if !cfg{{$parentGo}}[i].{{$go}}.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}.IsNull() {
 					resp.Diagnostics.AddWarning("Attribute Deprecated", fmt.Sprintf("{{.DeprecationMessage}} (`{{$parentTf}}` element %d)", i))
 				}
 				{{- end}}
