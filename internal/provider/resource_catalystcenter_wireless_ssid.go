@@ -488,19 +488,19 @@ func (r *WirelessSSIDResource) ValidateConfig(ctx context.Context, req resource.
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase_wo"), &woPassphrase)...)
 	var woVersionPassphrase types.Int64
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase_wo_version"), &woVersionPassphrase)...)
-	if !legacyPassphrase.IsNull() && !woPassphrase.IsNull() {
+	if !legacyPassphrase.IsUnknown() && !woPassphrase.IsUnknown() && !legacyPassphrase.IsNull() && !woPassphrase.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Only one of `passphrase` and `passphrase_wo` can be set.",
 		)
 	}
-	if !woPassphrase.IsNull() && woVersionPassphrase.IsNull() {
+	if !woPassphrase.IsUnknown() && !woVersionPassphrase.IsUnknown() && !woPassphrase.IsNull() && woVersionPassphrase.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"`passphrase_wo_version` must be set when `passphrase_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacyPassphrase.IsNull() {
+	if !legacyPassphrase.IsUnknown() && !legacyPassphrase.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `passphrase` attribute stores the secret in Terraform state. Use `passphrase_wo` together with `passphrase_wo_version` instead, which keeps it out of state.")
 	}
 	{
@@ -510,19 +510,19 @@ func (r *WirelessSSIDResource) ValidateConfig(ctx context.Context, req resource.
 		var cfgMultiPskSettings []WirelessSSIDMultiPskSettings
 		if diags := req.Config.GetAttribute(ctx, path.Root("multi_psk_settings"), &cfgMultiPskSettings); !diags.HasError() {
 			for i := range cfgMultiPskSettings {
-				if !cfgMultiPskSettings[i].Passphrase.IsNull() && !cfgMultiPskSettings[i].PassphraseWo.IsNull() {
+				if !cfgMultiPskSettings[i].Passphrase.IsUnknown() && !cfgMultiPskSettings[i].PassphraseWo.IsUnknown() && !cfgMultiPskSettings[i].Passphrase.IsNull() && !cfgMultiPskSettings[i].PassphraseWo.IsNull() {
 					resp.Diagnostics.AddError(
 						"Invalid Attribute Combination",
 						fmt.Sprintf("Only one of `passphrase` and `passphrase_wo` can be set in `multi_psk_settings` element %d.", i),
 					)
 				}
-				if !cfgMultiPskSettings[i].PassphraseWo.IsNull() && cfgMultiPskSettings[i].PassphraseWoVersion.IsNull() {
+				if !cfgMultiPskSettings[i].PassphraseWo.IsUnknown() && !cfgMultiPskSettings[i].PassphraseWoVersion.IsUnknown() && !cfgMultiPskSettings[i].PassphraseWo.IsNull() && cfgMultiPskSettings[i].PassphraseWoVersion.IsNull() {
 					resp.Diagnostics.AddError(
 						"Invalid Attribute Combination",
 						fmt.Sprintf("`passphrase_wo_version` must be set when `passphrase_wo` is used in `multi_psk_settings` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
 					)
 				}
-				if !cfgMultiPskSettings[i].Passphrase.IsNull() {
+				if !cfgMultiPskSettings[i].Passphrase.IsUnknown() && !cfgMultiPskSettings[i].Passphrase.IsNull() {
 					resp.Diagnostics.AddWarning("Attribute Deprecated", fmt.Sprintf("The `passphrase` attribute stores the secret in Terraform state. Use `passphrase_wo` together with `passphrase_wo_version` instead, which keeps it out of state. (`multi_psk_settings` element %d)", i))
 				}
 			}

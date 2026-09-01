@@ -124,25 +124,25 @@ func (r *CredentialsSNMPv2ReadResource) ValidateConfig(ctx context.Context, req 
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo"), &woReadCommunity)...)
 	var woVersionReadCommunity types.Int64
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo_version"), &woVersionReadCommunity)...)
-	if !legacyReadCommunity.IsNull() && !woReadCommunity.IsNull() {
+	if !legacyReadCommunity.IsUnknown() && !woReadCommunity.IsUnknown() && !legacyReadCommunity.IsNull() && !woReadCommunity.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Only one of `read_community` and `read_community_wo` can be set.",
 		)
 	}
-	if legacyReadCommunity.IsNull() && woReadCommunity.IsNull() {
+	if !legacyReadCommunity.IsUnknown() && !woReadCommunity.IsUnknown() && legacyReadCommunity.IsNull() && woReadCommunity.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Exactly one of `read_community` and `read_community_wo` must be set.",
 		)
 	}
-	if !woReadCommunity.IsNull() && woVersionReadCommunity.IsNull() {
+	if !woReadCommunity.IsUnknown() && !woVersionReadCommunity.IsUnknown() && !woReadCommunity.IsNull() && woVersionReadCommunity.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"`read_community_wo_version` must be set when `read_community_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacyReadCommunity.IsNull() {
+	if !legacyReadCommunity.IsUnknown() && !legacyReadCommunity.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `read_community` attribute stores the secret in Terraform state. Use `read_community_wo` together with `read_community_wo_version` instead, which keeps it out of state.")
 	}
 }

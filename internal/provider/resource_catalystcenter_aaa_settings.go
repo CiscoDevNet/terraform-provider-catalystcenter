@@ -192,19 +192,19 @@ func (r *AAASettingsResource) ValidateConfig(ctx context.Context, req resource.V
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret_wo"), &woNetworkAaaSharedSecret)...)
 	var woVersionNetworkAaaSharedSecret types.Int64
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret_wo_version"), &woVersionNetworkAaaSharedSecret)...)
-	if !legacyNetworkAaaSharedSecret.IsNull() && !woNetworkAaaSharedSecret.IsNull() {
+	if !legacyNetworkAaaSharedSecret.IsUnknown() && !woNetworkAaaSharedSecret.IsUnknown() && !legacyNetworkAaaSharedSecret.IsNull() && !woNetworkAaaSharedSecret.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.",
 		)
 	}
-	if !woNetworkAaaSharedSecret.IsNull() && woVersionNetworkAaaSharedSecret.IsNull() {
+	if !woNetworkAaaSharedSecret.IsUnknown() && !woVersionNetworkAaaSharedSecret.IsUnknown() && !woNetworkAaaSharedSecret.IsNull() && woVersionNetworkAaaSharedSecret.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"`network_aaa_shared_secret_wo_version` must be set when `network_aaa_shared_secret_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacyNetworkAaaSharedSecret.IsNull() {
+	if !legacyNetworkAaaSharedSecret.IsUnknown() && !legacyNetworkAaaSharedSecret.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `network_aaa_shared_secret` attribute stores the secret in Terraform state. Use `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version` instead, which keeps it out of state.")
 	}
 	var legacyClientAaaSharedSecret types.String
@@ -213,19 +213,19 @@ func (r *AAASettingsResource) ValidateConfig(ctx context.Context, req resource.V
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret_wo"), &woClientAaaSharedSecret)...)
 	var woVersionClientAaaSharedSecret types.Int64
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret_wo_version"), &woVersionClientAaaSharedSecret)...)
-	if !legacyClientAaaSharedSecret.IsNull() && !woClientAaaSharedSecret.IsNull() {
+	if !legacyClientAaaSharedSecret.IsUnknown() && !woClientAaaSharedSecret.IsUnknown() && !legacyClientAaaSharedSecret.IsNull() && !woClientAaaSharedSecret.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.",
 		)
 	}
-	if !woClientAaaSharedSecret.IsNull() && woVersionClientAaaSharedSecret.IsNull() {
+	if !woClientAaaSharedSecret.IsUnknown() && !woVersionClientAaaSharedSecret.IsUnknown() && !woClientAaaSharedSecret.IsNull() && woVersionClientAaaSharedSecret.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"`client_aaa_shared_secret_wo_version` must be set when `client_aaa_shared_secret_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacyClientAaaSharedSecret.IsNull() {
+	if !legacyClientAaaSharedSecret.IsUnknown() && !legacyClientAaaSharedSecret.IsNull() {
 		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `client_aaa_shared_secret` attribute stores the secret in Terraform state. Use `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version` instead, which keeps it out of state.")
 	}
 }
