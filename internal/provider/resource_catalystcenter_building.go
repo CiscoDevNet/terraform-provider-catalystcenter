@@ -190,6 +190,11 @@ func (r *BuildingResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
+	if data := res.Get("response"); !data.Exists() || len(data.Array()) == 0 {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
 		state.fromBody(ctx, res)
