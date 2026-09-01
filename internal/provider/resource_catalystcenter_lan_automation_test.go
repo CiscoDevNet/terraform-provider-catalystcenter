@@ -39,6 +39,7 @@ func TestAccCcLANAutomation(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "ip_pools.0.ip_pool_role", "MAIN_POOL"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "multicast_enabled", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "host_name_prefix", "TEST"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "isis_domain_password_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "redistribute_isis_to_bgp", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_level", "2"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_lan_automation.test", "discovery_timeout", "20"))
@@ -97,7 +98,8 @@ func testAccCcLANAutomationConfig_all() string {
 	config += `	}]` + "\n"
 	config += `	multicast_enabled = true` + "\n"
 	config += `	host_name_prefix = "TEST"` + "\n"
-	config += `	isis_domain_password = "cisco123"` + "\n"
+	config += `	isis_domain_password_wo = "cisco123"` + "\n"
+	config += `	isis_domain_password_wo_version = 1` + "\n"
 	config += `	redistribute_isis_to_bgp = true` + "\n"
 	config += `	discovery_level = 2` + "\n"
 	config += `	discovery_timeout = 20` + "\n"

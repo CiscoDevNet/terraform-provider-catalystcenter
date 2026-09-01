@@ -88,6 +88,14 @@ func (d *AAASettingsDataSource) Schema(ctx context.Context, req datasource.Schem
 				MarkdownDescription: "Only relevant for server type `ISE`, shared secret",
 				Computed:            true,
 			},
+			"network_aaa_shared_secret_wo": schema.StringAttribute{
+				MarkdownDescription: "Only relevant for server type `ISE`, shared secret",
+				Computed:            true,
+			},
+			"network_aaa_shared_secret_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `network_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
 			"client_aaa_server_type": schema.StringAttribute{
 				MarkdownDescription: "Type of client AAA server",
 				Computed:            true,
@@ -110,6 +118,14 @@ func (d *AAASettingsDataSource) Schema(ctx context.Context, req datasource.Schem
 			},
 			"client_aaa_shared_secret": schema.StringAttribute{
 				MarkdownDescription: "Only relevant for server type `ISE`, shared secret",
+				Computed:            true,
+			},
+			"client_aaa_shared_secret_wo": schema.StringAttribute{
+				MarkdownDescription: "Only relevant for server type `ISE`, shared secret",
+				Computed:            true,
+			},
+			"client_aaa_shared_secret_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `client_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 				Computed:            true,
 			},
 		},

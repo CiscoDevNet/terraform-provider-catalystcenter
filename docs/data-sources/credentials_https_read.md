@@ -29,5 +29,7 @@ data "catalystcenter_credentials_https_read" "example" {
 ### Read-Only
 
 - `password` (String) Password
+- `password_wo` (String) Password
+- `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `port` (Number) HTTPS port
 - `username` (String) Username

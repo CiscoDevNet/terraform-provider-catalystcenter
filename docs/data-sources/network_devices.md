@@ -44,4 +44,5 @@ Read-Only:
 - `reachability_failure_reason` (String) Failure reason for unreachable devices.
 - `reachability_status` (String) Device reachability status as `Reachable` or `Unreachable`.
 - `role` (String) Role of the network device, such as `ACCESS` or `DISTRIBUTION`.
+- `serial_number` (String) Serial number of the network device. For devices whose hostname or management IP address is not known ahead of time (for example access points before they are claimed), this is the only stable identifier.
 - `software_type` (String) Type of software

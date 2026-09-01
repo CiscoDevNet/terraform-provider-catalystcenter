@@ -78,8 +78,19 @@ func (r *CredentialsSNMPv2ReadResource) Schema(ctx context.Context, req resource
 				},
 			},
 			"read_community": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Read community").String,
-				Required:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("Read community").AddMutualExclusivityDescription("**Required**: exactly one of `read_community` and `read_community_wo` must be set.").AddDeprecationDescription("The `read_community` attribute stores the secret in Terraform state. Use `read_community_wo` together with `read_community_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"read_community_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Read community").AddMutualExclusivityDescription("**Required**: exactly one of `read_community` and `read_community_wo` must be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"read_community_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `read_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
 			},
 		},
 	}
@@ -95,6 +106,47 @@ func (r *CredentialsSNMPv2ReadResource) Configure(_ context.Context, req resourc
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
+// ValidateConfig enforces the relationship between a deprecated secret attribute, its
+// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
+// deprecation warning for the old attribute.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
+func (r *CredentialsSNMPv2ReadResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var legacyReadCommunity types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community"), &legacyReadCommunity)...)
+	var woReadCommunity types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo"), &woReadCommunity)...)
+	var woVersionReadCommunity types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo_version"), &woVersionReadCommunity)...)
+	if !legacyReadCommunity.IsNull() && !woReadCommunity.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `read_community` and `read_community_wo` can be set.",
+		)
+	}
+	if legacyReadCommunity.IsNull() && woReadCommunity.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Exactly one of `read_community` and `read_community_wo` must be set.",
+		)
+	}
+	if !woReadCommunity.IsNull() && woVersionReadCommunity.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`read_community_wo_version` must be set when `read_community_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	if !legacyReadCommunity.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `read_community` attribute stores the secret in Terraform state. Use `read_community_wo` together with `read_community_wo_version` instead, which keeps it out of state.")
+	}
+}
+
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -104,6 +156,11 @@ func (r *CredentialsSNMPv2ReadResource) Create(ctx context.Context, req resource
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "read_community_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo"), &plan.ReadCommunityWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -191,6 +248,11 @@ func (r *CredentialsSNMPv2ReadResource) Update(ctx context.Context, req resource
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "read_community_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "read_community_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("read_community_wo"), &plan.ReadCommunityWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

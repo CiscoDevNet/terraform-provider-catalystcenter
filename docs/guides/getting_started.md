@@ -13,6 +13,8 @@ First of all we need to add the necessary provider configuration to the Terrafor
 
 ```hcl
 terraform {
+  required_version = ">= 1.11.0"
+
   required_providers {
     catalystcenter = {
       source = "CiscoDevNet/catalystcenter"
