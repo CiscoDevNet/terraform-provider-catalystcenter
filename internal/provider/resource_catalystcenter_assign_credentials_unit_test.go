@@ -20,7 +20,7 @@ package provider
 // This file is hand-maintained (not generated) and covers the manual toBody
 // clearing logic of catalystcenter_assign_credentials, which only unassigns the
 // slots Terraform manages (so credentials inherited from a parent site are not
-// wiped) and sets them to null (the API's "inherit from parent" form) to clear.
+// wiped) and sets credentialsId to null (the API's "inherit from parent" form).
 
 import (
 	"context"
@@ -32,16 +32,16 @@ import (
 
 func ccStr(s string) types.String { return types.StringValue(s) }
 
-// assertNullSlot asserts the slot exists and its value is JSON null (the API's
-// "inherit from the parent site" form).
+// assertNullSlot asserts the slot is present as {"credentialsId": null} (the
+// API's "inherit from the parent site" form).
 func assertNullSlot(t *testing.T, body, slot string) {
 	t.Helper()
-	v := gjson.Get(body, slot)
+	v := gjson.Get(body, slot+".credentialsId")
 	if !v.Exists() {
-		t.Fatalf("expected slot %q to be present, body=%s", slot, body)
+		t.Fatalf("expected slot %q.credentialsId to be present, body=%s", slot, body)
 	}
 	if v.Type != gjson.Null {
-		t.Fatalf("expected slot %q to be JSON null, got %q, body=%s", slot, v.Raw, body)
+		t.Fatalf("expected slot %q.credentialsId to be JSON null, got %q, body=%s", slot, v.Raw, body)
 	}
 }
 
@@ -76,9 +76,9 @@ func TestAssignCredentialsToBodyCreate(t *testing.T) {
 	assertAbsentSlot(t, body, "httpWriteCredentialsId")
 }
 
-// On Update that clears a single managed slot, only that slot is sent as null
-// (inherit); the still-configured slot keeps its value and never-set (inherited)
-// slots stay omitted.
+// On Update that clears a single managed slot, only that slot is sent as
+// {"credentialsId": null} (inherit); the still-configured slot keeps its value
+// and never-set (inherited) slots stay omitted.
 func TestAssignCredentialsToBodyUpdateClearOne(t *testing.T) {
 	state := AssignCredentials{Id: ccStr("site1"), CliId: ccStr("CLI"), HttpsReadId: ccStr("HR")}
 	plan := AssignCredentials{Id: ccStr("site1"), HttpsReadId: ccStr("HR")} // cli removed
@@ -91,8 +91,8 @@ func TestAssignCredentialsToBodyUpdateClearOne(t *testing.T) {
 }
 
 // The Delete body (empty plan against current state) unassigns only the slots
-// Terraform manages (non-null in state), each as null (inherit); inherited slots
-// are omitted so they are preserved.
+// Terraform manages (non-null in state), each as {"credentialsId": null}
+// (inherit); inherited slots are omitted so they are preserved.
 func TestAssignCredentialsDeleteBody(t *testing.T) {
 	state := AssignCredentials{Id: ccStr("site1"), CliId: ccStr("CLI"), HttpsReadId: ccStr("HR")}
 	var empty AssignCredentials
