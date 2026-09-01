@@ -517,9 +517,11 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 		}
 
 		existingNoPut := make(map[string]types.Int64)
+		existingVlanName := make(map[string]types.String)
 		for _, item := range getState.AnycastGateways {
 			updateKey := item.IpPoolName.ValueString()
 			existingNoPut[updateKey] = item.VlanId
+			existingVlanName[updateKey] = item.VlanName
 		}
 
 		for _, pl := range updateList {
@@ -530,7 +532,14 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 				toUpdateKey := item.IpPoolName.ValueString()
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					if index, found := planIndexMap[toUpdateKey]; found {
-						pl.AnycastGateways[itemInd].VlanId = existingNoPut[toUpdateKey]
+						if noPutValue, noPutOk := existingNoPut[toUpdateKey]; noPutOk {
+							updatedItem.VlanId = noPutValue
+							pl.AnycastGateways[itemInd].VlanId = noPutValue
+						}
+						if v, ok := existingVlanName[toUpdateKey]; ok {
+							updatedItem.VlanName = v
+							pl.AnycastGateways[itemInd].VlanName = v
+						}
 						plan.AnycastGateways[index] = updatedItem
 					}
 				}
