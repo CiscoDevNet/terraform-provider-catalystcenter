@@ -133,6 +133,7 @@ func (d *FabricPortAssignmentsDataSource) Configure(_ context.Context, req datas
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *FabricPortAssignmentsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config FabricPortAssignments
 
 	// Read config

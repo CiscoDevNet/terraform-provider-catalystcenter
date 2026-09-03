@@ -101,6 +101,7 @@ func (d *FabricL2VirtualNetworkDataSource) Configure(_ context.Context, req data
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *FabricL2VirtualNetworkDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config FabricL2VirtualNetwork
 
 	// Read config

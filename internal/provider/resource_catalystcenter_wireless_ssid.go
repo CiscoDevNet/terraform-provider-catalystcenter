@@ -527,6 +527,7 @@ func (r *WirelessSSIDResource) ValidateConfig(ctx context.Context, req resource.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessSSIDResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessSSID
 
 	// Read plan
@@ -583,6 +584,7 @@ func (r *WirelessSSIDResource) Create(ctx context.Context, req resource.CreateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessSSIDResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessSSID
 
 	// Read state
@@ -626,6 +628,7 @@ func (r *WirelessSSIDResource) Read(ctx context.Context, req resource.ReadReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessSSIDResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessSSID
 
 	// Read plan
@@ -679,6 +682,7 @@ func (r *WirelessSSIDResource) Update(ctx context.Context, req resource.UpdateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessSSIDResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessSSID
 
 	// Read state

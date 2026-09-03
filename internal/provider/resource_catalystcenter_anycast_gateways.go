@@ -196,6 +196,7 @@ func (r *AnycastGatewaysResource) Configure(_ context.Context, req resource.Conf
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AnycastGatewaysResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AnycastGateways
 
 	// Read plan
@@ -263,6 +264,7 @@ func (r *AnycastGatewaysResource) Create(ctx context.Context, req resource.Creat
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AnycastGatewaysResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AnycastGateways
 
 	// Read state
@@ -302,6 +304,7 @@ func (r *AnycastGatewaysResource) Read(ctx context.Context, req resource.ReadReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AnycastGateways
 
 	// Read plan
@@ -565,6 +568,7 @@ func (r *AnycastGatewaysResource) Update(ctx context.Context, req resource.Updat
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AnycastGatewaysResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AnycastGateways
 
 	// Read state

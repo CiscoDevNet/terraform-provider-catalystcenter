@@ -93,6 +93,7 @@ func (d *SiteDataSource) Configure(_ context.Context, req datasource.ConfigureRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *SiteDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config Site
 
 	// Read config

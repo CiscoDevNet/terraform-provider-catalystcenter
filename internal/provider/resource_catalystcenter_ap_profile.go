@@ -427,6 +427,7 @@ func (r *APProfileResource) Create(ctx context.Context, req resource.CreateReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *APProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state APProfile
 
 	// Read state
@@ -510,6 +511,7 @@ func (r *APProfileResource) Update(ctx context.Context, req resource.UpdateReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *APProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state APProfile
 
 	// Read state

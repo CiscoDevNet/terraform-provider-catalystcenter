@@ -368,6 +368,7 @@ func (r *TemplateResource) getExistingTemplateId(ctx context.Context, projectId,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Template
 
 	// Read state
@@ -408,6 +409,7 @@ func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Template
 
 	// Read plan
@@ -443,6 +445,7 @@ func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *TemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Template
 
 	// Read state

@@ -104,6 +104,7 @@ func (r *FabricMulticastReplicationModeResource) Configure(_ context.Context, re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricMulticastReplicationModeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricMulticastReplicationMode
 
 	// Read plan
@@ -136,6 +137,7 @@ func (r *FabricMulticastReplicationModeResource) Create(ctx context.Context, req
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricMulticastReplicationModeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricMulticastReplicationMode
 
 	// Read state
@@ -175,6 +177,7 @@ func (r *FabricMulticastReplicationModeResource) Read(ctx context.Context, req r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricMulticastReplicationModeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricMulticastReplicationMode
 
 	// Read plan
@@ -210,6 +213,7 @@ func (r *FabricMulticastReplicationModeResource) Update(ctx context.Context, req
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricMulticastReplicationModeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricMulticastReplicationMode
 
 	// Read state

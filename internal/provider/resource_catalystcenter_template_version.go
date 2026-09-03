@@ -172,6 +172,7 @@ func (r *TemplateVersionResource) Read(ctx context.Context, req resource.ReadReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *TemplateVersionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state TemplateVersion
 
 	// Read plan
@@ -207,6 +208,7 @@ func (r *TemplateVersionResource) Update(ctx context.Context, req resource.Updat
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *TemplateVersionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state TemplateVersion
 
 	// Read state

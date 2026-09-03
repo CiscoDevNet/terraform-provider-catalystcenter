@@ -132,6 +132,7 @@ func (d *FabricDevicesDataSource) Configure(_ context.Context, req datasource.Co
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *FabricDevicesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config FabricDevices
 
 	// Read config

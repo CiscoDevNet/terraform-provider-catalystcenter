@@ -133,6 +133,7 @@ func (r *ProvisionAccessPointsResource) Configure(_ context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *ProvisionAccessPointsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan ProvisionAccessPoints
 
 	// Read plan
@@ -193,6 +194,7 @@ func (r *ProvisionAccessPointsResource) Read(ctx context.Context, req resource.R
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *ProvisionAccessPointsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state ProvisionAccessPoints
 
 	// Read plan
@@ -220,6 +222,7 @@ func (r *ProvisionAccessPointsResource) Update(ctx context.Context, req resource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ProvisionAccessPointsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ProvisionAccessPoints
 
 	// Read state

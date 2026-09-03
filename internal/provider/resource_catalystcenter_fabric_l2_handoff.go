@@ -182,6 +182,7 @@ func (r *FabricL2HandoffResource) Create(ctx context.Context, req resource.Creat
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricL2HandoffResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricL2Handoff
 
 	// Read state
@@ -226,6 +227,7 @@ func (r *FabricL2HandoffResource) Read(ctx context.Context, req resource.ReadReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricL2HandoffResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricL2Handoff
 
 	// Read plan
@@ -269,6 +271,7 @@ func (r *FabricL2HandoffResource) Update(ctx context.Context, req resource.Updat
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricL2HandoffResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricL2Handoff
 
 	// Read state

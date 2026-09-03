@@ -95,6 +95,7 @@ func (r *ExternalAuthenticationAAAAttributeResource) Configure(_ context.Context
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *ExternalAuthenticationAAAAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan ExternalAuthenticationAAAAttribute
 
 	// Read plan
@@ -127,6 +128,7 @@ func (r *ExternalAuthenticationAAAAttributeResource) Create(ctx context.Context,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *ExternalAuthenticationAAAAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ExternalAuthenticationAAAAttribute
 
 	// Read state
@@ -165,6 +167,7 @@ func (r *ExternalAuthenticationAAAAttributeResource) Read(ctx context.Context, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *ExternalAuthenticationAAAAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state ExternalAuthenticationAAAAttribute
 
 	// Read plan
@@ -200,6 +203,7 @@ func (r *ExternalAuthenticationAAAAttributeResource) Update(ctx context.Context,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ExternalAuthenticationAAAAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ExternalAuthenticationAAAAttribute
 
 	// Read state

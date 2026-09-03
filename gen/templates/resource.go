@@ -642,6 +642,7 @@ func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan {{camelCase .Name}}
 
 	{{- if .UseCache}}
@@ -1050,6 +1051,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state {{camelCase .Name}}
 
 	// Read state
@@ -1139,6 +1141,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state {{camelCase .Name}}
 	{{- $name := camelCase .Name}}
 
@@ -1893,6 +1896,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state {{camelCase .Name}}
 
 	{{- if .UseCache}}

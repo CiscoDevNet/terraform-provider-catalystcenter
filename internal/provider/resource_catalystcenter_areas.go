@@ -117,6 +117,7 @@ func (r *AreasResource) Configure(_ context.Context, req resource.ConfigureReque
 }
 
 func (r *AreasResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Areas
 
 	// Read plan
@@ -255,6 +256,7 @@ func (r *AreasResource) Create(ctx context.Context, req resource.CreateRequest, 
 }
 
 func (r *AreasResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Areas
 
 	// Read state
@@ -305,6 +307,7 @@ func (r *AreasResource) Read(ctx context.Context, req resource.ReadRequest, resp
 }
 
 func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Areas
 
 	// Read plan
@@ -546,6 +549,7 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 }
 
 func (r *AreasResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Areas
 
 	// Read state

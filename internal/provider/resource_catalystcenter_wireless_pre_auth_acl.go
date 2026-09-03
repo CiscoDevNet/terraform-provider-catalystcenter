@@ -163,6 +163,7 @@ func (r *WirelessPreAuthACLResource) Configure(_ context.Context, req resource.C
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessPreAuthACLResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessPreAuthACL
 
 	// Read plan
@@ -201,6 +202,7 @@ func (r *WirelessPreAuthACLResource) Create(ctx context.Context, req resource.Cr
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessPreAuthACLResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessPreAuthACL
 
 	// Read state
@@ -244,6 +246,7 @@ func (r *WirelessPreAuthACLResource) Read(ctx context.Context, req resource.Read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessPreAuthACLResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessPreAuthACL
 
 	// Read plan
@@ -279,6 +282,7 @@ func (r *WirelessPreAuthACLResource) Update(ctx context.Context, req resource.Up
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessPreAuthACLResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessPreAuthACL
 
 	// Read state
