@@ -432,42 +432,42 @@ func (data *FabricMulticastVirtualNetworks) fromBodyUnknowns(ctx context.Context
 			)
 			if value := cr.Get("rpDeviceLocation"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation.IsNull() {
 				data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation = types.StringValue(value.String())
-			} else {
+			} else if data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation.IsUnknown() {
 				data.VirtualNetworks[i].MulticastRps[ci].RpDeviceLocation = types.StringNull()
 			}
 			if value := cr.Get("ipv4Address"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address.IsNull() {
 				data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address = types.StringValue(value.String())
-			} else {
+			} else if data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address.IsUnknown() {
 				data.VirtualNetworks[i].MulticastRps[ci].Ipv4Address = types.StringNull()
 			}
 			if value := cr.Get("ipv6Address"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address.IsNull() {
 				data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address = types.StringValue(value.String())
-			} else {
+			} else if data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address.IsUnknown() {
 				data.VirtualNetworks[i].MulticastRps[ci].Ipv6Address = types.StringNull()
 			}
 			if value := cr.Get("isDefaultV4RP"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp.IsNull() {
 				data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp = types.BoolValue(value.Bool())
-			} else {
+			} else if data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp.IsUnknown() {
 				data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV4Rp = types.BoolNull()
 			}
 			if value := cr.Get("isDefaultV6RP"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp.IsNull() {
 				data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp = types.BoolValue(value.Bool())
-			} else {
+			} else if data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp.IsUnknown() {
 				data.VirtualNetworks[i].MulticastRps[ci].IsDefaultV6Rp = types.BoolNull()
 			}
 			if value := cr.Get("networkDeviceIds"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].NetworkDeviceIds.IsNull() {
 				data.VirtualNetworks[i].MulticastRps[ci].NetworkDeviceIds = helpers.GetStringSet(value.Array())
-			} else {
+			} else if data.VirtualNetworks[i].MulticastRps[ci].NetworkDeviceIds.IsUnknown() {
 				data.VirtualNetworks[i].MulticastRps[ci].NetworkDeviceIds = types.SetNull(types.StringType)
 			}
 			if value := cr.Get("ipv4AsmRanges"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].Ipv4AsmRanges.IsNull() {
 				data.VirtualNetworks[i].MulticastRps[ci].Ipv4AsmRanges = helpers.GetStringSet(value.Array())
-			} else {
+			} else if data.VirtualNetworks[i].MulticastRps[ci].Ipv4AsmRanges.IsUnknown() {
 				data.VirtualNetworks[i].MulticastRps[ci].Ipv4AsmRanges = types.SetNull(types.StringType)
 			}
 			if value := cr.Get("ipv6AsmRanges"); value.Exists() && !data.VirtualNetworks[i].MulticastRps[ci].Ipv6AsmRanges.IsNull() {
 				data.VirtualNetworks[i].MulticastRps[ci].Ipv6AsmRanges = helpers.GetStringSet(value.Array())
-			} else {
+			} else if data.VirtualNetworks[i].MulticastRps[ci].Ipv6AsmRanges.IsUnknown() {
 				data.VirtualNetworks[i].MulticastRps[ci].Ipv6AsmRanges = types.SetNull(types.StringType)
 			}
 		}
