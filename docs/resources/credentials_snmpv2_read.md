@@ -33,7 +33,7 @@ resource "catalystcenter_credentials_snmpv2_read" "example" {
 
 - `read_community` (String, Sensitive) Read community
   - **Required**: exactly one of `read_community` and `read_community_wo` must be set.
-  - Deprecated: The `read_community` attribute stores the secret in Terraform state. Use `read_community_wo` together with `read_community_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `read_community_wo` together with `read_community_wo_version`, which keeps it out of state.
 - `read_community_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Read community
   - **Required**: exactly one of `read_community` and `read_community_wo` must be set.
 - `read_community_wo_version` (Number) Rotation trigger for `read_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.

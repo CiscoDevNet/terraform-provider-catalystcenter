@@ -52,7 +52,7 @@ resource "catalystcenter_aaa_settings" "example" {
   - Choices: `AAA`, `ISE`
 - `client_aaa_shared_secret` (String, Sensitive) Only relevant for server type `ISE`, shared secret
   - Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.
-  - Deprecated: The `client_aaa_shared_secret` attribute stores the secret in Terraform state. Use `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version`, which keeps it out of state.
 - `client_aaa_shared_secret_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Only relevant for server type `ISE`, shared secret
   - Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.
 - `client_aaa_shared_secret_wo_version` (Number) Rotation trigger for `client_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
@@ -65,7 +65,7 @@ resource "catalystcenter_aaa_settings" "example" {
   - Choices: `AAA`, `ISE`
 - `network_aaa_shared_secret` (String, Sensitive) Only relevant for server type `ISE`, shared secret
   - Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.
-  - Deprecated: The `network_aaa_shared_secret` attribute stores the secret in Terraform state. Use `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version`, which keeps it out of state.
 - `network_aaa_shared_secret_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Only relevant for server type `ISE`, shared secret
   - Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.
 - `network_aaa_shared_secret_wo_version` (Number) Rotation trigger for `network_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.

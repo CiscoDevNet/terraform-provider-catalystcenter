@@ -105,7 +105,7 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				Optional:            true,
 			},
 			"network_aaa_shared_secret": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.").AddDeprecationDescription("The `network_aaa_shared_secret` attribute stores the secret in Terraform state. Use `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -146,7 +146,7 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				Optional:            true,
 			},
 			"client_aaa_shared_secret": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.").AddDeprecationDescription("The `client_aaa_shared_secret` attribute stores the secret in Terraform state. Use `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -174,9 +174,8 @@ func (r *AAASettingsResource) Configure(_ context.Context, req resource.Configur
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
-// ValidateConfig enforces the relationship between a deprecated secret attribute, its
-// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
-// deprecation warning for the old attribute.
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
 //
 // These checks live here, at resource level, rather than as schema validators. The
 // equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
@@ -204,9 +203,6 @@ func (r *AAASettingsResource) ValidateConfig(ctx context.Context, req resource.V
 			"`network_aaa_shared_secret_wo_version` must be set when `network_aaa_shared_secret_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacyNetworkAaaSharedSecret.IsUnknown() && !legacyNetworkAaaSharedSecret.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `network_aaa_shared_secret` attribute stores the secret in Terraform state. Use `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version` instead, which keeps it out of state.")
-	}
 	var legacyClientAaaSharedSecret types.String
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret"), &legacyClientAaaSharedSecret)...)
 	var woClientAaaSharedSecret types.String
@@ -224,9 +220,6 @@ func (r *AAASettingsResource) ValidateConfig(ctx context.Context, req resource.V
 			"Invalid Attribute Combination",
 			"`client_aaa_shared_secret_wo_version` must be set when `client_aaa_shared_secret_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
-	}
-	if !legacyClientAaaSharedSecret.IsUnknown() && !legacyClientAaaSharedSecret.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `client_aaa_shared_secret` attribute stores the secret in Terraform state. Use `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version` instead, which keeps it out of state.")
 	}
 }
 

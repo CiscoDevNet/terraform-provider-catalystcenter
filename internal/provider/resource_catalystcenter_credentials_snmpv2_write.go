@@ -78,7 +78,7 @@ func (r *CredentialsSNMPv2WriteResource) Schema(ctx context.Context, req resourc
 				},
 			},
 			"write_community": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Write community").AddMutualExclusivityDescription("**Required**: exactly one of `write_community` and `write_community_wo` must be set.").AddDeprecationDescription("The `write_community` attribute stores the secret in Terraform state. Use `write_community_wo` together with `write_community_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Write community").AddMutualExclusivityDescription("**Required**: exactly one of `write_community` and `write_community_wo` must be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `write_community_wo` together with `write_community_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -106,9 +106,8 @@ func (r *CredentialsSNMPv2WriteResource) Configure(_ context.Context, req resour
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
-// ValidateConfig enforces the relationship between a deprecated secret attribute, its
-// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
-// deprecation warning for the old attribute.
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
 //
 // These checks live here, at resource level, rather than as schema validators. The
 // equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
@@ -141,9 +140,6 @@ func (r *CredentialsSNMPv2WriteResource) ValidateConfig(ctx context.Context, req
 			"Invalid Attribute Combination",
 			"`write_community_wo_version` must be set when `write_community_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
-	}
-	if !legacyWriteCommunity.IsUnknown() && !legacyWriteCommunity.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `write_community` attribute stores the secret in Terraform state. Use `write_community_wo` together with `write_community_wo_version` instead, which keeps it out of state.")
 	}
 }
 

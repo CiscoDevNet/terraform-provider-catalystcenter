@@ -101,7 +101,7 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 							Required:            true,
 						},
 						"password": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Password of the Cisco ISE server").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Password of the Cisco ISE server").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `password_wo` together with `password_wo_version`, which keeps it out of state.").String,
 							Sensitive:           true,
 							Optional:            true,
 						},
@@ -116,7 +116,7 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 							Optional:            true,
 						},
 						"sshkey": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("SSH key of the Cisco ISE server").AddMutualExclusivityDescription("Only one of `sshkey` and `sshkey_wo` can be set.").AddDeprecationDescription("The `sshkey` attribute stores the secret in Terraform state. Use `sshkey_wo` together with `sshkey_wo_version` instead, which keeps it out of state.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("SSH key of the Cisco ISE server").AddMutualExclusivityDescription("Only one of `sshkey` and `sshkey_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `sshkey_wo` together with `sshkey_wo_version`, which keeps it out of state.").String,
 							Sensitive:           true,
 							Optional:            true,
 						},
@@ -193,7 +193,7 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 				},
 			},
 			"shared_secret": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Shared secret between devices and authentication and policy server").AddMutualExclusivityDescription("**Required**: exactly one of `shared_secret` and `shared_secret_wo` must be set.").AddDeprecationDescription("The `shared_secret` attribute stores the secret in Terraform state. Use `shared_secret_wo` together with `shared_secret_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Shared secret between devices and authentication and policy server").AddMutualExclusivityDescription("**Required**: exactly one of `shared_secret` and `shared_secret_wo` must be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `shared_secret_wo` together with `shared_secret_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -222,7 +222,7 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 				},
 			},
 			"message_key": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Message key used to encrypt shared secret").AddMutualExclusivityDescription("Only one of `message_key` and `message_key_wo` can be set.").AddDeprecationDescription("The `message_key` attribute stores the secret in Terraform state. Use `message_key_wo` together with `message_key_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Message key used to encrypt shared secret").AddMutualExclusivityDescription("Only one of `message_key` and `message_key_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `message_key_wo` together with `message_key_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -237,7 +237,7 @@ func (r *AuthenticationPolicyServerResource) Schema(ctx context.Context, req res
 				Optional:            true,
 			},
 			"encryption_key": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Encryption key used to encrypt shared secret").AddMutualExclusivityDescription("Only one of `encryption_key` and `encryption_key_wo` can be set.").AddDeprecationDescription("The `encryption_key` attribute stores the secret in Terraform state. Use `encryption_key_wo` together with `encryption_key_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Encryption key used to encrypt shared secret").AddMutualExclusivityDescription("Only one of `encryption_key` and `encryption_key_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `encryption_key_wo` together with `encryption_key_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -289,9 +289,8 @@ func (r *AuthenticationPolicyServerResource) Configure(_ context.Context, req re
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
-// ValidateConfig enforces the relationship between a deprecated secret attribute, its
-// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
-// deprecation warning for the old attribute.
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
 //
 // These checks live here, at resource level, rather than as schema validators. The
 // equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
@@ -325,9 +324,6 @@ func (r *AuthenticationPolicyServerResource) ValidateConfig(ctx context.Context,
 			"`shared_secret_wo_version` must be set when `shared_secret_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacySharedSecret.IsUnknown() && !legacySharedSecret.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `shared_secret` attribute stores the secret in Terraform state. Use `shared_secret_wo` together with `shared_secret_wo_version` instead, which keeps it out of state.")
-	}
 	var legacyMessageKey types.String
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("message_key"), &legacyMessageKey)...)
 	var woMessageKey types.String
@@ -346,9 +342,6 @@ func (r *AuthenticationPolicyServerResource) ValidateConfig(ctx context.Context,
 			"`message_key_wo_version` must be set when `message_key_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacyMessageKey.IsUnknown() && !legacyMessageKey.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `message_key` attribute stores the secret in Terraform state. Use `message_key_wo` together with `message_key_wo_version` instead, which keeps it out of state.")
-	}
 	var legacyEncryptionKey types.String
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("encryption_key"), &legacyEncryptionKey)...)
 	var woEncryptionKey types.String
@@ -366,9 +359,6 @@ func (r *AuthenticationPolicyServerResource) ValidateConfig(ctx context.Context,
 			"Invalid Attribute Combination",
 			"`encryption_key_wo_version` must be set when `encryption_key_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
-	}
-	if !legacyEncryptionKey.IsUnknown() && !legacyEncryptionKey.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `encryption_key` attribute stores the secret in Terraform state. Use `encryption_key_wo` together with `encryption_key_wo_version` instead, which keeps it out of state.")
 	}
 	{
 		// Secrets nested in "cisco_ise_dtos" are validated per element. A list that cannot be
@@ -395,9 +385,6 @@ func (r *AuthenticationPolicyServerResource) ValidateConfig(ctx context.Context,
 						fmt.Sprintf("`password_wo_version` must be set when `password_wo` is used in `cisco_ise_dtos` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
 					)
 				}
-				if !cfgCiscoIseDtos[i].Password.IsUnknown() && !cfgCiscoIseDtos[i].Password.IsNull() {
-					resp.Diagnostics.AddWarning("Attribute Deprecated", fmt.Sprintf("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state. (`cisco_ise_dtos` element %d)", i))
-				}
 				if !cfgCiscoIseDtos[i].Sshkey.IsUnknown() && !cfgCiscoIseDtos[i].SshkeyWo.IsUnknown() && !cfgCiscoIseDtos[i].Sshkey.IsNull() && !cfgCiscoIseDtos[i].SshkeyWo.IsNull() {
 					resp.Diagnostics.AddError(
 						"Invalid Attribute Combination",
@@ -409,9 +396,6 @@ func (r *AuthenticationPolicyServerResource) ValidateConfig(ctx context.Context,
 						"Invalid Attribute Combination",
 						fmt.Sprintf("`sshkey_wo_version` must be set when `sshkey_wo` is used in `cisco_ise_dtos` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
 					)
-				}
-				if !cfgCiscoIseDtos[i].Sshkey.IsUnknown() && !cfgCiscoIseDtos[i].Sshkey.IsNull() {
-					resp.Diagnostics.AddWarning("Attribute Deprecated", fmt.Sprintf("The `sshkey` attribute stores the secret in Terraform state. Use `sshkey_wo` together with `sshkey_wo_version` instead, which keeps it out of state. (`cisco_ise_dtos` element %d)", i))
 				}
 			}
 		}

@@ -59,14 +59,13 @@ func (d *AttributeDescription) AddMutualExclusivityDescription(note string) *Att
 	return d
 }
 
-// AddDeprecationDescription marks the attribute as deprecated in the generated
-// documentation. It is used instead of the schema's DeprecationMessage for attributes
-// holding secrets: DeprecationMessage makes the framework raise an attribute-scoped
-// warning, and Terraform renders such a warning with the offending configuration line,
-// which would print the secret itself into plan output and CI logs. The equivalent
-// runtime warning is raised at resource level by ValidateConfig instead.
-func (d *AttributeDescription) AddDeprecationDescription(message string) *AttributeDescription {
-	d.String = fmt.Sprintf("%s\n  - Deprecated: %s", d.String, message)
+// AddCoexistenceNote records, in the generated documentation, that an attribute has a
+// write-only counterpart that should be preferred. It is a documentation-only note
+// rather than the schema's DeprecationMessage: that field makes the framework raise an
+// attribute-scoped warning, and Terraform renders such a warning with the offending
+// configuration line, which would print the secret itself into plan output and CI logs.
+func (d *AttributeDescription) AddCoexistenceNote(note string) *AttributeDescription {
+	d.String = fmt.Sprintf("%s\n  - %s", d.String, note)
 	return d
 }
 

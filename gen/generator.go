@@ -194,12 +194,12 @@ type YamlConfigAttribute struct {
 	WriteOnly                 bool                  `yaml:"write_only"`
 	WriteOnlyTF               bool                  `yaml:"write_only_tf"`
 	WoVersion                 bool                  `yaml:"-"` // Internal: marks a generated "<attr>_wo_version" companion attribute (state-only rotation trigger)
-	LegacyWriteOnlyTF         bool                  `yaml:"-"` // Internal: marks the deprecated state-storing twin of a "<attr>_wo" write-only attribute
-	WoBaseName                string                `yaml:"-"` // Internal: on a "<attr>_wo" attribute, the name of its deprecated legacy twin
+	CoexistingSecret          bool                  `yaml:"-"` // Internal: marks the legacy state-storing twin of a "<attr>_wo" write-only attribute
+	WoBaseName                string                `yaml:"-"` // Internal: on a "<attr>_wo" attribute, the name of its legacy twin
 	MutualExclusivityNote     string                `yaml:"-"` // Internal: documentation note carried by both halves of a write_only_tf pair
-	WoPairMandatory           bool                  `yaml:"-"` // Internal: on a deprecated twin, whether the pair must supply the secret through one of its halves
-	WoPairHasVersion          bool                  `yaml:"-"` // Internal: on a deprecated twin, whether a "_wo_version" companion was generated
-	DeprecationMessage        string                `yaml:"deprecation_message"`
+	WoPairMandatory           bool                  `yaml:"-"` // Internal: on a legacy twin, whether the pair must supply the secret through one of its halves
+	WoPairHasVersion          bool                  `yaml:"-"` // Internal: on a legacy twin, whether a "_wo_version" companion was generated
+	CoexistenceNote           string                `yaml:"coexistence_note"`
 	ExcludeFromPut            bool                  `yaml:"exclude_from_put"`
 	ExcludeTest               bool                  `yaml:"exclude_test"`
 	ExcludeExample            bool                  `yaml:"exclude_example"`
@@ -782,41 +782,41 @@ func WriteOnlyTFChildren(attr YamlConfigAttribute) []YamlConfigAttribute {
 	return r
 }
 
-// LegacyWriteOnlyTFAttributes returns the top-level deprecated twins of write-only
+// CoexistingSecretAttributes returns the top-level legacy twins of write-only
 // secrets, i.e. the attributes kept for backwards compatibility when their "_wo" variant
-// was generated. resource.go emits one ValidateConfig deprecation warning per entry.
-// Nested secrets are not included: they would need a per-element walk of the enclosing
-// list, and their deprecation is currently only surfaced in the documentation.
-func LegacyWriteOnlyTFAttributes(config YamlConfig) []YamlConfigAttribute {
+// was generated. Nested secrets are not included: they would need a per-element walk of
+// the enclosing list, and this coexistence note is currently only surfaced in the
+// documentation.
+func CoexistingSecretAttributes(config YamlConfig) []YamlConfigAttribute {
 	r := []YamlConfigAttribute{}
 	for _, attr := range config.Attributes {
-		if attr.LegacyWriteOnlyTF {
+		if attr.CoexistingSecret {
 			r = append(r, attr)
 		}
 	}
 	return r
 }
 
-// LegacyWriteOnlyTFChildren returns the deprecated twins of write-only secrets nested
+// CoexistingSecretChildren returns the legacy twins of write-only secrets nested
 // directly inside a list/set attribute. ValidateConfig applies the same pair checks to
 // them, once per list element.
-func LegacyWriteOnlyTFChildren(attr YamlConfigAttribute) []YamlConfigAttribute {
+func CoexistingSecretChildren(attr YamlConfigAttribute) []YamlConfigAttribute {
 	r := []YamlConfigAttribute{}
 	for _, child := range attr.Attributes {
-		if child.LegacyWriteOnlyTF {
+		if child.CoexistingSecret {
 			r = append(r, child)
 		}
 	}
 	return r
 }
 
-// LegacyWriteOnlyTFParentLists returns the top-level list/set attributes holding at least
-// one deprecated twin of a write-only secret. ValidateConfig reads each such list from the
+// CoexistingSecretParentLists returns the top-level list/set attributes holding at least
+// one legacy twin of a write-only secret. ValidateConfig reads each such list from the
 // configuration once and walks its elements.
-func LegacyWriteOnlyTFParentLists(config YamlConfig) []YamlConfigAttribute {
+func CoexistingSecretParentLists(config YamlConfig) []YamlConfigAttribute {
 	r := []YamlConfigAttribute{}
 	for _, attr := range config.Attributes {
-		if len(LegacyWriteOnlyTFChildren(attr)) > 0 {
+		if len(CoexistingSecretChildren(attr)) > 0 {
 			r = append(r, attr)
 		}
 	}
@@ -883,9 +883,9 @@ var functions = template.FuncMap{
 	"hasWriteOnlyTFChildren":             HasWriteOnlyTFChildren,
 	"writeOnlyTFChildren":                WriteOnlyTFChildren,
 	"writeOnlyTFParentLists":             WriteOnlyTFParentLists,
-	"legacyWriteOnlyTFAttributes":        LegacyWriteOnlyTFAttributes,
-	"legacyWriteOnlyTFChildren":          LegacyWriteOnlyTFChildren,
-	"legacyWriteOnlyTFParentLists":       LegacyWriteOnlyTFParentLists,
+	"coexistingSecretAttributes":         CoexistingSecretAttributes,
+	"coexistingSecretChildren":           CoexistingSecretChildren,
+	"coexistingSecretParentLists":        CoexistingSecretParentLists,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {
@@ -946,7 +946,7 @@ func augmentConfig(config *YamlConfig) {
 // augmentWriteOnlyTF expands every attribute flagged write_only_tf into three
 // coexisting attributes, so that adding write-only support is backwards compatible:
 //
-//	<tf_name>              the original attribute, kept and deprecated. Still Optional
+//	<tf_name>              the original attribute, kept as-is. Still Optional
 //	                       and still written to the same API path, so existing
 //	                       configurations keep working. The secret remains in state.
 //	<tf_name>_wo           the Terraform-core write-only variant. Same ModelName /
@@ -1020,7 +1020,7 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		// mutual-exclusion validator by setting both spellings.
 		legacy := attr
 		legacy.WriteOnlyTF = false
-		legacy.LegacyWriteOnlyTF = true
+		legacy.CoexistingSecret = true
 		legacy.Mandatory = false
 		legacy.ExcludeTest = true
 		legacy.ExcludeExample = true
@@ -1031,9 +1031,7 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 		// secret carries a minimum_test_value, but catalystcenter_device's do, so this
 		// matters as soon as that resource is converted.
 		legacy.MinimumTestValue = ""
-		// The message names the attribute because it is surfaced as a resource-level
-		// warning, which Terraform renders without an attribute path.
-		legacy.DeprecationMessage = fmt.Sprintf("The `%s` attribute stores the secret in Terraform state. Use `%s_wo` together with `%s_wo_version` instead, which keeps it out of state.", baseName, baseName, baseName)
+		legacy.CoexistenceNote = fmt.Sprintf("This attribute stores the secret in Terraform state. Prefer `%s_wo` together with `%s_wo_version`, which keeps it out of state.", baseName, baseName)
 		legacy.MutualExclusivityNote = exclusivity
 		legacy.WoPairMandatory = attr.Mandatory
 		legacy.WoPairHasVersion = !attr.RequiresReplace

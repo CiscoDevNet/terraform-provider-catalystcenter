@@ -98,7 +98,7 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"passphrase": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters").AddMutualExclusivityDescription("Only one of `passphrase` and `passphrase_wo` can be set.").AddDeprecationDescription("The `passphrase` attribute stores the secret in Terraform state. Use `passphrase_wo` together with `passphrase_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters").AddMutualExclusivityDescription("Only one of `passphrase` and `passphrase_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `passphrase_wo` together with `passphrase_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -234,7 +234,7 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 							},
 						},
 						"passphrase": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Passphrase").AddMutualExclusivityDescription("Only one of `passphrase` and `passphrase_wo` can be set.").AddDeprecationDescription("The `passphrase` attribute stores the secret in Terraform state. Use `passphrase_wo` together with `passphrase_wo_version` instead, which keeps it out of state.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Passphrase").AddMutualExclusivityDescription("Only one of `passphrase` and `passphrase_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `passphrase_wo` together with `passphrase_wo_version`, which keeps it out of state.").String,
 							Sensitive:           true,
 							Optional:            true,
 						},
@@ -470,9 +470,8 @@ func (r *WirelessSSIDResource) Configure(_ context.Context, req resource.Configu
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
-// ValidateConfig enforces the relationship between a deprecated secret attribute, its
-// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
-// deprecation warning for the old attribute.
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
 //
 // These checks live here, at resource level, rather than as schema validators. The
 // equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
@@ -500,9 +499,6 @@ func (r *WirelessSSIDResource) ValidateConfig(ctx context.Context, req resource.
 			"`passphrase_wo_version` must be set when `passphrase_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
 	}
-	if !legacyPassphrase.IsUnknown() && !legacyPassphrase.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `passphrase` attribute stores the secret in Terraform state. Use `passphrase_wo` together with `passphrase_wo_version` instead, which keeps it out of state.")
-	}
 	{
 		// Secrets nested in "multi_psk_settings" are validated per element. A list that cannot be
 		// read as a whole - because it is still unknown at validation time - is skipped
@@ -521,9 +517,6 @@ func (r *WirelessSSIDResource) ValidateConfig(ctx context.Context, req resource.
 						"Invalid Attribute Combination",
 						fmt.Sprintf("`passphrase_wo_version` must be set when `passphrase_wo` is used in `multi_psk_settings` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
 					)
-				}
-				if !cfgMultiPskSettings[i].Passphrase.IsUnknown() && !cfgMultiPskSettings[i].Passphrase.IsNull() {
-					resp.Diagnostics.AddWarning("Attribute Deprecated", fmt.Sprintf("The `passphrase` attribute stores the secret in Terraform state. Use `passphrase_wo` together with `passphrase_wo_version` instead, which keeps it out of state. (`multi_psk_settings` element %d)", i))
 				}
 			}
 		}

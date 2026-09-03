@@ -120,7 +120,7 @@ resource "catalystcenter_wireless_ssid" "example" {
 - `open_ssid` (String) Open SSID which is already created in the design and not associated to any other OPEN-SECURED SSID
 - `passphrase` (String, Sensitive) Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters
   - Only one of `passphrase` and `passphrase_wo` can be set.
-  - Deprecated: The `passphrase` attribute stores the secret in Terraform state. Use `passphrase_wo` together with `passphrase_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `passphrase_wo` together with `passphrase_wo_version`, which keeps it out of state.
 - `passphrase_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters
   - Only one of `passphrase` and `passphrase_wo` can be set.
 - `passphrase_wo_version` (Number) Rotation trigger for `passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
@@ -162,7 +162,7 @@ Optional:
 
 - `passphrase` (String, Sensitive) Passphrase
   - Only one of `passphrase` and `passphrase_wo` can be set.
-  - Deprecated: The `passphrase` attribute stores the secret in Terraform state. Use `passphrase_wo` together with `passphrase_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `passphrase_wo` together with `passphrase_wo_version`, which keeps it out of state.
 - `passphrase_type` (String) Passphrase Type
   - Choices: `ASCII`, `HEX`
 - `passphrase_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Passphrase
