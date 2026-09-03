@@ -2,7 +2,8 @@ resource "catalystcenter_wireless_ssid" "example" {
   site_id                               = "5e8e3e3e-1b6b-4b6b-8b6b-1b6b4b6b8b6b"
   ssid                                  = "mySSID1"
   auth_type                             = "WPA3_PERSONAL"
-  passphrase                            = "Cisco123"
+  passphrase_wo                         = "Cisco123"
+  passphrase_wo_version                 = 1
   fast_lane                             = false
   mac_filtering                         = false
   ssid_radio_type                       = "Triple band operation(2.4GHz, 5GHz and 6GHz)"

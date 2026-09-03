@@ -35,10 +35,13 @@ attributes:
       - model_name: password
         type: String
         write_only: true
+        write_only_tf: true
         description: Password of the Cisco ISE server
         mandatory: true
       - model_name: sshkey
         type: String
+        write_only: true
+        write_only_tf: true
         description: SSH key of the Cisco ISE server
       - model_name: ipAddress
         id: true
@@ -105,6 +108,7 @@ attributes:
   - model_name: sharedSecret
     type: String
     write_only: true
+    write_only_tf: true
     mandatory: true
     description: Shared secret between devices and authentication and policy server
     example: Cisco123
@@ -125,11 +129,13 @@ attributes:
   - model_name: messageKey
     type: String
     write_only: true
+    write_only_tf: true
     description: Message key used to encrypt shared secret
     exclude_test: true
   - model_name: encryptionKey
     type: String
     write_only: true
+    write_only_tf: true
     description: Encryption key used to encrypt shared secret
     exclude_test: true
   - model_name: externalCiscoIseIpAddrDtos

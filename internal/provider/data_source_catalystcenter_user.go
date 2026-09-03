@@ -77,6 +77,14 @@ func (d *UserDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 				MarkdownDescription: "The password",
 				Computed:            true,
 			},
+			"password_wo": schema.StringAttribute{
+				MarkdownDescription: "The password",
+				Computed:            true,
+			},
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
 			"email": schema.StringAttribute{
 				MarkdownDescription: "Email address",
 				Computed:            true,

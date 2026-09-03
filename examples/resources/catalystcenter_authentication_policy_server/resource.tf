@@ -9,6 +9,7 @@ resource "catalystcenter_authentication_policy_server" "example" {
   protocol                 = "RADIUS"
   retries                  = 2
   role                     = "secondary"
-  shared_secret            = "Cisco123"
+  shared_secret_wo         = "Cisco123"
+  shared_secret_wo_version = 1
   timeout_seconds          = 2
 }

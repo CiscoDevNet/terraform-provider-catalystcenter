@@ -82,11 +82,33 @@ func (r *CredentialsCLIResource) Schema(ctx context.Context, req resource.Schema
 				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Password").String,
-				Required:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"password_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
 			},
 			"enable_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable password").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable password").AddMutualExclusivityDescription("Only one of `enable_password` and `enable_password_wo` can be set.").AddDeprecationDescription("The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"enable_password_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enable password").AddMutualExclusivityDescription("Only one of `enable_password` and `enable_password_wo` can be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"enable_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 		},
@@ -103,6 +125,68 @@ func (r *CredentialsCLIResource) Configure(_ context.Context, req resource.Confi
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
+// ValidateConfig enforces the relationship between a deprecated secret attribute, its
+// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
+// deprecation warning for the old attribute.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
+func (r *CredentialsCLIResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var legacyPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &legacyPassword)...)
+	var woPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &woPassword)...)
+	var woVersionPassword types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo_version"), &woVersionPassword)...)
+	if !legacyPassword.IsUnknown() && !woPassword.IsUnknown() && !legacyPassword.IsNull() && !woPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `password` and `password_wo` can be set.",
+		)
+	}
+	if !legacyPassword.IsUnknown() && !woPassword.IsUnknown() && legacyPassword.IsNull() && woPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Exactly one of `password` and `password_wo` must be set.",
+		)
+	}
+	if !woPassword.IsUnknown() && !woVersionPassword.IsUnknown() && !woPassword.IsNull() && woVersionPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`password_wo_version` must be set when `password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	if !legacyPassword.IsUnknown() && !legacyPassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.")
+	}
+	var legacyEnablePassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password"), &legacyEnablePassword)...)
+	var woEnablePassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password_wo"), &woEnablePassword)...)
+	var woVersionEnablePassword types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password_wo_version"), &woVersionEnablePassword)...)
+	if !legacyEnablePassword.IsUnknown() && !woEnablePassword.IsUnknown() && !legacyEnablePassword.IsNull() && !woEnablePassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `enable_password` and `enable_password_wo` can be set.",
+		)
+	}
+	if !woEnablePassword.IsUnknown() && !woVersionEnablePassword.IsUnknown() && !woEnablePassword.IsNull() && woVersionEnablePassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`enable_password_wo_version` must be set when `enable_password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	if !legacyEnablePassword.IsUnknown() && !legacyEnablePassword.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.")
+	}
+}
+
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -112,6 +196,16 @@ func (r *CredentialsCLIResource) Create(ctx context.Context, req resource.Create
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &plan.PasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "enable_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password_wo"), &plan.EnablePasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -199,6 +293,16 @@ func (r *CredentialsCLIResource) Update(ctx context.Context, req resource.Update
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &plan.PasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "enable_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "enable_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("enable_password_wo"), &plan.EnablePasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

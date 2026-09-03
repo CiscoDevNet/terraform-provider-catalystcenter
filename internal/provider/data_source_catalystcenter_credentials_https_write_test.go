@@ -54,7 +54,8 @@ func testAccDataSourceCcCredentialsHTTPSWriteConfig() string {
 	config := `resource "catalystcenter_credentials_https_write" "test" {` + "\n"
 	config += `	description = "My HTTPS write credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
-	config += `	password = "password1"` + "\n"
+	config += `	password_wo = "password1"` + "\n"
+	config += `	password_wo_version = 1` + "\n"
 	config += `	port = 444` + "\n"
 	config += `}` + "\n"
 

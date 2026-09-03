@@ -105,7 +105,18 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				Optional:            true,
 			},
 			"network_aaa_shared_secret": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.").AddDeprecationDescription("The `network_aaa_shared_secret` attribute stores the secret in Terraform state. Use `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"network_aaa_shared_secret_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"network_aaa_shared_secret_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `network_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"client_aaa_server_type": schema.StringAttribute{
@@ -135,7 +146,18 @@ func (r *AAASettingsResource) Schema(ctx context.Context, req resource.SchemaReq
 				Optional:            true,
 			},
 			"client_aaa_shared_secret": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.").AddDeprecationDescription("The `client_aaa_shared_secret` attribute stores the secret in Terraform state. Use `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version` instead, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"client_aaa_shared_secret_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Only relevant for server type `ISE`, shared secret").AddMutualExclusivityDescription("Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"client_aaa_shared_secret_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `client_aaa_shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 		},
@@ -152,6 +174,62 @@ func (r *AAASettingsResource) Configure(_ context.Context, req resource.Configur
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
+// ValidateConfig enforces the relationship between a deprecated secret attribute, its
+// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
+// deprecation warning for the old attribute.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
+func (r *AAASettingsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var legacyNetworkAaaSharedSecret types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret"), &legacyNetworkAaaSharedSecret)...)
+	var woNetworkAaaSharedSecret types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret_wo"), &woNetworkAaaSharedSecret)...)
+	var woVersionNetworkAaaSharedSecret types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret_wo_version"), &woVersionNetworkAaaSharedSecret)...)
+	if !legacyNetworkAaaSharedSecret.IsUnknown() && !woNetworkAaaSharedSecret.IsUnknown() && !legacyNetworkAaaSharedSecret.IsNull() && !woNetworkAaaSharedSecret.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `network_aaa_shared_secret` and `network_aaa_shared_secret_wo` can be set.",
+		)
+	}
+	if !woNetworkAaaSharedSecret.IsUnknown() && !woVersionNetworkAaaSharedSecret.IsUnknown() && !woNetworkAaaSharedSecret.IsNull() && woVersionNetworkAaaSharedSecret.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`network_aaa_shared_secret_wo_version` must be set when `network_aaa_shared_secret_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	if !legacyNetworkAaaSharedSecret.IsUnknown() && !legacyNetworkAaaSharedSecret.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `network_aaa_shared_secret` attribute stores the secret in Terraform state. Use `network_aaa_shared_secret_wo` together with `network_aaa_shared_secret_wo_version` instead, which keeps it out of state.")
+	}
+	var legacyClientAaaSharedSecret types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret"), &legacyClientAaaSharedSecret)...)
+	var woClientAaaSharedSecret types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret_wo"), &woClientAaaSharedSecret)...)
+	var woVersionClientAaaSharedSecret types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret_wo_version"), &woVersionClientAaaSharedSecret)...)
+	if !legacyClientAaaSharedSecret.IsUnknown() && !woClientAaaSharedSecret.IsUnknown() && !legacyClientAaaSharedSecret.IsNull() && !woClientAaaSharedSecret.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `client_aaa_shared_secret` and `client_aaa_shared_secret_wo` can be set.",
+		)
+	}
+	if !woClientAaaSharedSecret.IsUnknown() && !woVersionClientAaaSharedSecret.IsUnknown() && !woClientAaaSharedSecret.IsNull() && woVersionClientAaaSharedSecret.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`client_aaa_shared_secret_wo_version` must be set when `client_aaa_shared_secret_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	if !legacyClientAaaSharedSecret.IsUnknown() && !legacyClientAaaSharedSecret.IsNull() {
+		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `client_aaa_shared_secret` attribute stores the secret in Terraform state. Use `client_aaa_shared_secret_wo` together with `client_aaa_shared_secret_wo_version` instead, which keeps it out of state.")
+	}
+}
+
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -161,6 +239,16 @@ func (r *AAASettingsResource) Create(ctx context.Context, req resource.CreateReq
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "network_aaa_shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret_wo"), &plan.NetworkAaaSharedSecretWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "client_aaa_shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret_wo"), &plan.ClientAaaSharedSecretWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -238,6 +326,16 @@ func (r *AAASettingsResource) Update(ctx context.Context, req resource.UpdateReq
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "network_aaa_shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "network_aaa_shared_secret_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("network_aaa_shared_secret_wo"), &plan.NetworkAaaSharedSecretWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "client_aaa_shared_secret_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "client_aaa_shared_secret_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("client_aaa_shared_secret_wo"), &plan.ClientAaaSharedSecretWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
