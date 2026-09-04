@@ -299,6 +299,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewAAASettingsResource,
+		NewAccessPointConfigurationResource,
 		NewAnchorGroupResource,
 		NewAnycastGatewayResource,
 		NewAnycastGatewaysResource,
