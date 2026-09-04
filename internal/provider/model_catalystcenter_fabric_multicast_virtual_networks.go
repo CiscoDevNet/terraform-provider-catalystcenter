@@ -398,6 +398,7 @@ func (data *FabricMulticastVirtualNetworks) fromBodyUnknowns(ctx context.Context
 				return true
 			},
 		)
+		_ = r
 		if data.VirtualNetworks[i].Id.IsUnknown() {
 			if value := r.Get("id"); value.Exists() && !data.VirtualNetworks[i].Id.IsNull() {
 				data.VirtualNetworks[i].Id = types.StringValue(value.String())

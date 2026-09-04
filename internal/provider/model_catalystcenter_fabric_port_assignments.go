@@ -301,6 +301,7 @@ func (data *FabricPortAssignments) fromBodyUnknowns(ctx context.Context, res gjs
 				return true
 			},
 		)
+		_ = r
 		if data.PortAssignments[i].Id.IsUnknown() {
 			if value := r.Get("id"); value.Exists() && !data.PortAssignments[i].Id.IsNull() {
 				data.PortAssignments[i].Id = types.StringValue(value.String())

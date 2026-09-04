@@ -56,6 +56,21 @@ attributes:
         description: Name of the IP pool associated with the anycast gateway
         example: MyRes1
         test_value: catalystcenter_ip_pool_reservation.test.name
+      - model_name: additionalIpPools
+        type: List
+        description: Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN)
+        exclude_test: true
+        attributes:
+          - model_name: name
+            type: String
+            mandatory: true
+            description: Name of the additional IP pool associated with the anycast gateway
+          - model_name: order
+            type: Int64
+            mandatory: true
+            min_int: 2
+            max_int: 5
+            description: Sequence in which this IP pool will be used
       - model_name: tcpMssAdjustment
         type: Int64
         min_int: 500
