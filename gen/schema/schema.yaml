@@ -127,3 +127,4 @@ attribute:
   null_on_empty: bool(required=False) # If true, treat empty string values from the API as null in Terraform state (prevents empty-string vs null mismatch on import)
   custom_modifier: str(required=False) # Set custom modifier on the field, Modifier should exist in the package
   always_include: bool(required=False) # Include attribute always in payload
+  get_if_unset_on_update: bool(required=False) # If true, when this attribute is unset in the plan on update, fetch its current value from the controller (via GET) and include it in the PUT body so a full-object replace does not strip a value assigned out-of-band (e.g. an SDA anycast gateway). String attributes only.

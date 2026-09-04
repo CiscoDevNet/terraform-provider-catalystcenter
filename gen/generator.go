@@ -230,6 +230,7 @@ type YamlConfigAttribute struct {
 	NullOnEmpty               bool                  `yaml:"null_on_empty"`
 	CustomModifier            string                `yaml:"custom_modifier"`
 	AlwaysInclude             bool                  `yaml:"always_include"`
+	GetIfUnsetOnUpdate        bool                  `yaml:"get_if_unset_on_update"`
 }
 
 // Templating helper function to convert TF name to GO name
@@ -359,6 +360,21 @@ func HasComputedRefreshValueInKeys(attributes []YamlConfigAttribute) bool {
 		}
 	}
 	return false
+}
+
+// GetIfUnsetOnUpdateAttributes returns the top-level attributes flagged get_if_unset_on_update.
+// These are values that Catalyst Center assigns out-of-band (for example an SDA anycast
+// gateway) and that are not part of the data model, so they are null in the plan. The Update
+// template uses this list to fetch each such value from the controller and include it in the
+// PUT body whenever the plan leaves it empty, so a full-object replace PUT does not strip it.
+func GetIfUnsetOnUpdateAttributes(config YamlConfig) []YamlConfigAttribute {
+	r := []YamlConfigAttribute{}
+	for _, attr := range config.Attributes {
+		if attr.GetIfUnsetOnUpdate {
+			r = append(r, attr)
+		}
+	}
+	return r
 }
 
 // Templating helper function to return the ID attribute
@@ -886,6 +902,7 @@ var functions = template.FuncMap{
 	"coexistingSecretAttributes":         CoexistingSecretAttributes,
 	"coexistingSecretChildren":           CoexistingSecretChildren,
 	"coexistingSecretParentLists":        CoexistingSecretParentLists,
+	"getIfUnsetOnUpdateAttributes":       GetIfUnsetOnUpdateAttributes,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {
