@@ -35,13 +35,13 @@ resource "catalystcenter_credentials_cli" "example" {
 
 - `enable_password` (String, Sensitive) Enable password
   - Only one of `enable_password` and `enable_password_wo` can be set.
-  - Deprecated: The `enable_password` attribute stores the secret in Terraform state. Use `enable_password_wo` together with `enable_password_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `enable_password_wo` together with `enable_password_wo_version`, which keeps it out of state.
 - `enable_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Enable password
   - Only one of `enable_password` and `enable_password_wo` can be set.
 - `enable_password_wo_version` (Number) Rotation trigger for `enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `password` (String, Sensitive) Password
   - **Required**: exactly one of `password` and `password_wo` must be set.
-  - Deprecated: The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `password_wo` together with `password_wo_version`, which keeps it out of state.
 - `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password
   - **Required**: exactly one of `password` and `password_wo` must be set.
 - `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.

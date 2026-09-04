@@ -56,7 +56,7 @@ resource "catalystcenter_authentication_policy_server" "example" {
 - `cisco_ise_dtos` (Attributes List) Cisco ISE Server DTOs (see [below for nested schema](#nestedatt--cisco_ise_dtos))
 - `encryption_key` (String, Sensitive) Encryption key used to encrypt shared secret
   - Only one of `encryption_key` and `encryption_key_wo` can be set.
-  - Deprecated: The `encryption_key` attribute stores the secret in Terraform state. Use `encryption_key_wo` together with `encryption_key_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `encryption_key_wo` together with `encryption_key_wo_version`, which keeps it out of state.
 - `encryption_key_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Encryption key used to encrypt shared secret
   - Only one of `encryption_key` and `encryption_key_wo` can be set.
 - `encryption_key_wo_version` (Number) Rotation trigger for `encryption_key_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
@@ -66,7 +66,7 @@ resource "catalystcenter_authentication_policy_server" "example" {
 - `is_ise_enabled` (Boolean) Value true for Cisco ISE Server. Default value is false
 - `message_key` (String, Sensitive) Message key used to encrypt shared secret
   - Only one of `message_key` and `message_key_wo` can be set.
-  - Deprecated: The `message_key` attribute stores the secret in Terraform state. Use `message_key_wo` together with `message_key_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `message_key_wo` together with `message_key_wo_version`, which keeps it out of state.
 - `message_key_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Message key used to encrypt shared secret
   - Only one of `message_key` and `message_key_wo` can be set.
 - `message_key_wo_version` (Number) Rotation trigger for `message_key_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
@@ -75,7 +75,7 @@ resource "catalystcenter_authentication_policy_server" "example" {
 - `pxgrid_enabled` (Boolean) Value true for enable, false for disable. Default value is true
 - `shared_secret` (String, Sensitive) Shared secret between devices and authentication and policy server
   - **Required**: exactly one of `shared_secret` and `shared_secret_wo` must be set.
-  - Deprecated: The `shared_secret` attribute stores the secret in Terraform state. Use `shared_secret_wo` together with `shared_secret_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `shared_secret_wo` together with `shared_secret_wo_version`, which keeps it out of state.
 - `shared_secret_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Shared secret between devices and authentication and policy server
   - **Required**: exactly one of `shared_secret` and `shared_secret_wo` must be set.
 - `shared_secret_wo_version` (Number) Rotation trigger for `shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
@@ -100,13 +100,13 @@ Optional:
 - `description` (String) Description about the Cisco ISE server
 - `password` (String, Sensitive) Password of the Cisco ISE server
   - **Required**: exactly one of `password` and `password_wo` must be set.
-  - Deprecated: The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `password_wo` together with `password_wo_version`, which keeps it out of state.
 - `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password of the Cisco ISE server
   - **Required**: exactly one of `password` and `password_wo` must be set.
 - `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `sshkey` (String, Sensitive) SSH key of the Cisco ISE server
   - Only one of `sshkey` and `sshkey_wo` can be set.
-  - Deprecated: The `sshkey` attribute stores the secret in Terraform state. Use `sshkey_wo` together with `sshkey_wo_version` instead, which keeps it out of state.
+  - This attribute stores the secret in Terraform state. Prefer `sshkey_wo` together with `sshkey_wo_version`, which keeps it out of state.
 - `sshkey_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) SSH key of the Cisco ISE server
   - Only one of `sshkey` and `sshkey_wo` can be set.
 - `sshkey_wo_version` (Number) Rotation trigger for `sshkey_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.

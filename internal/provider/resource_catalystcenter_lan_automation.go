@@ -123,7 +123,7 @@ func (r *LANAutomationResource) Schema(ctx context.Context, req resource.SchemaR
 				Optional:            true,
 			},
 			"isis_domain_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").AddMutualExclusivityDescription("Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.").AddDeprecationDescription("The `isis_domain_password` attribute stores the secret in Terraform state. Use `isis_domain_password_wo` together with `isis_domain_password_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("ISIS domain password.").AddMutualExclusivityDescription("Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `isis_domain_password_wo` together with `isis_domain_password_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -195,9 +195,8 @@ func (r *LANAutomationResource) Configure(_ context.Context, req resource.Config
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
-// ValidateConfig enforces the relationship between a deprecated secret attribute, its
-// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
-// deprecation warning for the old attribute.
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
 //
 // These checks live here, at resource level, rather than as schema validators. The
 // equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
@@ -213,20 +212,17 @@ func (r *LANAutomationResource) ValidateConfig(ctx context.Context, req resource
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password_wo"), &woIsisDomainPassword)...)
 	var woVersionIsisDomainPassword types.Int64
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("isis_domain_password_wo_version"), &woVersionIsisDomainPassword)...)
-	if !legacyIsisDomainPassword.IsNull() && !woIsisDomainPassword.IsNull() {
+	if !legacyIsisDomainPassword.IsUnknown() && !woIsisDomainPassword.IsUnknown() && !legacyIsisDomainPassword.IsNull() && !woIsisDomainPassword.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Only one of `isis_domain_password` and `isis_domain_password_wo` can be set.",
 		)
 	}
-	if !woIsisDomainPassword.IsNull() && woVersionIsisDomainPassword.IsNull() {
+	if !woIsisDomainPassword.IsUnknown() && !woVersionIsisDomainPassword.IsUnknown() && !woIsisDomainPassword.IsNull() && woVersionIsisDomainPassword.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"`isis_domain_password_wo_version` must be set when `isis_domain_password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
-	}
-	if !legacyIsisDomainPassword.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `isis_domain_password` attribute stores the secret in Terraform state. Use `isis_domain_password_wo` together with `isis_domain_password_wo_version` instead, which keeps it out of state.")
 	}
 }
 

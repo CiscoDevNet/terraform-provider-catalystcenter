@@ -83,7 +83,7 @@ func (r *CredentialsHTTPSWriteResource) Schema(ctx context.Context, req resource
 				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").AddDeprecationDescription("The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Password").AddMutualExclusivityDescription("**Required**: exactly one of `password` and `password_wo` must be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `password_wo` together with `password_wo_version`, which keeps it out of state.").String,
 				Sensitive:           true,
 				Optional:            true,
 			},
@@ -117,9 +117,8 @@ func (r *CredentialsHTTPSWriteResource) Configure(_ context.Context, req resourc
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
-// ValidateConfig enforces the relationship between a deprecated secret attribute, its
-// write-only "_wo" replacement and the "_wo_version" rotation trigger, and raises the
-// deprecation warning for the old attribute.
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
 //
 // These checks live here, at resource level, rather than as schema validators. The
 // equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
@@ -135,26 +134,23 @@ func (r *CredentialsHTTPSWriteResource) ValidateConfig(ctx context.Context, req 
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &woPassword)...)
 	var woVersionPassword types.Int64
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo_version"), &woVersionPassword)...)
-	if !legacyPassword.IsNull() && !woPassword.IsNull() {
+	if !legacyPassword.IsUnknown() && !woPassword.IsUnknown() && !legacyPassword.IsNull() && !woPassword.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Only one of `password` and `password_wo` can be set.",
 		)
 	}
-	if legacyPassword.IsNull() && woPassword.IsNull() {
+	if !legacyPassword.IsUnknown() && !woPassword.IsUnknown() && legacyPassword.IsNull() && woPassword.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"Exactly one of `password` and `password_wo` must be set.",
 		)
 	}
-	if !woPassword.IsNull() && woVersionPassword.IsNull() {
+	if !woPassword.IsUnknown() && !woVersionPassword.IsUnknown() && !woPassword.IsNull() && woVersionPassword.IsNull() {
 		resp.Diagnostics.AddError(
 			"Invalid Attribute Combination",
 			"`password_wo_version` must be set when `password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
 		)
-	}
-	if !legacyPassword.IsNull() {
-		resp.Diagnostics.AddWarning("Attribute Deprecated", "The `password` attribute stores the secret in Terraform state. Use `password_wo` together with `password_wo_version` instead, which keeps it out of state.")
 	}
 }
 
