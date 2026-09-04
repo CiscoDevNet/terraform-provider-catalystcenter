@@ -104,7 +104,7 @@ func (data AnycastGateways) toBody(ctx context.Context, state AnycastGateways) s
 				itemBody, _ = sjson.Set(itemBody, "ipPoolName", item.IpPoolName.ValueString())
 			}
 			if len(item.AdditionalIpPools) > 0 {
-				itemBody, _ = sjson.Set(itemBody, "0.additionalIpPools", []interface{}{})
+				itemBody, _ = sjson.Set(itemBody, "additionalIpPools", []interface{}{})
 				for _, childItem := range item.AdditionalIpPools {
 					itemChildBody := ""
 					if !childItem.Name.IsNull() {
@@ -113,7 +113,7 @@ func (data AnycastGateways) toBody(ctx context.Context, state AnycastGateways) s
 					if !childItem.Order.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "order", childItem.Order.ValueInt64())
 					}
-					itemBody, _ = sjson.SetRaw(itemBody, "0.additionalIpPools.-1", itemChildBody)
+					itemBody, _ = sjson.SetRaw(itemBody, "additionalIpPools.-1", itemChildBody)
 				}
 			}
 			if !item.TcpMssAdjustment.IsNull() {
@@ -197,7 +197,7 @@ func (data *AnycastGateways) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.IpPoolName = types.StringNull()
 			}
-			if cValue := v.Get("0.additionalIpPools"); cValue.Exists() && len(cValue.Array()) > 0 {
+			if cValue := v.Get("additionalIpPools"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.AdditionalIpPools = make([]AnycastGatewaysAnycastGatewaysAdditionalIpPools, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
 					cItem := AnycastGatewaysAnycastGatewaysAdditionalIpPools{}
@@ -347,7 +347,7 @@ func (data *AnycastGateways) updateFromBody(ctx context.Context, res gjson.Resul
 			keyValues := [...]string{data.AnycastGateways[i].AdditionalIpPools[ci].Name.ValueString()}
 
 			var cr gjson.Result
-			r.Get("0.additionalIpPools").ForEach(
+			r.Get("additionalIpPools").ForEach(
 				func(_, v gjson.Result) bool {
 					found := false
 					for ik := range keys {
