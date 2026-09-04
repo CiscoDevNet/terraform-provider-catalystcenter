@@ -25,13 +25,18 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 )
@@ -73,6 +78,9 @@ func (r *AccessPointConfigurationResource) Schema(ctx context.Context, req resou
 			"ap_list": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The list of access points to configure.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"mac_address": schema.StringAttribute{
@@ -93,14 +101,23 @@ func (r *AccessPointConfigurationResource) Schema(ctx context.Context, req resou
 			"configure_admin_status": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("To change the access point's admin status, set this parameter's value to `true`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"admin_status": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the access point's admin status. Set this parameter's value to `true` to enable it and `false` to disable it.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"configure_ap_mode": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("To change the access point's mode, set this parameter's value to `true`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"ap_mode": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the access point's mode: for local/flexconnect mode, set `0`; for monitor mode, set `1`; for sniffer mode, set `4`; and for bridge/flex+bridge mode, set `5`.").AddStringEnumDescription("0", "1", "4", "5").String,
@@ -108,10 +125,16 @@ func (r *AccessPointConfigurationResource) Schema(ctx context.Context, req resou
 				Validators: []validator.Int64{
 					int64validator.OneOf(0, 1, 4, 5),
 				},
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"configure_failover_priority": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("To change the access point's failover priority, set this parameter's value to `true`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"failover_priority": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the access point's failover priority: for low, set `1`; for medium, set `2`; for high, set `3`; and for critical, set `4`.").AddStringEnumDescription("1", "2", "3", "4").String,
@@ -119,18 +142,30 @@ func (r *AccessPointConfigurationResource) Schema(ctx context.Context, req resou
 				Validators: []validator.Int64{
 					int64validator.OneOf(1, 2, 3, 4),
 				},
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"configure_led_status": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("To change the access point's LED status, set this parameter's value to `true`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"led_status": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the access point's LED status. Set `true` to enable its status and `false` to disable it.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"configure_led_brightness_level": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("To change the access point's LED brightness level, set this parameter's value to `true`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"led_brightness_level": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the access point's LED brightness level by setting a value between 1 and 8.").AddIntegerRangeDescription(1, 8).String,
@@ -138,50 +173,86 @@ func (r *AccessPointConfigurationResource) Schema(ctx context.Context, req resou
 				Validators: []validator.Int64{
 					int64validator.Between(1, 8),
 				},
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"configure_location": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("To change the access point's location, set this parameter's value to `true`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"location": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the access point's location.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"configure_ha_controller": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("To change the access point's HA controller, set this parameter's value to `true`.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"primary_controller_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the hostname for an access point's primary controller.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"primary_ip_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the IP address for an access point's primary controller.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"secondary_controller_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the hostname for an access point's secondary controller.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"secondary_ip_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the IP address for an access point's secondary controller.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"tertiary_controller_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the hostname for an access point's tertiary controller.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"tertiary_ip_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Configure the IP address for an access point's tertiary controller.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"is_assigned_site_as_location": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("If the access point is assigned to a site, set this parameter's value to `true` to assign the access point location as the site name.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
 			"radio_configurations": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Radio parameters configuration for the selected access points. Note: the API schema marks this element as required alongside `ap_list`; some Catalyst Center versions may reject a request that omits it, in which case pass an empty list.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"radio_band": schema.StringAttribute{
@@ -318,7 +389,7 @@ func (r *AccessPointConfigurationResource) Configure(_ context.Context, req reso
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
+// Custom Create: template markers intentionally removed to build a composite resource ID from ap_list.
 func (r *AccessPointConfigurationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan AccessPointConfiguration
 
@@ -341,13 +412,17 @@ func (r *AccessPointConfigurationResource) Create(ctx context.Context, req resou
 		return
 	}
 
+	macs := make([]string, 0, len(plan.ApList))
+	for _, ap := range plan.ApList {
+		macs = append(macs, ap.MacAddress.ValueString())
+	}
+	plan.Id = types.StringValue(uuid.NewSHA1(uuid.NameSpaceOID, []byte(strings.Join(macs, ","))).String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AccessPointConfigurationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
