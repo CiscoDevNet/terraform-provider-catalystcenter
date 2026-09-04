@@ -36,25 +36,31 @@ type AnycastGateways struct {
 }
 
 type AnycastGatewaysAnycastGateways struct {
-	Id                                    types.String `tfsdk:"id"`
-	FabricId                              types.String `tfsdk:"fabric_id"`
-	VirtualNetworkName                    types.String `tfsdk:"virtual_network_name"`
-	IpPoolName                            types.String `tfsdk:"ip_pool_name"`
-	TcpMssAdjustment                      types.Int64  `tfsdk:"tcp_mss_adjustment"`
-	VlanName                              types.String `tfsdk:"vlan_name"`
-	VlanId                                types.Int64  `tfsdk:"vlan_id"`
-	TrafficType                           types.String `tfsdk:"traffic_type"`
-	PoolType                              types.String `tfsdk:"pool_type"`
-	SecurityGroupName                     types.String `tfsdk:"security_group_name"`
-	CriticalPool                          types.Bool   `tfsdk:"critical_pool"`
-	L2FloodingEnabled                     types.Bool   `tfsdk:"l2_flooding_enabled"`
-	WirelessPool                          types.Bool   `tfsdk:"wireless_pool"`
-	IpDirectedBroadcast                   types.Bool   `tfsdk:"ip_directed_broadcast"`
-	IntraSubnetRoutingEnabled             types.Bool   `tfsdk:"intra_subnet_routing_enabled"`
-	MultipleIpToMacAddresses              types.Bool   `tfsdk:"multiple_ip_to_mac_addresses"`
-	SupplicantBasedExtendedNodeOnboarding types.Bool   `tfsdk:"supplicant_based_extended_node_onboarding"`
-	GroupBasedPolicyEnforcementEnabled    types.Bool   `tfsdk:"group_based_policy_enforcement_enabled"`
-	AutoGenerateVlanName                  types.Bool   `tfsdk:"auto_generate_vlan_name"`
+	Id                                    types.String                                      `tfsdk:"id"`
+	FabricId                              types.String                                      `tfsdk:"fabric_id"`
+	VirtualNetworkName                    types.String                                      `tfsdk:"virtual_network_name"`
+	IpPoolName                            types.String                                      `tfsdk:"ip_pool_name"`
+	AdditionalIpPools                     []AnycastGatewaysAnycastGatewaysAdditionalIpPools `tfsdk:"additional_ip_pools"`
+	TcpMssAdjustment                      types.Int64                                       `tfsdk:"tcp_mss_adjustment"`
+	VlanName                              types.String                                      `tfsdk:"vlan_name"`
+	VlanId                                types.Int64                                       `tfsdk:"vlan_id"`
+	TrafficType                           types.String                                      `tfsdk:"traffic_type"`
+	PoolType                              types.String                                      `tfsdk:"pool_type"`
+	SecurityGroupName                     types.String                                      `tfsdk:"security_group_name"`
+	CriticalPool                          types.Bool                                        `tfsdk:"critical_pool"`
+	L2FloodingEnabled                     types.Bool                                        `tfsdk:"l2_flooding_enabled"`
+	WirelessPool                          types.Bool                                        `tfsdk:"wireless_pool"`
+	IpDirectedBroadcast                   types.Bool                                        `tfsdk:"ip_directed_broadcast"`
+	IntraSubnetRoutingEnabled             types.Bool                                        `tfsdk:"intra_subnet_routing_enabled"`
+	MultipleIpToMacAddresses              types.Bool                                        `tfsdk:"multiple_ip_to_mac_addresses"`
+	SupplicantBasedExtendedNodeOnboarding types.Bool                                        `tfsdk:"supplicant_based_extended_node_onboarding"`
+	GroupBasedPolicyEnforcementEnabled    types.Bool                                        `tfsdk:"group_based_policy_enforcement_enabled"`
+	AutoGenerateVlanName                  types.Bool                                        `tfsdk:"auto_generate_vlan_name"`
+}
+
+type AnycastGatewaysAnycastGatewaysAdditionalIpPools struct {
+	Name  types.String `tfsdk:"name"`
+	Order types.Int64  `tfsdk:"order"`
 }
 
 // End of section. //template:end types
@@ -96,6 +102,19 @@ func (data AnycastGateways) toBody(ctx context.Context, state AnycastGateways) s
 			}
 			if !item.IpPoolName.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "ipPoolName", item.IpPoolName.ValueString())
+			}
+			if len(item.AdditionalIpPools) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "0.additionalIpPools", []interface{}{})
+				for _, childItem := range item.AdditionalIpPools {
+					itemChildBody := ""
+					if !childItem.Name.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "name", childItem.Name.ValueString())
+					}
+					if !childItem.Order.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "order", childItem.Order.ValueInt64())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "0.additionalIpPools.-1", itemChildBody)
+				}
 			}
 			if !item.TcpMssAdjustment.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "tcpMssAdjustment", item.TcpMssAdjustment.ValueInt64())
@@ -177,6 +196,24 @@ func (data *AnycastGateways) fromBody(ctx context.Context, res gjson.Result) {
 				item.IpPoolName = types.StringValue(cValue.String())
 			} else {
 				item.IpPoolName = types.StringNull()
+			}
+			if cValue := v.Get("0.additionalIpPools"); cValue.Exists() && len(cValue.Array()) > 0 {
+				item.AdditionalIpPools = make([]AnycastGatewaysAnycastGatewaysAdditionalIpPools, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AnycastGatewaysAnycastGatewaysAdditionalIpPools{}
+					if ccValue := cv.Get("name"); ccValue.Exists() {
+						cItem.Name = types.StringValue(ccValue.String())
+					} else {
+						cItem.Name = types.StringNull()
+					}
+					if ccValue := cv.Get("order"); ccValue.Exists() {
+						cItem.Order = types.Int64Value(ccValue.Int())
+					} else {
+						cItem.Order = types.Int64Null()
+					}
+					item.AdditionalIpPools = append(item.AdditionalIpPools, cItem)
+					return true
+				})
 			}
 			if cValue := v.Get("tcpMssAdjustment"); cValue.Exists() {
 				item.TcpMssAdjustment = types.Int64Value(cValue.Int())
@@ -304,6 +341,40 @@ func (data *AnycastGateways) updateFromBody(ctx context.Context, res gjson.Resul
 			data.AnycastGateways[i].IpPoolName = types.StringValue(value.String())
 		} else {
 			data.AnycastGateways[i].IpPoolName = types.StringNull()
+		}
+		for ci := range data.AnycastGateways[i].AdditionalIpPools {
+			keys := [...]string{"name"}
+			keyValues := [...]string{data.AnycastGateways[i].AdditionalIpPools[ci].Name.ValueString()}
+
+			var cr gjson.Result
+			r.Get("0.additionalIpPools").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("name"); value.Exists() && !data.AnycastGateways[i].AdditionalIpPools[ci].Name.IsNull() {
+				data.AnycastGateways[i].AdditionalIpPools[ci].Name = types.StringValue(value.String())
+			} else {
+				data.AnycastGateways[i].AdditionalIpPools[ci].Name = types.StringNull()
+			}
+			if value := cr.Get("order"); value.Exists() && !data.AnycastGateways[i].AdditionalIpPools[ci].Order.IsNull() {
+				data.AnycastGateways[i].AdditionalIpPools[ci].Order = types.Int64Value(value.Int())
+			} else {
+				data.AnycastGateways[i].AdditionalIpPools[ci].Order = types.Int64Null()
+			}
 		}
 		if value := r.Get("tcpMssAdjustment"); value.Exists() && !data.AnycastGateways[i].TcpMssAdjustment.IsNull() {
 			data.AnycastGateways[i].TcpMssAdjustment = types.Int64Value(value.Int())
