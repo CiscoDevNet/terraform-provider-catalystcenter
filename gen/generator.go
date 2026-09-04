@@ -362,6 +362,19 @@ func HasComputedRefreshValueInKeys(attributes []YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return true if any child attribute is handled by fromBodyUnknowns.
+// A nested list/set/map whose children are all plain configurable attributes contributes no
+// statements there, so its lookup loop must be skipped entirely - otherwise the generated code
+// declares the `r` gjson.Result without ever using it and does not compile.
+func HasUnknownsChildren(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.Value == "" && !attr.WriteOnly && !attr.Reference && attr.Computed {
+			return true
+		}
+	}
+	return false
+}
+
 // GetIfUnsetOnUpdateAttributes returns the top-level attributes flagged get_if_unset_on_update.
 // These are values that Catalyst Center assigns out-of-band (for example an SDA anycast
 // gateway) and that are not part of the data model, so they are null in the plan. The Update
@@ -878,6 +891,7 @@ var functions = template.FuncMap{
 	"hasDataSourceQuery":                 HasDataSourceQuery,
 	"hasComputedRefreshValue":            HasComputedRefreshValue,
 	"hasComputedRefreshValueInKeys":      HasComputedRefreshValueInKeys,
+	"hasUnknownsChildren":                HasUnknownsChildren,
 	"firstPathElement":                   FirstPathElement,
 	"remainingPathElements":              RemainingPathElements,
 	"getFromAllPath":                     GetFromAllPath,
