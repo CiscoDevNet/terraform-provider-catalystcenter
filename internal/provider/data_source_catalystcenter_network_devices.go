@@ -79,6 +79,10 @@ func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.Sc
 							MarkdownDescription: "Platform identifier",
 							Computed:            true,
 						},
+						"serial_number": schema.StringAttribute{
+							MarkdownDescription: "Serial number of the network device. For devices whose hostname or management IP address is not known ahead of time (for example access points before they are claimed), this is the only stable identifier.",
+							Computed:            true,
+						},
 						"role": schema.StringAttribute{
 							MarkdownDescription: "Role of the network device, such as `ACCESS` or `DISTRIBUTION`.",
 							Computed:            true,

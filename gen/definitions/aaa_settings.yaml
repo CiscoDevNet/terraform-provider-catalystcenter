@@ -63,6 +63,7 @@ attributes:
     data_path: aaaNetwork
     tf_name: network_aaa_shared_secret
     write_only: true
+    write_only_tf: true
     type: String
     description: Only relevant for server type `ISE`, shared secret
     example: Secret123
@@ -106,6 +107,7 @@ attributes:
   - model_name: sharedSecret
     response_data_path: response.aaaClient.sharedSecret
     write_only: true
+    write_only_tf: true
     data_path: aaaClient
     tf_name: client_aaa_shared_secret
     type: String

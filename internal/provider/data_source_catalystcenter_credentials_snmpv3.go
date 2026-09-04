@@ -82,12 +82,28 @@ func (d *CredentialsSNMPv3DataSource) Schema(ctx context.Context, req datasource
 				MarkdownDescription: "Privacy password",
 				Computed:            true,
 			},
+			"privacy_password_wo": schema.StringAttribute{
+				MarkdownDescription: "Privacy password",
+				Computed:            true,
+			},
+			"privacy_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `privacy_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
 			"auth_type": schema.StringAttribute{
 				MarkdownDescription: "Authentication type",
 				Computed:            true,
 			},
 			"auth_password": schema.StringAttribute{
 				MarkdownDescription: "Authentication password",
+				Computed:            true,
+			},
+			"auth_password_wo": schema.StringAttribute{
+				MarkdownDescription: "Authentication password",
+				Computed:            true,
+			},
+			"auth_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `auth_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 				Computed:            true,
 			},
 			"snmp_mode": schema.StringAttribute{

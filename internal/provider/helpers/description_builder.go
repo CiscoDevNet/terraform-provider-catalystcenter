@@ -49,6 +49,26 @@ func (d *AttributeDescription) AddStringEnumDescription(values ...string) *Attri
 	return d
 }
 
+// AddMutualExclusivityDescription records that an attribute is one of a mutually
+// exclusive pair. The generated documentation renders attributes as Required or Optional
+// purely from the schema booleans, so a secret that must be supplied through exactly one
+// of two spellings would otherwise appear simply as Optional, with nothing indicating
+// that one of the two is in fact mandatory.
+func (d *AttributeDescription) AddMutualExclusivityDescription(note string) *AttributeDescription {
+	d.String = fmt.Sprintf("%s\n  - %s", d.String, note)
+	return d
+}
+
+// AddCoexistenceNote records, in the generated documentation, that an attribute has a
+// write-only counterpart that should be preferred. It is a documentation-only note
+// rather than the schema's DeprecationMessage: that field makes the framework raise an
+// attribute-scoped warning, and Terraform renders such a warning with the offending
+// configuration line, which would print the secret itself into plan output and CI logs.
+func (d *AttributeDescription) AddCoexistenceNote(note string) *AttributeDescription {
+	d.String = fmt.Sprintf("%s\n  - %s", d.String, note)
+	return d
+}
+
 func (d *AttributeDescription) AddIntegerRangeDescription(min, max int64) *AttributeDescription {
 	d.String = fmt.Sprintf("%s\n  - Range: `%v`-`%v`", d.String, min, max)
 	return d

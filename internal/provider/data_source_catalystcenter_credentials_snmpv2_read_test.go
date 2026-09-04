@@ -51,7 +51,8 @@ func TestAccDataSourceCcCredentialsSNMPv2Read(t *testing.T) {
 func testAccDataSourceCcCredentialsSNMPv2ReadConfig() string {
 	config := `resource "catalystcenter_credentials_snmpv2_read" "test" {` + "\n"
 	config += `	description = "My SNMPv2 read credentials"` + "\n"
-	config += `	read_community = "community1"` + "\n"
+	config += `	read_community_wo = "community1"` + "\n"
+	config += `	read_community_wo_version = 1` + "\n"
 	config += `}` + "\n"
 
 	config += `

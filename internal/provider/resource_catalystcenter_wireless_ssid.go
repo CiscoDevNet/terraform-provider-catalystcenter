@@ -98,7 +98,18 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"passphrase": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters").AddMutualExclusivityDescription("Only one of `passphrase` and `passphrase_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `passphrase_wo` together with `passphrase_wo_version`, which keeps it out of state.").String,
+				Sensitive:           true,
+				Optional:            true,
+			},
+			"passphrase_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters").AddMutualExclusivityDescription("Only one of `passphrase` and `passphrase_wo` can be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+			},
+			"passphrase_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 				Optional:            true,
 			},
 			"fast_lane": schema.BoolAttribute{
@@ -223,7 +234,18 @@ func (r *WirelessSSIDResource) Schema(ctx context.Context, req resource.SchemaRe
 							},
 						},
 						"passphrase": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Passphrase").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Passphrase").AddMutualExclusivityDescription("Only one of `passphrase` and `passphrase_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `passphrase_wo` together with `passphrase_wo_version`, which keeps it out of state.").String,
+							Sensitive:           true,
+							Optional:            true,
+						},
+						"passphrase_wo": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Passphrase").AddMutualExclusivityDescription("Only one of `passphrase` and `passphrase_wo` can be set.").String,
+							Optional:            true,
+							WriteOnly:           true,
+							Sensitive:           true,
+						},
+						"passphrase_wo_version": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `passphrase_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
 							Optional:            true,
 						},
 					},
@@ -448,6 +470,59 @@ func (r *WirelessSSIDResource) Configure(_ context.Context, req resource.Configu
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
+func (r *WirelessSSIDResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var legacyPassphrase types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase"), &legacyPassphrase)...)
+	var woPassphrase types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase_wo"), &woPassphrase)...)
+	var woVersionPassphrase types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase_wo_version"), &woVersionPassphrase)...)
+	if !legacyPassphrase.IsUnknown() && !woPassphrase.IsUnknown() && !legacyPassphrase.IsNull() && !woPassphrase.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `passphrase` and `passphrase_wo` can be set.",
+		)
+	}
+	if !woPassphrase.IsUnknown() && !woVersionPassphrase.IsUnknown() && !woPassphrase.IsNull() && woVersionPassphrase.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`passphrase_wo_version` must be set when `passphrase_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	{
+		// Secrets nested in "multi_psk_settings" are validated per element. A list that cannot be
+		// read as a whole - because it is still unknown at validation time - is skipped
+		// rather than reported, since there is nothing to check yet.
+		var cfgMultiPskSettings []WirelessSSIDMultiPskSettings
+		if diags := req.Config.GetAttribute(ctx, path.Root("multi_psk_settings"), &cfgMultiPskSettings); !diags.HasError() {
+			for i := range cfgMultiPskSettings {
+				if !cfgMultiPskSettings[i].Passphrase.IsUnknown() && !cfgMultiPskSettings[i].PassphraseWo.IsUnknown() && !cfgMultiPskSettings[i].Passphrase.IsNull() && !cfgMultiPskSettings[i].PassphraseWo.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("Only one of `passphrase` and `passphrase_wo` can be set in `multi_psk_settings` element %d.", i),
+					)
+				}
+				if !cfgMultiPskSettings[i].PassphraseWo.IsUnknown() && !cfgMultiPskSettings[i].PassphraseWoVersion.IsUnknown() && !cfgMultiPskSettings[i].PassphraseWo.IsNull() && cfgMultiPskSettings[i].PassphraseWoVersion.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("`passphrase_wo_version` must be set when `passphrase_wo` is used in `multi_psk_settings` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
+					)
+				}
+			}
+		}
+	}
+}
+
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -459,6 +534,24 @@ func (r *WirelessSSIDResource) Create(ctx context.Context, req resource.CreateRe
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+	// Write-only value "passphrase_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase_wo"), &plan.PassphraseWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only values in list "multi_psk_settings" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element.
+	{
+		var cfgMultiPskSettings []WirelessSSIDMultiPskSettings
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("multi_psk_settings"), &cfgMultiPskSettings)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.MultiPskSettings {
+			if i < len(cfgMultiPskSettings) {
+				plan.MultiPskSettings[i].PassphraseWo = cfgMultiPskSettings[i].PassphraseWo
+			}
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
@@ -546,6 +639,24 @@ func (r *WirelessSSIDResource) Update(ctx context.Context, req resource.UpdateRe
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+	// Write-only value "passphrase_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "passphrase_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("passphrase_wo"), &plan.PassphraseWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only values in list "multi_psk_settings" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element. Read unconditionally for the same reason as the top-level secrets above (full-object replace PUT requires every secret present).
+	{
+		var cfgMultiPskSettings []WirelessSSIDMultiPskSettings
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("multi_psk_settings"), &cfgMultiPskSettings)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.MultiPskSettings {
+			if i < len(cfgMultiPskSettings) {
+				plan.MultiPskSettings[i].PassphraseWo = cfgMultiPskSettings[i].PassphraseWo
+			}
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
