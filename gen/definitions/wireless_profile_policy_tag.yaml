@@ -45,7 +45,8 @@ attributes:
     data_path: items.0
     put_data_path: "_"
     response_data_path: response.siteIds
-    description: Set of Site IDs where this Policy Tag applies. Must be Area, Building, or Floor level sites (not Global).
+    ignore_extra_response_values: true
+    description: Set of Site IDs where this Policy Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET; the provider ignores extras on refresh so a parent-only config stays idempotent.
     example: 12345678-1234-1234-1234-123456789000
     test_value: "[catalystcenter_building.test_building.id]"
   - model_name: apZones

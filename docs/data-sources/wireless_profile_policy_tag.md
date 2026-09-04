@@ -33,4 +33,4 @@ data "catalystcenter_wireless_profile_policy_tag" "example" {
 
 - `ap_zones` (Set of String) Set of AP Zone names to activate at the specified sites. AP Zones must be defined on the Wireless Profile.
 - `policy_tag_name` (String) Name of the Policy Tag. Use English letters, numbers, special characters except <, /, '.*', ? and leading/trailing space. Cannot be modified after creation.
-- `site_ids` (Set of String) Set of Site IDs where this Policy Tag applies. Must be Area, Building, or Floor level sites (not Global).
+- `site_ids` (Set of String) Set of Site IDs where this Policy Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET; the provider ignores extras on refresh so a parent-only config stays idempotent.

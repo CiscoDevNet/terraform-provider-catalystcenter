@@ -78,7 +78,7 @@ func (d *WirelessProfileSiteTagDataSource) Schema(ctx context.Context, req datas
 				Computed:            true,
 			},
 			"site_ids": schema.SetAttribute{
-				MarkdownDescription: "Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global).",
+				MarkdownDescription: "Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET; the provider ignores extras on refresh so a parent-only config stays idempotent.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},

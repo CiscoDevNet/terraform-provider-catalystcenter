@@ -1,6 +1,7 @@
 
 ## 0.6.0 (unreleased)
 
+- Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources to ignore inherited child `site_ids` returned by Catalyst Center 3.2.3+ GET, so assigning a parent site remains idempotent on older and newer controllers
 - Fix `catalystcenter_anycast_gateways` resource to send the Catalyst Center-generated `vlan_name` when updating a gateway created with `auto_generate_vlan_name`, which previously omitted `vlanName` from the PUT and failed with `NCHS20599` (`vlanName must not be null or empty`)
 - Add `serial_number` attribute to the `catalystcenter_network_devices` data source
 - Add write-only support for secret attributes on `catalystcenter_aaa_settings`, `catalystcenter_authentication_policy_server`, `catalystcenter_credentials_cli`, `catalystcenter_credentials_https_read`, `catalystcenter_credentials_https_write`, `catalystcenter_credentials_snmpv2_read`, `catalystcenter_credentials_snmpv2_write`, `catalystcenter_credentials_snmpv3`, `catalystcenter_lan_automation`, `catalystcenter_user` and `catalystcenter_wireless_ssid`. Each secret gains an `<attr>_wo` [write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) variant that is never persisted to Terraform state, paired with an `<attr>_wo_version` integer that must be incremented to rotate the value. The existing attribute keeps working unchanged, and exactly one of the two spellings may be set; using the `_wo` form requires Terraform 1.11 or later

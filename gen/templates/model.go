@@ -927,9 +927,17 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	}
 	{{- else if isListSet .}}
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+		{{- if .IgnoreExtraResponseValues}}
+		data.{{toGoName .TfName}} = helpers.KeepStringSetIn(ctx, data.{{toGoName .TfName}}, value.Array())
+		{{- else}}
 		data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+		{{- end}}
 	}{{if or .FallbackResponseDataPath .FallbackResponseModelName}} else if value := res.Get("{{if .FallbackResponseDataPath}}{{.FallbackResponseDataPath}}{{else}}{{.FallbackResponseModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+		{{- if .IgnoreExtraResponseValues}}
+		data.{{toGoName .TfName}} = helpers.KeepStringSetIn(ctx, data.{{toGoName .TfName}}, value.Array())
+		{{- else}}
 		data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+		{{- end}}
 	}{{end}} else {
 		data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 	}

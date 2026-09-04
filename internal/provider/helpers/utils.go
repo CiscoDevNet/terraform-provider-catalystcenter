@@ -18,6 +18,8 @@
 package helpers
 
 import (
+	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -62,6 +64,28 @@ func GetStringSet(result []gjson.Result) types.Set {
 		v[r] = types.StringValue(result[r].String())
 	}
 	return types.SetValueMust(types.StringType, v)
+}
+
+// KeepStringSetIn returns the subset of state values that are also present in
+// the API result. Extra API values are dropped. Used when GET expands inherited
+// members (for example child site IDs on wireless profile tags in 3.2.3+) so
+// they are not stored in state and do not appear as drift against a parent-only
+// configuration. Older controllers that return exactly the configured set are
+// unchanged.
+func KeepStringSetIn(ctx context.Context, state types.Set, api []gjson.Result) types.Set {
+	allow := make(map[string]struct{}, len(api))
+	for _, v := range api {
+		allow[v.String()] = struct{}{}
+	}
+	var stateVals []string
+	_ = state.ElementsAs(ctx, &stateVals, false)
+	kept := make([]attr.Value, 0, len(stateVals))
+	for _, v := range stateVals {
+		if _, ok := allow[v]; ok {
+			kept = append(kept, types.StringValue(v))
+		}
+	}
+	return types.SetValueMust(types.StringType, kept)
 }
 
 func GetInt64Set(result []gjson.Result) types.Set {

@@ -33,5 +33,5 @@ data "catalystcenter_wireless_profile_site_tag" "example" {
 
 - `ap_profile_name` (String) Name of the AP Profile to associate with this Site Tag
 - `flex_profile_name` (String) Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. If not provided for a Flex profile, the system will auto-generate one.
-- `site_ids` (Set of String) Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global).
+- `site_ids` (Set of String) Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET; the provider ignores extras on refresh so a parent-only config stays idempotent.
 - `site_tag_name` (String) Name of the Site Tag. Use English letters, numbers, special characters except <, /, '.*', ? and leading/trailing space. Cannot be modified after creation.

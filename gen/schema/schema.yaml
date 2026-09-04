@@ -127,3 +127,4 @@ attribute:
   null_on_empty: bool(required=False) # If true, treat empty string values from the API as null in Terraform state (prevents empty-string vs null mismatch on import)
   custom_modifier: str(required=False) # Set custom modifier on the field, Modifier should exist in the package
   always_include: bool(required=False) # Include attribute always in payload
+  ignore_extra_response_values: bool(required=False) # If true, updateFromBody keeps only values already in state that are also in the API response (String Set). Extra API values are ignored. Use when GET expands inherited children (e.g. siteIds on wireless profile tags in Catalyst Center 3.2.3+).

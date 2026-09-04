@@ -153,7 +153,7 @@ func (data *WirelessProfilePolicyTag) updateFromBody(ctx context.Context, res gj
 		data.PolicyTagName = types.StringNull()
 	}
 	if value := res.Get("response.siteIds"); value.Exists() && !data.SiteIds.IsNull() {
-		data.SiteIds = helpers.GetStringSet(value.Array())
+		data.SiteIds = helpers.KeepStringSetIn(ctx, data.SiteIds, value.Array())
 	} else {
 		data.SiteIds = types.SetNull(types.StringType)
 	}

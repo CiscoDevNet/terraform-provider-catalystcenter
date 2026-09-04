@@ -230,6 +230,7 @@ type YamlConfigAttribute struct {
 	NullOnEmpty               bool                  `yaml:"null_on_empty"`
 	CustomModifier            string                `yaml:"custom_modifier"`
 	AlwaysInclude             bool                  `yaml:"always_include"`
+	IgnoreExtraResponseValues bool                  `yaml:"ignore_extra_response_values"`
 }
 
 // Templating helper function to convert TF name to GO name
