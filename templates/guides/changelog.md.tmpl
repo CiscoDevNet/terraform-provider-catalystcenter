@@ -10,6 +10,7 @@ description: |-
 
 ## 0.6.0 (unreleased)
 
+- Fix `catalystcenter_assign_credentials` resource to unassign credentials as `{"credentialsId": null}` instead of a top-level `null` slot, which Catalyst Center 3.2.2 rejects with `NCND00010`
 - Fix `catalystcenter_ip_pool_reservation` resource to preserve the Catalyst Center-assigned anycast gateway when updating an SDA-reserved pool. When an update does not set `ipv4_gateway`/`ipv6_gateway` (e.g. changing `ipv4_dhcp_servers`), the resource now reuses the controller's current `gatewayIpAddress` instead of omitting it from the PUT, which previously failed with `NCIP10368` (`Cannot remove gateway from a pool that is reserved by SDA`) and on older releases detached the anycast gateway and left the fabric needing reprovision
 - Fix `catalystcenter_anycast_gateways` resource to send the Catalyst Center-generated `vlan_name` when updating a gateway created with `auto_generate_vlan_name`, which previously omitted `vlanName` from the PUT and failed with `NCHS20599` (`vlanName must not be null or empty`)
 - Add `serial_number` attribute to the `catalystcenter_network_devices` data source

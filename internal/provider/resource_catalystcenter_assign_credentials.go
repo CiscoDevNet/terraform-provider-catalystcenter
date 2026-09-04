@@ -306,13 +306,13 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 // in state), so that credentials inherited from a parent site are preserved. The
 // generated version sends a static body that clears all six slots, which also
 // wipes inherited credentials at child sites. Instead we build the body from
-// state (reusing toBody with an empty plan) so each managed slot is sent as null
-// (inherit from the parent site) and unmanaged/inherited slots are omitted. The
-// global site has no parent to inherit from and rejects a partial body with
-// NCND01090; in that case we retry once with every slot present as an empty
-// object ({}, the API's "unset" form), which is correct at the global root since
-// there is nothing to inherit. Transient NCND00010 ("Global Settings Save is in
-// progress") errors are retried.
+// state (reusing toBody with an empty plan) so each managed slot is sent as
+// {"credentialsId": null} (inherit from the parent site) and unmanaged/inherited
+// slots are omitted. The global site has no parent to inherit from and rejects a
+// partial body with NCND01090; in that case we retry once with every slot
+// present as an empty object ({}, the API's "unset" form), which is correct at
+// the global root since there is nothing to inherit. Transient NCND00010
+// ("Global Settings Save is in progress") errors are retried.
 func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state AssignCredentials
 
@@ -325,9 +325,9 @@ func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.Del
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	// Build the clear body from state: only the slots Terraform manages (non-null
-	// in state) are unassigned (sent as null so they inherit from the parent);
-	// inherited slots are omitted.
+	// Build the clear body from state: only the slots Terraform manages
+	// (non-null in state) are unassigned (sent as {"credentialsId": null} so
+	// they inherit from the parent); inherited slots are omitted.
 	var empty AssignCredentials
 	body := empty.toBody(ctx, state)
 	if body == "" {
