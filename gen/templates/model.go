@@ -1280,6 +1280,7 @@ for i := range data.{{toGoName .TfName}} {
 			return true
 		},
 	)
+	_ = r
 
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference) .Computed}}
