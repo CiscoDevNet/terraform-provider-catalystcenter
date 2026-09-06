@@ -1249,6 +1249,7 @@ if value := res{{if .ModelName}}.Get("{{if .ResponseDataPath}}{{.ResponseDataPat
 	}
 }
 {{- else if isNestedListSetMap .}}
+{{- if hasUnknownsChildren .Attributes}}
 {{- $list := (toGoName .TfName)}}
 for i := range data.{{toGoName .TfName}} {
 	keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}}{{end}} }
@@ -1419,6 +1420,7 @@ for i := range data.{{toGoName .TfName}} {
 	{{- end}}
 	{{- end}}
 }
+{{- end}}
 {{- end}}
 {{- end}}
 {{- end}}
