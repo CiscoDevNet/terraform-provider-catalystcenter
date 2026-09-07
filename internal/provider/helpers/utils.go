@@ -67,11 +67,14 @@ func GetStringSet(result []gjson.Result) types.Set {
 }
 
 // KeepStringSetIn returns the subset of state values that are also present in
-// the API result. Extra API values are dropped. Used when GET expands inherited
-// members (for example child site IDs on wireless profile tags in 3.2.3+) so
-// they are not stored in state and do not appear as drift against a parent-only
-// configuration. Older controllers that return exactly the configured set are
-// unchanged.
+// the API result. Extra API values are dropped. state must be a types.Set of
+// strings (not a List); the generator only emits this helper for String Set
+// attributes. Used when GET expands inherited members (for example child site
+// IDs on wireless profile tags in 3.2.3+) so they are not stored in state and
+// do not appear as drift against a parent-only configuration. GET does not
+// distinguish inherited children from extra values assigned out of band, so
+// those extras are ignored the same way. Older controllers that return exactly
+// the configured set are unchanged.
 func KeepStringSetIn(ctx context.Context, state types.Set, api []gjson.Result) types.Set {
 	allow := make(map[string]struct{}, len(api))
 	for _, v := range api {

@@ -3,12 +3,12 @@
 page_title: "catalystcenter_wireless_profile_policy_tag Resource - terraform-provider-catalystcenter"
 subcategory: "Wireless"
 description: |-
-  This resource manages Policy Tags associated with a Wireless Profile in Cisco Catalyst Center. Policy Tags control which AP Zones are active at specific sites. They are only relevant when AP Zones are configured on the Wireless Profile. Before creating a policy tag, the Wireless Profile must first be assigned to the site using the catalystcenter_network_profile_for_sites_assignments resource.
+  This resource manages Policy Tags associated with a Wireless Profile in Cisco Catalyst Center. Policy Tags control which AP Zones are active at specific sites. They are only relevant when AP Zones are configured on the Wireless Profile. Before creating a policy tag, the Wireless Profile must first be assigned to the site using the catalystcenter_network_profile_for_sites_assignments resource. Resource refresh ignores extra site_ids that Catalyst Center 3.2.3+ returns for descendant sites of an assigned parent. terraform import and the data source still return the full GET list; if configuration lists only parent sites, the first plan after import updates the tag back to that set. GET does not distinguish inherited children from extra sites assigned out of band (GUI/API), so those extras are also ignored on refresh until they appear in configuration or an update is otherwise applied.
 ---
 
 # catalystcenter_wireless_profile_policy_tag (Resource)
 
-This resource manages Policy Tags associated with a Wireless Profile in Cisco Catalyst Center. Policy Tags control which AP Zones are active at specific sites. They are only relevant when AP Zones are configured on the Wireless Profile. Before creating a policy tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource.
+This resource manages Policy Tags associated with a Wireless Profile in Cisco Catalyst Center. Policy Tags control which AP Zones are active at specific sites. They are only relevant when AP Zones are configured on the Wireless Profile. Before creating a policy tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource. Resource refresh ignores extra `site_ids` that Catalyst Center 3.2.3+ returns for descendant sites of an assigned parent. `terraform import` and the data source still return the full GET list; if configuration lists only parent sites, the first plan after import updates the tag back to that set. GET does not distinguish inherited children from extra sites assigned out of band (GUI/API), so those extras are also ignored on refresh until they appear in configuration or an update is otherwise applied.
 
 ## Example Usage
 
@@ -26,7 +26,7 @@ resource "catalystcenter_wireless_profile_policy_tag" "example" {
 ### Required
 
 - `policy_tag_name` (String) Name of the Policy Tag. Use English letters, numbers, special characters except <, /, '.*', ? and leading/trailing space. Cannot be modified after creation.
-- `site_ids` (Set of String) Set of Site IDs where this Policy Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET; the provider ignores extras on refresh so a parent-only config stays idempotent.
+- `site_ids` (Set of String) Set of Site IDs where this Policy Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET. The data source and `terraform import` return the full GET list. Resource refresh keeps only IDs already in state so a parent-only configuration stays idempotent.
 - `wireless_profile_id` (String) The ID of the Wireless Profile
 
 ### Optional

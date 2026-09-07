@@ -925,6 +925,7 @@ func augmentConfig(config *YamlConfig) {
 	for ia := range config.Attributes {
 		augmentAttribute(&config.Attributes[ia])
 	}
+	validateIgnoreExtraResponseValues(config.Attributes)
 	// For each top-level attribute marked write_only_tf, rename it to "<tf_name>_wo"
 	// (the Terraform-core write-only attribute) and inject a companion
 	// "<tf_name>_wo_version" (Int64, Optional) that IS stored in state and drives
@@ -940,6 +941,24 @@ func augmentConfig(config *YamlConfig) {
 			config.ResDescription = fmt.Sprintf("This resource can manage an %s.", config.Name)
 		} else {
 			config.ResDescription = fmt.Sprintf("This resource can manage a %s.", config.Name)
+		}
+	}
+}
+
+// validateIgnoreExtraResponseValues rejects the flag on anything other than a
+// String Set. The generated updateFromBody call uses KeepStringSetIn, which only
+// handles types.Set of strings; isListSet also matches Lists, so a misuse would
+// compile against the wrong helper or panic at runtime.
+func validateIgnoreExtraResponseValues(attrs []YamlConfigAttribute) {
+	for _, attr := range attrs {
+		if len(attr.Attributes) > 0 {
+			validateIgnoreExtraResponseValues(attr.Attributes)
+		}
+		if !attr.IgnoreExtraResponseValues {
+			continue
+		}
+		if attr.Type != "Set" || attr.ElementType != "String" {
+			panic(fmt.Sprintf("ignore_extra_response_values is only supported on String Set attributes, but %q has type %q element_type %q", attr.TfName, attr.Type, attr.ElementType))
 		}
 	}
 }

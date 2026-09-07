@@ -8,7 +8,7 @@ id_query_rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/siteTags
 put_no_id: true
 id_from_query_path: response.0
 id_from_query_path_attribute: siteTagId
-res_description: 'This resource manages Site Tags associated with a Wireless Profile in Cisco Catalyst Center. Site Tags cannot be created at the Global site - they must be created at Area, Building, or Floor level. Before creating a site tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource.'
+res_description: 'This resource manages Site Tags associated with a Wireless Profile in Cisco Catalyst Center. Site Tags cannot be created at the Global site - they must be created at Area, Building, or Floor level. Before creating a site tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource. Resource refresh ignores extra `site_ids` that Catalyst Center 3.2.3+ returns for descendant sites of an assigned parent. `terraform import` and the data source still return the full GET list; if configuration lists only parent sites, the first plan after import updates the tag back to that set. GET does not distinguish inherited children from extra sites assigned out of band (GUI/API), so those extras are also ignored on refresh until they appear in configuration or an update is otherwise applied.'
 doc_category: Wireless
 attributes:
   - model_name: wireless_profile_id
@@ -56,7 +56,7 @@ attributes:
     put_data_path: "_"
     response_data_path: response.siteIds
     ignore_extra_response_values: true
-    description: Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET; the provider ignores extras on refresh so a parent-only config stays idempotent.
+    description: Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET. The data source and `terraform import` return the full GET list. Resource refresh keeps only IDs already in state so a parent-only configuration stays idempotent.
     example: 12345678-1234-1234-1234-123456789000
     test_value: "[catalystcenter_building.test_building.id]"
   - model_name: flexProfileName
