@@ -10,6 +10,7 @@ description: |-
 
 ## 0.6.0 (unreleased)
 
+- Add `assign_anchor_managed_ap_locations` resource
 - Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources to ignore inherited child `site_ids` returned by Catalyst Center 3.2.3+ GET, so assigning a parent site remains idempotent on older and newer controllers
 - Fix `catalystcenter_assign_credentials` resource to unassign credentials as `{"credentialsId": null}` instead of a top-level `null` slot, which Catalyst Center 3.2.2 rejects with `NCND00010`
 - Fix `catalystcenter_ip_pool_reservation` resource to preserve the Catalyst Center-assigned anycast gateway when updating an SDA-reserved pool. When an update does not set `ipv4_gateway`/`ipv6_gateway` (e.g. changing `ipv4_dhcp_servers`), the resource now reuses the controller's current `gatewayIpAddress` instead of omitting it from the PUT, which previously failed with `NCIP10368` (`Cannot remove gateway from a pool that is reserved by SDA`) and on older releases detached the anycast gateway and left the fabric needing reprovision
@@ -210,7 +211,7 @@ description: |-
 
 ## 0.4.3
 
-- Add `catalystcenter_fabric_devices` resource and data_source to manage multiple fabric devices under same fabric site within single resource 
+- Add `catalystcenter_fabric_devices` resource and data_source to manage multiple fabric devices under same fabric site within single resource
 - Add `catalystcenter_fabric_multicast_virtual_networks` resource and data_source to manage multiple multicast virtual networks under same fabric site within single resource
 - Add `catalystcenter_fabric_multicast_virtual_network` resource and data_source
 - Add `catalystcenter_extranet_policy` resource and data_source
@@ -326,7 +327,7 @@ description: |-
 ## 0.2.9
 
 - Modify `catalystcenter_pnp_device` resource and skip error if device already exists and add to terraform state
-- Add 400 406 and 500 status codes for handling manually deleted objects 
+- Add 400 406 and 500 status codes for handling manually deleted objects
 - Fix issue with list order of `ssid_details` attribute in `catalystcenter_wireless_profile` resource
 
 ## 0.2.8
@@ -338,7 +339,7 @@ description: |-
 ## 0.2.7
 
 - Add import and data source to `catalystcenter_update_authentication_profile` resource
-- Remove default value from `interface_name` in the `catalystcenter_wireless_profile` resource 
+- Remove default value from `interface_name` in the `catalystcenter_wireless_profile` resource
 - Add import to `catalystcenter_assign_templates_to_tag` resource
 - Add `catalystcenter_assign_devices_to_tag` resource and data source
 

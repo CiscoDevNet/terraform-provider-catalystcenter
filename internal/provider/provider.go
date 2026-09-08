@@ -307,6 +307,7 @@ func (p *CcProvider) Resources(ctx context.Context) []func() resource.Resource {
 		NewApplyPendingFabricEventsResource,
 		NewAreaResource,
 		NewAreasResource,
+		NewAssignAnchorManagedAPLocationsResource,
 		NewAssignCredentialsResource,
 		NewAssignDeviceToSiteResource,
 		NewAssignDevicesToTagResource,

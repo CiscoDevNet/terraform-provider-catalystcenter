@@ -21,6 +21,8 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -37,26 +39,26 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &AssignManagedAPLocationsResource{}
+var _ resource.Resource = &AssignAnchorManagedAPLocationsResource{}
 
-func NewAssignManagedAPLocationsResource() resource.Resource {
-	return &AssignManagedAPLocationsResource{}
+func NewAssignAnchorManagedAPLocationsResource() resource.Resource {
+	return &AssignAnchorManagedAPLocationsResource{}
 }
 
-type AssignManagedAPLocationsResource struct {
+type AssignAnchorManagedAPLocationsResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
 	cache                 *ThreadSafeCache
 }
 
-func (r *AssignManagedAPLocationsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_assign_managed_ap_locations"
+func (r *AssignAnchorManagedAPLocationsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_assign_anchor_managed_ap_locations"
 }
 
-func (r *AssignManagedAPLocationsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *AssignAnchorManagedAPLocationsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource is used to assign managed AP locations to a wireless controller. It allows you to specify primary and secondary managed AP locations for the controller.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource is used to assign anchor managed AP locations to a wireless controller (WLC) acting as a Foreign Anchor. The payload should always be a complete list of site IDs; locations included in the payload will be fully processed for both addition and deletion.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -66,15 +68,10 @@ func (r *AssignManagedAPLocationsResource) Schema(ctx context.Context, req resou
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"primary_managed_ap_locations_site_ids": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Site IDs of Primary Managed AP Locations").String,
+			"anchor_managed_ap_locations_site_ids": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Site IDs of Anchor Managed AP Locations").String,
 				ElementType:         types.StringType,
-				Optional:            true,
-			},
-			"secondary_managed_ap_locations_site_ids": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Site IDs of Secondary Managed AP Locations").String,
-				ElementType:         types.StringType,
-				Optional:            true,
+				Required:            true,
 			},
 			"device_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Device Id").String,
@@ -87,7 +84,7 @@ func (r *AssignManagedAPLocationsResource) Schema(ctx context.Context, req resou
 	}
 }
 
-func (r *AssignManagedAPLocationsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *AssignAnchorManagedAPLocationsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -100,8 +97,8 @@ func (r *AssignManagedAPLocationsResource) Configure(_ context.Context, req reso
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *AssignManagedAPLocationsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan AssignManagedAPLocations
+func (r *AssignAnchorManagedAPLocationsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan AssignAnchorManagedAPLocations
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -113,7 +110,7 @@ func (r *AssignManagedAPLocationsResource) Create(ctx context.Context, req resou
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, AssignManagedAPLocations{})
+	body := plan.toBody(ctx, AssignAnchorManagedAPLocations{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -132,8 +129,8 @@ func (r *AssignManagedAPLocationsResource) Create(ctx context.Context, req resou
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *AssignManagedAPLocationsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state AssignManagedAPLocations
+func (r *AssignAnchorManagedAPLocationsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state AssignAnchorManagedAPLocations
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -153,8 +150,8 @@ func (r *AssignManagedAPLocationsResource) Read(ctx context.Context, req resourc
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *AssignManagedAPLocationsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state AssignManagedAPLocations
+func (r *AssignAnchorManagedAPLocationsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state AssignAnchorManagedAPLocations
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -188,8 +185,8 @@ func (r *AssignManagedAPLocationsResource) Update(ctx context.Context, req resou
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *AssignManagedAPLocationsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state AssignManagedAPLocations
+func (r *AssignAnchorManagedAPLocationsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state AssignAnchorManagedAPLocations
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -209,3 +206,38 @@ func (r *AssignManagedAPLocationsResource) Delete(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin readcache
+func (r *AssignAnchorManagedAPLocationsResource) ReadCache(ctx context.Context, req resource.ReadRequest, state AssignAnchorManagedAPLocations, params string) (cc.Res, error) {
+	var err error
+	cacheKey := "AssignAnchorManagedAPLocations::"
+
+	_, cacheSuffix, found := strings.Cut(params, "?")
+	queryPart, err := url.ParseQuery(cacheSuffix)
+	if err == nil {
+		delete(queryPart, "id")
+		newQuery := queryPart.Encode()
+		cacheSuffix = "?" + newQuery
+		cacheKey += cacheSuffix
+	}
+
+	cachedValue, found := r.cache.Get(cacheKey)
+	if found {
+		tflog.Debug(ctx, fmt.Sprintf("hit cache for %s", cacheKey))
+		ccRes, ok := cachedValue.(cc.Res)
+		if ok {
+			return ccRes, nil
+		}
+		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
+		r.cache.Delete(cacheKey)
+	}
+	res, err := r.client.Get(state.getPath() + params)
+	singleRes := res
+	if err == nil {
+		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
+		r.cache.Set(cacheKey, res)
+	}
+	return singleRes, err
+}
+
+// End of section. //template:end readcache

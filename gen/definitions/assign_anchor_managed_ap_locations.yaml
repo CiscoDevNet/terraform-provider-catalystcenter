@@ -1,8 +1,8 @@
 ---
-name: Assign Managed AP Locations
-rest_endpoint: /dna/intent/api/v1/wirelessControllers/%v/assignManagedApLocations
+name: Assign Anchor Managed AP Locations
+rest_endpoint: /dna/intent/api/v1/wirelessSettings/%v/assignAnchorManagedApLocations
 no_read: true
-res_description: 'This resource is used to assign managed AP locations to a wireless controller. It allows you to specify primary and secondary managed AP locations for the controller.'
+res_description: 'This resource is used to assign anchor managed AP locations to a wireless controller (WLC) acting as a Foreign Anchor. The payload should always be a complete list of site IDs; locations included in the payload will be fully processed for both addition and deletion.'
 post_update: true
 no_import: true
 no_data_source: true
@@ -11,20 +11,14 @@ skip_minimum_test: true
 doc_category: Wireless
 test_tags: [WIRELESS]
 attributes:
-  - model_name: primaryManagedAPLocationsSiteIds
-    tf_name: primary_managed_ap_locations_site_ids
+  - model_name: anchorManagedAPLocationsSiteIds
+    tf_name: anchor_managed_ap_locations_site_ids
     type: Set
     element_type: String
-    description: Site IDs of Primary Managed AP Locations
+    mandatory: true
+    description: Site IDs of Anchor Managed AP Locations
     example: d8a7b9ab-ac88-4323-94b4-55ce048154bc
     test_value: '[catalystcenter_building.test.id]'
-  - model_name: secondaryManagedAPLocationsSiteIds
-    tf_name: secondary_managed_ap_locations_site_ids
-    type: Set
-    element_type: String
-    description: Site IDs of Secondary Managed AP Locations
-    example: b16df7a0-1eac-4d1d-bbbe-488c48b07360
-    exclude_test: true
   - tf_name: device_id
     type: String
     reference: true
