@@ -61,7 +61,7 @@ func (r *WirelessProfileSiteTagResource) Metadata(ctx context.Context, req resou
 func (r *WirelessProfileSiteTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource manages Site Tags associated with a Wireless Profile in Cisco Catalyst Center. Site Tags cannot be created at the Global site - they must be created at Area, Building, or Floor level. Before creating a site tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource manages Site Tags associated with a Wireless Profile in Cisco Catalyst Center. Site Tags cannot be created at the Global site - they must be created at Area, Building, or Floor level. Before creating a site tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource. Resource refresh ignores extra `site_ids` that Catalyst Center 3.2.3+ returns for descendant sites of an assigned parent. `terraform import` and the data source still return the full GET list; if configuration lists only parent sites, the first plan after import updates the tag back to that set. GET does not distinguish inherited children from extra sites assigned out of band (GUI/API), so those extras are also ignored on refresh until they appear in configuration or an update is otherwise applied.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -98,7 +98,7 @@ func (r *WirelessProfileSiteTagResource) Schema(ctx context.Context, req resourc
 				Required:            true,
 			},
 			"site_ids": schema.SetAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global).").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Set of Site IDs where this Site Tag applies. Must be Area, Building, or Floor level sites (not Global). Assigning a parent site also applies the tag to child sites. Catalyst Center 3.2.3+ returns those inherited child IDs on GET. The data source and `terraform import` return the full GET list. Resource refresh keeps only IDs already in state so a parent-only configuration stays idempotent.").String,
 				ElementType:         types.StringType,
 				Required:            true,
 			},
