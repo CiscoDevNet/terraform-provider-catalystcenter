@@ -127,4 +127,5 @@ attribute:
   null_on_empty: bool(required=False) # If true, treat empty string values from the API as null in Terraform state (prevents empty-string vs null mismatch on import)
   custom_modifier: str(required=False) # Set custom modifier on the field, Modifier should exist in the package
   always_include: bool(required=False) # Include attribute always in payload
+  ignore_extra_response_values: bool(required=False) # If true, updateFromBody keeps only values already in state that are also in the API response. String Set only (generator rejects other types). Extra API values are ignored, including out-of-band assignments GET cannot distinguish from inherited children. Use when GET expands inherited members (e.g. siteIds on wireless profile tags in Catalyst Center 3.2.3+). Does not apply to fromBody (data source / import).
   get_if_unset_on_update: bool(required=False) # If true, when this attribute is unset in the plan on update, fetch its current value from the controller (via GET) and include it in the PUT body so a full-object replace does not strip a value assigned out-of-band (e.g. an SDA anycast gateway). String attributes only.
