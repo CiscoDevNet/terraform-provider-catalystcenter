@@ -8,7 +8,7 @@ description: |-
 # Changelog
 
 
-## 0.6.0 (unreleased)
+## 0.6.0
 
 - Add `assign_anchor_managed_ap_locations` resource
 - Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources to ignore inherited child `site_ids` returned by Catalyst Center 3.2.3+ GET, so assigning a parent site remains idempotent on older and newer controllers
@@ -20,6 +20,8 @@ description: |-
 - Update `go-catalystcenter` dependency to `v0.2.0` to add a `UserAgent` option for setting a custom HTTP User-Agent string on authentication, API, and async task-polling requests
 - Fix `catalystcenter_area`, `catalystcenter_building` and `catalystcenter_floor` resources to remove the object from Terraform state when it no longer exists in Catalyst Center, so it is re-created instead of failing an update with `NCMP00002: No site found`
 - Add `catalystcenter_access_point_configuration` resource to configure and rename access points via the Configure Access Points V1 intent API (`/dna/intent/api/v1/wireless/accesspoint-configuration`). Access points are selected by ethernet MAC address; the resource is create-only, as the endpoint has no corresponding GET
+- Add `additional_ip_pools` attribute to the `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources and data sources, to associate up to 4 secondary IP pools that are used in order once the primary pool is exhausted; requires Catalyst Center 3.2.x
+- Fix `catalystcenter_ip_pool` resource to append `?limit=500` to the fallback GET (`/dna/intent/api/v1/global-pool`), which previously used the API's default page size and could fail to find an existing pool by name on controllers with many global pools
 
 ## 0.5.25
 
