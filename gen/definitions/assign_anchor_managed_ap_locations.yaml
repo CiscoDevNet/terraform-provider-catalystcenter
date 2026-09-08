@@ -6,6 +6,7 @@ res_description: 'This resource is used to assign anchor managed AP locations to
 post_update: true
 no_import: true
 no_data_source: true
+no_delete: true
 skip_minimum_test: true
 doc_category: Wireless
 test_tags: [WIRELESS]
