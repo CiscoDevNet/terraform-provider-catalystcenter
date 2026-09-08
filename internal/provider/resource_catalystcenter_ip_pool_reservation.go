@@ -357,7 +357,48 @@ func (r *IPPoolReservationResource) Update(ctx context.Context, req resource.Upd
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
+	// Some attributes are assigned by Catalyst Center out-of-band (for example an SDA anycast
+	// gateway) and are not part of the data model. When such an attribute was never tracked by
+	// Terraform (null in prior state) and is left unset in the plan, a full-object replace PUT would
+	// omit it and Catalyst Center treats the omission as a removal request (e.g. the IP pool
+	// reservation gateway is rejected with NCIP10368 on SDA-reserved pools, and silently detached on
+	// older releases). In that case fetch the current value from the controller and include it in
+	// the PUT body. A value the user previously managed (non-null in state) is left to the plan, so
+	// clearing it in the configuration still removes it. A copy of the plan is used so the
+	// plan/state Terraform persists is untouched and the apply result stays consistent with the plan.
+	bodyPlan := plan
+	getIfUnsetNeeded := false
+	if bodyPlan.Ipv4Gateway.ValueString() == "" && state.Ipv4Gateway.IsNull() {
+		getIfUnsetNeeded = true
+	}
+	if bodyPlan.Ipv6Gateway.ValueString() == "" && state.Ipv6Gateway.IsNull() {
+		getIfUnsetNeeded = true
+	}
+	if getIfUnsetNeeded {
+		getIfUnsetParams := ""
+		curRes, curErr := r.ReadCache(ctx, resource.ReadRequest{}, state, getIfUnsetParams)
+		if curErr != nil && (strings.Contains(curErr.Error(), "StatusCode 404") || strings.Contains(curErr.Error(), "StatusCode 500")) {
+			curRes, curErr = r.client.Get(state.getFallbackPath() + getIfUnsetParams)
+		}
+		if curErr == nil {
+			curRes = curRes.Get("response.#(id==\"" + state.Id.ValueString() + "\")")
+			if curRes.Exists() {
+				if bodyPlan.Ipv4Gateway.ValueString() == "" && state.Ipv4Gateway.IsNull() {
+					if v := curRes.Get("ipV4AddressSpace.gatewayIpAddress"); v.Exists() && v.String() != "" {
+						bodyPlan.Ipv4Gateway = types.StringValue(v.String())
+					}
+				}
+				if bodyPlan.Ipv6Gateway.ValueString() == "" && state.Ipv6Gateway.IsNull() {
+					if v := curRes.Get("ipV6AddressSpace.gatewayIpAddress"); v.Exists() && v.String() != "" {
+						bodyPlan.Ipv6Gateway = types.StringValue(v.String())
+					}
+				}
+			}
+		} else {
+			tflog.Warn(ctx, fmt.Sprintf("%s: Unable to fetch current object to preserve server-assigned attributes: %s", state.Id.ValueString(), curErr))
+		}
+	}
+	body := bodyPlan.toBody(ctx, state)
 	params := ""
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
 	if err != nil {

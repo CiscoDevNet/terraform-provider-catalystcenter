@@ -57,6 +57,7 @@ attributes:
   description: The IPv4 gateway IP address for this subnet.
   example: 192.168.10.1
   response_data_path: ipV4AddressSpace.gatewayIpAddress
+  get_if_unset_on_update: true
 - model_name: dhcpServers
   tf_name: ipv4_dhcp_servers
   data_path: ipV4AddressSpace
@@ -134,6 +135,7 @@ attributes:
   description: The IPv6 gateway IP address for this subnet.
   example: "2001:db8:8000::1"
   response_data_path: ipV6AddressSpace.gatewayIpAddress
+  get_if_unset_on_update: true
 - model_name: dhcpServers
   tf_name: ipv6_dhcp_servers
   data_path: ipV6AddressSpace

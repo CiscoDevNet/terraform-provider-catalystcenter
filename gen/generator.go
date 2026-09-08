@@ -231,6 +231,7 @@ type YamlConfigAttribute struct {
 	CustomModifier            string                `yaml:"custom_modifier"`
 	AlwaysInclude             bool                  `yaml:"always_include"`
 	IgnoreExtraResponseValues bool                  `yaml:"ignore_extra_response_values"`
+	GetIfUnsetOnUpdate        bool                  `yaml:"get_if_unset_on_update"`
 }
 
 // Templating helper function to convert TF name to GO name
@@ -360,6 +361,34 @@ func HasComputedRefreshValueInKeys(attributes []YamlConfigAttribute) bool {
 		}
 	}
 	return false
+}
+
+// Templating helper function to return true if any child attribute is handled by fromBodyUnknowns.
+// A nested list/set/map whose children are all plain configurable attributes contributes no
+// statements there, so its lookup loop must be skipped entirely - otherwise the generated code
+// declares the `r` gjson.Result without ever using it and does not compile.
+func HasUnknownsChildren(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.Value == "" && !attr.WriteOnly && !attr.Reference && attr.Computed {
+			return true
+		}
+	}
+	return false
+}
+
+// GetIfUnsetOnUpdateAttributes returns the top-level attributes flagged get_if_unset_on_update.
+// These are values that Catalyst Center assigns out-of-band (for example an SDA anycast
+// gateway) and that are not part of the data model, so they are null in the plan. The Update
+// template uses this list to fetch each such value from the controller and include it in the
+// PUT body whenever the plan leaves it empty, so a full-object replace PUT does not strip it.
+func GetIfUnsetOnUpdateAttributes(config YamlConfig) []YamlConfigAttribute {
+	r := []YamlConfigAttribute{}
+	for _, attr := range config.Attributes {
+		if attr.GetIfUnsetOnUpdate {
+			r = append(r, attr)
+		}
+	}
+	return r
 }
 
 // Templating helper function to return the ID attribute
@@ -863,6 +892,7 @@ var functions = template.FuncMap{
 	"hasDataSourceQuery":                 HasDataSourceQuery,
 	"hasComputedRefreshValue":            HasComputedRefreshValue,
 	"hasComputedRefreshValueInKeys":      HasComputedRefreshValueInKeys,
+	"hasUnknownsChildren":                HasUnknownsChildren,
 	"firstPathElement":                   FirstPathElement,
 	"remainingPathElements":              RemainingPathElements,
 	"getFromAllPath":                     GetFromAllPath,
@@ -887,6 +917,7 @@ var functions = template.FuncMap{
 	"coexistingSecretAttributes":         CoexistingSecretAttributes,
 	"coexistingSecretChildren":           CoexistingSecretChildren,
 	"coexistingSecretParentLists":        CoexistingSecretParentLists,
+	"getIfUnsetOnUpdateAttributes":       GetIfUnsetOnUpdateAttributes,
 }
 
 func augmentAttribute(attr *YamlConfigAttribute) {
