@@ -33,6 +33,8 @@ resource "catalystcenter_ap_profile" "example" {
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `ap_power_profile_name` (String) Name of the existing AP power profile for always-on mode.
 - `auth_type` (String) Authentication type used in the AP profile. These settings are applicable during PnP claim and for day-N authentication of AP. Changing these settings will be service impacting for the PnP onboarded APs and will need a factory-reset for those APs.
   - Choices: `NO-AUTH`, `EAP-TLS`, `EAP-PEAP`, `EAP-FAST`
@@ -52,14 +54,29 @@ resource "catalystcenter_ap_profile" "example" {
 - `country_code` (String) Country code for the AP profile.
   - Choices: `AF`, `AE`, `AL`, `AR`, `AT`, `AO`, `AU`, `BD`, `BA`, `BB`, `BE`, `BG`, `BH`, `BM`, `BN`, `BO`, `BR`, `BT`, `BY`, `CA`, `CD`, `CH`, `CI`, `CL`, `CM`, `CN`, `CO`, `CR`, `CU`, `CY`, `CZ`, `DE`, `DK`, `DO`, `DZ`, `EC`, `EE`, `EG`, `EL`, `ES`, `ET`, `FI`, `FJ`, `FR`, `GB`, `GH`, `GI`, `GE`, `GR`, `GT`, `HK`, `HN`, `HR`, `HU`, `ID`, `IE`, `IL`, `IN`, `IQ`, `IS`, `IT`, `J2`, `J4`, `JM`, `JO`, `KE`, `KH`, `KN`, `KW`, `KZ`, `LA`, `LB`, `LI`, `LK`, `LT`, `LU`, `LV`, `LY`, `MA`, `MC`, `MD`, `ME`, `MK`, `MN`, `MM`, `MO`, `MT`, `MX`, `MY`, `NG`, `NI`, `NL`, `NO`, `NP`, `NZ`, `OM`, `PA`, `PE`, `PH`, `PK`, `PL`, `PR`, `PT`, `PY`, `QA`, `RO`, `RS`, `RU`, `SA`, `SD`, `SE`, `SG`, `SI`, `SK`, `SM`, `TH`, `TI`, `TN`, `TR`, `TW`, `TZ`, `UA`, `US`, `UY`, `VA`, `VE`, `VN`, `XK`, `YE`, `ZA`, `ZW`, `MU`, `ZM`, `BI`, `NA`, `BW`, `GA`, `UG`, `UZ`
 - `description` (String) Description of the AP profile. Max length is 241 characters
-- `dot1x_password` (String) Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+- `dot1x_password` (String, Sensitive) Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+  - Only one of `dot1x_password` and `dot1x_password_wo` can be set.
+  - This attribute stores the secret in Terraform state. Prefer `dot1x_password_wo` together with `dot1x_password_wo_version`, which keeps it out of state.
+- `dot1x_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+  - Only one of `dot1x_password` and `dot1x_password_wo` can be set.
+- `dot1x_password_wo_version` (Number) Rotation trigger for `dot1x_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `dot1x_username` (String) Username for 802.1X authentication. dot1xUsername must have a minimum of 1 character and a maximum of 32 characters.
 - `ghz24_backhaul_data_rates` (String) 2.4GHz backhaul data rates.
   - Choices: `auto`, `802.11abg`, `802.11ax`, `802.11n`
 - `ghz5_backhaul_data_rates` (String) 5GHz backhaul data rates.
   - Choices: `auto`, `802.11abg`, `802.11ac`, `802.11ax`, `802.11n`
-- `management_enable_password` (String) Enable password for managing the AP. Length must be 8-120 characters.
-- `management_password` (String) Management password for the AP. Length must be 8-120 characters.
+- `management_enable_password` (String, Sensitive) Enable password for managing the AP. Length must be 8-120 characters.
+  - Only one of `management_enable_password` and `management_enable_password_wo` can be set.
+  - This attribute stores the secret in Terraform state. Prefer `management_enable_password_wo` together with `management_enable_password_wo_version`, which keeps it out of state.
+- `management_enable_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Enable password for managing the AP. Length must be 8-120 characters.
+  - Only one of `management_enable_password` and `management_enable_password_wo` can be set.
+- `management_enable_password_wo_version` (Number) Rotation trigger for `management_enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
+- `management_password` (String, Sensitive) Management password for the AP. Length must be 8-120 characters.
+  - Only one of `management_password` and `management_password_wo` can be set.
+  - This attribute stores the secret in Terraform state. Prefer `management_password_wo` together with `management_password_wo_version`, which keeps it out of state.
+- `management_password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Management password for the AP. Length must be 8-120 characters.
+  - Only one of `management_password` and `management_password_wo` can be set.
+- `management_password_wo_version` (Number) Rotation trigger for `management_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `management_user_name` (String) Management username must have a minimum of 1 character and a maximum of 32 characters.
 - `mesh_enabled` (Boolean) This indicates whether mesh networking is enabled on the AP. For IOS-XE devices, when mesh networking is enabled, a custom mesh profile with the configured parameters will be created and mapped to the AP join profile on the device. When mesh networking is disabled, any existing custom mesh profile will be deleted from the device, and the AP join profile will be mapped to the default mesh profile on the device.
   - Default value: `false`

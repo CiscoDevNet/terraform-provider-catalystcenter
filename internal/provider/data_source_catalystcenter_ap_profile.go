@@ -86,6 +86,14 @@ func (d *APProfileDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "Password for 802.1X authentication. AP dot1x password length should not exceed 120.",
 				Computed:            true,
 			},
+			"dot1x_password_wo": schema.StringAttribute{
+				MarkdownDescription: "Password for 802.1X authentication. AP dot1x password length should not exceed 120.",
+				Computed:            true,
+			},
+			"dot1x_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `dot1x_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
 			"ssh_enabled": schema.BoolAttribute{
 				MarkdownDescription: "Indicates if SSH is enabled on the AP. Enable SSH to add credentials for device management.",
 				Computed:            true,
@@ -102,8 +110,24 @@ func (d *APProfileDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "Management password for the AP. Length must be 8-120 characters.",
 				Computed:            true,
 			},
+			"management_password_wo": schema.StringAttribute{
+				MarkdownDescription: "Management password for the AP. Length must be 8-120 characters.",
+				Computed:            true,
+			},
+			"management_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `management_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
 			"management_enable_password": schema.StringAttribute{
 				MarkdownDescription: "Enable password for managing the AP. Length must be 8-120 characters.",
+				Computed:            true,
+			},
+			"management_enable_password_wo": schema.StringAttribute{
+				MarkdownDescription: "Enable password for managing the AP. Length must be 8-120 characters.",
+				Computed:            true,
+			},
+			"management_enable_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `management_enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 				Computed:            true,
 			},
 			"cdp_state": schema.BoolAttribute{
