@@ -36,9 +36,10 @@ data "catalystcenter_network_devices" "example" {
 
 Read-Only:
 
+- `ap_ethernet_mac_address` (String) Ethernet MAC address of an access point. This is the identifier the Configure Access Points intent API selects access points by; it differs from `mac_address`, which is the base radio MAC. Empty for non-access-point devices.
 - `hostname` (String) Hostname of the network device
 - `id` (String) UUID of the network device
-- `mac_address` (String) Ethernet MAC address of the network device. Required to select an access point in the Configure Access Points intent API, which accepts no other device identifier.
+- `mac_address` (String) MAC address of the network device. On an access point this is the base radio MAC, which is not the identifier used by the Configure Access Points intent API; use `ap_ethernet_mac_address` for that.
 - `management_ip_address` (String) Management IP address
 - `management_state` (String) Management state of a network device. If it is not "Managed" for a device, then the `catalystcenter_device_detail` may fail for that device.
 - `platform_id` (String) Platform identifier
