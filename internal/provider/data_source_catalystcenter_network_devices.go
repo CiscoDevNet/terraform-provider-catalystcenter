@@ -83,6 +83,10 @@ func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.Sc
 							MarkdownDescription: "Serial number of the network device. For devices whose hostname or management IP address is not known ahead of time (for example access points before they are claimed), this is the only stable identifier.",
 							Computed:            true,
 						},
+						"mac_address": schema.StringAttribute{
+							MarkdownDescription: "Ethernet MAC address of the network device. Required to select an access point in the Configure Access Points intent API, which accepts no other device identifier.",
+							Computed:            true,
+						},
 						"role": schema.StringAttribute{
 							MarkdownDescription: "Role of the network device, such as `ACCESS` or `DISTRIBUTION`.",
 							Computed:            true,
