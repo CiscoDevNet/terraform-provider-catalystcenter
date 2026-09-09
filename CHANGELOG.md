@@ -1,4 +1,8 @@
 
+## 0.6.1 (unreleased)
+
+- Add write-only support for the `dot1x_password`, `management_password` and `management_enable_password` secret attributes on `catalystcenter_ap_profile`. Each secret gains an `<attr>_wo` [write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) variant that is never persisted to Terraform state, paired with an `<attr>_wo_version` integer that must be incremented to rotate the value. The existing attribute keeps working unchanged, and exactly one of the two spellings may be set; using the `_wo` form requires Terraform 1.11 or later
+
 ## 0.6.0
 
 - Add `assign_anchor_managed_ap_locations` resource
