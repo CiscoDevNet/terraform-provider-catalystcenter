@@ -1,4 +1,8 @@
 
+## 0.6.1 (unreleased)
+
+- Fix `radio_role_assignment` on the `catalystcenter_access_point_configuration` resource, which accepted only `auto`/`serving`/`monitor` while Catalyst Center accepts only `AUTO`/`SERVING`/`MONITOR`, making the attribute impossible to use. The published API schema lists the enum in lowercase but the service is case-sensitive and rejects it
+
 ## 0.6.0
 
 - Add `assign_anchor_managed_ap_locations` resource

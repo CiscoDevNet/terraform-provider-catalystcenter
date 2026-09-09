@@ -107,7 +107,7 @@ Optional:
   - Range: `1`-`8`
 - `radio_band` (String) Configure the band on the specified radio for an access point: for 2.4 GHz, set `RADIO24`; for 5 GHz, set `RADIO5`; for 6 GHz, set `RADIO6`. Any other string is invalid, including empty string.
   - Choices: `RADIO24`, `RADIO5`, `RADIO6`
-- `radio_role_assignment` (String) Configure only one of the following roles on the specified radio for an access point as `auto`, `serving`, or `monitor`. Any other string is invalid, including empty string.
-  - Choices: `auto`, `serving`, `monitor`
+- `radio_role_assignment` (String) Configure only one of the following roles on the specified radio for an access point as `AUTO`, `SERVING`, or `MONITOR`. The values are case-sensitive; Catalyst Center rejects lowercase spellings even though the published API schema lists them in lowercase.
+  - Choices: `AUTO`, `SERVING`, `MONITOR`
 - `radio_type` (Number) Configure an access point's radio band: for 2.4 GHz, set `1`; for 5 GHz, set `2`; for XOR, set `3`; and for 6 GHz, set `6`.
   - Choices: `1`, `2`, `3`, `6`
