@@ -174,8 +174,8 @@ attributes:
         description: To change the radio role on the specified radio for an access point, set this parameter's value to `true`.
       - model_name: radioRoleAssignment
         type: String
-        enum_values: [auto, serving, monitor]
-        description: Configure only one of the following roles on the specified radio for an access point as `auto`, `serving`, or `monitor`. Any other string is invalid, including empty string.
+        enum_values: [AUTO, SERVING, MONITOR]
+        description: Configure only one of the following roles on the specified radio for an access point as `AUTO`, `SERVING`, or `MONITOR`. The values are case-sensitive; Catalyst Center rejects lowercase spellings even though the published API schema lists them in lowercase.
       - model_name: configureAdminStatus
         type: Bool
         description: To change the admin status on the specified radio for an access point, set this parameter's value to `true`.

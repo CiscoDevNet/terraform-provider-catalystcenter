@@ -274,10 +274,10 @@ func (r *AccessPointConfigurationResource) Schema(ctx context.Context, req resou
 							Optional:            true,
 						},
 						"radio_role_assignment": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Configure only one of the following roles on the specified radio for an access point as `auto`, `serving`, or `monitor`. Any other string is invalid, including empty string.").AddStringEnumDescription("auto", "serving", "monitor").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Configure only one of the following roles on the specified radio for an access point as `AUTO`, `SERVING`, or `MONITOR`. The values are case-sensitive; Catalyst Center rejects lowercase spellings even though the published API schema lists them in lowercase.").AddStringEnumDescription("AUTO", "SERVING", "MONITOR").String,
 							Optional:            true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("auto", "serving", "monitor"),
+								stringvalidator.OneOf("AUTO", "SERVING", "MONITOR"),
 							},
 						},
 						"configure_admin_status": schema.BoolAttribute{
