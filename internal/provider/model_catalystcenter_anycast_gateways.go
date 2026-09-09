@@ -103,7 +103,7 @@ func (data AnycastGateways) toBody(ctx context.Context, state AnycastGateways) s
 			if !item.IpPoolName.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "ipPoolName", item.IpPoolName.ValueString())
 			}
-			if len(item.AdditionalIpPools) > 0 {
+			if true {
 				itemBody, _ = sjson.Set(itemBody, "additionalIpPools", []interface{}{})
 				for _, childItem := range item.AdditionalIpPools {
 					itemChildBody := ""

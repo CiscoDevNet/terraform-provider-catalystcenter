@@ -74,7 +74,7 @@ func (d *AnycastGatewayDataSource) Schema(ctx context.Context, req datasource.Sc
 				Required:            true,
 			},
 			"additional_ip_pools": schema.SetNestedAttribute{
-				MarkdownDescription: "Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN)",
+				MarkdownDescription: "Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN). Requires Catalyst Center 3.2.3 or later.",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
