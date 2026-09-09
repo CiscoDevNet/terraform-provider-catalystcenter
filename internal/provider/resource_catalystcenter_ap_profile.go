@@ -114,11 +114,25 @@ func (r *APProfileResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"dot1x_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Password for 802.1X authentication. AP dot1x password length should not exceed 120.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Password for 802.1X authentication. AP dot1x password length should not exceed 120.").AddMutualExclusivityDescription("Only one of `dot1x_password` and `dot1x_password_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `dot1x_password_wo` together with `dot1x_password_wo_version`, which keeps it out of state.").String,
+				Sensitive:           true,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(0, 120),
 				},
+			},
+			"dot1x_password_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Password for 802.1X authentication. AP dot1x password length should not exceed 120.").AddMutualExclusivityDescription("Only one of `dot1x_password` and `dot1x_password_wo` can be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(0, 120),
+				},
+			},
+			"dot1x_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `dot1x_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
 			},
 			"ssh_enabled": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates if SSH is enabled on the AP. Enable SSH to add credentials for device management.").AddDefaultValueDescription("false").String,
@@ -140,18 +154,46 @@ func (r *APProfileResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"management_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Management password for the AP. Length must be 8-120 characters.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Management password for the AP. Length must be 8-120 characters.").AddMutualExclusivityDescription("Only one of `management_password` and `management_password_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `management_password_wo` together with `management_password_wo_version`, which keeps it out of state.").String,
+				Sensitive:           true,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(8, 120),
 				},
 			},
+			"management_password_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Management password for the AP. Length must be 8-120 characters.").AddMutualExclusivityDescription("Only one of `management_password` and `management_password_wo` can be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(8, 120),
+				},
+			},
+			"management_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `management_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
+			},
 			"management_enable_password": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Enable password for managing the AP. Length must be 8-120 characters.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable password for managing the AP. Length must be 8-120 characters.").AddMutualExclusivityDescription("Only one of `management_enable_password` and `management_enable_password_wo` can be set.").AddCoexistenceNote("This attribute stores the secret in Terraform state. Prefer `management_enable_password_wo` together with `management_enable_password_wo_version`, which keeps it out of state.").String,
+				Sensitive:           true,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(8, 120),
 				},
+			},
+			"management_enable_password_wo": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enable password for managing the AP. Length must be 8-120 characters.").AddMutualExclusivityDescription("Only one of `management_enable_password` and `management_enable_password_wo` can be set.").String,
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.LengthBetween(8, 120),
+				},
+			},
+			"management_enable_password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Rotation trigger for `management_enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.").String,
+				Optional:            true,
 			},
 			"cdp_state": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates if CDP is enabled on the AP. Enable CDP in order to make Cisco Access Points known to its neighboring devices and vice-versa.").AddDefaultValueDescription("false").String,
@@ -351,6 +393,77 @@ func (r *APProfileResource) Configure(_ context.Context, req resource.ConfigureR
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
 
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
+//
+// Hand-maintained rather than generated: this resource's schema section carries manual
+// modifications and its generator markers were removed, so "go generate" does not emit
+// this function. Keep it byte-identical to the generated form.
+func (r *APProfileResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var legacyDot1xPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("dot1x_password"), &legacyDot1xPassword)...)
+	var woDot1xPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("dot1x_password_wo"), &woDot1xPassword)...)
+	var woVersionDot1xPassword types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("dot1x_password_wo_version"), &woVersionDot1xPassword)...)
+	if !legacyDot1xPassword.IsUnknown() && !woDot1xPassword.IsUnknown() && !legacyDot1xPassword.IsNull() && !woDot1xPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `dot1x_password` and `dot1x_password_wo` can be set.",
+		)
+	}
+	if !woDot1xPassword.IsUnknown() && !woVersionDot1xPassword.IsUnknown() && !woDot1xPassword.IsNull() && woVersionDot1xPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`dot1x_password_wo_version` must be set when `dot1x_password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	var legacyManagementPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_password"), &legacyManagementPassword)...)
+	var woManagementPassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_password_wo"), &woManagementPassword)...)
+	var woVersionManagementPassword types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_password_wo_version"), &woVersionManagementPassword)...)
+	if !legacyManagementPassword.IsUnknown() && !woManagementPassword.IsUnknown() && !legacyManagementPassword.IsNull() && !woManagementPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `management_password` and `management_password_wo` can be set.",
+		)
+	}
+	if !woManagementPassword.IsUnknown() && !woVersionManagementPassword.IsUnknown() && !woManagementPassword.IsNull() && woVersionManagementPassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`management_password_wo_version` must be set when `management_password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	var legacyManagementEnablePassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_enable_password"), &legacyManagementEnablePassword)...)
+	var woManagementEnablePassword types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_enable_password_wo"), &woManagementEnablePassword)...)
+	var woVersionManagementEnablePassword types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_enable_password_wo_version"), &woVersionManagementEnablePassword)...)
+	if !legacyManagementEnablePassword.IsUnknown() && !woManagementEnablePassword.IsUnknown() && !legacyManagementEnablePassword.IsNull() && !woManagementEnablePassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `management_enable_password` and `management_enable_password_wo` can be set.",
+		)
+	}
+	if !woManagementEnablePassword.IsUnknown() && !woVersionManagementEnablePassword.IsUnknown() && !woManagementEnablePassword.IsNull() && woVersionManagementEnablePassword.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`management_enable_password_wo_version` must be set when `management_enable_password_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+}
+
 // End of model section (manual modifications - do not regenerate)
 
 // Section below was generated by "gen/generator.go" but has manual modifications.
@@ -361,6 +474,21 @@ func (r *APProfileResource) Create(ctx context.Context, req resource.CreateReque
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "dot1x_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("dot1x_password_wo"), &plan.Dot1xPasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "management_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_password_wo"), &plan.ManagementPasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "management_enable_password_wo" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_enable_password_wo"), &plan.ManagementEnablePasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -476,6 +604,21 @@ func (r *APProfileResource) Update(ctx context.Context, req resource.UpdateReque
 	// Read state
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "dot1x_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "dot1x_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("dot1x_password_wo"), &plan.Dot1xPasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "management_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "management_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_password_wo"), &plan.ManagementPasswordWo)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	// Write-only value "management_enable_password_wo" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "management_enable_password_wo_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("management_enable_password_wo"), &plan.ManagementEnablePasswordWo)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

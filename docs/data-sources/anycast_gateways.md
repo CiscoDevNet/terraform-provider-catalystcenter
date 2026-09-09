@@ -36,7 +36,7 @@ data "catalystcenter_anycast_gateways" "example" {
 
 Read-Only:
 
-- `additional_ip_pools` (Attributes Set) Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN) (see [below for nested schema](#nestedatt--anycast_gateways--additional_ip_pools))
+- `additional_ip_pools` (Attributes Set) Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN). Requires Catalyst Center 3.2.3 or later. (see [below for nested schema](#nestedatt--anycast_gateways--additional_ip_pools))
 - `auto_generate_vlan_name` (Boolean) This field cannot be true when vlanName is provided. the vlanName will be generated as ipPoolGroupV4Cidr-virtualNetworkName for non-critical VLANs. for critical VLANs with DATA trafficType, vlanName will be CRITICAL_VLAN. for critical VLANs with VOICE trafficType, vlanName will be VOICE_VLAN
 - `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
 - `fabric_id` (String) ID of the fabric to contain this anycast gateway

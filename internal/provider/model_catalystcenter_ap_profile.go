@@ -133,40 +133,46 @@ func normalizeCountryCode(apiValue string) string {
 
 // APProfile types
 type APProfile struct {
-	Id                              types.String                     `tfsdk:"id"`
-	ApProfileName                   types.String                     `tfsdk:"ap_profile_name"`
-	Description                     types.String                     `tfsdk:"description"`
-	RemoteWorkerEnabled             types.Bool                       `tfsdk:"remote_worker_enabled"`
-	AuthType                        types.String                     `tfsdk:"auth_type"`
-	Dot1xUsername                   types.String                     `tfsdk:"dot1x_username"`
-	Dot1xPassword                   types.String                     `tfsdk:"dot1x_password"`
-	SshEnabled                      types.Bool                       `tfsdk:"ssh_enabled"`
-	TelnetEnabled                   types.Bool                       `tfsdk:"telnet_enabled"`
-	ManagementUserName              types.String                     `tfsdk:"management_user_name"`
-	ManagementPassword              types.String                     `tfsdk:"management_password"`
-	ManagementEnablePassword        types.String                     `tfsdk:"management_enable_password"`
-	CdpState                        types.Bool                       `tfsdk:"cdp_state"`
-	AwipsEnabled                    types.Bool                       `tfsdk:"awips_enabled"`
-	AwipsForensicEnabled            types.Bool                       `tfsdk:"awips_forensic_enabled"`
-	RogueDetection                  types.Bool                       `tfsdk:"rogue_detection"`
-	RogueDetectionMinRssi           types.Int64                      `tfsdk:"rogue_detection_min_rssi"`
-	RogueDetectionTransientInterval types.Int64                      `tfsdk:"rogue_detection_transient_interval"`
-	RogueDetectionReportInterval    types.Int64                      `tfsdk:"rogue_detection_report_interval"`
-	PmfDenialEnabled                types.Bool                       `tfsdk:"pmf_denial_enabled"`
-	MeshEnabled                     types.Bool                       `tfsdk:"mesh_enabled"`
-	BridgeGroupName                 types.String                     `tfsdk:"bridge_group_name"`
-	BackhaulClientAccess            types.Bool                       `tfsdk:"backhaul_client_access"`
-	Range                           types.Int64                      `tfsdk:"range"`
-	Ghz5BackhaulDataRates           types.String                     `tfsdk:"ghz5_backhaul_data_rates"`
-	Ghz24BackhaulDataRates          types.String                     `tfsdk:"ghz24_backhaul_data_rates"`
-	RapDownlinkBackhaul             types.String                     `tfsdk:"rap_downlink_backhaul"`
-	ApPowerProfileName              types.String                     `tfsdk:"ap_power_profile_name"`
-	CalendarPowerProfiles           []APProfileCalendarPowerProfiles `tfsdk:"calendar_power_profiles"`
-	CountryCode                     types.String                     `tfsdk:"country_code"`
-	TimeZone                        types.String                     `tfsdk:"time_zone"`
-	TimeZoneOffsetHour              types.Int64                      `tfsdk:"time_zone_offset_hour"`
-	TimeZoneOffsetMinutes           types.Int64                      `tfsdk:"time_zone_offset_minutes"`
-	ClientLimit                     types.Int64                      `tfsdk:"client_limit"`
+	Id                                types.String                     `tfsdk:"id"`
+	ApProfileName                     types.String                     `tfsdk:"ap_profile_name"`
+	Description                       types.String                     `tfsdk:"description"`
+	RemoteWorkerEnabled               types.Bool                       `tfsdk:"remote_worker_enabled"`
+	AuthType                          types.String                     `tfsdk:"auth_type"`
+	Dot1xUsername                     types.String                     `tfsdk:"dot1x_username"`
+	Dot1xPassword                     types.String                     `tfsdk:"dot1x_password"`
+	Dot1xPasswordWo                   types.String                     `tfsdk:"dot1x_password_wo"`
+	Dot1xPasswordWoVersion            types.Int64                      `tfsdk:"dot1x_password_wo_version"`
+	SshEnabled                        types.Bool                       `tfsdk:"ssh_enabled"`
+	TelnetEnabled                     types.Bool                       `tfsdk:"telnet_enabled"`
+	ManagementUserName                types.String                     `tfsdk:"management_user_name"`
+	ManagementPassword                types.String                     `tfsdk:"management_password"`
+	ManagementPasswordWo              types.String                     `tfsdk:"management_password_wo"`
+	ManagementPasswordWoVersion       types.Int64                      `tfsdk:"management_password_wo_version"`
+	ManagementEnablePassword          types.String                     `tfsdk:"management_enable_password"`
+	ManagementEnablePasswordWo        types.String                     `tfsdk:"management_enable_password_wo"`
+	ManagementEnablePasswordWoVersion types.Int64                      `tfsdk:"management_enable_password_wo_version"`
+	CdpState                          types.Bool                       `tfsdk:"cdp_state"`
+	AwipsEnabled                      types.Bool                       `tfsdk:"awips_enabled"`
+	AwipsForensicEnabled              types.Bool                       `tfsdk:"awips_forensic_enabled"`
+	RogueDetection                    types.Bool                       `tfsdk:"rogue_detection"`
+	RogueDetectionMinRssi             types.Int64                      `tfsdk:"rogue_detection_min_rssi"`
+	RogueDetectionTransientInterval   types.Int64                      `tfsdk:"rogue_detection_transient_interval"`
+	RogueDetectionReportInterval      types.Int64                      `tfsdk:"rogue_detection_report_interval"`
+	PmfDenialEnabled                  types.Bool                       `tfsdk:"pmf_denial_enabled"`
+	MeshEnabled                       types.Bool                       `tfsdk:"mesh_enabled"`
+	BridgeGroupName                   types.String                     `tfsdk:"bridge_group_name"`
+	BackhaulClientAccess              types.Bool                       `tfsdk:"backhaul_client_access"`
+	Range                             types.Int64                      `tfsdk:"range"`
+	Ghz5BackhaulDataRates             types.String                     `tfsdk:"ghz5_backhaul_data_rates"`
+	Ghz24BackhaulDataRates            types.String                     `tfsdk:"ghz24_backhaul_data_rates"`
+	RapDownlinkBackhaul               types.String                     `tfsdk:"rap_downlink_backhaul"`
+	ApPowerProfileName                types.String                     `tfsdk:"ap_power_profile_name"`
+	CalendarPowerProfiles             []APProfileCalendarPowerProfiles `tfsdk:"calendar_power_profiles"`
+	CountryCode                       types.String                     `tfsdk:"country_code"`
+	TimeZone                          types.String                     `tfsdk:"time_zone"`
+	TimeZoneOffsetHour                types.Int64                      `tfsdk:"time_zone_offset_hour"`
+	TimeZoneOffsetMinutes             types.Int64                      `tfsdk:"time_zone_offset_minutes"`
+	ClientLimit                       types.Int64                      `tfsdk:"client_limit"`
 }
 
 type APProfileCalendarPowerProfiles struct {
@@ -208,6 +214,9 @@ func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 	if !data.Dot1xPassword.IsNull() {
 		body, _ = sjson.Set(body, "managementSetting.dot1xPassword", data.Dot1xPassword.ValueString())
 	}
+	if !data.Dot1xPasswordWo.IsNull() {
+		body, _ = sjson.Set(body, "managementSetting.dot1xPassword", data.Dot1xPasswordWo.ValueString())
+	}
 	if !data.SshEnabled.IsNull() {
 		body, _ = sjson.Set(body, "managementSetting.sshEnabled", data.SshEnabled.ValueBool())
 	}
@@ -220,8 +229,14 @@ func (data APProfile) toBody(ctx context.Context, state APProfile) string {
 	if !data.ManagementPassword.IsNull() {
 		body, _ = sjson.Set(body, "managementSetting.managementPassword", data.ManagementPassword.ValueString())
 	}
+	if !data.ManagementPasswordWo.IsNull() {
+		body, _ = sjson.Set(body, "managementSetting.managementPassword", data.ManagementPasswordWo.ValueString())
+	}
 	if !data.ManagementEnablePassword.IsNull() {
 		body, _ = sjson.Set(body, "managementSetting.managementEnablePassword", data.ManagementEnablePassword.ValueString())
+	}
+	if !data.ManagementEnablePasswordWo.IsNull() {
+		body, _ = sjson.Set(body, "managementSetting.managementEnablePassword", data.ManagementEnablePasswordWo.ValueString())
 	}
 	if !data.CdpState.IsNull() {
 		body, _ = sjson.Set(body, "managementSetting.cdpState", data.CdpState.ValueBool())
@@ -771,6 +786,12 @@ func (data *APProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Dot1xPassword.IsNull() {
 		return false
 	}
+	if !data.Dot1xPasswordWo.IsNull() {
+		return false
+	}
+	if !data.Dot1xPasswordWoVersion.IsNull() {
+		return false
+	}
 	if !data.SshEnabled.IsNull() {
 		return false
 	}
@@ -783,7 +804,19 @@ func (data *APProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.ManagementPassword.IsNull() {
 		return false
 	}
+	if !data.ManagementPasswordWo.IsNull() {
+		return false
+	}
+	if !data.ManagementPasswordWoVersion.IsNull() {
+		return false
+	}
 	if !data.ManagementEnablePassword.IsNull() {
+		return false
+	}
+	if !data.ManagementEnablePasswordWo.IsNull() {
+		return false
+	}
+	if !data.ManagementEnablePasswordWoVersion.IsNull() {
 		return false
 	}
 	if !data.CdpState.IsNull() {
