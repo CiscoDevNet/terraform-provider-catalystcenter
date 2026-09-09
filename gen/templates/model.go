@@ -443,7 +443,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 				{{- end}}
 			}
 			{{- else if isNestedListSetMap .}}
+			{{- if .AlwaysInclude}}
+			if true {
+			{{- else}}
 			if len(item.{{toGoName .TfName}}) > 0 {
+			{{- end}}
 				{{- if .PutDataPath}}
 				if put {
 					itemBody, _ = sjson.Set(itemBody, "{{.PutDataPath}}.{{.ModelName}}", []interface{}{})
@@ -546,7 +550,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 						{{- end}}
 					}
 					{{- else if isNestedListSetMap .}}
+					{{- if .AlwaysInclude}}
+					if true {
+					{{- else}}
 					if len(childItem.{{toGoName .TfName}}) > 0 {
+					{{- end}}
 						{{- if .PutDataPath}}
 						if put {
 							itemChildBody, _ = sjson.Set(itemChildBody, "{{.PutDataPath}}.{{.ModelName}}", []interface{}{})
