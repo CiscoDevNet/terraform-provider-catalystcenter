@@ -12,6 +12,7 @@ description: |-
 
 - Add `mac_address` and `ap_ethernet_mac_address` attributes to the `catalystcenter_network_devices` data source. On an access point these differ: `mac_address` is the base radio MAC, while `ap_ethernet_mac_address` is the ethernet MAC that the Configure Access Points intent API selects access points by
 - Add write-only support for the `dot1x_password`, `management_password` and `management_enable_password` secret attributes on `catalystcenter_ap_profile`. Each secret gains an `<attr>_wo` [write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) variant that is never persisted to Terraform state, paired with an `<attr>_wo_version` integer that must be incremented to rotate the value. The existing attribute keeps working unchanged, and exactly one of the two spellings may be set; using the `_wo` form requires Terraform 1.11 or later
+- Fix `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources to always send `additionalIpPools` as an empty array `[]` when no additional IP pools are set, instead of omitting the field from the PUT, which Catalyst Center rejects
 
 ## 0.6.0
 

@@ -44,7 +44,7 @@ resource "catalystcenter_anycast_gateway" "example" {
 
 ### Optional
 
-- `additional_ip_pools` (Attributes Set) Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN) (see [below for nested schema](#nestedatt--additional_ip_pools))
+- `additional_ip_pools` (Attributes Set) Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN). Requires Catalyst Center 3.2.3 or later. (see [below for nested schema](#nestedatt--additional_ip_pools))
 - `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
 - `group_based_policy_enforcement_enabled` (Boolean) Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false)
 - `intra_subnet_routing_enabled` (Boolean) Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
