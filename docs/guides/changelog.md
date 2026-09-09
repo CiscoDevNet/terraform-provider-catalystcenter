@@ -8,6 +8,10 @@ description: |-
 # Changelog
 
 
+## 0.6.1 (unreleased)
+
+- Add `mac_address` attribute to the `catalystcenter_network_devices` data source
+
 ## 0.6.0
 
 - Add `assign_anchor_managed_ap_locations` resource
