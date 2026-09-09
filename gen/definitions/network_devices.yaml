@@ -32,8 +32,12 @@ attributes:
         example: FXS2000Q2T0
       - model_name: macAddress
         type: String
-        description: Ethernet MAC address of the network device. Required to select an access point in the Configure Access Points intent API, which accepts no other device identifier.
+        description: MAC address of the network device. On an access point this is the base radio MAC, which is not the identifier used by the Configure Access Points intent API; use `ap_ethernet_mac_address` for that.
         example: 00:11:22:33:44:55
+      - model_name: apEthernetMacAddress
+        type: String
+        description: Ethernet MAC address of an access point. This is the identifier the Configure Access Points intent API selects access points by; it differs from `mac_address`, which is the base radio MAC. Empty for non-access-point devices.
+        example: 6c:d6:e3:5d:7d:0a
       - model_name: role
         type: String
         example: CORE

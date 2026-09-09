@@ -84,7 +84,11 @@ func (d *NetworkDevicesDataSource) Schema(ctx context.Context, req datasource.Sc
 							Computed:            true,
 						},
 						"mac_address": schema.StringAttribute{
-							MarkdownDescription: "Ethernet MAC address of the network device. Required to select an access point in the Configure Access Points intent API, which accepts no other device identifier.",
+							MarkdownDescription: "MAC address of the network device. On an access point this is the base radio MAC, which is not the identifier used by the Configure Access Points intent API; use `ap_ethernet_mac_address` for that.",
+							Computed:            true,
+						},
+						"ap_ethernet_mac_address": schema.StringAttribute{
+							MarkdownDescription: "Ethernet MAC address of an access point. This is the identifier the Configure Access Points intent API selects access points by; it differs from `mac_address`, which is the base radio MAC. Empty for non-access-point devices.",
 							Computed:            true,
 						},
 						"role": schema.StringAttribute{
