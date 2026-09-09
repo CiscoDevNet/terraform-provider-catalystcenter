@@ -1,5 +1,5 @@
 
-## 0.6.1 (unreleased)
+## 0.6.1
 
 - Fix `radio_role_assignment` on the `catalystcenter_access_point_configuration` resource, which accepted only `auto`/`serving`/`monitor` while Catalyst Center accepts only `AUTO`/`SERVING`/`MONITOR`, making the attribute impossible to use. The published API schema lists the enum in lowercase but the service is case-sensitive and rejects it
 - Add `mac_address` and `ap_ethernet_mac_address` attributes to the `catalystcenter_network_devices` data source. On an access point these differ: `mac_address` is the base radio MAC, while `ap_ethernet_mac_address` is the ethernet MAC that the Configure Access Points intent API selects access points by
