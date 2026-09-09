@@ -30,6 +30,10 @@ attributes:
         type: String
         description: Serial number of the network device. For devices whose hostname or management IP address is not known ahead of time (for example access points before they are claimed), this is the only stable identifier.
         example: FXS2000Q2T0
+      - model_name: macAddress
+        type: String
+        description: Ethernet MAC address of the network device. Required to select an access point in the Configure Access Points intent API, which accepts no other device identifier.
+        example: 00:11:22:33:44:55
       - model_name: role
         type: String
         example: CORE

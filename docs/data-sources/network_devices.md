@@ -38,6 +38,7 @@ Read-Only:
 
 - `hostname` (String) Hostname of the network device
 - `id` (String) UUID of the network device
+- `mac_address` (String) Ethernet MAC address of the network device. Required to select an access point in the Configure Access Points intent API, which accepts no other device identifier.
 - `management_ip_address` (String) Management IP address
 - `management_state` (String) Management state of a network device. If it is not "Managed" for a device, then the `catalystcenter_device_detail` may fail for that device.
 - `platform_id` (String) Platform identifier

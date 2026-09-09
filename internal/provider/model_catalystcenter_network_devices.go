@@ -39,6 +39,7 @@ type NetworkDevicesDevices struct {
 	ManagementState           types.String `tfsdk:"management_state"`
 	PlatformId                types.String `tfsdk:"platform_id"`
 	SerialNumber              types.String `tfsdk:"serial_number"`
+	MacAddress                types.String `tfsdk:"mac_address"`
 	Role                      types.String `tfsdk:"role"`
 	SoftwareType              types.String `tfsdk:"software_type"`
 	ReachabilityStatus        types.String `tfsdk:"reachability_status"`
@@ -121,6 +122,11 @@ func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.SerialNumber = types.StringNull()
 			}
+			if cValue := v.Get("macAddress"); cValue.Exists() {
+				item.MacAddress = types.StringValue(cValue.String())
+			} else {
+				item.MacAddress = types.StringNull()
+			}
 			if cValue := v.Get("role"); cValue.Exists() {
 				item.Role = types.StringValue(cValue.String())
 			} else {
@@ -152,8 +158,8 @@ func (data *NetworkDevices) fromBody(ctx context.Context, res gjson.Result) {
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result) {
 	for i := range data.Devices {
-		keys := [...]string{"id", "hostname", "managementIpAddress", "managementState", "platformId", "serialNumber", "role", "softwareType", "reachabilityStatus", "reachabilityFailureReason"}
-		keyValues := [...]string{data.Devices[i].Id.ValueString(), data.Devices[i].Hostname.ValueString(), data.Devices[i].ManagementIpAddress.ValueString(), data.Devices[i].ManagementState.ValueString(), data.Devices[i].PlatformId.ValueString(), data.Devices[i].SerialNumber.ValueString(), data.Devices[i].Role.ValueString(), data.Devices[i].SoftwareType.ValueString(), data.Devices[i].ReachabilityStatus.ValueString(), data.Devices[i].ReachabilityFailureReason.ValueString()}
+		keys := [...]string{"id", "hostname", "managementIpAddress", "managementState", "platformId", "serialNumber", "macAddress", "role", "softwareType", "reachabilityStatus", "reachabilityFailureReason"}
+		keyValues := [...]string{data.Devices[i].Id.ValueString(), data.Devices[i].Hostname.ValueString(), data.Devices[i].ManagementIpAddress.ValueString(), data.Devices[i].ManagementState.ValueString(), data.Devices[i].PlatformId.ValueString(), data.Devices[i].SerialNumber.ValueString(), data.Devices[i].MacAddress.ValueString(), data.Devices[i].Role.ValueString(), data.Devices[i].SoftwareType.ValueString(), data.Devices[i].ReachabilityStatus.ValueString(), data.Devices[i].ReachabilityFailureReason.ValueString()}
 
 		var r gjson.Result
 		res.Get("response").ForEach(
@@ -203,6 +209,11 @@ func (data *NetworkDevices) updateFromBody(ctx context.Context, res gjson.Result
 			data.Devices[i].SerialNumber = types.StringValue(value.String())
 		} else {
 			data.Devices[i].SerialNumber = types.StringNull()
+		}
+		if value := r.Get("macAddress"); value.Exists() && !data.Devices[i].MacAddress.IsNull() {
+			data.Devices[i].MacAddress = types.StringValue(value.String())
+		} else {
+			data.Devices[i].MacAddress = types.StringNull()
 		}
 		if value := r.Get("role"); value.Exists() && !data.Devices[i].Role.IsNull() {
 			data.Devices[i].Role = types.StringValue(value.String())
