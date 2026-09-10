@@ -122,6 +122,7 @@ func (r *FabricVLANToSSIDResource) Configure(_ context.Context, req resource.Con
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricVLANToSSIDResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricVLANToSSID
 
 	// Read plan
@@ -154,6 +155,7 @@ func (r *FabricVLANToSSIDResource) Create(ctx context.Context, req resource.Crea
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricVLANToSSIDResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricVLANToSSID
 
 	// Read state
@@ -192,6 +194,7 @@ func (r *FabricVLANToSSIDResource) Read(ctx context.Context, req resource.ReadRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricVLANToSSIDResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricVLANToSSID
 
 	// Read plan

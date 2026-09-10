@@ -175,6 +175,7 @@ func (r *IntegrateISEResource) Create(ctx context.Context, req resource.CreateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *IntegrateISEResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state IntegrateISE
 
 	// Read state
@@ -213,6 +214,7 @@ func (r *IntegrateISEResource) Read(ctx context.Context, req resource.ReadReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *IntegrateISEResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state IntegrateISE
 
 	// Read plan
@@ -248,6 +250,7 @@ func (r *IntegrateISEResource) Update(ctx context.Context, req resource.UpdateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *IntegrateISEResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state IntegrateISE
 
 	// Read state

@@ -128,6 +128,7 @@ func (r *FloorResource) Configure(_ context.Context, req resource.ConfigureReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FloorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Floor
 	cacheKey := "Floor::"
 	r.cache.DeletePattern(cacheKey)
@@ -184,6 +185,7 @@ func (r *FloorResource) Create(ctx context.Context, req resource.CreateRequest, 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FloorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Floor
 
 	// Read state
@@ -229,6 +231,7 @@ func (r *FloorResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FloorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Floor
 	cacheKey := "Floor::"
 	r.cache.DeletePattern(cacheKey)
@@ -266,6 +269,7 @@ func (r *FloorResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FloorResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Floor
 	cacheKey := "Floor::"
 	r.cache.DeletePattern(cacheKey)

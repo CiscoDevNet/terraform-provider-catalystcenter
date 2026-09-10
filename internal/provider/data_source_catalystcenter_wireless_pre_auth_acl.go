@@ -134,6 +134,7 @@ func (d *WirelessPreAuthACLDataSource) Configure(_ context.Context, req datasour
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *WirelessPreAuthACLDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config WirelessPreAuthACL
 
 	// Read config

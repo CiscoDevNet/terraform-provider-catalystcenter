@@ -105,6 +105,7 @@ func (d *FabricL3HandoffSDATransitDataSource) Configure(_ context.Context, req d
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *FabricL3HandoffSDATransitDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config FabricL3HandoffSDATransit
 
 	// Read config

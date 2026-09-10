@@ -101,6 +101,7 @@ func (r *WirelessInterfaceResource) Configure(_ context.Context, req resource.Co
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessInterfaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessInterface
 
 	// Read plan
@@ -140,6 +141,7 @@ func (r *WirelessInterfaceResource) Create(ctx context.Context, req resource.Cre
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessInterfaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessInterface
 
 	// Read state
@@ -179,6 +181,7 @@ func (r *WirelessInterfaceResource) Read(ctx context.Context, req resource.ReadR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessInterfaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessInterface
 
 	// Read plan
@@ -214,6 +217,7 @@ func (r *WirelessInterfaceResource) Update(ctx context.Context, req resource.Upd
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessInterfaceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessInterface
 
 	// Read state

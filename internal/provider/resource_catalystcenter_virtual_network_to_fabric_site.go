@@ -262,6 +262,7 @@ func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *VirtualNetworkToFabricSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state VirtualNetworkToFabricSite
 
 	// Read plan

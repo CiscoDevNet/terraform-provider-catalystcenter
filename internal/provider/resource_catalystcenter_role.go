@@ -108,6 +108,7 @@ func (r *RoleResource) Configure(_ context.Context, req resource.ConfigureReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Role
 
 	// Read plan
@@ -140,6 +141,7 @@ func (r *RoleResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *RoleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Role
 
 	// Read state
@@ -183,6 +185,7 @@ func (r *RoleResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Role
 
 	// Read plan
@@ -219,6 +222,7 @@ func (r *RoleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *RoleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Role
 
 	// Read state

@@ -228,6 +228,7 @@ func (r *FabricPortChannelResource) Create(ctx context.Context, req resource.Cre
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricPortChannelResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricPortChannel
 
 	// Read state
@@ -272,6 +273,7 @@ func (r *FabricPortChannelResource) Read(ctx context.Context, req resource.ReadR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricPortChannelResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricPortChannel
 
 	// Read plan
@@ -315,6 +317,7 @@ func (r *FabricPortChannelResource) Update(ctx context.Context, req resource.Upd
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricPortChannelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricPortChannel
 
 	// Read state

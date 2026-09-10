@@ -88,6 +88,7 @@ func (d *BannerSettingsDataSource) Configure(_ context.Context, req datasource.C
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *BannerSettingsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config BannerSettings
 
 	// Read config

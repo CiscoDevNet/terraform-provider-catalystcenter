@@ -254,6 +254,7 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessDeviceProvision
 
 	// Read state

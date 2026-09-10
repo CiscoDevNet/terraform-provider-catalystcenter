@@ -308,6 +308,7 @@ func (r *DeviceReplacementResource) Create(ctx context.Context, req resource.Cre
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DeviceReplacementResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state DeviceReplacement
 
 	// Read state
@@ -351,6 +352,7 @@ func (r *DeviceReplacementResource) Read(ctx context.Context, req resource.ReadR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *DeviceReplacementResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state DeviceReplacement
 
 	// Read plan

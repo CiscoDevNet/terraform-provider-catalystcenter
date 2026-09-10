@@ -128,6 +128,7 @@ func (r *ImageDistributionResource) Create(ctx context.Context, req resource.Cre
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *ImageDistributionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ImageDistribution
 
 	// Read state
@@ -149,6 +150,7 @@ func (r *ImageDistributionResource) Read(ctx context.Context, req resource.ReadR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *ImageDistributionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state ImageDistribution
 
 	// Read plan
@@ -176,6 +178,7 @@ func (r *ImageDistributionResource) Update(ctx context.Context, req resource.Upd
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ImageDistributionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ImageDistribution
 
 	// Read state

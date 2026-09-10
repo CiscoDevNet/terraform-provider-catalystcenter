@@ -108,6 +108,7 @@ func (r *PnPImportDevicesResource) Configure(_ context.Context, req resource.Con
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *PnPImportDevicesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan PnPImportDevices
 
 	// Read plan
@@ -140,6 +141,7 @@ func (r *PnPImportDevicesResource) Create(ctx context.Context, req resource.Crea
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *PnPImportDevicesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PnPImportDevices
 
 	// Read state
@@ -161,6 +163,7 @@ func (r *PnPImportDevicesResource) Read(ctx context.Context, req resource.ReadRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *PnPImportDevicesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state PnPImportDevices
 
 	// Read plan
@@ -188,6 +191,7 @@ func (r *PnPImportDevicesResource) Update(ctx context.Context, req resource.Upda
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *PnPImportDevicesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PnPImportDevices
 
 	// Read state

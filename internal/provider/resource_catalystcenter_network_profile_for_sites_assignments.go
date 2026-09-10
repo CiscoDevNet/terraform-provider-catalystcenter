@@ -136,6 +136,7 @@ func (r *NetworkProfileForSitesAssignmentsResource) Create(ctx context.Context, 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *NetworkProfileForSitesAssignmentsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state NetworkProfileForSitesAssignments
 
 	// Read state
