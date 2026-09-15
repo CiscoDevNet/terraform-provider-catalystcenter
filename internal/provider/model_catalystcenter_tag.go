@@ -142,7 +142,7 @@ func (data *Tag) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("response.0.description"); value.Exists() {
+	if value := res.Get("response.0.description"); value.Exists() && value.String() != "" {
 		data.Description = types.StringValue(value.String())
 	} else {
 		data.Description = types.StringNull()
@@ -150,7 +150,7 @@ func (data *Tag) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.0.systemTag"); value.Exists() {
 		data.SystemTag = types.BoolValue(value.Bool())
 	} else {
-		data.SystemTag = types.BoolNull()
+		data.SystemTag = types.BoolValue(false)
 	}
 	if value := res.Get("response.0.dynamicRules"); value.Exists() && len(value.Array()) > 0 {
 		data.DynamicRules = make([]TagDynamicRules, 0)
@@ -219,14 +219,14 @@ func (data *Tag) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("response.0.description"); value.Exists() && !data.Description.IsNull() {
+	if value := res.Get("response.0.description"); value.Exists() && value.String() != "" && !data.Description.IsNull() {
 		data.Description = types.StringValue(value.String())
 	} else {
 		data.Description = types.StringNull()
 	}
 	if value := res.Get("response.0.systemTag"); value.Exists() && !data.SystemTag.IsNull() {
 		data.SystemTag = types.BoolValue(value.Bool())
-	} else {
+	} else if data.SystemTag.ValueBool() != false {
 		data.SystemTag = types.BoolNull()
 	}
 	for i := range data.DynamicRules {

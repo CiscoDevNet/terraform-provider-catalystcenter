@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -81,8 +82,10 @@ func (r *TagResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				Optional:            true,
 			},
 			"system_tag": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("true for system created tags, false for user defined tag").String,
+				MarkdownDescription: helpers.NewAttributeDescription("true for system created tags, false for user defined tag").AddDefaultValueDescription("false").String,
 				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
 			},
 			"dynamic_rules": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Dynamic rules details").String,

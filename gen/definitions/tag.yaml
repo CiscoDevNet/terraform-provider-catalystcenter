@@ -19,11 +19,13 @@ attributes:
     type: String
     description: Description of the tag
     example: Tag1 Description
+    null_on_empty: true
   - model_name: systemTag
     response_data_path: response.0.systemTag
     type: Bool
     description: true for system created tags, false for user defined tag
     example: false
+    default_value: false
     minimum_test_value: false
   - model_name: dynamicRules
     response_data_path: response.0.dynamicRules

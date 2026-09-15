@@ -32,6 +32,7 @@ resource "catalystcenter_tag" "example" {
 - `description` (String) Description of the tag
 - `dynamic_rules` (Attributes List) Dynamic rules details (see [below for nested schema](#nestedatt--dynamic_rules))
 - `system_tag` (Boolean) true for system created tags, false for user defined tag
+  - Default value: `false`
 
 ### Read-Only
 
