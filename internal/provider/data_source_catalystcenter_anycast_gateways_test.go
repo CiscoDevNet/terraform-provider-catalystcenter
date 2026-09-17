@@ -34,6 +34,7 @@ func TestAccDataSourceCcAnycastGateways(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.traffic_type", "DATA"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.critical_pool", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.l2_flooding_enabled", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.wireless_flooding_enabled", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.wireless_pool", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.ip_directed_broadcast", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_anycast_gateways.test", "anycast_gateways.0.intra_subnet_routing_enabled", "false"))
@@ -108,6 +109,7 @@ func testAccDataSourceCcAnycastGatewaysConfig() string {
 	config += `	  traffic_type = "DATA"` + "\n"
 	config += `	  critical_pool = false` + "\n"
 	config += `	  l2_flooding_enabled = false` + "\n"
+	config += `	  wireless_flooding_enabled = false` + "\n"
 	config += `	  wireless_pool = false` + "\n"
 	config += `	  ip_directed_broadcast = false` + "\n"
 	config += `	  intra_subnet_routing_enabled = false` + "\n"

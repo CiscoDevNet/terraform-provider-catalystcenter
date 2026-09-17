@@ -1,4 +1,8 @@
 
+## 0.6.2 (unreleased)
+
+- Add `wireless_flooding_enabled` (`isWirelessFloodingEnabled`) attribute to the `catalystcenter_fabric_l2_virtual_network`, `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources and data sources to enable wireless flooding on SD-Access layer 2 virtual networks (`/dna/intent/api/v1/sda/layer2VirtualNetworks`) and anycast gateways (`/dna/intent/api/v1/sda/anycastGateways`). The attribute is only sent when explicitly configured, so existing configurations are unaffected on controllers that do not support it; requires Catalyst Center 3.1 or later
+
 ## 0.6.1
 
 - Fix `radio_role_assignment` on the `catalystcenter_access_point_configuration` resource, which accepted only `auto`/`serving`/`monitor` while Catalyst Center accepts only `AUTO`/`SERVING`/`MONITOR`, making the attribute impossible to use. The published API schema lists the enum in lowercase but the service is case-sensitive and rejects it
