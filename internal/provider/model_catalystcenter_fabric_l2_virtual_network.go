@@ -36,6 +36,7 @@ type FabricL2VirtualNetwork struct {
 	VlanId                         types.Int64  `tfsdk:"vlan_id"`
 	TrafficType                    types.String `tfsdk:"traffic_type"`
 	FabricEnabledWireless          types.Bool   `tfsdk:"fabric_enabled_wireless"`
+	WirelessFloodingEnabled        types.Bool   `tfsdk:"wireless_flooding_enabled"`
 	AssociatedL3VirtualNetworkName types.String `tfsdk:"associated_l3_virtual_network_name"`
 }
 
@@ -75,6 +76,9 @@ func (data FabricL2VirtualNetwork) toBody(ctx context.Context, state FabricL2Vir
 	}
 	if !data.FabricEnabledWireless.IsNull() {
 		body, _ = sjson.Set(body, "0.isFabricEnabledWireless", data.FabricEnabledWireless.ValueBool())
+	}
+	if !data.WirelessFloodingEnabled.IsNull() {
+		body, _ = sjson.Set(body, "0.isWirelessFloodingEnabled", data.WirelessFloodingEnabled.ValueBool())
 	}
 	if !data.AssociatedL3VirtualNetworkName.IsNull() {
 		body, _ = sjson.Set(body, "0.associatedLayer3VirtualNetworkName", data.AssociatedL3VirtualNetworkName.ValueString())
@@ -117,6 +121,11 @@ func (data *FabricL2VirtualNetwork) fromBody(ctx context.Context, res gjson.Resu
 	} else {
 		data.FabricEnabledWireless = types.BoolNull()
 	}
+	if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() {
+		data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.WirelessFloodingEnabled = types.BoolNull()
+	}
 	if value := res.Get("response.0.associatedLayer3VirtualNetworkName"); value.Exists() {
 		data.AssociatedL3VirtualNetworkName = types.StringValue(value.String())
 	} else {
@@ -153,6 +162,11 @@ func (data *FabricL2VirtualNetwork) updateFromBody(ctx context.Context, res gjso
 	} else {
 		data.FabricEnabledWireless = types.BoolNull()
 	}
+	if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() && !data.WirelessFloodingEnabled.IsNull() {
+		data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.WirelessFloodingEnabled = types.BoolNull()
+	}
 	if value := res.Get("response.0.associatedLayer3VirtualNetworkName"); value.Exists() && !data.AssociatedL3VirtualNetworkName.IsNull() {
 		data.AssociatedL3VirtualNetworkName = types.StringValue(value.String())
 	} else {
@@ -171,6 +185,9 @@ func (data *FabricL2VirtualNetwork) isNull(ctx context.Context, res gjson.Result
 		return false
 	}
 	if !data.FabricEnabledWireless.IsNull() {
+		return false
+	}
+	if !data.WirelessFloodingEnabled.IsNull() {
 		return false
 	}
 	if !data.AssociatedL3VirtualNetworkName.IsNull() {

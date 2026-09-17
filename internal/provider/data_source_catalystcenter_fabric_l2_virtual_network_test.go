@@ -33,6 +33,7 @@ func TestAccDataSourceCcFabricL2VirtualNetwork(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l2_virtual_network.test", "vlan_id", "401"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l2_virtual_network.test", "traffic_type", "DATA"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l2_virtual_network.test", "fabric_enabled_wireless", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_fabric_l2_virtual_network.test", "wireless_flooding_enabled", "false"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -74,6 +75,7 @@ func testAccDataSourceCcFabricL2VirtualNetworkConfig() string {
 	config += `	vlan_id = 401` + "\n"
 	config += `	traffic_type = "DATA"` + "\n"
 	config += `	fabric_enabled_wireless = false` + "\n"
+	config += `	wireless_flooding_enabled = false` + "\n"
 	config += `}` + "\n"
 
 	config += `

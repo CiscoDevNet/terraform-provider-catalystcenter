@@ -120,6 +120,13 @@ attributes:
     type: Bool
     description: Enable/disable layer 2 flooding (not applicable to INFRA_VN)
     example: false
+  - model_name: isWirelessFloodingEnabled
+    data_path: '0'
+    response_data_path: response.0.isWirelessFloodingEnabled
+    tf_name: wireless_flooding_enabled
+    type: Bool
+    description: Enable/disable wireless flooding (not applicable to INFRA_VN). Requires isWirelessPool to be true. Available from Catalyst Center 3.1
+    example: false
   - model_name: isWirelessPool
     data_path: '0'
     response_data_path: response.0.isWirelessPool

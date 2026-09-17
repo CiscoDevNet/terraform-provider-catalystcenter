@@ -33,6 +33,7 @@ func TestAccCcFabricL2VirtualNetwork(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_l2_virtual_network.test", "vlan_id", "401"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_l2_virtual_network.test", "traffic_type", "DATA"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_l2_virtual_network.test", "fabric_enabled_wireless", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_fabric_l2_virtual_network.test", "wireless_flooding_enabled", "false"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
@@ -88,6 +89,7 @@ func testAccCcFabricL2VirtualNetworkConfig_all() string {
 	config += `	vlan_id = 401` + "\n"
 	config += `	traffic_type = "DATA"` + "\n"
 	config += `	fabric_enabled_wireless = false` + "\n"
+	config += `	wireless_flooding_enabled = false` + "\n"
 	config += `}` + "\n"
 	return config
 }

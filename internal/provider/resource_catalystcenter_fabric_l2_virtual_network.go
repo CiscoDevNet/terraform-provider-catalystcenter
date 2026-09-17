@@ -105,6 +105,10 @@ func (r *FabricL2VirtualNetworkResource) Schema(ctx context.Context, req resourc
 				MarkdownDescription: helpers.NewAttributeDescription("Set to true to enable wireless. Default is false").String,
 				Optional:            true,
 			},
+			"wireless_flooding_enabled": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable wireless flooding. Requires isFabricEnabledWireless to be true. Available from Catalyst Center 3.1").String,
+				Optional:            true,
+			},
 			"associated_l3_virtual_network_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Name of the layer 3 virtual network associated with the layer 2 virtual network. This field is provided to support requests related to virtual network anchoring. The layer 3 virtual network must have already been added to the fabric before association. This field must either be present in all payload elements or none").String,
 				Optional:            true,

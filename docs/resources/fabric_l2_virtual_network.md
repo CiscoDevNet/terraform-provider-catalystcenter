@@ -14,11 +14,12 @@ This resource can manage a Fabric L2 Virtual Network.
 
 ```terraform
 resource "catalystcenter_fabric_l2_virtual_network" "example" {
-  fabric_id               = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
-  vlan_name               = "VLAN401"
-  vlan_id                 = 401
-  traffic_type            = "DATA"
-  fabric_enabled_wireless = false
+  fabric_id                 = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  vlan_name                 = "VLAN401"
+  vlan_id                   = 401
+  traffic_type              = "DATA"
+  fabric_enabled_wireless   = false
+  wireless_flooding_enabled = false
 }
 ```
 
@@ -37,6 +38,7 @@ resource "catalystcenter_fabric_l2_virtual_network" "example" {
 - `associated_l3_virtual_network_name` (String) Name of the layer 3 virtual network associated with the layer 2 virtual network. This field is provided to support requests related to virtual network anchoring. The layer 3 virtual network must have already been added to the fabric before association. This field must either be present in all payload elements or none
 - `fabric_enabled_wireless` (Boolean) Set to true to enable wireless. Default is false
 - `vlan_id` (Number) ID of the VLAN of the layer 2 virtual network. Allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, and 2046. If deploying on a fabric zone, this vlanId must match the vlanId of the corresponding layer 2 virtual network on the fabric site
+- `wireless_flooding_enabled` (Boolean) Enable/disable wireless flooding. Requires isFabricEnabledWireless to be true. Available from Catalyst Center 3.1
 
 ### Read-Only
 
