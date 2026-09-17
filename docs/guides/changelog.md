@@ -8,6 +8,10 @@ description: |-
 # Changelog
 
 
+## 0.6.2 (unreleased)
+
+- Fix and extend `catalystcenter_assign_credentials`: assign credentials at the `Global` site (send a complete six-slot body, retrying on `NCND01090`/`NCND10603` for Create/Update/Delete so writes are accepted at the parent-less common-settings root); unassign via a top-level `null` so slots inherit from the parent — the documented form — instead of `{"credentialsId": null}`, which Catalyst Center treats as unset; and add a `preserve_unmanaged` attribute that keeps `Global` slots configured outside Terraform (default `false`, no effect on non-Global sites)
+
 ## 0.6.1
 
 - Fix `radio_role_assignment` on the `catalystcenter_access_point_configuration` resource, which accepted only `auto`/`serving`/`monitor` while Catalyst Center accepts only `AUTO`/`SERVING`/`MONITOR`, making the attribute impossible to use. The published API schema lists the enum in lowercase but the service is case-sensitive and rejects it

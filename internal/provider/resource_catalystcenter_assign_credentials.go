@@ -102,6 +102,10 @@ func (r *AssignCredentialsResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: helpers.NewAttributeDescription("The ID of the HTTP(S) Write credentials.").String,
 				Optional:            true,
 			},
+			"preserve_unmanaged": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("When managing the Global site's credentials, preserve credential slots that are set outside Terraform instead of unsetting slots that are not present in the configuration. The Global site is the common-settings root and has no parent to inherit from, so a write must include every slot; with this enabled, unspecified slots that are currently assigned on the controller are re-sent (preserved) rather than cleared, while slots the configuration previously managed and then removed are still unset. Has no effect on non-Global sites, which inherit unspecified slots from their parent. Defaults to `false`.").String,
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -118,7 +122,27 @@ func (r *AssignCredentialsResource) Configure(_ context.Context, req resource.Co
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
+// getCurrentGlobalCredentials reads the current credential assignment for the
+// Global site. It is used by the preserve_unmanaged fallback in Create/Update
+// to keep credential slots that are set on the controller but not managed by
+// this configuration. It mirrors the Read function's GET against the global
+// common-settings endpoint and parses the six slots via fromBody.
+func (r *AssignCredentialsResource) getCurrentGlobalCredentials(ctx context.Context, siteId string) (AssignCredentials, error) {
+	var cur AssignCredentials
+	res, err := r.client.Get("/api/v1/commonsetting/global/" + url.QueryEscape(siteId))
+	if err != nil {
+		return cur, err
+	}
+	cur.fromBody(ctx, res)
+	return cur, nil
+}
+
+// Custom create: the generator markers are removed so the Global-root fallback
+// below can be maintained by hand. Create PUTs the credential body and, if the
+// Global site rejects the partial body (NCND01090 on 2.3.7.x, NCND10603 on
+// 3.2.2/3.2.3), retries once with a complete six-slot body (unspecified slots sent as
+// {} / unset), mirroring the Delete method's Global handling. Transient
+// NCND00010 ("Global Settings Save is in progress") errors are then retried.
 func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan AssignCredentials
 
@@ -136,6 +160,31 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body)
+
+	// Global-root fallback: the Global site has no parent to inherit from and
+	// rejects a partial credential body (NCND01090 on 2.3.7.x, NCND10603 on
+	// 3.2.2/3.2.3). Retry once with a complete six-slot body, mirroring the Delete
+	// method. With preserve_unmanaged, slots set outside Terraform are kept
+	// (see toBodyGlobal); otherwise unspecified slots are unset with {}.
+	if err != nil {
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCND01090" || errorCode == "NCND10603" {
+			tflog.Warn(ctx, fmt.Sprintf("%s: %s detected (likely Global site), retrying create with full credential payload", plan.Id.ValueString(), errorCode))
+			preserve := plan.PreserveUnmanaged.ValueBool()
+			var current *AssignCredentials
+			if preserve {
+				cur, gerr := r.getCurrentGlobalCredentials(ctx, plan.SiteId.ValueString())
+				if gerr != nil {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read current Global credentials for preserve_unmanaged, got error: %s", gerr))
+					return
+				}
+				current = &cur
+			}
+			body = plan.toBodyGlobal(ctx, AssignCredentials{}, current, preserve)
+			res, err = r.client.Put(plan.getPath()+params, body)
+		}
+	}
+
 	if err != nil {
 		retryErrorCodes := []string{"NCND00010"}
 		errorCode := res.Get("response.errorCode").String()
@@ -186,7 +235,7 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end create
+// End of custom create.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -227,7 +276,12 @@ func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadR
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
+// Custom update: the generator markers are removed so the Global-root fallback
+// below can be maintained by hand. Update PUTs the credential body and, if the
+// Global site rejects the partial body (NCND01090 on 2.3.7.x, NCND10603 on
+// 3.2.2/3.2.3), retries once with a complete six-slot body (unspecified slots sent as
+// {} / unset), mirroring the Delete method's Global handling. Transient
+// NCND00010 ("Global Settings Save is in progress") errors are then retried.
 func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state AssignCredentials
 
@@ -249,6 +303,32 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 	body := plan.toBody(ctx, state)
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body)
+
+	// Global-root fallback: the Global site has no parent to inherit from and
+	// rejects a partial credential body (NCND01090 on 2.3.7.x, NCND10603 on
+	// 3.2.2/3.2.3). Retry once with a complete six-slot body, mirroring the Delete
+	// method. With preserve_unmanaged, slots set outside Terraform (never
+	// managed by TF, i.e. null in prior state) are kept while slots the config
+	// removed are still unset; otherwise all unspecified slots are unset with {}.
+	if err != nil {
+		errorCode := res.Get("response.errorCode").String()
+		if errorCode == "NCND01090" || errorCode == "NCND10603" {
+			tflog.Warn(ctx, fmt.Sprintf("%s: %s detected (likely Global site), retrying update with full credential payload", plan.Id.ValueString(), errorCode))
+			preserve := plan.PreserveUnmanaged.ValueBool()
+			var current *AssignCredentials
+			if preserve {
+				cur, gerr := r.getCurrentGlobalCredentials(ctx, plan.SiteId.ValueString())
+				if gerr != nil {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read current Global credentials for preserve_unmanaged, got error: %s", gerr))
+					return
+				}
+				current = &cur
+			}
+			body = plan.toBodyGlobal(ctx, state, current, preserve)
+			res, err = r.client.Put(plan.getPath()+params, body)
+		}
+	}
+
 	if err != nil {
 		retryErrorCodes := []string{"NCND00010"}
 		errorCode := res.Get("response.errorCode").String()
@@ -298,7 +378,7 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end update
+// End of custom update.
 
 // NOTE: Delete is maintained manually (no generator markers) on purpose.
 // Destroying an assign_credentials resource must unassign only the credential
@@ -306,12 +386,16 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 // in state), so that credentials inherited from a parent site are preserved. The
 // generated version sends a static body that clears all six slots, which also
 // wipes inherited credentials at child sites. Instead we build the body from
-// state (reusing toBody with an empty plan) so each managed slot is sent as
-// {"credentialsId": null} (inherit from the parent site) and unmanaged/inherited
-// slots are omitted. The global site has no parent to inherit from and rejects a
-// partial body with NCND01090; in that case we retry once with every slot
-// present as an empty object ({}, the API's "unset" form), which is correct at
-// the global root since there is nothing to inherit. Transient NCND00010
+// state (reusing toBody with an empty plan) so each managed slot is sent as a
+// top-level null (inherit from the parent site) and unmanaged/inherited slots
+// are omitted. The global site has no parent to inherit from and rejects a
+// partial body with NCND01090 (2.3.7.x) or NCND10603 ("site not found",
+// 3.2.2/3.2.3); in that case we retry once with a complete
+// six-slot body (via toBodyGlobal), unsetting each slot with an empty object
+// ({}, the API's "unset" form). When preserve_unmanaged is set, slots that are
+// currently assigned on the controller but were never managed by Terraform are
+// re-sent instead of unset, so credentials configured outside Terraform are not
+// wiped when the Global assignment is destroyed. Transient NCND00010
 // ("Global Settings Save is in progress") errors are retried.
 func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state AssignCredentials
@@ -326,8 +410,8 @@ func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.Del
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
 	// Build the clear body from state: only the slots Terraform manages
-	// (non-null in state) are unassigned (sent as {"credentialsId": null} so
-	// they inherit from the parent); inherited slots are omitted.
+	// (non-null in state) are unassigned (sent as a top-level null so they
+	// inherit from the parent); inherited slots are omitted.
 	var empty AssignCredentials
 	body := empty.toBody(ctx, state)
 	if body == "" {
@@ -340,11 +424,27 @@ func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.Del
 	res, err := r.client.Put(state.getPath(), body)
 
 	// The global site (no parent to inherit from) rejects a partial/null
-	// credential payload with NCND01090. Retry once with every slot present as an
-	// empty object ({}, "unset").
-	if err != nil && res.Get("response.errorCode").String() == "NCND01090" {
-		tflog.Warn(ctx, fmt.Sprintf("%s: NCND01090 detected (likely Global site), retrying delete with full credential payload", state.Id.ValueString()))
-		body = `{"cliCredentialsId":{},"snmpv2cReadCredentialsId":{},"snmpv2cWriteCredentialsId":{},"snmpv3CredentialsId":{},"httpReadCredentialsId":{},"httpWriteCredentialsId":{}}`
+	// credential payload with NCND01090 (2.3.7.x) or NCND10603 ("site not
+	// found", 3.2.2/3.2.3). Retry once with a complete six-slot body built by
+	// toBodyGlobal (with an empty plan): the slots Terraform manages (non-null
+	// in state) are unset with {}. Remaining slots are also unset with {} -
+	// unless preserve_unmanaged is set, in which case slots that are currently
+	// assigned on the controller but were never managed by Terraform (null in
+	// state) are re-sent so credentials configured outside Terraform survive the
+	// destroy instead of being wiped. Create/Update handle the same two codes.
+	if errorCode := res.Get("response.errorCode").String(); err != nil && (errorCode == "NCND01090" || errorCode == "NCND10603") {
+		tflog.Warn(ctx, fmt.Sprintf("%s: %s detected (likely Global site), retrying delete with full credential payload", state.Id.ValueString(), errorCode))
+		preserve := state.PreserveUnmanaged.ValueBool()
+		var current *AssignCredentials
+		if preserve {
+			cur, gerr := r.getCurrentGlobalCredentials(ctx, state.SiteId.ValueString())
+			if gerr != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read current Global credentials for preserve_unmanaged, got error: %s", gerr))
+				return
+			}
+			current = &cur
+		}
+		body = empty.toBodyGlobal(ctx, state, current, preserve)
 		res, err = r.client.Put(state.getPath(), body)
 	}
 

@@ -32,14 +32,15 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type AssignCredentials struct {
-	Id            types.String `tfsdk:"id"`
-	SiteId        types.String `tfsdk:"site_id"`
-	CliId         types.String `tfsdk:"cli_id"`
-	SnmpV2ReadId  types.String `tfsdk:"snmp_v2_read_id"`
-	SnmpV2WriteId types.String `tfsdk:"snmp_v2_write_id"`
-	SnmpV3Id      types.String `tfsdk:"snmp_v3_id"`
-	HttpsReadId   types.String `tfsdk:"https_read_id"`
-	HttpsWriteId  types.String `tfsdk:"https_write_id"`
+	Id                types.String `tfsdk:"id"`
+	SiteId            types.String `tfsdk:"site_id"`
+	CliId             types.String `tfsdk:"cli_id"`
+	SnmpV2ReadId      types.String `tfsdk:"snmp_v2_read_id"`
+	SnmpV2WriteId     types.String `tfsdk:"snmp_v2_write_id"`
+	SnmpV3Id          types.String `tfsdk:"snmp_v3_id"`
+	HttpsReadId       types.String `tfsdk:"https_read_id"`
+	HttpsWriteId      types.String `tfsdk:"https_write_id"`
+	PreserveUnmanaged types.Bool   `tfsdk:"preserve_unmanaged"`
 }
 
 // End of section. //template:end types
@@ -56,20 +57,23 @@ func (data AssignCredentials) getPath() string {
 // in-place update that clears a single credential (set -> null) produces a PUT
 // body that omits that slot, so Catalyst Center leaves the existing assignment
 // untouched. The credential object can then not be deleted (NCIM01100 - still
-// associated with a site). To fix this, on update (put) we send
-// {"credentialsId": null} for any slot that was previously set and is now
-// removed. Per the API (PUT .../deviceCredentials), a null credentialsId makes
-// the slot inherit from the parent site: this unassigns the site-local
-// credential (so the underlying credential object can be deleted) while keeping
-// the site consistent with the credentials declared higher in the hierarchy -
-// which matches how the data model expresses "no override here, inherit from
-// the parent". The request schema types each slot as an object with
-// credentialsId; Catalyst Center 3.2.2 rejects a top-level null
-// ("cliCredentialsId": null) with NCND00010. Slots that were never set are
-// still omitted, so other inherited credentials (or credentials managed by
-// another assignment) are left untouched. (An empty object {}, by contrast,
-// marks the slot as "unset"/none instead of inheriting, so it is not used for
-// clearing here.)
+// associated with a site). To fix this, on update (put) we send a top-level
+// null for any slot that was previously set and is now removed. Per the API
+// (PUT .../deviceCredentials, documented identically on 2.3.7.9-11, 3.1.5,
+// 3.2.2 and 3.3.x): a null value makes the slot inherit from the parent site,
+// an empty object {} unsets it (no credential of that type is used), and
+// {"credentialsId": "<id>"} sets it. So a top-level null unassigns the
+// site-local credential (letting the underlying credential object be deleted)
+// while keeping the site consistent with the credentials declared higher in the
+// hierarchy - which matches how the data model expresses "no override here,
+// inherit from the parent". Slots that were never set are still omitted, so
+// other inherited credentials (or credentials managed by another assignment)
+// are left untouched.
+//
+// NOTE: an earlier attempt sent {"credentialsId": null} for the clear path. That
+// is NOT the documented inherit form and Catalyst Center treats it as "unset"
+// (the slot becomes null/none instead of inheriting from the parent), so it must
+// not be used here.
 func (data AssignCredentials) toBody(ctx context.Context, state AssignCredentials) string {
 	body := ""
 	put := state.Id.ValueString() != ""
@@ -78,12 +82,11 @@ func (data AssignCredentials) toBody(ctx context.Context, state AssignCredential
 		if !plan.IsNull() {
 			body, _ = sjson.Set(body, slot+".credentialsId", plan.ValueString())
 		} else if put && !prior.IsNull() {
-			// Slot was assigned and is now being cleared: send
-			// {"credentialsId": null} so the slot inherits from the parent
-			// site (matching the data model), rather than {} which would leave
-			// it unset/none. Other slots are omitted so unrelated inherited
-			// credentials stay intact.
-			body, _ = sjson.SetRaw(body, slot+".credentialsId", "null")
+			// Slot was assigned and is now being cleared: send a top-level null
+			// so the slot inherits from the parent site (matching the data
+			// model), rather than {} which would leave it unset/none. Other
+			// slots are omitted so unrelated inherited credentials stay intact.
+			body, _ = sjson.SetRaw(body, slot, "null")
 		}
 	}
 
@@ -93,6 +96,58 @@ func (data AssignCredentials) toBody(ctx context.Context, state AssignCredential
 	setSlot("snmpv3CredentialsId", data.SnmpV3Id, state.SnmpV3Id)
 	setSlot("httpReadCredentialsId", data.HttpsReadId, state.HttpsReadId)
 	setSlot("httpWriteCredentialsId", data.HttpsWriteId, state.HttpsWriteId)
+
+	return body
+}
+
+// NOTE: toBodyGlobal is maintained manually (no generator markers) on purpose.
+// The Global site is the common-settings root: it has no parent to inherit
+// from, so Catalyst Center rejects a partial credential body (only some slots
+// present) with NCND01090 on 2.3.7.x and NCND10603 ("site not found") on
+// 3.2.2/3.2.3.
+// This builds a complete body with every slot present so the write is accepted
+// at the root, and is used only as the Create/Update fallback after a
+// Global-root rejection. It mirrors the full-payload retry the Delete method
+// performs for the Global site.
+//
+// Per slot the value is chosen from the plan (data), the prior state, the
+// current controller assignment (current, from a GET; nil when not preserving)
+// and the preserve flag:
+//   - plan sets the slot            -> {"credentialsId": "<id>"}
+//   - plan null, preserve, never    -> {"credentialsId": "<current id>"} (keep a
+//     managed by TF (null in state)    credential configured outside Terraform)
+//     and currently set on controller
+//   - otherwise (not preserving, or -> {} ("unset"/none; nothing to inherit at
+//     slot explicitly removed, i.e.    the root). Keeping removals as {} lets a
+//     non-null in prior state, or      previously managed slot be cleared.
+//     nothing to preserve)
+func (data AssignCredentials) toBodyGlobal(ctx context.Context, state AssignCredentials, current *AssignCredentials, preserve bool) string {
+	body := ""
+
+	var cur AssignCredentials
+	if current != nil {
+		cur = *current
+	}
+
+	setSlot := func(slot string, plan, prior, curVal types.String) {
+		switch {
+		case !plan.IsNull():
+			body, _ = sjson.Set(body, slot+".credentialsId", plan.ValueString())
+		case preserve && prior.IsNull() && !curVal.IsNull():
+			// Never managed by Terraform and currently set on the controller:
+			// preserve the out-of-band credential.
+			body, _ = sjson.Set(body, slot+".credentialsId", curVal.ValueString())
+		default:
+			body, _ = sjson.SetRaw(body, slot, "{}")
+		}
+	}
+
+	setSlot("cliCredentialsId", data.CliId, state.CliId, cur.CliId)
+	setSlot("snmpv2cReadCredentialsId", data.SnmpV2ReadId, state.SnmpV2ReadId, cur.SnmpV2ReadId)
+	setSlot("snmpv2cWriteCredentialsId", data.SnmpV2WriteId, state.SnmpV2WriteId, cur.SnmpV2WriteId)
+	setSlot("snmpv3CredentialsId", data.SnmpV3Id, state.SnmpV3Id, cur.SnmpV3Id)
+	setSlot("httpReadCredentialsId", data.HttpsReadId, state.HttpsReadId, cur.HttpsReadId)
+	setSlot("httpWriteCredentialsId", data.HttpsWriteId, state.HttpsWriteId, cur.HttpsWriteId)
 
 	return body
 }
@@ -120,7 +175,12 @@ func (data *AssignCredentials) fromBody(ctx context.Context, res gjson.Result) {
 	data.HttpsWriteId = readSlot("credential.http.write")
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
+// NOTE: updateFromBody is maintained manually (no generator markers) on purpose.
+// It only reconciles the six credential slots from the deviceCredentials GET.
+// The preserve_unmanaged attribute is a control-only flag that Catalyst Center
+// never returns; the generated version would read it from the response, find it
+// absent, and reset it to null on every refresh, producing a permanent diff.
+// Keeping this hand-maintained leaves preserve_unmanaged untouched by Read.
 func (data *AssignCredentials) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("response.#(key=\"credential.cli\").value.0.objReferences.0"); value.Exists() && !data.CliId.IsNull() {
 		data.CliId = types.StringValue(value.String())
@@ -154,7 +214,7 @@ func (data *AssignCredentials) updateFromBody(ctx context.Context, res gjson.Res
 	}
 }
 
-// End of section. //template:end updateFromBody
+// End of custom updateFromBody.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AssignCredentials) isNull(ctx context.Context, res gjson.Result) bool {
@@ -174,6 +234,9 @@ func (data *AssignCredentials) isNull(ctx context.Context, res gjson.Result) boo
 		return false
 	}
 	if !data.HttpsWriteId.IsNull() {
+		return false
+	}
+	if !data.PreserveUnmanaged.IsNull() {
 		return false
 	}
 	return true
