@@ -101,6 +101,7 @@ func (r *AssignManagedAPLocationsResource) Configure(_ context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AssignManagedAPLocationsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AssignManagedAPLocations
 
 	// Read plan
@@ -133,6 +134,7 @@ func (r *AssignManagedAPLocationsResource) Create(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignManagedAPLocationsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignManagedAPLocations
 
 	// Read state
@@ -154,6 +156,7 @@ func (r *AssignManagedAPLocationsResource) Read(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AssignManagedAPLocationsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AssignManagedAPLocations
 
 	// Read plan
@@ -189,6 +192,7 @@ func (r *AssignManagedAPLocationsResource) Update(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AssignManagedAPLocationsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignManagedAPLocations
 
 	// Read state

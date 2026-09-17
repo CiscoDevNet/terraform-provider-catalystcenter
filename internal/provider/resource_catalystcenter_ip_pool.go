@@ -136,6 +136,7 @@ func (r *IPPoolResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan IPPool
 	cacheKey := "IPPool::"
 	r.cache.DeletePattern(cacheKey)
@@ -211,6 +212,7 @@ func (r *IPPoolResource) Create(ctx context.Context, req resource.CreateRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state IPPool
 
 	// Read state
@@ -260,6 +262,7 @@ func (r *IPPoolResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *IPPoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state IPPool
 	cacheKey := "IPPool::"
 	r.cache.DeletePattern(cacheKey)
@@ -297,6 +300,7 @@ func (r *IPPoolResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *IPPoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state IPPool
 	cacheKey := "IPPool::"
 	r.cache.DeletePattern(cacheKey)

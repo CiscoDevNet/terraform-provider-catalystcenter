@@ -284,6 +284,7 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *ProvisionDevicesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ProvisionDevices
 
 	// Read state

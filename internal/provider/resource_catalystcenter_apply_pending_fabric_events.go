@@ -194,6 +194,7 @@ func (r *ApplyPendingFabricEventsResource) Read(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *ApplyPendingFabricEventsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state ApplyPendingFabricEvents
 
 	// Read plan
@@ -221,6 +222,7 @@ func (r *ApplyPendingFabricEventsResource) Update(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ApplyPendingFabricEventsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ApplyPendingFabricEvents
 
 	// Read state

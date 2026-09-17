@@ -250,6 +250,7 @@ func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *PnPDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state PnPDevice
 
 	// Read plan

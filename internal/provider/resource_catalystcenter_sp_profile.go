@@ -108,6 +108,7 @@ func (r *SPProfileResource) Configure(_ context.Context, req resource.ConfigureR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *SPProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan SPProfile
 
 	// Read plan
@@ -140,6 +141,7 @@ func (r *SPProfileResource) Create(ctx context.Context, req resource.CreateReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *SPProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state SPProfile
 
 	// Read state
@@ -183,6 +185,7 @@ func (r *SPProfileResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *SPProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state SPProfile
 
 	// Read plan
@@ -218,6 +221,7 @@ func (r *SPProfileResource) Update(ctx context.Context, req resource.UpdateReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *SPProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state SPProfile
 
 	// Read state

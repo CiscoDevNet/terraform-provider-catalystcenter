@@ -120,6 +120,7 @@ func (d *AnchorGroupDataSource) Configure(_ context.Context, req datasource.Conf
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *AnchorGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config AnchorGroup
 
 	// Read config

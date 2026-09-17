@@ -120,6 +120,7 @@ func (r *WirelessProfilePolicyTagResource) Configure(_ context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessProfilePolicyTagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessProfilePolicyTag
 
 	// Read plan
@@ -159,6 +160,7 @@ func (r *WirelessProfilePolicyTagResource) Create(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessProfilePolicyTagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessProfilePolicyTag
 
 	// Read state
@@ -197,6 +199,7 @@ func (r *WirelessProfilePolicyTagResource) Read(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessProfilePolicyTagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessProfilePolicyTag
 
 	// Read plan
@@ -232,6 +235,7 @@ func (r *WirelessProfilePolicyTagResource) Update(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessProfilePolicyTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessProfilePolicyTag
 
 	// Read state

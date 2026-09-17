@@ -179,6 +179,7 @@ func (r *SyncDeviceCredentialResource) Create(ctx context.Context, req resource.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *SyncDeviceCredentialResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state SyncDeviceCredential
 
 	// Read state
@@ -200,6 +201,7 @@ func (r *SyncDeviceCredentialResource) Read(ctx context.Context, req resource.Re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *SyncDeviceCredentialResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state SyncDeviceCredential
 
 	// Read plan
@@ -227,6 +229,7 @@ func (r *SyncDeviceCredentialResource) Update(ctx context.Context, req resource.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *SyncDeviceCredentialResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state SyncDeviceCredential
 
 	// Read state

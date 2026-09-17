@@ -201,6 +201,7 @@ func (r *WirelessCleanAirConfigurationResource) Configure(_ context.Context, req
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessCleanAirConfigurationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessCleanAirConfiguration
 
 	// Read plan
@@ -233,6 +234,7 @@ func (r *WirelessCleanAirConfigurationResource) Create(ctx context.Context, req 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessCleanAirConfigurationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessCleanAirConfiguration
 
 	// Read state
@@ -272,6 +274,7 @@ func (r *WirelessCleanAirConfigurationResource) Read(ctx context.Context, req re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessCleanAirConfigurationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessCleanAirConfiguration
 
 	// Read plan
@@ -307,6 +310,7 @@ func (r *WirelessCleanAirConfigurationResource) Update(ctx context.Context, req 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessCleanAirConfigurationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessCleanAirConfiguration
 
 	// Read state

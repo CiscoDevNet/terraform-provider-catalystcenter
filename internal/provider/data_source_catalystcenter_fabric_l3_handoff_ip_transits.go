@@ -145,6 +145,7 @@ func (d *FabricL3HandoffIPTransitsDataSource) Configure(_ context.Context, req d
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *FabricL3HandoffIPTransitsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config FabricL3HandoffIPTransits
 
 	// Read config

@@ -177,6 +177,7 @@ func (r *FabricL3HandoffIPTransitResource) Configure(_ context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricL3HandoffIPTransit
 
 	// Read plan
@@ -224,6 +225,7 @@ func (r *FabricL3HandoffIPTransitResource) Create(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricL3HandoffIPTransitResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricL3HandoffIPTransit
 
 	// Read state
@@ -268,6 +270,7 @@ func (r *FabricL3HandoffIPTransitResource) Read(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricL3HandoffIPTransitResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricL3HandoffIPTransit
 
 	// Read plan
@@ -311,6 +314,7 @@ func (r *FabricL3HandoffIPTransitResource) Update(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricL3HandoffIPTransitResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricL3HandoffIPTransit
 
 	// Read state

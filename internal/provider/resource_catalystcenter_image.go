@@ -265,6 +265,7 @@ func (r *ImageResource) clientWithHttpTimeout(timeout time.Duration) cc.Client {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *ImageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Image
 
 	// Read state
@@ -304,6 +305,7 @@ func (r *ImageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *ImageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Image
 
 	// Read plan
@@ -331,6 +333,7 @@ func (r *ImageResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ImageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Image
 
 	// Read state
