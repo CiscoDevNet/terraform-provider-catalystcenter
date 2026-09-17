@@ -1,0 +1,123 @@
+---
+name: PnP Device Claim SVL
+rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v/claim
+no_data_source: true
+no_read: true
+no_delete: true
+no_import: true
+post_update: true
+skip_minimum_test: true
+minimum_version: 3.2.3
+doc_category: Plug and Play
+test_tags: [PNP]
+attributes:
+  - model_name: deviceId
+    type: String
+    reference: true
+    id: true
+    mandatory: true
+    description: The PnP device ID to claim.
+    example: 683413ec67f7d77edb0fd605
+  - model_name: deviceType
+    type: String
+    value: SVL
+    description: Type of device being claimed.
+    example: SVL
+  - model_name: siteId
+    type: String
+    description: Unique identifier of the site to claim the device to.
+    example: ee743148-ee86-4641-8558-52aa277eb780
+    exclude_test: true
+  - model_name: hostname
+    type: String
+    description: Hostname to be pushed to the device.
+    example: SVL-SWITCH
+    exclude_test: true
+  - model_name: imageId
+    data_path: imageInfo
+    type: String
+    description: Unique identifier of the image to be installed on the device.
+    example: e0a03292-b658-47aa-8407-4f00c057eb51
+    exclude_test: true
+  - model_name: removeInactive
+    data_path: imageInfo
+    type: Bool
+    description: Delete unused image .bin and .pkg files on the device.
+    example: false
+    exclude_test: true
+  - model_name: templateId
+    data_path: templateInfo
+    type: String
+    description: Unique identifier of the CLI template. Required if the device is claimed without a site.
+    example: 1e3b9f1b-acd9-462a-8a2e-13b527934549
+  - model_name: templateParameters
+    data_path: templateInfo
+    type: List
+    description: CLI template parameters.
+    attributes:
+      - model_name: key
+        tf_name: name
+        id: true
+        type: String
+        description: The key of the configuration parameter.
+        example: param5
+      - model_name: value
+        type: String
+        description: The value of the configuration parameter.
+        example: value5
+  - model_name: domain
+    data_path: svlConfig
+    type: Int64
+    mandatory: true
+    min_int: 1
+    max_int: 255
+    description: SVL domain number.
+    example: 2
+  - model_name: svlMembers
+    data_path: svlConfig
+    type: List
+    mandatory: true
+    description: List of member switches in the SVL.
+    attributes:
+      - model_name: serialNumber
+        id: true
+        type: String
+        mandatory: true
+        description: Serial number of the member switch.
+        example: FJC28041KKA
+      - model_name: role
+        type: String
+        mandatory: true
+        enum_values: [ACTIVE, STANDBY]
+        description: Role of a member in an SVL.
+        example: ACTIVE
+      - model_name: svlLinks
+        type: List
+        mandatory: true
+        description: List of links between member switches in the SVL.
+        attributes:
+          - model_name: localInterface
+            id: true
+            type: String
+            mandatory: true
+            description: Local interface name.
+            example: TwentyFiveGigE1/0/47
+          - model_name: remoteInterface
+            type: String
+            mandatory: true
+            description: Remote interface name.
+            example: TwentyFiveGigE2/0/47
+      - model_name: localInterface
+        data_path: dadLink
+        type: String
+        description: Local interface name of the Dual-Active-Detection (DAD) link.
+        example: GigabitEthernet1/0/52
+        exclude_test: true
+      - model_name: remoteInterface
+        data_path: dadLink
+        type: String
+        description: Remote interface name of the Dual-Active-Detection (DAD) link.
+        example: GigabitEthernet2/0/52
+        exclude_test: true
+
+
