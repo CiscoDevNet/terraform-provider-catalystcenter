@@ -8,7 +8,7 @@ description: |-
 # Changelog
 
 
-## 0.6.2 (unreleased)
+## 0.6.2
 
 - Add `wireless_flooding_enabled` (`isWirelessFloodingEnabled`) attribute to the `catalystcenter_fabric_l2_virtual_network`, `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources and data sources to enable wireless flooding on SD-Access layer 2 virtual networks (`/dna/intent/api/v1/sda/layer2VirtualNetworks`) and anycast gateways (`/dna/intent/api/v1/sda/anycastGateways`). The attribute is only sent when explicitly configured, so existing configurations are unaffected on controllers that do not support it; requires Catalyst Center 3.1 or later
 - Fix `catalystcenter_assign_credentials` resource to assign credentials at the `Global` site. `Global` is the common-settings root and rejects a partial credential body (`NCND01090` on 2.3.7.x, `NCND10603` on 3.2.2/3.2.3), so Create, Update and Delete now retry once with a complete six-slot payload
