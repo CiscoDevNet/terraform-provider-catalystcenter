@@ -29,7 +29,7 @@ func (m rejectInPlaceStringChangePlanModifier) PlanModifyString(_ context.Contex
 	resp.Diagnostics.AddAttributeError(
 		req.Path,
 		"In-place value change is not supported",
-		"This attribute cannot be changed directly from one configured value to another. Remove the current value and apply first, then configure the new value in a subsequent apply.",
+		"This Virtual Network {variable} has already been Anchored to a site and its Anchor Role cannot be changed, without first removing the VN with it associated anycast gateway from ALL existing fabric sites (Anchor + Anchoring sites)",
 	)
 }
 

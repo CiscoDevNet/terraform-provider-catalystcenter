@@ -15,14 +15,15 @@ func TestRejectInPlaceStringChangePlanModifier(t *testing.T) {
 	t.Parallel()
 
 	tests := map[string]struct {
-		state     types.String
-		plan      types.String
-		wantError bool
+		state      types.String
+		plan       types.String
+		wantError  bool
+		wantDetail string
 	}{
 		"add":                  {state: types.StringNull(), plan: types.StringValue("site-a")},
 		"remove":               {state: types.StringValue("site-a"), plan: types.StringNull()},
 		"unchanged":            {state: types.StringValue("site-a"), plan: types.StringValue("site-a")},
-		"replace":              {state: types.StringValue("site-a"), plan: types.StringValue("site-b"), wantError: true},
+		"replace":              {state: types.StringValue("site-a"), plan: types.StringValue("site-b"), wantError: true, wantDetail: "This Virtual Network {variable} has already been Anchored to a site and its Anchor Role cannot be changed, without first removing the VN with it associated anycast gateway from ALL existing fabric sites (Anchor + Anchoring sites)"},
 		"empty state is unset": {state: types.StringValue(""), plan: types.StringValue("site-a")},
 		"empty plan is unset":  {state: types.StringValue("site-a"), plan: types.StringValue("")},
 		"unknown state":        {state: types.StringUnknown(), plan: types.StringValue("site-a")},
@@ -44,6 +45,9 @@ func TestRejectInPlaceStringChangePlanModifier(t *testing.T) {
 
 			if response.Diagnostics.HasError() != test.wantError {
 				t.Fatalf("HasError() = %t, want %t; diagnostics: %v", response.Diagnostics.HasError(), test.wantError, response.Diagnostics)
+			}
+			if test.wantDetail != "" && response.Diagnostics[0].Detail() != test.wantDetail {
+				t.Fatalf("Detail() = %q, want %q", response.Diagnostics[0].Detail(), test.wantDetail)
 			}
 		})
 	}
