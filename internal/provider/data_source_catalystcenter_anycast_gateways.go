@@ -134,6 +134,10 @@ func (d *AnycastGatewaysDataSource) Schema(ctx context.Context, req datasource.S
 							MarkdownDescription: "Enable/disable layer 2 flooding (not applicable to INFRA_VN)",
 							Computed:            true,
 						},
+						"wireless_flooding_enabled": schema.BoolAttribute{
+							MarkdownDescription: "Enable/disable wireless flooding (not applicable to INFRA_VN). Requires isWirelessPool to be true. Available from Catalyst Center 3.1",
+							Computed:            true,
+						},
 						"wireless_pool": schema.BoolAttribute{
 							MarkdownDescription: "Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)",
 							Computed:            true,

@@ -47,6 +47,7 @@ data "catalystcenter_anycast_gateway" "example" {
 - `traffic_type` (String) The type of traffic the anycast gateway serves
 - `vlan_id` (Number) ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
 - `vlan_name` (String) Name of the VLAN of the anycast gateway
+- `wireless_flooding_enabled` (Boolean) Enable/disable wireless flooding (not applicable to INFRA_VN). Requires isWirelessPool to be true. Available from Catalyst Center 3.1
 - `wireless_pool` (Boolean) Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
 
 <a id="nestedatt--additional_ip_pools"></a>

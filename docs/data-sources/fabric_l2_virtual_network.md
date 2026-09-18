@@ -34,3 +34,4 @@ data "catalystcenter_fabric_l2_virtual_network" "example" {
 - `id` (String) The id of the object
 - `traffic_type` (String) The type of traffic that is served
 - `vlan_id` (Number) ID of the VLAN of the layer 2 virtual network. Allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, and 2046. If deploying on a fabric zone, this vlanId must match the vlanId of the corresponding layer 2 virtual network on the fabric site
+- `wireless_flooding_enabled` (Boolean) Enable/disable wireless flooding. Requires isFabricEnabledWireless to be true. Available from Catalyst Center 3.1

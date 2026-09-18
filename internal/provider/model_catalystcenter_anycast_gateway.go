@@ -43,6 +43,7 @@ type AnycastGateway struct {
 	SecurityGroupName                     types.String                      `tfsdk:"security_group_name"`
 	CriticalPool                          types.Bool                        `tfsdk:"critical_pool"`
 	L2FloodingEnabled                     types.Bool                        `tfsdk:"l2_flooding_enabled"`
+	WirelessFloodingEnabled               types.Bool                        `tfsdk:"wireless_flooding_enabled"`
 	WirelessPool                          types.Bool                        `tfsdk:"wireless_pool"`
 	IpDirectedBroadcast                   types.Bool                        `tfsdk:"ip_directed_broadcast"`
 	IntraSubnetRoutingEnabled             types.Bool                        `tfsdk:"intra_subnet_routing_enabled"`
@@ -124,6 +125,9 @@ func (data AnycastGateway) toBody(ctx context.Context, state AnycastGateway) str
 	}
 	if !data.L2FloodingEnabled.IsNull() {
 		body, _ = sjson.Set(body, "0.isLayer2FloodingEnabled", data.L2FloodingEnabled.ValueBool())
+	}
+	if !data.WirelessFloodingEnabled.IsNull() {
+		body, _ = sjson.Set(body, "0.isWirelessFloodingEnabled", data.WirelessFloodingEnabled.ValueBool())
 	}
 	if !data.WirelessPool.IsNull() {
 		body, _ = sjson.Set(body, "0.isWirelessPool", data.WirelessPool.ValueBool())
@@ -231,6 +235,11 @@ func (data *AnycastGateway) fromBody(ctx context.Context, res gjson.Result) {
 		data.L2FloodingEnabled = types.BoolValue(value.Bool())
 	} else {
 		data.L2FloodingEnabled = types.BoolNull()
+	}
+	if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() {
+		data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.WirelessFloodingEnabled = types.BoolNull()
 	}
 	if value := res.Get("response.0.isWirelessPool"); value.Exists() {
 		data.WirelessPool = types.BoolValue(value.Bool())
@@ -357,6 +366,11 @@ func (data *AnycastGateway) updateFromBody(ctx context.Context, res gjson.Result
 	} else {
 		data.L2FloodingEnabled = types.BoolNull()
 	}
+	if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() && !data.WirelessFloodingEnabled.IsNull() {
+		data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.WirelessFloodingEnabled = types.BoolNull()
+	}
 	if value := res.Get("response.0.isWirelessPool"); value.Exists() && !data.WirelessPool.IsNull() {
 		data.WirelessPool = types.BoolValue(value.Bool())
 	} else {
@@ -473,6 +487,13 @@ func (data *AnycastGateway) fromBodyUnknowns(ctx context.Context, res gjson.Resu
 			data.L2FloodingEnabled = types.BoolNull()
 		}
 	}
+	if data.WirelessFloodingEnabled.IsUnknown() {
+		if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() && !data.WirelessFloodingEnabled.IsNull() {
+			data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+		} else {
+			data.WirelessFloodingEnabled = types.BoolNull()
+		}
+	}
 	if data.WirelessPool.IsUnknown() {
 		if value := res.Get("response.0.isWirelessPool"); value.Exists() && !data.WirelessPool.IsNull() {
 			data.WirelessPool = types.BoolValue(value.Bool())
@@ -546,6 +567,9 @@ func (data *AnycastGateway) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.L2FloodingEnabled.IsNull() {
+		return false
+	}
+	if !data.WirelessFloodingEnabled.IsNull() {
 		return false
 	}
 	if !data.WirelessPool.IsNull() {
