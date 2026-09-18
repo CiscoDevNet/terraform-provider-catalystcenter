@@ -14,12 +14,11 @@ This resource can manage a Fabric L2 Virtual Network.
 
 ```terraform
 resource "catalystcenter_fabric_l2_virtual_network" "example" {
-  fabric_id                 = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
-  vlan_name                 = "VLAN401"
-  vlan_id                   = 401
-  traffic_type              = "DATA"
-  fabric_enabled_wireless   = false
-  wireless_flooding_enabled = false
+  fabric_id               = "5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1"
+  vlan_name               = "VLAN401"
+  vlan_id                 = 401
+  traffic_type            = "DATA"
+  fabric_enabled_wireless = false
 }
 ```
 

@@ -58,7 +58,7 @@ attributes:
     tf_name: wireless_flooding_enabled
     type: Bool
     description: Enable/disable wireless flooding. Requires isFabricEnabledWireless to be true. Available from Catalyst Center 3.1
-    example: false
+    exclude_test: true
   - model_name: associatedLayer3VirtualNetworkName
     requires_replace: true
     data_path: '0'

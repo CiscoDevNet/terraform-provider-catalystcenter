@@ -7,7 +7,6 @@ resource "catalystcenter_anycast_gateway" "example" {
   traffic_type                 = "DATA"
   critical_pool                = false
   l2_flooding_enabled          = false
-  wireless_flooding_enabled    = false
   wireless_pool                = false
   ip_directed_broadcast        = false
   intra_subnet_routing_enabled = false
