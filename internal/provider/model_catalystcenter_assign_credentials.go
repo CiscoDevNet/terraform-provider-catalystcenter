@@ -173,6 +173,12 @@ func (data *AssignCredentials) fromBody(ctx context.Context, res gjson.Result) {
 	data.SnmpV3Id = readSlot("credential.snmp_v3")
 	data.HttpsReadId = readSlot("credential.http.read")
 	data.HttpsWriteId = readSlot("credential.http.write")
+
+	// preserve_unmanaged is a control-only flag Catalyst Center never returns.
+	// fromBody runs on import (empty state), so seed the schema default here;
+	// otherwise it stays null in state while the schema default is true, and the
+	// next plan shows a spurious `null -> true` diff and fires an Update.
+	data.PreserveUnmanaged = types.BoolValue(true)
 }
 
 // NOTE: updateFromBody is maintained manually (no generator markers) on purpose.
