@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -103,8 +104,10 @@ func (r *AssignCredentialsResource) Schema(ctx context.Context, req resource.Sch
 				Optional:            true,
 			},
 			"preserve_unmanaged": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("When managing the Global site's credentials, preserve credential slots that are set outside Terraform instead of unsetting slots that are not present in the configuration. The Global site is the common-settings root and has no parent to inherit from, so a write must include every slot; with this enabled, unspecified slots that are currently assigned on the controller are re-sent (preserved) rather than cleared, while slots the configuration previously managed and then removed are still unset. Has no effect on non-Global sites, which inherit unspecified slots from their parent. Defaults to `false`.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("When managing the Global site's credentials, preserve credential slots that are set outside Terraform instead of unsetting slots that are not present in the configuration. The Global site is the common-settings root and has no parent to inherit from, so a write must include every slot; with this enabled, unspecified slots that are currently assigned on the controller are re-sent (preserved) rather than cleared, while slots the configuration previously managed and then removed are still unset. Has no effect on non-Global sites, which inherit unspecified slots from their parent.").AddDefaultValueDescription("true").String,
 				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
 			},
 		},
 	}

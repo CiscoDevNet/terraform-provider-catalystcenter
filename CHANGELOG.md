@@ -1,7 +1,7 @@
 
 ## 0.6.2 (unreleased)
 
-- Fix and extend `catalystcenter_assign_credentials`: assign credentials at the `Global` site (send a complete six-slot body, retrying on `NCND01090`/`NCND10603` for Create/Update/Delete so writes are accepted at the parent-less common-settings root); unassign via a top-level `null` so slots inherit from the parent — the documented form — instead of `{"credentialsId": null}`, which Catalyst Center treats as unset; and add a `preserve_unmanaged` attribute that keeps `Global` slots configured outside Terraform (default `false`, no effect on non-Global sites)
+- Fix and extend `catalystcenter_assign_credentials`: assign credentials at the `Global` site (send a complete six-slot body, retrying on `NCND01090`/`NCND10603` for Create/Update/Delete so writes are accepted at the parent-less common-settings root); unassign via a top-level `null` so slots inherit from the parent — the documented form — instead of `{"credentialsId": null}`, which Catalyst Center treats as unset; and add a `preserve_unmanaged` attribute that keeps `Global` slots configured outside Terraform (default `true`, no effect on non-Global sites)
 
 ## 0.6.1
 

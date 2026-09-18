@@ -216,7 +216,11 @@ func (data *AssignCredentials) updateFromBody(ctx context.Context, res gjson.Res
 
 // End of custom updateFromBody.
 
-// Section below is generated&owned by "gen/generator.go". //template:begin isNull
+// isNull is maintained manually (no generator markers): PreserveUnmanaged is a
+// Terraform-only behaviour flag (Computed, defaults to true), not a data
+// attribute returned by the API. It is excluded here on purpose — including it
+// would make the resource never look "empty" on Read (the default keeps it
+// non-null), which would defeat delete-detection.
 func (data *AssignCredentials) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.CliId.IsNull() {
 		return false
@@ -236,10 +240,5 @@ func (data *AssignCredentials) isNull(ctx context.Context, res gjson.Result) boo
 	if !data.HttpsWriteId.IsNull() {
 		return false
 	}
-	if !data.PreserveUnmanaged.IsNull() {
-		return false
-	}
 	return true
 }
-
-// End of section. //template:end isNull

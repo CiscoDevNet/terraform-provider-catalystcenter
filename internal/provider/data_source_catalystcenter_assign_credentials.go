@@ -90,7 +90,7 @@ func (d *AssignCredentialsDataSource) Schema(ctx context.Context, req datasource
 				Computed:            true,
 			},
 			"preserve_unmanaged": schema.BoolAttribute{
-				MarkdownDescription: "When managing the Global site's credentials, preserve credential slots that are set outside Terraform instead of unsetting slots that are not present in the configuration. The Global site is the common-settings root and has no parent to inherit from, so a write must include every slot; with this enabled, unspecified slots that are currently assigned on the controller are re-sent (preserved) rather than cleared, while slots the configuration previously managed and then removed are still unset. Has no effect on non-Global sites, which inherit unspecified slots from their parent. Defaults to `false`.",
+				MarkdownDescription: "When managing the Global site's credentials, preserve credential slots that are set outside Terraform instead of unsetting slots that are not present in the configuration. The Global site is the common-settings root and has no parent to inherit from, so a write must include every slot; with this enabled, unspecified slots that are currently assigned on the controller are re-sent (preserved) rather than cleared, while slots the configuration previously managed and then removed are still unset. Has no effect on non-Global sites, which inherit unspecified slots from their parent.",
 				Computed:            true,
 			},
 		},
