@@ -107,6 +107,7 @@ func (r *BannerSettingsResource) Configure(_ context.Context, req resource.Confi
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *BannerSettingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan BannerSettings
 
 	// Read plan
@@ -139,6 +140,7 @@ func (r *BannerSettingsResource) Create(ctx context.Context, req resource.Create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *BannerSettingsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state BannerSettings
 
 	// Read state
@@ -178,6 +180,7 @@ func (r *BannerSettingsResource) Read(ctx context.Context, req resource.ReadRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *BannerSettingsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state BannerSettings
 
 	// Read plan

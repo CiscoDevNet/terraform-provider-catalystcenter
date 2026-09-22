@@ -112,6 +112,7 @@ func (r *BuildingResource) Configure(_ context.Context, req resource.ConfigureRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *BuildingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Building
 	cacheKey := "Building::"
 	r.cache.DeletePattern(cacheKey)
@@ -168,6 +169,7 @@ func (r *BuildingResource) Create(ctx context.Context, req resource.CreateReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *BuildingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Building
 
 	// Read state
@@ -212,6 +214,7 @@ func (r *BuildingResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *BuildingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Building
 	cacheKey := "Building::"
 	r.cache.DeletePattern(cacheKey)
@@ -249,6 +252,7 @@ func (r *BuildingResource) Update(ctx context.Context, req resource.UpdateReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *BuildingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Building
 	cacheKey := "Building::"
 	r.cache.DeletePattern(cacheKey)

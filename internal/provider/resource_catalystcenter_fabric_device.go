@@ -145,6 +145,7 @@ func (r *FabricDeviceResource) Configure(_ context.Context, req resource.Configu
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricDevice
 	cacheKey := "FabricDevice::"
 	r.cache.DeletePattern(cacheKey)
@@ -194,6 +195,7 @@ func (r *FabricDeviceResource) Create(ctx context.Context, req resource.CreateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricDevice
 
 	// Read state
@@ -233,6 +235,7 @@ func (r *FabricDeviceResource) Read(ctx context.Context, req resource.ReadReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricDeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricDevice
 	cacheKey := "FabricDevice::"
 	r.cache.DeletePattern(cacheKey)
@@ -278,6 +281,7 @@ func (r *FabricDeviceResource) Update(ctx context.Context, req resource.UpdateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricDevice
 	cacheKey := "FabricDevice::"
 	r.cache.DeletePattern(cacheKey)

@@ -142,6 +142,7 @@ func (r *UpdateDeviceManagementAddressResource) Create(ctx context.Context, req 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *UpdateDeviceManagementAddressResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state UpdateDeviceManagementAddress
 
 	// Read state
@@ -227,6 +228,7 @@ func (r *UpdateDeviceManagementAddressResource) Update(ctx context.Context, req 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *UpdateDeviceManagementAddressResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state UpdateDeviceManagementAddress
 
 	// Read state

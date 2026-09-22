@@ -173,6 +173,7 @@ func (r *FloorImageResource) Create(ctx context.Context, req resource.CreateRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FloorImageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FloorImage
 
 	// Read state
@@ -194,6 +195,7 @@ func (r *FloorImageResource) Read(ctx context.Context, req resource.ReadRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FloorImageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FloorImage
 
 	// Read plan
@@ -221,6 +223,7 @@ func (r *FloorImageResource) Update(ctx context.Context, req resource.UpdateRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FloorImageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FloorImage
 
 	// Read state
