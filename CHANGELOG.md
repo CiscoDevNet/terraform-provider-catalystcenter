@@ -1,4 +1,8 @@
 
+## 0.6.3 (unreleased)
+
+- Add `catalystcenter_wireless_profile_site_tag_site_assignment` resource that manages a single site's membership in a Wireless Profile Site Tag using read-modify-write, so one Site Tag can be shared across independent Terraform states (for example multistate deployments where each site is managed separately). It creates the tag on first touch, appends its own `site_id` to an existing tag without disturbing sites owned by other states, and on destroy removes only its own `site_id` (deleting the tag once the last site is removed). Writes to the same tag are serialized with a mutex (`/dna/intent/api/v1/wirelessProfiles/{id}/siteTags`)
+
 ## 0.6.2
 
 - Add `wireless_flooding_enabled` (`isWirelessFloodingEnabled`) attribute to the `catalystcenter_fabric_l2_virtual_network`, `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources and data sources to enable wireless flooding on SD-Access layer 2 virtual networks (`/dna/intent/api/v1/sda/layer2VirtualNetworks`) and anycast gateways (`/dna/intent/api/v1/sda/anycastGateways`). The attribute is only sent when explicitly configured, so existing configurations are unaffected on controllers that do not support it; requires Catalyst Center 3.1 or later
