@@ -106,10 +106,10 @@ func (r *CredentialsSNMPv3Resource) Schema(ctx context.Context, req resource.Sch
 				Optional:            true,
 			},
 			"auth_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Authentication type").AddStringEnumDescription("SHA", "MD5").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Authentication type").AddStringEnumDescription("SHA", "MD5", "SHA256").String,
 				Optional:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("SHA", "MD5"),
+					stringvalidator.OneOf("SHA", "MD5", "SHA256"),
 				},
 			},
 			"auth_password": schema.StringAttribute{
