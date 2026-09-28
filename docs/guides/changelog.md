@@ -10,6 +10,7 @@ description: |-
 ## 0.6.3 (unreleased)
 
 - Add `SHA256` to the allowed values of `auth_type` on the `catalystcenter_credentials_snmpv3` resource
+- Add `catalystcenter_pnp_device_claim_svl` resource to claim a StackWise Virtual (SVL) pair through Plug and Play (`/dna/intent/api/v1/pnpNetworkDevices/{id}/claim` with `deviceType: SVL`). The resource takes the PnP device ID of the `ACTIVE` member and configures the SVL `domain`, the `ACTIVE`/`STANDBY` member serial numbers, the SVL links between them and the optional Dual-Active-Detection (DAD) link, alongside the usual site, hostname, image and day-0 template parameters. The claim endpoint has no corresponding GET, so the resource is create/update-only and is not importable; requires Catalyst Center 3.2.3 or later
 
 ## 0.6.2
 
