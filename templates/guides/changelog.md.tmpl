@@ -7,6 +7,9 @@ description: |-
 
 # Changelog
 
+## 0.6.3 (unreleased)
+
+- Add `SHA256` to the allowed values of `auth_type` on the `catalystcenter_credentials_snmpv3` resource
 
 ## 0.6.2
 
