@@ -47,7 +47,7 @@ resource "catalystcenter_credentials_snmpv3" "example" {
   - Only one of `auth_password` and `auth_password_wo` can be set.
 - `auth_password_wo_version` (Number) Rotation trigger for `auth_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `auth_type` (String) Authentication type
-  - Choices: `SHA`, `MD5`
+  - Choices: `SHA`, `MD5`, `SHA256`
 - `privacy_password` (String, Sensitive) Privacy password
   - Only one of `privacy_password` and `privacy_password_wo` can be set.
   - This attribute stores the secret in Terraform state. Prefer `privacy_password_wo` together with `privacy_password_wo_version`, which keeps it out of state.
