@@ -7,6 +7,9 @@ description: |-
 
 # Changelog
 
+## 0.6.3 (unreleased)
+
+- Fix `catalystcenter_fabric_l3_virtual_network` resource to allow adding and removing `anchored_site_id` on an existing Layer 3 Virtual Network; changing it from one site to another is still unsupported and is now rejected at plan time
 
 ## 0.6.1
 
