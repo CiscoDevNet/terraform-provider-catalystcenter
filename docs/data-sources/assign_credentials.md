@@ -32,6 +32,7 @@ data "catalystcenter_assign_credentials" "example" {
 - `cli_id` (String) The ID of the CLI credentials used to access devices at the site.
 - `https_read_id` (String) The ID of the HTTP(S) Read credentials.
 - `https_write_id` (String) The ID of the HTTP(S) Write credentials.
+- `preserve_unmanaged` (Boolean) When managing the Global site's credentials, preserve credential slots that are set outside Terraform instead of unsetting slots that are not present in the configuration. The Global site is the common-settings root and has no parent to inherit from, so a write must include every slot; with this enabled, unspecified slots that are currently assigned on the controller are re-sent (preserved) rather than cleared, while slots the configuration previously managed and then removed are still unset. Has no effect on non-Global sites, which inherit unspecified slots from their parent.
 - `snmp_v2_read_id` (String) The ID of the SNMPv2c Read credentials.
 - `snmp_v2_write_id` (String) The ID of the SNMPv2c Write credentials.
 - `snmp_v3_id` (String) The ID of the SNMPv3 credentials.

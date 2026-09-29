@@ -49,6 +49,7 @@ type AnycastGatewaysAnycastGateways struct {
 	SecurityGroupName                     types.String                                      `tfsdk:"security_group_name"`
 	CriticalPool                          types.Bool                                        `tfsdk:"critical_pool"`
 	L2FloodingEnabled                     types.Bool                                        `tfsdk:"l2_flooding_enabled"`
+	WirelessFloodingEnabled               types.Bool                                        `tfsdk:"wireless_flooding_enabled"`
 	WirelessPool                          types.Bool                                        `tfsdk:"wireless_pool"`
 	IpDirectedBroadcast                   types.Bool                                        `tfsdk:"ip_directed_broadcast"`
 	IntraSubnetRoutingEnabled             types.Bool                                        `tfsdk:"intra_subnet_routing_enabled"`
@@ -139,6 +140,9 @@ func (data AnycastGateways) toBody(ctx context.Context, state AnycastGateways) s
 			}
 			if !item.L2FloodingEnabled.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "isLayer2FloodingEnabled", item.L2FloodingEnabled.ValueBool())
+			}
+			if !item.WirelessFloodingEnabled.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "isWirelessFloodingEnabled", item.WirelessFloodingEnabled.ValueBool())
 			}
 			if !item.WirelessPool.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "isWirelessPool", item.WirelessPool.ValueBool())
@@ -254,6 +258,11 @@ func (data *AnycastGateways) fromBody(ctx context.Context, res gjson.Result) {
 				item.L2FloodingEnabled = types.BoolValue(cValue.Bool())
 			} else {
 				item.L2FloodingEnabled = types.BoolNull()
+			}
+			if cValue := v.Get("isWirelessFloodingEnabled"); cValue.Exists() {
+				item.WirelessFloodingEnabled = types.BoolValue(cValue.Bool())
+			} else {
+				item.WirelessFloodingEnabled = types.BoolNull()
 			}
 			if cValue := v.Get("isWirelessPool"); cValue.Exists() {
 				item.WirelessPool = types.BoolValue(cValue.Bool())
@@ -415,6 +424,11 @@ func (data *AnycastGateways) updateFromBody(ctx context.Context, res gjson.Resul
 			data.AnycastGateways[i].L2FloodingEnabled = types.BoolValue(value.Bool())
 		} else {
 			data.AnycastGateways[i].L2FloodingEnabled = types.BoolNull()
+		}
+		if value := r.Get("isWirelessFloodingEnabled"); value.Exists() && !data.AnycastGateways[i].WirelessFloodingEnabled.IsNull() {
+			data.AnycastGateways[i].WirelessFloodingEnabled = types.BoolValue(value.Bool())
+		} else {
+			data.AnycastGateways[i].WirelessFloodingEnabled = types.BoolNull()
 		}
 		if value := r.Get("isWirelessPool"); value.Exists() && !data.AnycastGateways[i].WirelessPool.IsNull() {
 			data.AnycastGateways[i].WirelessPool = types.BoolValue(value.Bool())
