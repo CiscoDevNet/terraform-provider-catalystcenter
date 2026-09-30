@@ -1,9 +1,9 @@
 ---
-name: PnP Device Claim SVL
+name: PnP Network Device Claim
 rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v/claim
+get_rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v
+delete_rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v
 no_data_source: true
-no_read: true
-no_delete: true
 no_import: true
 post_update: true
 skip_minimum_test: true
@@ -20,39 +20,45 @@ attributes:
     example: 683413ec67f7d77edb0fd605
   - model_name: deviceType
     type: String
-    value: SVL
+    mandatory: true
+    write_only: true
     description: Type of device being claimed.
     example: SVL
   - model_name: siteId
     type: String
+    response_data_path: response.siteId
     description: Unique identifier of the site to claim the device to.
     example: ee743148-ee86-4641-8558-52aa277eb780
     exclude_test: true
   - model_name: hostname
     type: String
+    response_data_path: response.hostname
     description: Hostname to be pushed to the device.
     example: SVL-SWITCH
     exclude_test: true
   - model_name: imageId
     data_path: imageInfo
     type: String
+    write_only: true
     description: Unique identifier of the image to be installed on the device.
     example: e0a03292-b658-47aa-8407-4f00c057eb51
     exclude_test: true
   - model_name: removeInactive
     data_path: imageInfo
     type: Bool
+    write_only: true
     description: Delete unused image .bin and .pkg files on the device.
     example: false
-    exclude_test: true
   - model_name: templateId
     data_path: templateInfo
     type: String
+    write_only: true
     description: Unique identifier of the CLI template. Required if the device is claimed without a site.
     example: 1e3b9f1b-acd9-462a-8a2e-13b527934549
   - model_name: templateParameters
     data_path: templateInfo
     type: List
+    write_only: true
     description: CLI template parameters.
     attributes:
       - model_name: key
@@ -68,7 +74,7 @@ attributes:
   - model_name: domain
     data_path: svlConfig
     type: Int64
-    mandatory: true
+    write_only: true
     min_int: 1
     max_int: 255
     description: SVL domain number.
@@ -76,7 +82,7 @@ attributes:
   - model_name: svlMembers
     data_path: svlConfig
     type: List
-    mandatory: true
+    write_only: true
     description: List of member switches in the SVL.
     attributes:
       - model_name: serialNumber
