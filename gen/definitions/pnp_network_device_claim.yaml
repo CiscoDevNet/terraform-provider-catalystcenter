@@ -22,6 +22,7 @@ attributes:
     type: String
     mandatory: true
     write_only: true
+    enum_values: [ACCESS_POINT, MOBILITY_EXPRESS, ROUTER, SENSOR, STACK_SWITCH, SVL, SWITCH, WIRELESS_CONTROLLER]
     description: Type of device being claimed.
     example: SVL
   - model_name: siteId
@@ -71,6 +72,60 @@ attributes:
         type: String
         description: The value of the configuration parameter.
         example: value5
+  - model_name: rfProfile
+    type: String
+    write_only: true
+    description: Name of the RF profile to apply to the access point.
+    example: TYPICAL
+    exclude_test: true
+  - model_name: topOfStackSerialNumber
+    type: String
+    write_only: true
+    description: Serial number of the switch to be assigned stack member number 1.
+    example: FJC28041KKA
+    exclude_test: true
+  - model_name: cablingScheme
+    type: String
+    write_only: true
+    description: StackWise cabling scheme.
+    example: '1A'
+    exclude_test: true
+  - model_name: sensorProfile
+    type: String
+    write_only: true
+    description: Name of the sensor profile to apply to the sensor.
+    example: CiscoSensor
+    exclude_test: true
+  - model_name: staticIpAddress
+    type: String
+    write_only: true
+    description: Static management IP address to be configured on the device.
+    example: 10.1.1.10
+    exclude_test: true
+  - model_name: subnetMask
+    type: String
+    write_only: true
+    description: Subnet mask of the static management IP address.
+    example: 255.255.255.0
+    exclude_test: true
+  - model_name: gateway
+    type: String
+    write_only: true
+    description: Default gateway of the static management IP address.
+    example: 10.1.1.1
+    exclude_test: true
+  - model_name: vlanId
+    type: Int64
+    write_only: true
+    description: VLAN ID of the management interface.
+    example: 100
+    exclude_test: true
+  - model_name: ipInterfaceName
+    type: String
+    write_only: true
+    description: Name of the management interface.
+    example: TenGigabitEthernet0/0/0
+    exclude_test: true
   - model_name: domain
     data_path: svlConfig
     type: Int64

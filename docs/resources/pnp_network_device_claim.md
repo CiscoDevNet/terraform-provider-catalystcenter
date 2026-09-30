@@ -47,18 +47,28 @@ resource "catalystcenter_pnp_network_device_claim" "example" {
 
 - `device_id` (String) The PnP device ID to claim.
 - `device_type` (String) Type of device being claimed.
+  - Choices: `ACCESS_POINT`, `MOBILITY_EXPRESS`, `ROUTER`, `SENSOR`, `STACK_SWITCH`, `SVL`, `SWITCH`, `WIRELESS_CONTROLLER`
 
 ### Optional
 
+- `cabling_scheme` (String) StackWise cabling scheme.
 - `domain` (Number) SVL domain number.
   - Range: `1`-`255`
+- `gateway` (String) Default gateway of the static management IP address.
 - `hostname` (String) Hostname to be pushed to the device.
 - `image_id` (String) Unique identifier of the image to be installed on the device.
+- `ip_interface_name` (String) Name of the management interface.
 - `remove_inactive` (Boolean) Delete unused image .bin and .pkg files on the device.
+- `rf_profile` (String) Name of the RF profile to apply to the access point.
+- `sensor_profile` (String) Name of the sensor profile to apply to the sensor.
 - `site_id` (String) Unique identifier of the site to claim the device to.
+- `static_ip_address` (String) Static management IP address to be configured on the device.
+- `subnet_mask` (String) Subnet mask of the static management IP address.
 - `svl_members` (Attributes List) List of member switches in the SVL. (see [below for nested schema](#nestedatt--svl_members))
 - `template_id` (String) Unique identifier of the CLI template. Required if the device is claimed without a site.
 - `template_parameters` (Attributes List) CLI template parameters. (see [below for nested schema](#nestedatt--template_parameters))
+- `top_of_stack_serial_number` (String) Serial number of the switch to be assigned stack member number 1.
+- `vlan_id` (Number) VLAN ID of the management interface.
 
 ### Read-Only
 

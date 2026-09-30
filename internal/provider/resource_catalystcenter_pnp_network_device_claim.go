@@ -79,8 +79,11 @@ func (r *PnPNetworkDeviceClaimResource) Schema(ctx context.Context, req resource
 				},
 			},
 			"device_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of device being claimed.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of device being claimed.").AddStringEnumDescription("ACCESS_POINT", "MOBILITY_EXPRESS", "ROUTER", "SENSOR", "STACK_SWITCH", "SVL", "SWITCH", "WIRELESS_CONTROLLER").String,
 				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("ACCESS_POINT", "MOBILITY_EXPRESS", "ROUTER", "SENSOR", "STACK_SWITCH", "SVL", "SWITCH", "WIRELESS_CONTROLLER"),
+				},
 			},
 			"site_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Unique identifier of the site to claim the device to.").String,
@@ -117,6 +120,42 @@ func (r *PnPNetworkDeviceClaimResource) Schema(ctx context.Context, req resource
 						},
 					},
 				},
+			},
+			"rf_profile": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the RF profile to apply to the access point.").String,
+				Optional:            true,
+			},
+			"top_of_stack_serial_number": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Serial number of the switch to be assigned stack member number 1.").String,
+				Optional:            true,
+			},
+			"cabling_scheme": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("StackWise cabling scheme.").String,
+				Optional:            true,
+			},
+			"sensor_profile": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the sensor profile to apply to the sensor.").String,
+				Optional:            true,
+			},
+			"static_ip_address": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Static management IP address to be configured on the device.").String,
+				Optional:            true,
+			},
+			"subnet_mask": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Subnet mask of the static management IP address.").String,
+				Optional:            true,
+			},
+			"gateway": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Default gateway of the static management IP address.").String,
+				Optional:            true,
+			},
+			"vlan_id": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("VLAN ID of the management interface.").String,
+				Optional:            true,
+			},
+			"ip_interface_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the management interface.").String,
+				Optional:            true,
 			},
 			"domain": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SVL domain number.").AddIntegerRangeDescription(1, 255).String,

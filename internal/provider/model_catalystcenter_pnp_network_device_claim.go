@@ -32,17 +32,26 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type PnPNetworkDeviceClaim struct {
-	Id                 types.String                              `tfsdk:"id"`
-	DeviceId           types.String                              `tfsdk:"device_id"`
-	DeviceType         types.String                              `tfsdk:"device_type"`
-	SiteId             types.String                              `tfsdk:"site_id"`
-	Hostname           types.String                              `tfsdk:"hostname"`
-	ImageId            types.String                              `tfsdk:"image_id"`
-	RemoveInactive     types.Bool                                `tfsdk:"remove_inactive"`
-	TemplateId         types.String                              `tfsdk:"template_id"`
-	TemplateParameters []PnPNetworkDeviceClaimTemplateParameters `tfsdk:"template_parameters"`
-	Domain             types.Int64                               `tfsdk:"domain"`
-	SvlMembers         []PnPNetworkDeviceClaimSvlMembers         `tfsdk:"svl_members"`
+	Id                     types.String                              `tfsdk:"id"`
+	DeviceId               types.String                              `tfsdk:"device_id"`
+	DeviceType             types.String                              `tfsdk:"device_type"`
+	SiteId                 types.String                              `tfsdk:"site_id"`
+	Hostname               types.String                              `tfsdk:"hostname"`
+	ImageId                types.String                              `tfsdk:"image_id"`
+	RemoveInactive         types.Bool                                `tfsdk:"remove_inactive"`
+	TemplateId             types.String                              `tfsdk:"template_id"`
+	TemplateParameters     []PnPNetworkDeviceClaimTemplateParameters `tfsdk:"template_parameters"`
+	RfProfile              types.String                              `tfsdk:"rf_profile"`
+	TopOfStackSerialNumber types.String                              `tfsdk:"top_of_stack_serial_number"`
+	CablingScheme          types.String                              `tfsdk:"cabling_scheme"`
+	SensorProfile          types.String                              `tfsdk:"sensor_profile"`
+	StaticIpAddress        types.String                              `tfsdk:"static_ip_address"`
+	SubnetMask             types.String                              `tfsdk:"subnet_mask"`
+	Gateway                types.String                              `tfsdk:"gateway"`
+	VlanId                 types.Int64                               `tfsdk:"vlan_id"`
+	IpInterfaceName        types.String                              `tfsdk:"ip_interface_name"`
+	Domain                 types.Int64                               `tfsdk:"domain"`
+	SvlMembers             []PnPNetworkDeviceClaimSvlMembers         `tfsdk:"svl_members"`
 }
 
 type PnPNetworkDeviceClaimTemplateParameters struct {
@@ -143,6 +152,33 @@ func (data PnPNetworkDeviceClaim) toBody(ctx context.Context, state PnPNetworkDe
 			body, _ = sjson.SetRaw(body, "templateInfo.templateParameters.-1", itemBody)
 		}
 	}
+	if !data.RfProfile.IsNull() {
+		body, _ = sjson.Set(body, "rfProfile", data.RfProfile.ValueString())
+	}
+	if !data.TopOfStackSerialNumber.IsNull() {
+		body, _ = sjson.Set(body, "topOfStackSerialNumber", data.TopOfStackSerialNumber.ValueString())
+	}
+	if !data.CablingScheme.IsNull() {
+		body, _ = sjson.Set(body, "cablingScheme", data.CablingScheme.ValueString())
+	}
+	if !data.SensorProfile.IsNull() {
+		body, _ = sjson.Set(body, "sensorProfile", data.SensorProfile.ValueString())
+	}
+	if !data.StaticIpAddress.IsNull() {
+		body, _ = sjson.Set(body, "staticIpAddress", data.StaticIpAddress.ValueString())
+	}
+	if !data.SubnetMask.IsNull() {
+		body, _ = sjson.Set(body, "subnetMask", data.SubnetMask.ValueString())
+	}
+	if !data.Gateway.IsNull() {
+		body, _ = sjson.Set(body, "gateway", data.Gateway.ValueString())
+	}
+	if !data.VlanId.IsNull() {
+		body, _ = sjson.Set(body, "vlanId", data.VlanId.ValueInt64())
+	}
+	if !data.IpInterfaceName.IsNull() {
+		body, _ = sjson.Set(body, "ipInterfaceName", data.IpInterfaceName.ValueString())
+	}
 	if !data.Domain.IsNull() {
 		body, _ = sjson.Set(body, "svlConfig.domain", data.Domain.ValueInt64())
 	}
@@ -236,6 +272,33 @@ func (data *PnPNetworkDeviceClaim) isNull(ctx context.Context, res gjson.Result)
 		return false
 	}
 	if len(data.TemplateParameters) > 0 {
+		return false
+	}
+	if !data.RfProfile.IsNull() {
+		return false
+	}
+	if !data.TopOfStackSerialNumber.IsNull() {
+		return false
+	}
+	if !data.CablingScheme.IsNull() {
+		return false
+	}
+	if !data.SensorProfile.IsNull() {
+		return false
+	}
+	if !data.StaticIpAddress.IsNull() {
+		return false
+	}
+	if !data.SubnetMask.IsNull() {
+		return false
+	}
+	if !data.Gateway.IsNull() {
+		return false
+	}
+	if !data.VlanId.IsNull() {
+		return false
+	}
+	if !data.IpInterfaceName.IsNull() {
 		return false
 	}
 	if !data.Domain.IsNull() {
