@@ -72,7 +72,7 @@ func (d *FabricL3VirtualNetworkDataSource) Schema(ctx context.Context, req datas
 				Computed:            true,
 			},
 			"anchored_site_id": schema.StringAttribute{
-				MarkdownDescription: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center does not allow adding, changing, or removing the anchor on an existing L3 VN that has fabric associations; the only supported mutation is removing the anchor together with emptying `fabric_ids` (effectively unassociating the VN from all fabric sites).",
+				MarkdownDescription: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center allows adding and removing an anchor, but does not allow changing directly from one configured anchor site to another. Remove the anchor and apply before configuring a different anchor site.",
 				Computed:            true,
 			},
 			"merge_fabric_sites": schema.BoolAttribute{

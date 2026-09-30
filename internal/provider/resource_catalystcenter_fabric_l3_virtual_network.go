@@ -85,8 +85,11 @@ func (r *FabricL3VirtualNetworkResource) Schema(ctx context.Context, req resourc
 				Optional:            true,
 			},
 			"anchored_site_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center does not allow adding, changing, or removing the anchor on an existing L3 VN that has fabric associations; the only supported mutation is removing the anchor together with emptying `fabric_ids` (effectively unassociating the VN from all fabric sites).").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center allows adding and removing an anchor, but does not allow changing directly from one configured anchor site to another. Remove the anchor and apply before configuring a different anchor site.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					rejectInPlaceStringChangePlanModifier{},
+				},
 			},
 			"merge_fabric_sites": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("When set to `true`, the `fabric_ids` declared in this resource are merged with the existing fabric associations on Catalyst Center (additive on create/update, subtractive on delete), rather than replacing the entire set. Use this in environments where multiple resources or external processes manage fabric associations for the same L3 Virtual Network.").AddDefaultValueDescription("false").String,
@@ -480,29 +483,22 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 		}
 	}
 
-	// Anchor-mutation guard.
-	// Catalyst Center does not allow adding, changing, or removing the anchor on
-	// an existing L3 VN that still has fabric associations.
-	stateAnchor := ""
-	if !state.AnchoredSiteId.IsNull() {
-		stateAnchor = state.AnchoredSiteId.ValueString()
+	// Defense in depth for callers that reach Update without normal planning.
+	// Adding and removing the anchor are supported; direct replacement is not.
+	if isInPlaceStringChange(state.AnchoredSiteId, plan.AnchoredSiteId) {
+		resp.Diagnostics.AddError(
+			"Invalid Configuration",
+			"Catalyst Center does not allow changing the anchor site of an existing Layer 3 Virtual Network. Remove the anchor and apply first, then configure the new anchor site in a subsequent apply.",
+		)
+		return
 	}
-	planAnchor := ""
-	if !plan.AnchoredSiteId.IsNull() {
-		planAnchor = plan.AnchoredSiteId.ValueString()
-	}
+
+	stateAnchor := state.AnchoredSiteId.ValueString()
+	planAnchor := plan.AnchoredSiteId.ValueString()
 	var planFabricIdsForAnchorCheck []string
 	plan.FabricIds.ElementsAs(ctx, &planFabricIdsForAnchorCheck, false)
 	planFabricIdsEmpty := plan.FabricIds.IsNull() || len(planFabricIdsForAnchorCheck) == 0
 	anchorRemovedWithEmptyFabricIds := stateAnchor != "" && planAnchor == "" && planFabricIdsEmpty
-
-	if stateAnchor != planAnchor && !anchorRemovedWithEmptyFabricIds {
-		resp.Diagnostics.AddError(
-			"Invalid Configuration",
-			"Catalyst Center does not allow adding, changing, or removing the anchor of an existing Layer 3 Virtual Network. The only permitted anchor mutation via Update is removing the anchor together with emptying fabric_ids (effectively unassociating the VN from all fabric sites). For any other anchor change you must destroy and recreate the resource.",
-		)
-		return
-	}
 
 	// Special path: unassociate (remove anchor + empty fabric_ids in one apply).
 	if anchorRemovedWithEmptyFabricIds {
@@ -600,36 +596,8 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 				}
 			}
 
-			mergedPlan := plan
-			mergedPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, newFabricIds)
-			body := mergedPlan.toBody(ctx, state)
-			if !plan.AnchoredSiteId.IsNull() && plan.AnchoredSiteId.ValueString() != "" {
-				adds, removes := diffFabricIds(existingFabricIds, newFabricIds)
-				if len(adds) > 0 && len(removes) > 0 {
-					// First PUT: only the removals (keep additions for second PUT)
-					intermediate := make([]string, 0, len(existingFabricIds))
-					removeSet := map[string]struct{}{}
-					for _, id := range removes {
-						removeSet[id] = struct{}{}
-					}
-					for _, fid := range existingFabricIds {
-						if _, drop := removeSet[fid]; !drop {
-							intermediate = append(intermediate, fid)
-						}
-					}
-					firstPlan := plan
-					firstPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, intermediate)
-					firstBody := firstPlan.toBody(ctx, state)
-					res, err = r.client.Put(plan.getPath(), firstBody, cc.UseMutex)
-					if err != nil {
-						resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT removals), got error: %s, %s", err, res.String()))
-						return
-					}
-				}
-			}
-			res, err = r.client.Put(plan.getPath(), body, cc.UseMutex)
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+			if err := r.applyFabricIdsAnchorAware(ctx, &plan, &state, newFabricIds); err != nil {
+				resp.Diagnostics.AddError("Client Error", err.Error())
 				return
 			}
 
@@ -842,45 +810,72 @@ func diffFabricIds(existing, desired []string) (adds, removes []string) {
 }
 
 // applyFabricIdsAnchorAware issues a PUT to set fabric_ids to finalIds.
-// For anchored VNs where the change both adds and removes sites, it issues two PUTs
-// (remove first, then add) because Catalyst Center rejects a single PUT that does both
-// (errorCode NCHS20477).
+// Adding an anchor to an existing VN is performed by first shrinking the unanchored VN
+// to the future anchor, then setting the anchor, and finally restoring all fabric IDs.
+// Catalyst Center rejects setting the anchor together with multiple fabric IDs
+// (errorCode NCHS20464). For an already-anchored VN where the change both adds and
+// removes sites, this issues two PUTs (remove first, then add) because Catalyst Center
+// rejects a single PUT that does both (errorCode NCHS20477).
 func (r *FabricL3VirtualNetworkResource) applyFabricIdsAnchorAware(ctx context.Context, plan, state *FabricL3VirtualNetwork, finalIds []string) error {
 	finalPlan := *plan
 	finalPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, finalIds)
 	finalBody := finalPlan.toBody(ctx, *state)
 
-	// Only anchored VNs are subject to the swap restriction.
+	// Only anchored plans need transition handling.
 	if !plan.AnchoredSiteId.IsNull() && plan.AnchoredSiteId.ValueString() != "" {
-		// GET existing fabric_ids
-		params := "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
-		res, err := r.client.Get(plan.getPath()+params, cc.UseMutex)
-		if err != nil {
-			return fmt.Errorf("Failed to retrieve object (GET) before anchor-aware PUT, got error: %s, %s", err, res.String())
-		}
-		existing := []string{}
-		for _, fid := range res.Get("response.0.fabricIds").Array() {
-			existing = append(existing, fid.String())
-		}
-		adds, removes := diffFabricIds(existing, finalIds)
-		if len(adds) > 0 && len(removes) > 0 {
-			// First PUT: only removals
-			intermediate := make([]string, 0, len(existing))
-			removeSet := map[string]struct{}{}
-			for _, id := range removes {
-				removeSet[id] = struct{}{}
-			}
-			for _, fid := range existing {
-				if _, drop := removeSet[fid]; !drop {
-					intermediate = append(intermediate, fid)
-				}
-			}
-			firstPlan := *plan
-			firstPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, intermediate)
-			firstBody := firstPlan.toBody(ctx, *state)
-			res, err := r.client.Put(plan.getPath(), firstBody, cc.UseMutex)
+		anchorId := plan.AnchoredSiteId.ValueString()
+		stateAnchor := state.AnchoredSiteId.ValueString()
+		if stateAnchor == "" {
+			unanchoredAnchorOnlyPlan := *plan
+			unanchoredAnchorOnlyPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, []string{anchorId})
+			unanchoredAnchorOnlyPlan.AnchoredSiteId = types.StringNull()
+			unanchoredAnchorOnlyBody := unanchoredAnchorOnlyPlan.toBody(ctx, *state)
+			res, err := r.client.Put(plan.getPath(), unanchoredAnchorOnlyBody, cc.UseMutex)
 			if err != nil {
-				return fmt.Errorf("Failed to configure object (PUT removals for anchored swap), got error: %s, %s", err, res.String())
+				return fmt.Errorf("Failed to configure object (PUT shrink before anchor transition), got error: %s, %s", err, res.String())
+			}
+
+			anchorOnlyPlan := *plan
+			anchorOnlyPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, []string{anchorId})
+			anchorOnlyBody := anchorOnlyPlan.toBody(ctx, *state)
+			res, err = r.client.Put(plan.getPath(), anchorOnlyBody, cc.UseMutex)
+			if err != nil {
+				return fmt.Errorf("Failed to configure object (PUT anchor-only transition), got error: %s, %s", err, res.String())
+			}
+			if len(finalIds) == 1 && finalIds[0] == anchorId {
+				return nil
+			}
+		} else {
+			// GET existing fabric_ids
+			params := "?virtualNetworkName=" + url.QueryEscape(plan.VirtualNetworkName.ValueString())
+			res, err := r.client.Get(plan.getPath()+params, cc.UseMutex)
+			if err != nil {
+				return fmt.Errorf("Failed to retrieve object (GET) before anchor-aware PUT, got error: %s, %s", err, res.String())
+			}
+			existing := []string{}
+			for _, fid := range res.Get("response.0.fabricIds").Array() {
+				existing = append(existing, fid.String())
+			}
+			adds, removes := diffFabricIds(existing, finalIds)
+			if len(adds) > 0 && len(removes) > 0 {
+				// First PUT: only removals
+				intermediate := make([]string, 0, len(existing))
+				removeSet := map[string]struct{}{}
+				for _, id := range removes {
+					removeSet[id] = struct{}{}
+				}
+				for _, fid := range existing {
+					if _, drop := removeSet[fid]; !drop {
+						intermediate = append(intermediate, fid)
+					}
+				}
+				firstPlan := *plan
+				firstPlan.FabricIds, _ = types.SetValueFrom(ctx, types.StringType, intermediate)
+				firstBody := firstPlan.toBody(ctx, *state)
+				res, err := r.client.Put(plan.getPath(), firstBody, cc.UseMutex)
+				if err != nil {
+					return fmt.Errorf("Failed to configure object (PUT removals for anchored swap), got error: %s, %s", err, res.String())
+				}
 			}
 		}
 	}
