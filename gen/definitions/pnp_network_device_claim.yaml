@@ -2,8 +2,8 @@
 name: PnP Network Device Claim
 rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v/claim
 get_rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v
-delete_rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v
 no_data_source: true
+#matches pnp_device_claim_site structure, rather than hand-editing the DELETE for 400 error, similar to resource_catalystcenter_pnp_device.go:298
 no_import: true
 post_update: true
 skip_minimum_test: true
@@ -180,5 +180,3 @@ attributes:
         description: Remote interface name of the Dual-Active-Detection (DAD) link.
         example: GigabitEthernet2/0/52
         exclude_test: true
-
-

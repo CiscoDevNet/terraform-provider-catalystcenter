@@ -87,10 +87,6 @@ func (data PnPNetworkDeviceClaim) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 
-func (data PnPNetworkDeviceClaim) getPathDelete() string {
-	return fmt.Sprintf("/dna/intent/api/v1/pnpNetworkDevices/%v", url.QueryEscape(data.DeviceId.ValueString()))
-}
-
 // End of section. //template:end getPathDelete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathGet
