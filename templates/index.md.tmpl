@@ -1,6 +1,4 @@
-
 ---
-layout: ""
 page_title: "Provider: Catalyst Center"
 description: |-
   The Catalyst Center provider provides resources to interact with a Cisco Catalyst Center instance.
