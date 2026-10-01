@@ -91,10 +91,6 @@ func (data PnPNetworkDeviceClaim) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathGet
 
-func (data PnPNetworkDeviceClaim) getPathGet() string {
-	return fmt.Sprintf("/dna/intent/api/v1/pnpNetworkDevices/%v", url.QueryEscape(data.DeviceId.ValueString()))
-}
-
 // End of section. //template:end getPathGet
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathPost
@@ -217,15 +213,149 @@ func (data PnPNetworkDeviceClaim) toBody(ctx context.Context, state PnPNetworkDe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *PnPNetworkDeviceClaim) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.siteId"); value.Exists() {
+	if value := res.Get("deviceType"); value.Exists() {
+		data.DeviceType = types.StringValue(value.String())
+	} else {
+		data.DeviceType = types.StringNull()
+	}
+	if value := res.Get("siteId"); value.Exists() {
 		data.SiteId = types.StringValue(value.String())
 	} else {
 		data.SiteId = types.StringNull()
 	}
-	if value := res.Get("response.hostname"); value.Exists() {
+	if value := res.Get("hostname"); value.Exists() {
 		data.Hostname = types.StringValue(value.String())
 	} else {
 		data.Hostname = types.StringNull()
+	}
+	if value := res.Get("imageInfo.imageId"); value.Exists() {
+		data.ImageId = types.StringValue(value.String())
+	} else {
+		data.ImageId = types.StringNull()
+	}
+	if value := res.Get("imageInfo.removeInactive"); value.Exists() {
+		data.RemoveInactive = types.BoolValue(value.Bool())
+	} else {
+		data.RemoveInactive = types.BoolNull()
+	}
+	if value := res.Get("templateInfo.templateId"); value.Exists() {
+		data.TemplateId = types.StringValue(value.String())
+	} else {
+		data.TemplateId = types.StringNull()
+	}
+	if value := res.Get("templateInfo.templateParameters"); value.Exists() && len(value.Array()) > 0 {
+		data.TemplateParameters = make([]PnPNetworkDeviceClaimTemplateParameters, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := PnPNetworkDeviceClaimTemplateParameters{}
+			if cValue := v.Get("key"); cValue.Exists() {
+				item.Name = types.StringValue(cValue.String())
+			} else {
+				item.Name = types.StringNull()
+			}
+			if cValue := v.Get("value"); cValue.Exists() {
+				item.Value = types.StringValue(cValue.String())
+			} else {
+				item.Value = types.StringNull()
+			}
+			data.TemplateParameters = append(data.TemplateParameters, item)
+			return true
+		})
+	}
+	if value := res.Get("rfProfile"); value.Exists() {
+		data.RfProfile = types.StringValue(value.String())
+	} else {
+		data.RfProfile = types.StringNull()
+	}
+	if value := res.Get("topOfStackSerialNumber"); value.Exists() {
+		data.TopOfStackSerialNumber = types.StringValue(value.String())
+	} else {
+		data.TopOfStackSerialNumber = types.StringNull()
+	}
+	if value := res.Get("cablingScheme"); value.Exists() {
+		data.CablingScheme = types.StringValue(value.String())
+	} else {
+		data.CablingScheme = types.StringNull()
+	}
+	if value := res.Get("sensorProfile"); value.Exists() {
+		data.SensorProfile = types.StringValue(value.String())
+	} else {
+		data.SensorProfile = types.StringNull()
+	}
+	if value := res.Get("staticIpAddress"); value.Exists() {
+		data.StaticIpAddress = types.StringValue(value.String())
+	} else {
+		data.StaticIpAddress = types.StringNull()
+	}
+	if value := res.Get("subnetMask"); value.Exists() {
+		data.SubnetMask = types.StringValue(value.String())
+	} else {
+		data.SubnetMask = types.StringNull()
+	}
+	if value := res.Get("gateway"); value.Exists() {
+		data.Gateway = types.StringValue(value.String())
+	} else {
+		data.Gateway = types.StringNull()
+	}
+	if value := res.Get("vlanId"); value.Exists() {
+		data.VlanId = types.Int64Value(value.Int())
+	} else {
+		data.VlanId = types.Int64Null()
+	}
+	if value := res.Get("ipInterfaceName"); value.Exists() {
+		data.IpInterfaceName = types.StringValue(value.String())
+	} else {
+		data.IpInterfaceName = types.StringNull()
+	}
+	if value := res.Get("svlConfig.domain"); value.Exists() {
+		data.Domain = types.Int64Value(value.Int())
+	} else {
+		data.Domain = types.Int64Null()
+	}
+	if value := res.Get("svlConfig.svlMembers"); value.Exists() && len(value.Array()) > 0 {
+		data.SvlMembers = make([]PnPNetworkDeviceClaimSvlMembers, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := PnPNetworkDeviceClaimSvlMembers{}
+			if cValue := v.Get("serialNumber"); cValue.Exists() {
+				item.SerialNumber = types.StringValue(cValue.String())
+			} else {
+				item.SerialNumber = types.StringNull()
+			}
+			if cValue := v.Get("role"); cValue.Exists() {
+				item.Role = types.StringValue(cValue.String())
+			} else {
+				item.Role = types.StringNull()
+			}
+			if cValue := v.Get("svlLinks"); cValue.Exists() && len(cValue.Array()) > 0 {
+				item.SvlLinks = make([]PnPNetworkDeviceClaimSvlMembersSvlLinks, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := PnPNetworkDeviceClaimSvlMembersSvlLinks{}
+					if ccValue := cv.Get("localInterface"); ccValue.Exists() {
+						cItem.LocalInterface = types.StringValue(ccValue.String())
+					} else {
+						cItem.LocalInterface = types.StringNull()
+					}
+					if ccValue := cv.Get("remoteInterface"); ccValue.Exists() {
+						cItem.RemoteInterface = types.StringValue(ccValue.String())
+					} else {
+						cItem.RemoteInterface = types.StringNull()
+					}
+					item.SvlLinks = append(item.SvlLinks, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("dadLink.localInterface"); cValue.Exists() {
+				item.LocalInterface = types.StringValue(cValue.String())
+			} else {
+				item.LocalInterface = types.StringNull()
+			}
+			if cValue := v.Get("dadLink.remoteInterface"); cValue.Exists() {
+				item.RemoteInterface = types.StringValue(cValue.String())
+			} else {
+				item.RemoteInterface = types.StringNull()
+			}
+			data.SvlMembers = append(data.SvlMembers, item)
+			return true
+		})
 	}
 }
 
@@ -233,15 +363,197 @@ func (data *PnPNetworkDeviceClaim) fromBody(ctx context.Context, res gjson.Resul
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *PnPNetworkDeviceClaim) updateFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("response.siteId"); value.Exists() && !data.SiteId.IsNull() {
+	if value := res.Get("deviceType"); value.Exists() && !data.DeviceType.IsNull() {
+		data.DeviceType = types.StringValue(value.String())
+	} else {
+		data.DeviceType = types.StringNull()
+	}
+	if value := res.Get("siteId"); value.Exists() && !data.SiteId.IsNull() {
 		data.SiteId = types.StringValue(value.String())
 	} else {
 		data.SiteId = types.StringNull()
 	}
-	if value := res.Get("response.hostname"); value.Exists() && !data.Hostname.IsNull() {
+	if value := res.Get("hostname"); value.Exists() && !data.Hostname.IsNull() {
 		data.Hostname = types.StringValue(value.String())
 	} else {
 		data.Hostname = types.StringNull()
+	}
+	if value := res.Get("imageInfo.imageId"); value.Exists() && !data.ImageId.IsNull() {
+		data.ImageId = types.StringValue(value.String())
+	} else {
+		data.ImageId = types.StringNull()
+	}
+	if value := res.Get("imageInfo.removeInactive"); value.Exists() && !data.RemoveInactive.IsNull() {
+		data.RemoveInactive = types.BoolValue(value.Bool())
+	} else {
+		data.RemoveInactive = types.BoolNull()
+	}
+	if value := res.Get("templateInfo.templateId"); value.Exists() && !data.TemplateId.IsNull() {
+		data.TemplateId = types.StringValue(value.String())
+	} else {
+		data.TemplateId = types.StringNull()
+	}
+	for i := range data.TemplateParameters {
+		keys := [...]string{"key"}
+		keyValues := [...]string{data.TemplateParameters[i].Name.ValueString()}
+
+		var r gjson.Result
+		res.Get("templateInfo.templateParameters").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("key"); value.Exists() && !data.TemplateParameters[i].Name.IsNull() {
+			data.TemplateParameters[i].Name = types.StringValue(value.String())
+		} else {
+			data.TemplateParameters[i].Name = types.StringNull()
+		}
+		if value := r.Get("value"); value.Exists() && !data.TemplateParameters[i].Value.IsNull() {
+			data.TemplateParameters[i].Value = types.StringValue(value.String())
+		} else {
+			data.TemplateParameters[i].Value = types.StringNull()
+		}
+	}
+	if value := res.Get("rfProfile"); value.Exists() && !data.RfProfile.IsNull() {
+		data.RfProfile = types.StringValue(value.String())
+	} else {
+		data.RfProfile = types.StringNull()
+	}
+	if value := res.Get("topOfStackSerialNumber"); value.Exists() && !data.TopOfStackSerialNumber.IsNull() {
+		data.TopOfStackSerialNumber = types.StringValue(value.String())
+	} else {
+		data.TopOfStackSerialNumber = types.StringNull()
+	}
+	if value := res.Get("cablingScheme"); value.Exists() && !data.CablingScheme.IsNull() {
+		data.CablingScheme = types.StringValue(value.String())
+	} else {
+		data.CablingScheme = types.StringNull()
+	}
+	if value := res.Get("sensorProfile"); value.Exists() && !data.SensorProfile.IsNull() {
+		data.SensorProfile = types.StringValue(value.String())
+	} else {
+		data.SensorProfile = types.StringNull()
+	}
+	if value := res.Get("staticIpAddress"); value.Exists() && !data.StaticIpAddress.IsNull() {
+		data.StaticIpAddress = types.StringValue(value.String())
+	} else {
+		data.StaticIpAddress = types.StringNull()
+	}
+	if value := res.Get("subnetMask"); value.Exists() && !data.SubnetMask.IsNull() {
+		data.SubnetMask = types.StringValue(value.String())
+	} else {
+		data.SubnetMask = types.StringNull()
+	}
+	if value := res.Get("gateway"); value.Exists() && !data.Gateway.IsNull() {
+		data.Gateway = types.StringValue(value.String())
+	} else {
+		data.Gateway = types.StringNull()
+	}
+	if value := res.Get("vlanId"); value.Exists() && !data.VlanId.IsNull() {
+		data.VlanId = types.Int64Value(value.Int())
+	} else {
+		data.VlanId = types.Int64Null()
+	}
+	if value := res.Get("ipInterfaceName"); value.Exists() && !data.IpInterfaceName.IsNull() {
+		data.IpInterfaceName = types.StringValue(value.String())
+	} else {
+		data.IpInterfaceName = types.StringNull()
+	}
+	if value := res.Get("svlConfig.domain"); value.Exists() && !data.Domain.IsNull() {
+		data.Domain = types.Int64Value(value.Int())
+	} else {
+		data.Domain = types.Int64Null()
+	}
+	for i := range data.SvlMembers {
+		keys := [...]string{"serialNumber"}
+		keyValues := [...]string{data.SvlMembers[i].SerialNumber.ValueString()}
+
+		var r gjson.Result
+		res.Get("svlConfig.svlMembers").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("serialNumber"); value.Exists() && !data.SvlMembers[i].SerialNumber.IsNull() {
+			data.SvlMembers[i].SerialNumber = types.StringValue(value.String())
+		} else {
+			data.SvlMembers[i].SerialNumber = types.StringNull()
+		}
+		if value := r.Get("role"); value.Exists() && !data.SvlMembers[i].Role.IsNull() {
+			data.SvlMembers[i].Role = types.StringValue(value.String())
+		} else {
+			data.SvlMembers[i].Role = types.StringNull()
+		}
+		for ci := range data.SvlMembers[i].SvlLinks {
+			keys := [...]string{"localInterface"}
+			keyValues := [...]string{data.SvlMembers[i].SvlLinks[ci].LocalInterface.ValueString()}
+
+			var cr gjson.Result
+			r.Get("svlLinks").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("localInterface"); value.Exists() && !data.SvlMembers[i].SvlLinks[ci].LocalInterface.IsNull() {
+				data.SvlMembers[i].SvlLinks[ci].LocalInterface = types.StringValue(value.String())
+			} else {
+				data.SvlMembers[i].SvlLinks[ci].LocalInterface = types.StringNull()
+			}
+			if value := cr.Get("remoteInterface"); value.Exists() && !data.SvlMembers[i].SvlLinks[ci].RemoteInterface.IsNull() {
+				data.SvlMembers[i].SvlLinks[ci].RemoteInterface = types.StringValue(value.String())
+			} else {
+				data.SvlMembers[i].SvlLinks[ci].RemoteInterface = types.StringNull()
+			}
+		}
+		if value := r.Get("dadLink.localInterface"); value.Exists() && !data.SvlMembers[i].LocalInterface.IsNull() {
+			data.SvlMembers[i].LocalInterface = types.StringValue(value.String())
+		} else {
+			data.SvlMembers[i].LocalInterface = types.StringNull()
+		}
+		if value := r.Get("dadLink.remoteInterface"); value.Exists() && !data.SvlMembers[i].RemoteInterface.IsNull() {
+			data.SvlMembers[i].RemoteInterface = types.StringValue(value.String())
+		} else {
+			data.SvlMembers[i].RemoteInterface = types.StringNull()
+		}
 	}
 }
 

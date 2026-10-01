@@ -34,6 +34,16 @@ func TestAccCcPnPNetworkDeviceClaim(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "device_id", "683413ec67f7d77edb0fd605"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "device_type", "SVL"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "remove_inactive", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "template_id", "1e3b9f1b-acd9-462a-8a2e-13b527934549"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "template_parameters.0.name", "param5"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "template_parameters.0.value", "value5"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "domain", "2"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "svl_members.0.serial_number", "FJC28041KKA"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "svl_members.0.role", "ACTIVE"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "svl_members.0.svl_links.0.local_interface", "TwentyFiveGigE1/0/47"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_pnp_network_device_claim.test", "svl_members.0.svl_links.0.remote_interface", "TwentyFiveGigE2/0/47"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{

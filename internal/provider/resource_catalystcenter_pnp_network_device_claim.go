@@ -268,23 +268,6 @@ func (r *PnPNetworkDeviceClaimResource) Read(ctx context.Context, req resource.R
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	params := ""
-	res, err := r.client.Get(state.getPathGet() + params)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-
-	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
-	if state.isNull(ctx, res) {
-		state.fromBody(ctx, res)
-	} else {
-		state.updateFromBody(ctx, res)
-	}
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
@@ -375,7 +358,7 @@ func (r *PnPNetworkDeviceClaimResource) ReadCache(ctx context.Context, req resou
 		tflog.Info(ctx, fmt.Sprintf("Invalid cache entry type for %s", cacheKey))
 		r.cache.Delete(cacheKey)
 	}
-	res, err := r.client.Get("/dna/intent/api/v1/pnpNetworkDevices/%v" + params)
+	res, err := r.client.Get(state.getPath() + params)
 	singleRes := res
 	if err == nil {
 		tflog.Debug(ctx, fmt.Sprintf("set cache for %s", cacheKey))
