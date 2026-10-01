@@ -35,6 +35,7 @@ type DeployTemplate struct {
 	TemplateId                   types.String                                 `tfsdk:"template_id"`
 	DeploymentId                 types.String                                 `tfsdk:"deployment_id"`
 	Redeploy                     types.String                                 `tfsdk:"redeploy"`
+	DeploymentTimeout            types.Int64                                  `tfsdk:"deployment_timeout"`
 	ForcePushTemplate            types.Bool                                   `tfsdk:"force_push_template"`
 	CopyingConfig                types.Bool                                   `tfsdk:"copying_config"`
 	IsComposite                  types.Bool                                   `tfsdk:"is_composite"`
@@ -113,6 +114,9 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 	}
 	if !data.Redeploy.IsNull() {
 		body, _ = sjson.Set(body, "", data.Redeploy.ValueString())
+	}
+	if !data.DeploymentTimeout.IsNull() {
+		body, _ = sjson.Set(body, "", data.DeploymentTimeout.ValueInt64())
 	}
 	if !data.ForcePushTemplate.IsNull() {
 		body, _ = sjson.Set(body, "forcePushTemplate", data.ForcePushTemplate.ValueBool())
@@ -275,6 +279,11 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 		data.Redeploy = types.StringValue(value.String())
 	} else {
 		data.Redeploy = types.StringNull()
+	}
+	if value := res.Get(""); value.Exists() {
+		data.DeploymentTimeout = types.Int64Value(value.Int())
+	} else {
+		data.DeploymentTimeout = types.Int64Null()
 	}
 	if value := res.Get("forcePushTemplate"); value.Exists() {
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
@@ -471,6 +480,11 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 		data.Redeploy = types.StringValue(value.String())
 	} else {
 		data.Redeploy = types.StringNull()
+	}
+	if value := res.Get(""); value.Exists() && !data.DeploymentTimeout.IsNull() {
+		data.DeploymentTimeout = types.Int64Value(value.Int())
+	} else {
+		data.DeploymentTimeout = types.Int64Null()
 	}
 	if value := res.Get("forcePushTemplate"); value.Exists() && !data.ForcePushTemplate.IsNull() {
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
@@ -737,6 +751,9 @@ func (data *DeployTemplate) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.Redeploy.IsNull() {
+		return false
+	}
+	if !data.DeploymentTimeout.IsNull() {
 		return false
 	}
 	if !data.ForcePushTemplate.IsNull() {

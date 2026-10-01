@@ -1,5 +1,6 @@
 resource "catalystcenter_deploy_template" "example" {
   template_id         = "12345678-1234-1234-1234-123456789012"
+  deployment_timeout  = 600
   force_push_template = false
   copying_config      = true
   is_composite        = false

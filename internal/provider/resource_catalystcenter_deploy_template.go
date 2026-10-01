@@ -27,6 +27,7 @@ import (
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -90,6 +91,13 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("ALWAYS", "ON_CHANGE", "NEVER"),
+				},
+			},
+			"deployment_timeout": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Maximum time in seconds to wait for the template deployment to reach `SUCCESS` or `FAILURE`. If it is still running when the timeout expires, a warning is reported and the deployment is reconciled on the next apply. Changing this value alone does not trigger a redeployment. Defaults to `300`.").AddIntegerRangeDescription(10, 86400).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(10, 86400),
 				},
 			},
 			"force_push_template": schema.BoolAttribute{
@@ -300,7 +308,7 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 	postPath := plan.getPath() // params is an empty string in the original code, so just getPath() is sufficient.
 
 	// Perform deployment and monitor status using the new helper
-	success, deploymentId, _ := r.performDeploymentAndMonitorStatus(ctx, postPath, body, &resp.Diagnostics)
+	success, deploymentId, _ := r.performDeploymentAndMonitorStatus(ctx, postPath, body, plan.DeploymentTimeout, &resp.Diagnostics)
 	if !success {
 		if deploymentId != "" {
 			// Persist deployment_id so the next Read can reconcile (TIMEOUT, FAILURE, or unknown status).
@@ -631,11 +639,16 @@ func revertVersionedTemplateIds(state *DeployTemplate) {
 	state.DeploymentId = types.StringNull()
 }
 
+const (
+	defaultDeploymentTimeoutSeconds = 300
+	deploymentPollIntervalSeconds   = 10
+)
+
 // performDeploymentAndMonitorStatus runs the deploy POST and polls its status.
 // Returns (success, deploymentId, terminalStatus) where terminalStatus is
 // "SUCCESS", "TIMEOUT" (warning, caller should persist id), or "FAILURE"/other
 // (Error already added to diag).
-func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, diag *diag.Diagnostics) (bool, string, string) {
+func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, timeout types.Int64, diag *diag.Diagnostics) (bool, string, string) {
 	bodyString, ok := body.(string)
 	if !ok {
 		diag.AddError("Internal Error", "Failed to convert request body to string. The 'toBody' method is expected to return a string for the client.Post method.")
@@ -660,7 +673,11 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 	deploymentId := matches[1]
 	tflog.Debug(ctx, fmt.Sprintf("Deployment started with ID: %s", deploymentId))
 
-	maxRetries := 30
+	timeoutSeconds := int64(defaultDeploymentTimeoutSeconds)
+	if !timeout.IsNull() && !timeout.IsUnknown() {
+		timeoutSeconds = timeout.ValueInt64()
+	}
+	deadline := time.Now().Add(time.Duration(timeoutSeconds) * time.Second)
 	statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
 
 	waitingStatuses := map[string]bool{
@@ -668,44 +685,47 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 		"IN_PROGRESS": true,
 	}
 
-	for retry := 0; retry < maxRetries; retry++ {
+	for {
 		statusRes, err := r.client.Get(statusURL)
 		if err != nil {
 			tflog.Warn(ctx, fmt.Sprintf("Failed to retrieve deployment status for Id %s: %s", deploymentId, err))
-			time.Sleep(10 * time.Second)
-			continue
+		} else {
+			status := statusRes.Get("status").String()
+			devices := statusRes.Get("devices").String()
+
+			switch {
+			case status == "SUCCESS":
+				tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", deploymentId))
+				return true, deploymentId, "SUCCESS"
+			case status == "FAILURE":
+				diag.AddWarning(
+					"Template Deployment Failed",
+					fmt.Sprintf("Deployment %s failed with status: %s, on devices: %s. State persisted with deployment_id; next apply will reconcile via Read and retry.", deploymentId, status, devices),
+				)
+				return false, deploymentId, "FAILURE"
+			case waitingStatuses[status]:
+			default:
+				diag.AddWarning(
+					"Template Deployment Unknown Status",
+					fmt.Sprintf("Deployment %s ended with unexpected status: %s. State persisted with deployment_id; next apply will reconcile via Read.", deploymentId, status),
+				)
+				return false, deploymentId, status
+			}
 		}
 
-		status := statusRes.Get("status").String()
-		devices := statusRes.Get("devices").String()
-
-		switch {
-		case status == "SUCCESS":
-			tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", deploymentId))
-			return true, deploymentId, "SUCCESS"
-		case status == "FAILURE":
-			diag.AddWarning(
-				"Template Deployment Failed",
-				fmt.Sprintf("Deployment %s failed with status: %s, on devices: %s. State persisted with deployment_id; next apply will reconcile via Read and retry.", deploymentId, status, devices),
-			)
-			return false, deploymentId, "FAILURE"
-		case waitingStatuses[status]:
-			time.Sleep(10 * time.Second)
-			continue
-		default:
-			diag.AddWarning(
-				"Template Deployment Unknown Status",
-				fmt.Sprintf("Deployment %s ended with unexpected status: %s. State persisted with deployment_id; next apply will reconcile via Read.", deploymentId, status),
-			)
-			return false, deploymentId, status
+		// Never sleep past the deadline, so the last status check happens at it.
+		remaining := time.Until(deadline)
+		if remaining <= 0 {
+			break
 		}
+		time.Sleep(min(deploymentPollIntervalSeconds*time.Second, remaining))
 	}
 
-	// maxRetries reached: deploy may still be in flight on DNAC. Warning only;
+	// Deadline reached: deploy may still be in flight on DNAC. Warning only;
 	// caller persists deploymentId so Read can reconcile on the next apply.
 	diag.AddWarning(
 		"Template Deployment Timeout",
-		fmt.Sprintf("Deployment %s did not complete within expected time. Will be reconciled on the next apply via deployment_id.", deploymentId),
+		fmt.Sprintf("Deployment %s did not complete within %d seconds. Will be reconciled on the next apply via deployment_id. Increase deployment_timeout for long-running deployments.", deploymentId, timeoutSeconds),
 	)
 	return false, deploymentId, "TIMEOUT"
 }
@@ -757,7 +777,7 @@ func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *Deploy
 	postPath := plan.getPath() // params is an empty string
 
 	// Use the unified helper for deployment and status monitoring
-	return r.performDeploymentAndMonitorStatus(ctx, postPath, body, diag)
+	return r.performDeploymentAndMonitorStatus(ctx, postPath, body, plan.DeploymentTimeout, diag)
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
