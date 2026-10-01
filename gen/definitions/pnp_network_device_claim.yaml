@@ -1,9 +1,13 @@
 ---
 name: PnP Network Device Claim
+# POST-only claim action, mirroring the pnp_device_claim_site structure. The Plug and Play
+# record lifecycle stays with catalystcenter_pnp_device: DELETE /pnpNetworkDevices/%v is
+# rejected with NCOB01313 once the device has been added to Inventory, and pnp_device
+# already tolerates that 400 (resource_catalystcenter_pnp_device.go:298), so no_delete is
+# preferred over hand-editing the generated DELETE here.
 rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v/claim
 no_data_source: true
-no_read: true
-#matches pnp_device_claim_site structure, rather than hand-editing the DELETE for 400 error, similar to resource_catalystcenter_pnp_device.go:298
+no_read: true # the claim sub-path has no GET, same as pnp_device_claim_site
 no_delete: true
 no_import: true
 post_update: true
