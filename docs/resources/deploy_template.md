@@ -15,7 +15,7 @@ This resource can manage a Deploy Template.
 ```terraform
 resource "catalystcenter_deploy_template" "example" {
   template_id         = "12345678-1234-1234-1234-123456789012"
-  deployment_timeout  = 600
+  deployment_timeout  = 300
   force_push_template = false
   copying_config      = true
   is_composite        = false
@@ -43,6 +43,7 @@ resource "catalystcenter_deploy_template" "example" {
 - `deployment_id` (String) In-flight DNAC deployment id, set when an apply times out before SUCCESS/FAILURE. Cleared by Read on SUCCESS.
 - `deployment_timeout` (Number) Maximum time in seconds to wait for the template deployment to reach `SUCCESS` or `FAILURE`. If it is still running when the timeout expires, a warning is reported and the deployment is reconciled on the next apply. Changing this value alone does not trigger a redeployment. Defaults to `300`.
   - Range: `10`-`86400`
+  - Default value: `300`
 - `force_push_template` (Boolean) Force Push Template
 - `is_composite` (Boolean) Composite template flag
 - `main_template_id` (String) Composite Template ID

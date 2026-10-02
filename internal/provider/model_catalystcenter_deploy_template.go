@@ -283,7 +283,7 @@ func (data *DeployTemplate) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get(""); value.Exists() {
 		data.DeploymentTimeout = types.Int64Value(value.Int())
 	} else {
-		data.DeploymentTimeout = types.Int64Null()
+		data.DeploymentTimeout = types.Int64Value(300)
 	}
 	if value := res.Get("forcePushTemplate"); value.Exists() {
 		data.ForcePushTemplate = types.BoolValue(value.Bool())
@@ -483,7 +483,7 @@ func (data *DeployTemplate) updateFromBody(ctx context.Context, res gjson.Result
 	}
 	if value := res.Get(""); value.Exists() && !data.DeploymentTimeout.IsNull() {
 		data.DeploymentTimeout = types.Int64Value(value.Int())
-	} else {
+	} else if data.DeploymentTimeout.ValueInt64() != 300 {
 		data.DeploymentTimeout = types.Int64Null()
 	}
 	if value := res.Get("forcePushTemplate"); value.Exists() && !data.ForcePushTemplate.IsNull() {

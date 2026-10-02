@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -94,11 +95,13 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				},
 			},
 			"deployment_timeout": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Maximum time in seconds to wait for the template deployment to reach `SUCCESS` or `FAILURE`. If it is still running when the timeout expires, a warning is reported and the deployment is reconciled on the next apply. Changing this value alone does not trigger a redeployment. Defaults to `300`.").AddIntegerRangeDescription(10, 86400).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Maximum time in seconds to wait for the template deployment to reach `SUCCESS` or `FAILURE`. If it is still running when the timeout expires, a warning is reported and the deployment is reconciled on the next apply. Changing this value alone does not trigger a redeployment. Defaults to `300`.").AddIntegerRangeDescription(10, 86400).AddDefaultValueDescription("300").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(10, 86400),
 				},
+				Default: int64default.StaticInt64(300),
 			},
 			"force_push_template": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Force Push Template").String,
