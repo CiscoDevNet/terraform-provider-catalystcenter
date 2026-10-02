@@ -35,6 +35,7 @@ attributes:
     description: Maximum time in seconds to wait for the template deployment to reach `SUCCESS` or `FAILURE`. If it is still running when the timeout expires, a warning is reported and the deployment is reconciled on the next apply. Changing this value alone does not trigger a redeployment. Defaults to `300`.
     min_int: 10
     max_int: 86400
+    query_param_no_body: true
     default_value: 300
     example: 300
   - model_name: forcePushTemplate
