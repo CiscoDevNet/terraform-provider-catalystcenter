@@ -33,6 +33,7 @@ func TestAccCcDeployTemplate(t *testing.T) {
 		t.Skip("skipping test, set environment variable TEMPLATES")
 	}
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "deployment_timeout", "300"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "force_push_template", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "copying_config", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_deploy_template.test", "is_composite", "false"))
@@ -104,6 +105,7 @@ func testAccCcDeployTemplateConfig_minimum() string {
 func testAccCcDeployTemplateConfig_all() string {
 	config := `resource "catalystcenter_deploy_template" "test" {` + "\n"
 	config += `	template_id = catalystcenter_template_version.example.id` + "\n"
+	config += `	deployment_timeout = 300` + "\n"
 	config += `	force_push_template = false` + "\n"
 	config += `	copying_config = true` + "\n"
 	config += `	is_composite = false` + "\n"

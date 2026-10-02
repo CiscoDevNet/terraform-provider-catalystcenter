@@ -35,6 +35,7 @@ type DeployTemplate struct {
 	TemplateId                   types.String                                 `tfsdk:"template_id"`
 	DeploymentId                 types.String                                 `tfsdk:"deployment_id"`
 	Redeploy                     types.String                                 `tfsdk:"redeploy"`
+	DeploymentTimeout            types.Int64                                  `tfsdk:"deployment_timeout"`
 	ForcePushTemplate            types.Bool                                   `tfsdk:"force_push_template"`
 	CopyingConfig                types.Bool                                   `tfsdk:"copying_config"`
 	IsComposite                  types.Bool                                   `tfsdk:"is_composite"`

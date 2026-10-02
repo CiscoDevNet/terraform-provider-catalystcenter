@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.6.4 (unreleased)
+
+- Add `deployment_timeout` attribute to the `catalystcenter_deploy_template` resource to configure how long (in seconds) the provider waits for a template deployment to reach `SUCCESS` or `FAILURE`. Defaults to `300`, matching the previous fixed timeout; changing it alone does not trigger a redeployment
+
 ## 0.6.3
 
 - Fix `catalystcenter_fabric_l3_virtual_network` resource to allow adding and removing `anchored_site_id` on an existing Layer 3 Virtual Network; changing it from one site to another is still unsupported and is now rejected at plan time
