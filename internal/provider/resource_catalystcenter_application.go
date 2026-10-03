@@ -297,7 +297,7 @@ func (r *ApplicationResource) Create(ctx context.Context, req resource.CreateReq
 	}
 	params = ""
 	params += "?name=" + url.QueryEscape(plan.Name.ValueString())
-	params += "&attributes=application&offset=1&limit=5"
+	params += "&attributes=application&limit=500"
 	res, err = r.client.Get(plan.getPath() + params)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
@@ -329,7 +329,7 @@ func (r *ApplicationResource) Read(ctx context.Context, req resource.ReadRequest
 
 	params := ""
 	params += "?name=" + url.QueryEscape(state.Name.ValueString())
-	params += "&attributes=application&offset=1&limit=5"
+	params += "&attributes=application&limit=500"
 	res, err := r.client.Get(state.getPath() + params)
 	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
 		resp.State.RemoveResource(ctx)

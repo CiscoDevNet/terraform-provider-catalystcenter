@@ -21,6 +21,7 @@ attributes:
     type: String
     id: true
     match_id: true
+    data_source_query: true
     mandatory: true
     requires_replace: true
     description: The name of the queuing profile

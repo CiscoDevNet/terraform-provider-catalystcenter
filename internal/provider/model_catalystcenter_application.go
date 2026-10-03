@@ -247,11 +247,6 @@ func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.AppProtocol = types.StringNull()
 	}
-	if value := res.Get("response.0.networkApplications.0.type"); value.Exists() {
-		data.ServerType = types.StringValue(value.String())
-	} else {
-		data.ServerType = types.StringNull()
-	}
 	if value := res.Get("response.0.networkApplications.0.serverName"); value.Exists() {
 		data.ServerName = types.StringValue(value.String())
 	} else {
@@ -395,11 +390,6 @@ func (data *Application) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.AppProtocol = types.StringValue(value.String())
 	} else {
 		data.AppProtocol = types.StringNull()
-	}
-	if value := res.Get("response.0.networkApplications.0.type"); value.Exists() && !data.ServerType.IsNull() {
-		data.ServerType = types.StringValue(value.String())
-	} else {
-		data.ServerType = types.StringNull()
 	}
 	if value := res.Get("response.0.networkApplications.0.serverName"); value.Exists() && !data.ServerName.IsNull() {
 		data.ServerName = types.StringValue(value.String())
@@ -578,13 +568,6 @@ func (data *Application) fromBodyUnknowns(ctx context.Context, res gjson.Result)
 			data.AppProtocol = types.StringValue(value.String())
 		} else {
 			data.AppProtocol = types.StringNull()
-		}
-	}
-	if data.ServerType.IsUnknown() {
-		if value := res.Get("response.0.networkApplications.0.type"); value.Exists() && !data.ServerType.IsNull() {
-			data.ServerType = types.StringValue(value.String())
-		} else {
-			data.ServerType = types.StringNull()
 		}
 	}
 	if data.ServerName.IsUnknown() {

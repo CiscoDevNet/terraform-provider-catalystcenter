@@ -37,7 +37,6 @@ func TestAccCcApplication(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "dscp", "18"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "rank", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "app_protocol", "TCP"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "server_type", "_servername"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "server_name", "app.example.com"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "url", "example.com/path"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_identity.0.protocol", "TCP"))

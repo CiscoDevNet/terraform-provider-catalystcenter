@@ -1,7 +1,7 @@
 ---
 name: Application Set
 rest_endpoint: /dna/intent/api/v2/application-policy-application-set
-get_extra_query_params: '?attributes=applicationSet&offset=1&limit=500'
+get_extra_query_params: '?attributes=applicationSet&limit=500'
 get_from_all: true
 id_from_query_path: response
 no_update: true
@@ -19,6 +19,7 @@ attributes:
     type: String
     id: true
     match_id: true
+    data_source_query: true
     mandatory: true
     requires_replace: true
     description: The name of the application set
