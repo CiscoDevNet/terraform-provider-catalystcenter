@@ -1,0 +1,125 @@
+---
+name: Application Policy
+rest_endpoint: /dna/intent/api/v1/app-policy-intent
+get_rest_endpoint: /dna/intent/api/v1/app-policy
+id_from_attribute: true
+doc_category: Policy
+res_description:
+  'Manages a Catalyst Center Application QoS Policy. A single logical policy is not
+  one API object: the controller stores it as a set of sibling group-based policies
+  that all share the same `policy_scope`. Each entry in `items` is one such sibling —
+  typically one per application set (carrying a `BUSINESS_RELEVANCE` clause), plus a
+  `<policy>_queuing_customization` entry carrying the queuing profile reference, and
+  optionally a `<policy>_global_policy_configuration` entry carrying
+  `APPLICATION_POLICY_KNOBS`. A site may only be used by one wired policy
+  (`NCAS10157`). `terraform import` expects the policy scope.'
+attributes:
+  - model_name: policyScope
+    type: String
+    id: true
+    query_param: true
+    query_param_name: policyScope
+    write_only: true
+    mandatory: true
+    requires_replace: true
+    description:
+      Name of the policy. On the controller every sibling object carries this as its
+      `policyScope`, and their names are prefixed with it.
+    example: NOWEGO
+  - model_name: createList
+    tf_name: items
+    response_data_path: response
+    type: Set
+    mandatory: true
+    description:
+      The sibling group-based policies making up this policy. Modelled as a set
+      because the controller does not preserve ordering.
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        description:
+          Name of the sibling policy, conventionally `<policy_scope>_<application
+          set>`, `<policy_scope>_queuing_customization` or
+          `<policy_scope>_global_policy_configuration`.
+        example: NOWEGO_collaboration-apps
+      - model_name: policyScope
+        type: String
+        mandatory: true
+        description: Must equal the resource's `policy_scope`
+        example: NOWEGO
+      - model_name: priority
+        type: String
+        description:
+          Priority of the sibling policy. `100` normally, `4095` when the producer
+          refers to an application scalable group.
+        example: "100"
+      - model_name: deletePolicyStatus
+        type: String
+        enum_values: [NONE, DELETED, RESTORED]
+        description: Deployment state of the sibling policy
+        example: NONE
+      - model_name: name
+        tf_name: advanced_policy_scope_name
+        data_path: advancedPolicyScope
+        type: String
+        description: Name carried by the advanced policy scope, normally the policy scope
+        example: NOWEGO
+      - model_name: groupId
+        tf_name: site_ids
+        data_path: advancedPolicyScope.advancedPolicyScopeElement.0
+        type: Set
+        element_type: String
+        description: Site IDs this sibling policy is deployed to
+        example: 12345678-1234-1234-1234-123456789012
+      - model_name: ssid
+        tf_name: ssids
+        data_path: advancedPolicyScope.advancedPolicyScopeElement.0
+        type: Set
+        element_type: String
+        description: SSIDs this sibling policy applies to
+        example: corp-ssid
+      - model_name: type
+        tf_name: clause_type
+        data_path: exclusiveContract.clause.0
+        type: String
+        enum_values: [BUSINESS_RELEVANCE, APPLICATION_POLICY_KNOBS]
+        description: Kind of exclusive contract clause carried by this sibling policy
+        example: BUSINESS_RELEVANCE
+      - model_name: relevanceLevel
+        data_path: exclusiveContract.clause.0
+        type: String
+        enum_values: [BUSINESS_RELEVANT, BUSINESS_IRRELEVANT, DEFAULT]
+        description: Business relevance, when `clause_type` is `BUSINESS_RELEVANCE`
+        example: BUSINESS_RELEVANT
+      - model_name: deviceRemovalBehavior
+        data_path: exclusiveContract.clause.0
+        type: String
+        enum_values: [DELETE, RESTORE, IGNORE]
+        description: Device removal behaviour, when `clause_type` is `APPLICATION_POLICY_KNOBS`
+        example: RESTORE
+        exclude_example: true
+      - model_name: hostTrackingEnabled
+        data_path: exclusiveContract.clause.0
+        type: Bool
+        description: Whether host tracking is enabled, when `clause_type` is `APPLICATION_POLICY_KNOBS`
+        example: "true"
+        exclude_example: true
+      - model_name: idRef
+        tf_name: queuing_profile_id
+        data_path: contract
+        type: String
+        description:
+          ID of the queuing profile, set on the `<policy_scope>_queuing_customization`
+          sibling policy only.
+        example: 12345678-1234-1234-1234-123456789012
+        exclude_example: true
+      - model_name: idRef
+        tf_name: application_set_id
+        data_path: producer.scalableGroup.0
+        type: String
+        description:
+          ID of the application set this sibling policy applies to, set on
+          `BUSINESS_RELEVANCE` sibling policies.
+        example: 12345678-1234-1234-1234-123456789012
