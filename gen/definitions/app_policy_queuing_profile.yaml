@@ -1,0 +1,148 @@
+---
+name: App Policy Queuing Profile
+rest_endpoint: /dna/intent/api/v1/app-policy-queuing-profile
+get_from_all: true
+id_from_query_path: response
+put_no_id: true
+put_id_include_path: "0.id"
+doc_category: Policy
+res_description:
+  'Manages a Catalyst Center Application QoS Queuing Profile. A profile carries a
+  `BANDWIDTH` clause, a `DSCP_CUSTOMIZATION` clause, or both. Built-in profiles such
+  as `CVD_QUEUING_PROFILE` are seeded by the controller and must not be managed by
+  this resource; reference them from an application policy instead. `terraform
+  import` expects the two-part identifier `<name>,<id>` — the profile name followed
+  by the controller-assigned UUID — because the name is the attribute used to match
+  the object on the collection endpoint.'
+attributes:
+  - model_name: name
+    data_path: "0"
+    response_data_path: name
+    type: String
+    id: true
+    match_id: true
+    mandatory: true
+    requires_replace: true
+    description: The name of the queuing profile
+    example: branch-queuing
+  - model_name: description
+    data_path: "0"
+    response_data_path: description
+    type: String
+    description: Description of the queuing profile
+    example: Branch WAN queuing profile
+  - model_name: clause
+    tf_name: clauses
+    data_path: "0"
+    response_data_path: clause
+    type: Set
+    mandatory: true
+    description:
+      The clauses carried by this profile. Supply a `BANDWIDTH` clause, a
+      `DSCP_CUSTOMIZATION` clause, or both. The controller does not add a missing
+      clause automatically.
+    attributes:
+      - model_name: type
+        type: String
+        id: true
+        mandatory: true
+        enum_values: [BANDWIDTH, DSCP_CUSTOMIZATION]
+        description: The kind of clause
+        example: BANDWIDTH
+      - model_name: isCommonBetweenAllInterfaceSpeeds
+        type: Bool
+        description:
+          Whether the same bandwidth allocation applies to every interface speed.
+          When `true` supply a single `ALL` entry in
+          `interface_speed_bandwidth_clauses`. Only valid on a `BANDWIDTH` clause.
+        example: "true"
+      - model_name: interfaceSpeedBandwidthClauses
+        type: Set
+        description:
+          Per-interface-speed bandwidth allocation. Only valid on a `BANDWIDTH`
+          clause.
+        attributes:
+          - model_name: interfaceSpeed
+            type: String
+            id: true
+            mandatory: true
+            enum_values:
+              [
+                ALL,
+                HUNDRED_GBPS,
+                TEN_GBPS,
+                ONE_GBPS,
+                HUNDRED_MBPS,
+                TEN_MBPS,
+                ONE_MBPS,
+              ]
+            description: The interface speed this allocation applies to
+            example: ALL
+          - model_name: tcBandwidthSettings
+            type: Set
+            mandatory: true
+            description:
+              Bandwidth percentage per traffic class. All twelve traffic classes
+              must be supplied and the percentages must total 100.
+            attributes:
+              - model_name: trafficClass
+                type: String
+                id: true
+                mandatory: true
+                enum_values:
+                  [
+                    BROADCAST_VIDEO,
+                    BULK_DATA,
+                    MULTIMEDIA_CONFERENCING,
+                    MULTIMEDIA_STREAMING,
+                    NETWORK_CONTROL,
+                    OPS_ADMIN_MGMT,
+                    REAL_TIME_INTERACTIVE,
+                    SIGNALING,
+                    TRANSACTIONAL_DATA,
+                    VOIP_TELEPHONY,
+                    BEST_EFFORT,
+                    SCAVENGER,
+                  ]
+                description: The traffic class
+                example: VOIP_TELEPHONY
+              - model_name: bandwidthPercentage
+                type: Int64
+                mandatory: true
+                min_int: 0
+                max_int: 100
+                description: Percentage of bandwidth assigned to this traffic class
+                example: 10
+      - model_name: tcDscpSettings
+        type: Set
+        description:
+          DSCP value per traffic class. All twelve traffic classes must be supplied
+          and every DSCP value must be unique across them. Only valid on a
+          `DSCP_CUSTOMIZATION` clause.
+        attributes:
+          - model_name: trafficClass
+            type: String
+            id: true
+            mandatory: true
+            enum_values:
+              [
+                BROADCAST_VIDEO,
+                BULK_DATA,
+                MULTIMEDIA_CONFERENCING,
+                MULTIMEDIA_STREAMING,
+                NETWORK_CONTROL,
+                OPS_ADMIN_MGMT,
+                REAL_TIME_INTERACTIVE,
+                SIGNALING,
+                TRANSACTIONAL_DATA,
+                VOIP_TELEPHONY,
+                BEST_EFFORT,
+                SCAVENGER,
+              ]
+            description: The traffic class
+            example: VOIP_TELEPHONY
+          - model_name: dscp
+            type: String
+            mandatory: true
+            description: DSCP value assigned to this traffic class
+            example: "46"
