@@ -35,7 +35,7 @@ data "catalystcenter_application" "example" {
 - `category_id` (String) ID of the application category. The controller exposes no endpoint to list categories, so this opaque UUID must be copied from an existing application in the desired category.
 - `display_name` (String) Server-assigned display name, echoed back on update
 - `dscp` (String) DSCP value assigned to traffic matching this application
-- `engine_id` (String) Server-assigned engine ID, echoed back on update
+- `engine_id` (String) Classification engine. Custom applications use `6`. The controller accepts an application without it, but the GUI then fails to render the application's IP/Port classifier.
 - `help_string` (String) Description of the application shown in the GUI
 - `instance_id` (Number) Server-assigned instance ID, echoed back on update
 - `instance_version` (Number) Server-assigned instance version, echoed back on update
@@ -60,5 +60,7 @@ data "catalystcenter_application" "example" {
 Read-Only:
 
 - `ipv4_subnet` (Set of String) IPv4 subnets matching the application
-- `ports` (String) Comma separated list of ports
+- `lower_port` (Number) Start of a port range, used with `upper_port`. Leave `ports` empty when a range is used. The controller returns `0` when no range is set.
+- `ports` (String) Comma separated list of discrete ports. A hyphenated range is rejected by the controller; use `lower_port` and `upper_port` for a range. The controller requires this key to be present even when empty, so send an empty string when only a range is used.
 - `protocol` (String) Protocol of the signature
+- `upper_port` (Number) End of a port range, used with `lower_port`. Leave `ports` empty when a range is used. The controller returns `0` when no range is set.

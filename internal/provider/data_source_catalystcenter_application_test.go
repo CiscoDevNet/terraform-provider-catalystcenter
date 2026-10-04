@@ -40,6 +40,9 @@ func TestAccDataSourceCcApplication(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "url", "example.com/path"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_identity.0.protocol", "TCP"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_identity.0.ports", "8080"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_identity.0.lower_port", "8080"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_identity.0.upper_port", "8090"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "engine_id", "6"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -74,8 +77,11 @@ func testAccDataSourceCcApplicationConfig() string {
 	config += `	network_identity = [{` + "\n"
 	config += `	  protocol = "TCP"` + "\n"
 	config += `	  ports = "8080"` + "\n"
+	config += `	  lower_port = 8080` + "\n"
+	config += `	  upper_port = 8090` + "\n"
 	config += `	  ipv4_subnet = ["10.0.0.0/24"]` + "\n"
 	config += `	}]` + "\n"
+	config += `	engine_id = "6"` + "\n"
 	config += `}` + "\n"
 
 	config += `

@@ -62,6 +62,8 @@ type Application struct {
 type ApplicationNetworkIdentity struct {
 	Protocol   types.String `tfsdk:"protocol"`
 	Ports      types.String `tfsdk:"ports"`
+	LowerPort  types.Int64  `tfsdk:"lower_port"`
+	UpperPort  types.Int64  `tfsdk:"upper_port"`
 	Ipv4Subnet types.Set    `tfsdk:"ipv4_subnet"`
 }
 
@@ -153,6 +155,12 @@ func (data Application) toBody(ctx context.Context, state Application) string {
 			if !item.Ports.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "ports", item.Ports.ValueString())
 			}
+			if !item.LowerPort.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "lowerPort", item.LowerPort.ValueInt64())
+			}
+			if !item.UpperPort.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "upperPort", item.UpperPort.ValueInt64())
+			}
 			if !item.Ipv4Subnet.IsNull() {
 				var values []string
 				item.Ipv4Subnet.ElementsAs(ctx, &values, false)
@@ -191,7 +199,7 @@ func (data Application) toBody(ctx context.Context, state Application) string {
 	if data.NetworkApplicationDisplayName.ValueString() != "" && !data.NetworkApplicationDisplayName.IsNull() {
 		body, _ = sjson.Set(body, "0.networkApplications.0.displayName", data.NetworkApplicationDisplayName.ValueString())
 	}
-	if data.EngineId.ValueString() != "" && !data.EngineId.IsNull() {
+	if !data.EngineId.IsNull() {
 		body, _ = sjson.Set(body, "0.networkApplications.0.engineId", data.EngineId.ValueString())
 	}
 	if data.Popularity.ValueInt64() != 0 && !data.Popularity.IsNull() {
@@ -270,6 +278,16 @@ func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
 				item.Ports = types.StringValue(cValue.String())
 			} else {
 				item.Ports = types.StringNull()
+			}
+			if cValue := v.Get("lowerPort"); cValue.Exists() {
+				item.LowerPort = types.Int64Value(cValue.Int())
+			} else {
+				item.LowerPort = types.Int64Null()
+			}
+			if cValue := v.Get("upperPort"); cValue.Exists() {
+				item.UpperPort = types.Int64Value(cValue.Int())
+			} else {
+				item.UpperPort = types.Int64Null()
 			}
 			if cValue := v.Get("ipv4Subnet"); cValue.Exists() && len(cValue.Array()) > 0 {
 				item.Ipv4Subnet = helpers.GetStringSet(cValue.Array())
@@ -433,6 +451,16 @@ func (data *Application) updateFromBody(ctx context.Context, res gjson.Result) {
 			data.NetworkIdentity[i].Ports = types.StringValue(value.String())
 		} else {
 			data.NetworkIdentity[i].Ports = types.StringNull()
+		}
+		if value := r.Get("lowerPort"); value.Exists() && !data.NetworkIdentity[i].LowerPort.IsNull() {
+			data.NetworkIdentity[i].LowerPort = types.Int64Value(value.Int())
+		} else {
+			data.NetworkIdentity[i].LowerPort = types.Int64Null()
+		}
+		if value := r.Get("upperPort"); value.Exists() && !data.NetworkIdentity[i].UpperPort.IsNull() {
+			data.NetworkIdentity[i].UpperPort = types.Int64Value(value.Int())
+		} else {
+			data.NetworkIdentity[i].UpperPort = types.Int64Null()
 		}
 		if value := r.Get("ipv4Subnet"); value.Exists() && !data.NetworkIdentity[i].Ipv4Subnet.IsNull() {
 			data.NetworkIdentity[i].Ipv4Subnet = helpers.GetStringSet(value.Array())

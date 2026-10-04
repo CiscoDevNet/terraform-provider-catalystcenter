@@ -14,7 +14,10 @@ resource "catalystcenter_application" "example" {
     {
       protocol    = "TCP"
       ports       = "8080"
+      lower_port  = 8080
+      upper_port  = 8090
       ipv4_subnet = ["10.0.0.0/24"]
     }
   ]
+  engine_id = "6"
 }

@@ -41,6 +41,9 @@ func TestAccCcApplication(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "url", "example.com/path"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_identity.0.protocol", "TCP"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_identity.0.ports", "8080"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_identity.0.lower_port", "8080"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_identity.0.upper_port", "8090"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "engine_id", "6"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -95,8 +98,11 @@ func testAccCcApplicationConfig_all() string {
 	config += `	network_identity = [{` + "\n"
 	config += `	  protocol = "TCP"` + "\n"
 	config += `	  ports = "8080"` + "\n"
+	config += `	  lower_port = 8080` + "\n"
+	config += `	  upper_port = 8090` + "\n"
 	config += `	  ipv4_subnet = ["10.0.0.0/24"]` + "\n"
 	config += `	}]` + "\n"
+	config += `	engine_id = "6"` + "\n"
 	config += `}` + "\n"
 	return config
 }

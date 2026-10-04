@@ -142,7 +142,15 @@ func (r *ApplicationResource) Schema(ctx context.Context, req resource.SchemaReq
 							},
 						},
 						"ports": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Comma separated list of ports").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Comma separated list of discrete ports. A hyphenated range is rejected by the controller; use `lower_port` and `upper_port` for a range. The controller requires this key to be present even when empty, so send an empty string when only a range is used.").String,
+							Optional:            true,
+						},
+						"lower_port": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Start of a port range, used with `upper_port`. Leave `ports` empty when a range is used. The controller returns `0` when no range is set.").String,
+							Optional:            true,
+						},
+						"upper_port": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("End of a port range, used with `lower_port`. Leave `ports` empty when a range is used. The controller returns `0` when no range is set.").String,
 							Optional:            true,
 						},
 						"ipv4_subnet": schema.SetAttribute{
@@ -234,12 +242,8 @@ func (r *ApplicationResource) Schema(ctx context.Context, req resource.SchemaReq
 				},
 			},
 			"engine_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Server-assigned engine ID, echoed back on update").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Classification engine. Custom applications use `6`. The controller accepts an application without it, but the GUI then fails to render the application's IP/Port classifier.").String,
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"popularity": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Server-assigned popularity, echoed back on update").String,

@@ -121,7 +121,15 @@ func (d *ApplicationDataSource) Schema(ctx context.Context, req datasource.Schem
 							Computed:            true,
 						},
 						"ports": schema.StringAttribute{
-							MarkdownDescription: "Comma separated list of ports",
+							MarkdownDescription: "Comma separated list of discrete ports. A hyphenated range is rejected by the controller; use `lower_port` and `upper_port` for a range. The controller requires this key to be present even when empty, so send an empty string when only a range is used.",
+							Computed:            true,
+						},
+						"lower_port": schema.Int64Attribute{
+							MarkdownDescription: "Start of a port range, used with `upper_port`. Leave `ports` empty when a range is used. The controller returns `0` when no range is set.",
+							Computed:            true,
+						},
+						"upper_port": schema.Int64Attribute{
+							MarkdownDescription: "End of a port range, used with `lower_port`. Leave `ports` empty when a range is used. The controller returns `0` when no range is set.",
 							Computed:            true,
 						},
 						"ipv4_subnet": schema.SetAttribute{
@@ -173,7 +181,7 @@ func (d *ApplicationDataSource) Schema(ctx context.Context, req datasource.Schem
 				Computed:            true,
 			},
 			"engine_id": schema.StringAttribute{
-				MarkdownDescription: "Server-assigned engine ID, echoed back on update",
+				MarkdownDescription: "Classification engine. Custom applications use `6`. The controller accepts an application without it, but the GUI then fails to render the application's IP/Port classifier.",
 				Computed:            true,
 			},
 			"popularity": schema.Int64Attribute{
