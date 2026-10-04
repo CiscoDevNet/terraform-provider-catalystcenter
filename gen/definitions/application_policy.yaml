@@ -2,6 +2,7 @@
 name: Application Policy
 rest_endpoint: /dna/intent/api/v1/app-policy-intent
 get_rest_endpoint: /dna/intent/api/v1/app-policy
+remove_resource_on_empty_response: true
 id_from_attribute: true
 doc_category: Policy
 res_description:
@@ -25,7 +26,21 @@ attributes:
     description:
       Name of the policy. On the controller every sibling object carries this as its
       `policyScope`, and their names are prefixed with it.
-    example: NOWEGO
+    example: Branch_Office_QoS_Policy
+  - model_name: undeployAction
+    tf_name: undeploy_action
+    type: String
+    query_param_no_body: true
+    enum_values: [DELETED, RESTORED]
+    description:
+      What to do with the devices when this policy is destroyed. `DELETED`
+      removes the policy from the devices, `RESTORED` returns them to their
+      original configuration. Defaults to `DELETED`, matching the GUI. The
+      controller requires the policy to be undeployed before its objects can be
+      removed, so destroy always performs that step; this only selects which
+      action it uses. Never sent on create or update.
+    example: DELETED
+    exclude_test: true
   - model_name: createList
     tf_name: items
     response_data_path: response
@@ -43,12 +58,12 @@ attributes:
           Name of the sibling policy, conventionally `<policy_scope>_<application
           set>`, `<policy_scope>_queuing_customization` or
           `<policy_scope>_global_policy_configuration`.
-        example: NOWEGO_collaboration-apps
+        example: Branch_Office_QoS_Policy_collaboration-apps
       - model_name: policyScope
         type: String
         mandatory: true
         description: Must equal the resource's `policy_scope`
-        example: NOWEGO
+        example: Branch_Office_QoS_Policy
       - model_name: priority
         type: String
         description:
@@ -65,7 +80,7 @@ attributes:
         data_path: advancedPolicyScope
         type: String
         description: Name carried by the advanced policy scope, normally the policy scope
-        example: NOWEGO
+        example: Branch_Office_QoS_Policy
       - model_name: groupId
         tf_name: site_ids
         data_path: advancedPolicyScope.advancedPolicyScopeElement.0

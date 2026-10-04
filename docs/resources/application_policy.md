@@ -14,14 +14,14 @@ Manages a Catalyst Center Application QoS Policy. A single logical policy is not
 
 ```terraform
 resource "catalystcenter_application_policy" "example" {
-  policy_scope = "NOWEGO"
+  policy_scope = "Branch_Office_QoS_Policy"
   items = [
     {
-      name                       = "NOWEGO_collaboration-apps"
-      policy_scope               = "NOWEGO"
+      name                       = "Branch_Office_QoS_Policy_collaboration-apps"
+      policy_scope               = "Branch_Office_QoS_Policy"
       priority                   = "100"
       delete_policy_status       = "NONE"
-      advanced_policy_scope_name = "NOWEGO"
+      advanced_policy_scope_name = "Branch_Office_QoS_Policy"
       site_ids                   = ["12345678-1234-1234-1234-123456789012"]
       ssids                      = ["corp-ssid"]
       clause_type                = "BUSINESS_RELEVANCE"
@@ -39,6 +39,11 @@ resource "catalystcenter_application_policy" "example" {
 
 - `items` (Attributes Set) The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering. (see [below for nested schema](#nestedatt--items))
 - `policy_scope` (String) Name of the policy. On the controller every sibling object carries this as its `policyScope`, and their names are prefixed with it.
+
+### Optional
+
+- `undeploy_action` (String) What to do with the devices when this policy is destroyed. `DELETED` removes the policy from the devices, `RESTORED` returns them to their original configuration. Defaults to `DELETED`, matching the GUI. The controller requires the policy to be undeployed before its objects can be removed, so destroy always performs that step; this only selects which action it uses. Never sent on create or update.
+  - Choices: `DELETED`, `RESTORED`
 
 ### Read-Only
 

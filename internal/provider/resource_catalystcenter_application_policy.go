@@ -81,6 +81,13 @@ func (r *ApplicationPolicyResource) Schema(ctx context.Context, req resource.Sch
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"undeploy_action": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("What to do with the devices when this policy is destroyed. `DELETED` removes the policy from the devices, `RESTORED` returns them to their original configuration. Defaults to `DELETED`, matching the GUI. The controller requires the policy to be undeployed before its objects can be removed, so destroy always performs that step; this only selects which action it uses. Never sent on create or update.").AddStringEnumDescription("DELETED", "RESTORED").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("DELETED", "RESTORED"),
+				},
+			},
 			"items": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering.").String,
 				Required:            true,
@@ -224,6 +231,11 @@ func (r *ApplicationPolicyResource) Read(ctx context.Context, req resource.ReadR
 		return
 	} else if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	if data := res.Get("response"); !data.Exists() || len(data.Array()) == 0 {
+		resp.State.RemoveResource(ctx)
 		return
 	}
 
@@ -514,24 +526,56 @@ func (r *ApplicationPolicyResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	body := ""
-	count := 0
-	for _, cur := range existing {
-		if id := cur.Get("id"); id.Exists() {
-			body, _ = sjson.Set(body, "deleteList.-1", id.String())
-			count++
-		}
+	// The controller will not release a deployed policy's objects until the policy
+	// has been withdrawn from its devices, so destroy is two POSTs rather than one.
+	// The first carries updateList with deletePolicyStatus set, which pushes the
+	// withdrawal; the second carries deleteList, which removes the objects. Doing
+	// only the second leaves the QoS configuration behind on the devices. This
+	// mirrors the GUI, which greys out Delete until Undeploy has run.
+	undeployAction := "DELETED"
+	if !state.UndeployAction.IsNull() && state.UndeployAction.ValueString() != "" {
+		undeployAction = state.UndeployAction.ValueString()
 	}
 
+	undeployBody := ""
+	deleteBody := ""
+	count := 0
+	// Build the withdrawal entries the same way Update does: from toBody, not from
+	// the raw GET. Echoing a GET response back is rejected with NCSP11104 because
+	// it carries read-only fields the intent endpoint will not accept.
+	stateBody := gjson.Get(state.toBody(ctx, state), "createList")
+	stateBody.ForEach(func(_, item gjson.Result) bool {
+		cur, ok := existing[item.Get("name").String()]
+		if !ok {
+			return true
+		}
+		id := cur.Get("id")
+		if !id.Exists() {
+			return true
+		}
+		entry := carryOverOpaqueIDs(item.Raw, cur)
+		entry, _ = sjson.Set(entry, "deletePolicyStatus", undeployAction)
+		undeployBody, _ = sjson.SetRaw(undeployBody, "updateList.-1", entry)
+		deleteBody, _ = sjson.Set(deleteBody, "deleteList.-1", id.String())
+		count++
+		return true
+	})
+
 	if count > 0 {
-		res, err := r.client.Post("/dna/intent/api/v1/app-policy-intent", body)
+		res, err := r.client.Post("/dna/intent/api/v1/app-policy-intent", undeployBody)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to undeploy object before delete (POST %s), got error: %s, %s", undeployAction, err, res.String()))
+			return
+		}
+
+		res, err = r.client.Post("/dna/intent/api/v1/app-policy-intent", deleteBody)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (POST), got error: %s, %s", err, res.String()))
 			return
 		}
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully (%d sibling policies)", state.Id.ValueString(), count))
+	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully (%s, %d sibling policies)", state.Id.ValueString(), undeployAction, count))
 
 	resp.State.RemoveResource(ctx)
 }

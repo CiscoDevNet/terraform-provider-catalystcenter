@@ -31,9 +31,10 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type ApplicationPolicy struct {
-	Id          types.String             `tfsdk:"id"`
-	PolicyScope types.String             `tfsdk:"policy_scope"`
-	Items       []ApplicationPolicyItems `tfsdk:"items"`
+	Id             types.String             `tfsdk:"id"`
+	PolicyScope    types.String             `tfsdk:"policy_scope"`
+	UndeployAction types.String             `tfsdk:"undeploy_action"`
+	Items          []ApplicationPolicyItems `tfsdk:"items"`
 }
 
 type ApplicationPolicyItems struct {

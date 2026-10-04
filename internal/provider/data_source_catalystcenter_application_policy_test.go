@@ -29,11 +29,11 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcApplicationPolicy(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.name", "NOWEGO_collaboration-apps"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.policy_scope", "NOWEGO"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.name", "Branch_Office_QoS_Policy_collaboration-apps"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.policy_scope", "Branch_Office_QoS_Policy"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.priority", "100"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.delete_policy_status", "NONE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.advanced_policy_scope_name", "NOWEGO"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.advanced_policy_scope_name", "Branch_Office_QoS_Policy"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.clause_type", "BUSINESS_RELEVANCE"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.relevance_level", "BUSINESS_RELEVANT"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.device_removal_behavior", "RESTORE"))
@@ -60,13 +60,13 @@ func TestAccDataSourceCcApplicationPolicy(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcApplicationPolicyConfig() string {
 	config := `resource "catalystcenter_application_policy" "test" {` + "\n"
-	config += `	policy_scope = "NOWEGO"` + "\n"
+	config += `	policy_scope = "Branch_Office_QoS_Policy"` + "\n"
 	config += `	items = [{` + "\n"
-	config += `	  name = "NOWEGO_collaboration-apps"` + "\n"
-	config += `	  policy_scope = "NOWEGO"` + "\n"
+	config += `	  name = "Branch_Office_QoS_Policy_collaboration-apps"` + "\n"
+	config += `	  policy_scope = "Branch_Office_QoS_Policy"` + "\n"
 	config += `	  priority = "100"` + "\n"
 	config += `	  delete_policy_status = "NONE"` + "\n"
-	config += `	  advanced_policy_scope_name = "NOWEGO"` + "\n"
+	config += `	  advanced_policy_scope_name = "Branch_Office_QoS_Policy"` + "\n"
 	config += `	  site_ids = ["12345678-1234-1234-1234-123456789012"]` + "\n"
 	config += `	  ssids = ["corp-ssid"]` + "\n"
 	config += `	  clause_type = "BUSINESS_RELEVANCE"` + "\n"
@@ -81,7 +81,7 @@ func testAccDataSourceCcApplicationPolicyConfig() string {
 	config += `
 		data "catalystcenter_application_policy" "test" {
 			id = catalystcenter_application_policy.test.id
-			policy_scope = "NOWEGO"
+			policy_scope = "Branch_Office_QoS_Policy"
 		}
 	`
 	return config
