@@ -883,6 +883,7 @@ var functions = template.FuncMap{
 	"toGoName":                           ToGoName,
 	"camelCase":                          CamelCase,
 	"strContains":                        strings.Contains,
+	"trimPrefix":                         strings.TrimPrefix,
 	"snakeCase":                          SnakeCase,
 	"sprintf":                            fmt.Sprintf,
 	"toLower":                            strings.ToLower,
