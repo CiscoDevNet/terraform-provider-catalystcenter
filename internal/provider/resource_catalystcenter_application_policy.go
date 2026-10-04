@@ -312,22 +312,52 @@ func (r *ApplicationPolicyResource) ReadCache(ctx context.Context, req resource.
 
 var _ resource.ResourceWithModifyPlan = &ApplicationPolicyResource{}
 
-// The Application Policy API has a single write endpoint,
-// POST /dna/intent/api/v1/app-policy-intent, whose body carries three buckets:
-// createList, updateList and deleteList. Reads come from a different endpoint,
-// GET /dna/intent/api/v1/app-policy?policyScope=<scope>, which returns the sibling
-// policies flat.
+// Why Update and Delete are hand-written
 //
-// The generator can express Create (createList) and Read, but not Update or Delete:
-//   - Update must use the updateList key and must echo back opaque ids the
-//     controller assigned (the sibling id plus ids nested under advancedPolicyScope,
-//     exclusiveContract and producer). Sending the same payload under createList is
+// One Terraform resource maps to N API objects. A logical policy is not a single
+// object: the controller stores it as a set of sibling group-based policies that
+// all share a policyScope, one per application set plus
+// <scope>_queuing_customization and optionally <scope>_global_policy_configuration.
+// The resource id is the scope; the siblings carry their own ids. The generator
+// assumes one resource is one object with one id, and every limitation below
+// follows from that mismatch.
+//
+// All writes go to a single endpoint, POST /dna/intent/api/v1/app-policy-intent,
+// whose body carries three buckets: createList, updateList and deleteList. Reads
+// come from a different endpoint, GET /dna/intent/api/v1/app-policy?policyScope=,
+// which returns the siblings flat.
+//
+// Create and Read generate correctly. Update cannot, for three reasons:
+//
+//  1. The list key changes between operations. toBody emits {"createList":[...]},
+//     update needs {"updateList":[...]}. put_data_path cannot express this: it
+//     emits "<put_data_path>.<model_name>", prepending a path rather than renaming
+//     the key, so createList stays createList. Resending under createList is
 //     rejected with NCAS10239 "Policy name already exists".
-//   - Delete has no DELETE verb; it is a POST carrying deleteList with the ids of
-//     every sibling policy.
+//  2. Each updateList entry must echo back the opaque ids the controller assigned
+//     (see opaqueIDPaths). They exist only in the live GET, and the generator has
+//     no mechanism to merge server-assigned nested ids into an outgoing body.
+//     Without them the controller treats the entries as new objects.
+//  3. A single apply can need all three buckets in one request: siblings added,
+//     siblings changed, and siblings removed because an application set was
+//     dropped from the policy. The generator emits one body for one operation and
+//     cannot partition a set's elements by what currently exists server-side.
 //
-// Both are therefore implemented here, outside the //template markers, so they
-// survive `go generate`.
+// Delete cannot, for two reasons:
+//
+//  1. There is no DELETE verb. Deletion is a POST carrying deleteList with the ids
+//     of every sibling. post_delete + delete_body can POST on delete, but
+//     delete_body is a static literal with only {id} substitution, so it cannot
+//     build an N-element array read from the controller at runtime.
+//  2. Deletion is two sequential POSTs, not one. The controller will not release a
+//     deployed policy's objects until the policy has been withdrawn from its
+//     devices, so Delete must first POST updateList with deletePolicyStatus set,
+//     then POST deleteList. Sending only the second leaves the QoS configuration
+//     on the devices. The generator emits a single request per operation.
+//
+// Update, Delete and ModifyPlan are therefore implemented below, outside the
+// //template markers, and their marker sections were deleted from this file so
+// the generator does not re-add them. Everything here survives `go generate`.
 
 // opaqueIDPaths are the controller-assigned identifiers that an updateList entry
 // must carry over from the currently stored sibling policy.
