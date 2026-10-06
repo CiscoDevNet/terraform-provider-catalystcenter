@@ -10,7 +10,7 @@ description: |-
 ## 0.6.4 (unreleased)
 
 - Add `deployment_timeout` attribute to the `catalystcenter_deploy_template` resource to configure how long (in seconds) the provider waits for a template deployment to reach `SUCCESS` or `FAILURE`. Defaults to `300`, matching the previous fixed timeout; changing it alone does not trigger a redeployment
-- Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources to resolve the tag ID by name after create. The bulk create endpoint returns no ID, and the follow-up lookup took the first entry of the profile's whole tag list, so every tag after the first adopted the oldest tag's ID. The next refresh then read back the wrong tag, and because the tag name forces replacement, the apply destroyed that other tag and failed to recreate its own with `NCND11187 The requested resource already exists`. Affects any wireless profile with more than one site or policy tag, including tags owned by separate Terraform states
+- Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources to resolve the tag ID by name after create, instead of taking the first tag of the profile, which gave every tag after the first the wrong ID
 
 ## 0.6.3
 
