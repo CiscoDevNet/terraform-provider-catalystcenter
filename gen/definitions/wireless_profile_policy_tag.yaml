@@ -6,7 +6,7 @@ put_rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/policyTags/%v
 delete_rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/policyTags/%v
 id_query_rest_endpoint: /dna/intent/api/v1/wirelessProfiles/%v/policyTags
 put_no_id: true
-id_from_query_path: response.0
+id_from_query_path: response
 id_from_query_path_attribute: policyTagId
 res_description: 'This resource manages Policy Tags associated with a Wireless Profile in Cisco Catalyst Center. Policy Tags control which AP Zones are active at specific sites. They are only relevant when AP Zones are configured on the Wireless Profile. Before creating a policy tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource. Resource refresh ignores extra `site_ids` that Catalyst Center 3.2.3+ returns for descendant sites of an assigned parent. `terraform import` and the data source still return the full GET list; if configuration lists only parent sites, the first plan after import updates the tag back to that set. GET does not distinguish inherited children from extra sites assigned out of band (GUI/API), so those extras are also ignored on refresh until they appear in configuration or an update is otherwise applied.'
 doc_category: Wireless
@@ -31,6 +31,7 @@ attributes:
     tf_name: policy_tag_name
     type: String
     mandatory: true
+    match_id: true
     requires_replace: true
     data_path: items.0
     put_data_path: "_"

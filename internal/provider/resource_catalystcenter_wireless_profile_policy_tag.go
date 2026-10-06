@@ -147,7 +147,7 @@ func (r *WirelessProfilePolicyTagResource) Create(ctx context.Context, req resou
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.0.policyTagId").String())
+	plan.Id = types.StringValue(res.Get("response.#(policyTagName==\"" + plan.PolicyTagName.ValueString() + "\").policyTagId").String())
 	plan.PolicyTagId = plan.Id
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))

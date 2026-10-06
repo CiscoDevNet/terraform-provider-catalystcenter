@@ -11,6 +11,7 @@ description: |-
 
 - Add support for module identification through `provider_meta.module_name`, including the module name and version in the User-Agent header for API requests
 - Add `deployment_timeout` attribute to the `catalystcenter_deploy_template` resource to configure how long (in seconds) the provider waits for a template deployment to reach `SUCCESS` or `FAILURE`. Defaults to `300`, matching the previous fixed timeout; changing it alone does not trigger a redeployment
+- Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources to resolve the tag ID by name after create, instead of taking the first tag of the profile, which gave every tag after the first the wrong ID
 
 ## 0.6.3
 
