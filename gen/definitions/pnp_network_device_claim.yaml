@@ -1,0 +1,169 @@
+---
+name: PnP Network Device Claim
+# POST-only claim action, mirroring the pnp_device_claim_site structure. The Plug and Play
+# record lifecycle stays with catalystcenter_pnp_device: DELETE /pnpNetworkDevices/%v is
+# rejected with NCOB01313 once the device has been added to Inventory, and pnp_device
+# already tolerates that 400 (resource_catalystcenter_pnp_device.go:298), so no_delete is
+# preferred over hand-editing the generated DELETE here.
+rest_endpoint: /dna/intent/api/v1/pnpNetworkDevices/%v/claim
+no_data_source: true
+no_read: true # the claim sub-path has no GET, same as pnp_device_claim_site
+no_delete: true
+no_import: true
+post_update: true
+skip_minimum_test: true
+minimum_version: 3.2.3
+doc_category: Plug and Play
+test_tags: [PNP]
+attributes:
+  - model_name: deviceId
+    type: String
+    reference: true
+    id: true
+    mandatory: true
+    description: The PnP device ID to claim.
+    example: 683413ec67f7d77edb0fd605
+  - model_name: deviceType
+    type: String
+    mandatory: true
+    enum_values: [ACCESS_POINT, MOBILITY_EXPRESS, ROUTER, SENSOR, STACK_SWITCH, SVL, SWITCH, WIRELESS_CONTROLLER]
+    description: Type of device being claimed.
+    example: SVL
+  - model_name: siteId
+    type: String
+    description: Unique identifier of the site to claim the device to.
+    example: ee743148-ee86-4641-8558-52aa277eb780
+    exclude_test: true
+  - model_name: hostname
+    type: String
+    description: Hostname to be pushed to the device.
+    example: SVL-SWITCH
+    exclude_test: true
+  - model_name: imageId
+    data_path: imageInfo
+    type: String
+    description: Unique identifier of the image to be installed on the device.
+    example: e0a03292-b658-47aa-8407-4f00c057eb51
+    exclude_test: true
+  - model_name: removeInactive
+    data_path: imageInfo
+    type: Bool
+    description: Delete unused image .bin and .pkg files on the device.
+    example: false
+  - model_name: templateId
+    data_path: templateInfo
+    type: String
+    description: Unique identifier of the CLI template. Required if the device is claimed without a site.
+    example: 1e3b9f1b-acd9-462a-8a2e-13b527934549
+  - model_name: templateParameters
+    data_path: templateInfo
+    type: List
+    description: CLI template parameters.
+    attributes:
+      - model_name: key
+        tf_name: name
+        id: true
+        type: String
+        description: The key of the configuration parameter.
+        example: param5
+      - model_name: value
+        type: String
+        description: The value of the configuration parameter.
+        example: value5
+  - model_name: rfProfile
+    type: String
+    description: Name of the RF profile to apply to the access point.
+    example: TYPICAL
+    exclude_test: true
+  - model_name: topOfStackSerialNumber
+    type: String
+    description: Serial number of the switch to be assigned stack member number 1.
+    example: FJC28041KKA
+    exclude_test: true
+  - model_name: cablingScheme
+    type: String
+    description: StackWise cabling scheme.
+    example: '1A'
+    exclude_test: true
+  - model_name: sensorProfile
+    type: String
+    description: Name of the sensor profile to apply to the sensor.
+    example: CiscoSensor
+    exclude_test: true
+  - model_name: staticIpAddress
+    type: String
+    description: Static management IP address to be configured on the device.
+    example: 10.1.1.10
+    exclude_test: true
+  - model_name: subnetMask
+    type: String
+    description: Subnet mask of the static management IP address.
+    example: 255.255.255.0
+    exclude_test: true
+  - model_name: gateway
+    type: String
+    description: Default gateway of the static management IP address.
+    example: 10.1.1.1
+    exclude_test: true
+  - model_name: vlanId
+    type: Int64
+    description: VLAN ID of the management interface.
+    example: 100
+    exclude_test: true
+  - model_name: ipInterfaceName
+    type: String
+    description: Name of the management interface.
+    example: TenGigabitEthernet0/0/0
+    exclude_test: true
+  - model_name: domain
+    data_path: svlConfig
+    type: Int64
+    min_int: 1
+    max_int: 255
+    description: SVL domain number.
+    example: 2
+  - model_name: svlMembers
+    data_path: svlConfig
+    type: List
+    description: List of member switches in the SVL.
+    attributes:
+      - model_name: serialNumber
+        id: true
+        type: String
+        mandatory: true
+        description: Serial number of the member switch.
+        example: FJC28041KKA
+      - model_name: role
+        type: String
+        mandatory: true
+        enum_values: [ACTIVE, STANDBY]
+        description: Role of a member in an SVL.
+        example: ACTIVE
+      - model_name: svlLinks
+        type: List
+        mandatory: true
+        description: List of links between member switches in the SVL.
+        attributes:
+          - model_name: localInterface
+            id: true
+            type: String
+            mandatory: true
+            description: Local interface name.
+            example: TwentyFiveGigE1/0/47
+          - model_name: remoteInterface
+            type: String
+            mandatory: true
+            description: Remote interface name.
+            example: TwentyFiveGigE2/0/47
+      - model_name: localInterface
+        data_path: dadLink
+        type: String
+        description: Local interface name of the Dual-Active-Detection (DAD) link.
+        example: GigabitEthernet1/0/52
+        exclude_test: true
+      - model_name: remoteInterface
+        data_path: dadLink
+        type: String
+        description: Remote interface name of the Dual-Active-Detection (DAD) link.
+        example: GigabitEthernet2/0/52
+        exclude_test: true
