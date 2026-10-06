@@ -9,6 +9,7 @@ description: |-
 
 ## 0.6.4 (unreleased)
 
+- Add support for module identification through `provider_meta.module_name`, including the module name and version in the User-Agent header for API requests
 - Add `deployment_timeout` attribute to the `catalystcenter_deploy_template` resource to configure how long (in seconds) the provider waits for a template deployment to reach `SUCCESS` or `FAILURE`. Defaults to `300`, matching the previous fixed timeout; changing it alone does not trigger a redeployment
 
 ## 0.6.3
