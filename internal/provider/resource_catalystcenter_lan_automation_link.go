@@ -132,6 +132,7 @@ func lanAutomationLinkFeature(action string) (string, error) {
 
 // Custom Create: map action to the feature query param and build a composite resource ID.
 func (r *LANAutomationLinkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan LANAutomationLink
 
 	diags := req.Plan.Get(ctx, &plan)
@@ -173,6 +174,7 @@ func (r *LANAutomationLinkResource) Create(ctx context.Context, req resource.Cre
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *LANAutomationLinkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state LANAutomationLink
 
 	// Read state
@@ -194,6 +196,7 @@ func (r *LANAutomationLinkResource) Read(ctx context.Context, req resource.ReadR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *LANAutomationLinkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state LANAutomationLink
 
 	// Read plan
@@ -221,6 +224,7 @@ func (r *LANAutomationLinkResource) Update(ctx context.Context, req resource.Upd
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *LANAutomationLinkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state LANAutomationLink
 
 	// Read state

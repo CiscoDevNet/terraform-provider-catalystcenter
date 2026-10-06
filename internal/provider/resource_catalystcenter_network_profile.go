@@ -130,6 +130,7 @@ func (r *NetworkProfileResource) Configure(_ context.Context, req resource.Confi
 // End of section. //template:end model
 
 func (r *NetworkProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan NetworkProfile
 
 	// Read plan
@@ -166,6 +167,7 @@ func (r *NetworkProfileResource) Create(ctx context.Context, req resource.Create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state NetworkProfile
 
 	// Read state
@@ -187,6 +189,7 @@ func (r *NetworkProfileResource) Read(ctx context.Context, req resource.ReadRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *NetworkProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state NetworkProfile
 
 	// Read plan
@@ -222,6 +225,7 @@ func (r *NetworkProfileResource) Update(ctx context.Context, req resource.Update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *NetworkProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state NetworkProfile
 
 	// Read state

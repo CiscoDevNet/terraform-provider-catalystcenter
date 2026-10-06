@@ -596,6 +596,7 @@ func (r *WirelessRFProfileResource) Configure(_ context.Context, req resource.Co
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessRFProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessRFProfile
 
 	// Read plan
@@ -635,6 +636,7 @@ func (r *WirelessRFProfileResource) Create(ctx context.Context, req resource.Cre
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessRFProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessRFProfile
 
 	// Read state
@@ -674,6 +676,7 @@ func (r *WirelessRFProfileResource) Read(ctx context.Context, req resource.ReadR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessRFProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessRFProfile
 
 	// Read plan
@@ -709,6 +712,7 @@ func (r *WirelessRFProfileResource) Update(ctx context.Context, req resource.Upd
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessRFProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessRFProfile
 
 	// Read state

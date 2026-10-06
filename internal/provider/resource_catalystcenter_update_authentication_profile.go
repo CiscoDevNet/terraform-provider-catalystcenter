@@ -168,6 +168,7 @@ func (r *UpdateAuthenticationProfileResource) Configure(_ context.Context, req r
 // End of section. //template:end model
 
 func (r *UpdateAuthenticationProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan UpdateAuthenticationProfile
 
 	// Read plan
@@ -214,6 +215,7 @@ func (r *UpdateAuthenticationProfileResource) Create(ctx context.Context, req re
 }
 
 func (r *UpdateAuthenticationProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state UpdateAuthenticationProfile
 
 	// Read state
@@ -258,6 +260,7 @@ func (r *UpdateAuthenticationProfileResource) Read(ctx context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *UpdateAuthenticationProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state UpdateAuthenticationProfile
 
 	// Read plan
@@ -293,6 +296,7 @@ func (r *UpdateAuthenticationProfileResource) Update(ctx context.Context, req re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *UpdateAuthenticationProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state UpdateAuthenticationProfile
 
 	// Read state

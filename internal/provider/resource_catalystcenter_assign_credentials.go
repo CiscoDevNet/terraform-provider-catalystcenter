@@ -147,6 +147,7 @@ func (r *AssignCredentialsResource) getCurrentGlobalCredentials(ctx context.Cont
 // {} / unset), mirroring the Delete method's Global handling. Transient
 // NCND00010 ("Global Settings Save is in progress") errors are then retried.
 func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AssignCredentials
 
 	// Read plan
@@ -242,6 +243,7 @@ func (r *AssignCredentialsResource) Create(ctx context.Context, req resource.Cre
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignCredentials
 
 	// Read state
@@ -286,6 +288,7 @@ func (r *AssignCredentialsResource) Read(ctx context.Context, req resource.ReadR
 // {} / unset), mirroring the Delete method's Global handling. Transient
 // NCND00010 ("Global Settings Save is in progress") errors are then retried.
 func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AssignCredentials
 
 	// Read plan
@@ -401,6 +404,7 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 // wiped when the Global assignment is destroyed. Transient NCND00010
 // ("Global Settings Save is in progress") errors are retried.
 func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignCredentials
 
 	// Read state

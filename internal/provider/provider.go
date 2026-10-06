@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/metaschema"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -66,6 +67,17 @@ type CcProviderData struct {
 func (p *CcProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "catalystcenter"
 	resp.Version = p.version
+}
+
+func (p *CcProvider) MetaSchema(_ context.Context, _ provider.MetaSchemaRequest, resp *provider.MetaSchemaResponse) {
+	resp.Schema = metaschema.Schema{
+		Attributes: map[string]metaschema.Attribute{
+			"module_name": metaschema.StringAttribute{
+				MarkdownDescription: "Identifier a Network-as-Code module sets via `provider_meta` so Catalyst Center telemetry can attribute traffic to the module. Appended to the HTTP User-Agent. Not intended to be set directly by users.",
+				Optional:            true,
+			},
+		},
+	}
 }
 
 func (p *CcProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {

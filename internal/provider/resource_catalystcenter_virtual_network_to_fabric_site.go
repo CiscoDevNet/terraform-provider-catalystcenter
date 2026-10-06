@@ -124,6 +124,7 @@ func lockVirtualNetworkFabricIds(virtualNetworkName string) func() {
 }
 
 func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan VirtualNetworkToFabricSite
 
 	// Read plan
@@ -205,6 +206,7 @@ func (r *VirtualNetworkToFabricSiteResource) Create(ctx context.Context, req res
 }
 
 func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state VirtualNetworkToFabricSite
 
 	// Read state
@@ -262,6 +264,7 @@ func (r *VirtualNetworkToFabricSiteResource) Read(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *VirtualNetworkToFabricSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state VirtualNetworkToFabricSite
 
 	// Read plan
@@ -288,6 +291,7 @@ func (r *VirtualNetworkToFabricSiteResource) Update(ctx context.Context, req res
 // End of section. //template:end update
 
 func (r *VirtualNetworkToFabricSiteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state VirtualNetworkToFabricSite
 
 	// Read state

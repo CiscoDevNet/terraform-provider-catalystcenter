@@ -391,6 +391,7 @@ func (r *AccessPointConfigurationResource) Configure(_ context.Context, req reso
 
 // Custom Create: template markers intentionally removed to build a composite resource ID from ap_list.
 func (r *AccessPointConfigurationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AccessPointConfiguration
 
 	// Read plan
@@ -426,6 +427,7 @@ func (r *AccessPointConfigurationResource) Create(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AccessPointConfigurationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AccessPointConfiguration
 
 	// Read state
@@ -447,6 +449,7 @@ func (r *AccessPointConfigurationResource) Read(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AccessPointConfigurationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AccessPointConfiguration
 
 	// Read plan
@@ -474,6 +477,7 @@ func (r *AccessPointConfigurationResource) Update(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AccessPointConfigurationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AccessPointConfiguration
 
 	// Read state
