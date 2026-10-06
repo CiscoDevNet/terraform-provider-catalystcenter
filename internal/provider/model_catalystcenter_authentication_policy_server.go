@@ -43,21 +43,31 @@ type AuthenticationPolicyServer struct {
 	Retries                    types.Int64                                            `tfsdk:"retries"`
 	Role                       types.String                                           `tfsdk:"role"`
 	SharedSecret               types.String                                           `tfsdk:"shared_secret"`
+	SharedSecretWo             types.String                                           `tfsdk:"shared_secret_wo"`
+	SharedSecretWoVersion      types.Int64                                            `tfsdk:"shared_secret_wo_version"`
 	TimeoutSeconds             types.Int64                                            `tfsdk:"timeout_seconds"`
 	EncryptionScheme           types.String                                           `tfsdk:"encryption_scheme"`
 	MessageKey                 types.String                                           `tfsdk:"message_key"`
+	MessageKeyWo               types.String                                           `tfsdk:"message_key_wo"`
+	MessageKeyWoVersion        types.Int64                                            `tfsdk:"message_key_wo_version"`
 	EncryptionKey              types.String                                           `tfsdk:"encryption_key"`
+	EncryptionKeyWo            types.String                                           `tfsdk:"encryption_key_wo"`
+	EncryptionKeyWoVersion     types.Int64                                            `tfsdk:"encryption_key_wo_version"`
 	ExternalCiscoIseIpAddrDtos []AuthenticationPolicyServerExternalCiscoIseIpAddrDtos `tfsdk:"external_cisco_ise_ip_addr_dtos"`
 }
 
 type AuthenticationPolicyServerCiscoIseDtos struct {
-	Description    types.String `tfsdk:"description"`
-	Fqdn           types.String `tfsdk:"fqdn"`
-	Password       types.String `tfsdk:"password"`
-	Sshkey         types.String `tfsdk:"sshkey"`
-	IpAddress      types.String `tfsdk:"ip_address"`
-	SubscriberName types.String `tfsdk:"subscriber_name"`
-	UserName       types.String `tfsdk:"user_name"`
+	Description       types.String `tfsdk:"description"`
+	Fqdn              types.String `tfsdk:"fqdn"`
+	Password          types.String `tfsdk:"password"`
+	PasswordWo        types.String `tfsdk:"password_wo"`
+	PasswordWoVersion types.Int64  `tfsdk:"password_wo_version"`
+	Sshkey            types.String `tfsdk:"sshkey"`
+	SshkeyWo          types.String `tfsdk:"sshkey_wo"`
+	SshkeyWoVersion   types.Int64  `tfsdk:"sshkey_wo_version"`
+	IpAddress         types.String `tfsdk:"ip_address"`
+	SubscriberName    types.String `tfsdk:"subscriber_name"`
+	UserName          types.String `tfsdk:"user_name"`
 }
 
 type AuthenticationPolicyServerExternalCiscoIseIpAddrDtos struct {
@@ -109,8 +119,14 @@ func (data AuthenticationPolicyServer) toBody(ctx context.Context, state Authent
 			if !item.Password.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "password", item.Password.ValueString())
 			}
+			if !item.PasswordWo.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "password", item.PasswordWo.ValueString())
+			}
 			if !item.Sshkey.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "sshkey", item.Sshkey.ValueString())
+			}
+			if !item.SshkeyWo.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "sshkey", item.SshkeyWo.ValueString())
 			}
 			if !item.IpAddress.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "ipAddress", item.IpAddress.ValueString())
@@ -151,6 +167,9 @@ func (data AuthenticationPolicyServer) toBody(ctx context.Context, state Authent
 	if !data.SharedSecret.IsNull() {
 		body, _ = sjson.Set(body, "sharedSecret", data.SharedSecret.ValueString())
 	}
+	if !data.SharedSecretWo.IsNull() {
+		body, _ = sjson.Set(body, "sharedSecret", data.SharedSecretWo.ValueString())
+	}
 	if !data.TimeoutSeconds.IsNull() {
 		body, _ = sjson.Set(body, "timeoutSeconds", data.TimeoutSeconds.ValueInt64())
 	}
@@ -160,8 +179,14 @@ func (data AuthenticationPolicyServer) toBody(ctx context.Context, state Authent
 	if !data.MessageKey.IsNull() {
 		body, _ = sjson.Set(body, "messageKey", data.MessageKey.ValueString())
 	}
+	if !data.MessageKeyWo.IsNull() {
+		body, _ = sjson.Set(body, "messageKey", data.MessageKeyWo.ValueString())
+	}
 	if !data.EncryptionKey.IsNull() {
 		body, _ = sjson.Set(body, "encryptionKey", data.EncryptionKey.ValueString())
+	}
+	if !data.EncryptionKeyWo.IsNull() {
+		body, _ = sjson.Set(body, "encryptionKey", data.EncryptionKeyWo.ValueString())
 	}
 	if len(data.ExternalCiscoIseIpAddrDtos) > 0 {
 		body, _ = sjson.Set(body, "externalCiscoIseIpAddrDtos", []interface{}{})
@@ -210,12 +235,7 @@ func (data *AuthenticationPolicyServer) fromBody(ctx context.Context, res gjson.
 				item.Description = types.StringNull()
 			}
 			item.Fqdn = types.StringValue("")
-			item.Password = types.StringValue("")
-			if cValue := v.Get("sshkey"); cValue.Exists() {
-				item.Sshkey = types.StringValue(cValue.String())
-			} else {
-				item.Sshkey = types.StringNull()
-			}
+			item.PasswordWo = types.StringValue("")
 			if cValue := v.Get("ipAddress"); cValue.Exists() {
 				item.IpAddress = types.StringValue(cValue.String())
 			} else {
@@ -350,11 +370,6 @@ func (data *AuthenticationPolicyServer) updateFromBody(ctx context.Context, res 
 			data.CiscoIseDtos[i].Description = types.StringValue(value.String())
 		} else {
 			data.CiscoIseDtos[i].Description = types.StringNull()
-		}
-		if value := r.Get("sshkey"); value.Exists() && !data.CiscoIseDtos[i].Sshkey.IsNull() {
-			data.CiscoIseDtos[i].Sshkey = types.StringValue(value.String())
-		} else {
-			data.CiscoIseDtos[i].Sshkey = types.StringNull()
 		}
 		if value := r.Get("ipAddress"); value.Exists() && !data.CiscoIseDtos[i].IpAddress.IsNull() {
 			data.CiscoIseDtos[i].IpAddress = types.StringValue(value.String())
@@ -517,6 +532,12 @@ func (data *AuthenticationPolicyServer) isNull(ctx context.Context, res gjson.Re
 	if !data.SharedSecret.IsNull() {
 		return false
 	}
+	if !data.SharedSecretWo.IsNull() {
+		return false
+	}
+	if !data.SharedSecretWoVersion.IsNull() {
+		return false
+	}
 	if !data.TimeoutSeconds.IsNull() {
 		return false
 	}
@@ -526,7 +547,19 @@ func (data *AuthenticationPolicyServer) isNull(ctx context.Context, res gjson.Re
 	if !data.MessageKey.IsNull() {
 		return false
 	}
+	if !data.MessageKeyWo.IsNull() {
+		return false
+	}
+	if !data.MessageKeyWoVersion.IsNull() {
+		return false
+	}
 	if !data.EncryptionKey.IsNull() {
+		return false
+	}
+	if !data.EncryptionKeyWo.IsNull() {
+		return false
+	}
+	if !data.EncryptionKeyWoVersion.IsNull() {
 		return false
 	}
 	if len(data.ExternalCiscoIseIpAddrDtos) > 0 {

@@ -31,6 +31,7 @@ import (
 func TestAccCcCredentialsSNMPv2Write(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv2_write.test", "description", "My SNMPv2 write credentials"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv2_write.test", "write_community_wo_version", "1"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -63,7 +64,8 @@ func TestAccCcCredentialsSNMPv2Write(t *testing.T) {
 func testAccCcCredentialsSNMPv2WriteConfig_minimum() string {
 	config := `resource "catalystcenter_credentials_snmpv2_write" "test" {` + "\n"
 	config += `	description = "My SNMPv2 write credentials"` + "\n"
-	config += `	write_community = "community1"` + "\n"
+	config += `	write_community_wo = "community1"` + "\n"
+	config += `	write_community_wo_version = 1` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -74,7 +76,8 @@ func testAccCcCredentialsSNMPv2WriteConfig_minimum() string {
 func testAccCcCredentialsSNMPv2WriteConfig_all() string {
 	config := `resource "catalystcenter_credentials_snmpv2_write" "test" {` + "\n"
 	config += `	description = "My SNMPv2 write credentials"` + "\n"
-	config += `	write_community = "community1"` + "\n"
+	config += `	write_community_wo = "community1"` + "\n"
+	config += `	write_community_wo_version = 1` + "\n"
 	config += `}` + "\n"
 	return config
 }

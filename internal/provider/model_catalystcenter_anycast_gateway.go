@@ -30,25 +30,32 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type AnycastGateway struct {
-	Id                                    types.String `tfsdk:"id"`
-	FabricId                              types.String `tfsdk:"fabric_id"`
-	VirtualNetworkName                    types.String `tfsdk:"virtual_network_name"`
-	IpPoolName                            types.String `tfsdk:"ip_pool_name"`
-	TcpMssAdjustment                      types.Int64  `tfsdk:"tcp_mss_adjustment"`
-	VlanName                              types.String `tfsdk:"vlan_name"`
-	VlanId                                types.Int64  `tfsdk:"vlan_id"`
-	TrafficType                           types.String `tfsdk:"traffic_type"`
-	PoolType                              types.String `tfsdk:"pool_type"`
-	SecurityGroupName                     types.String `tfsdk:"security_group_name"`
-	CriticalPool                          types.Bool   `tfsdk:"critical_pool"`
-	L2FloodingEnabled                     types.Bool   `tfsdk:"l2_flooding_enabled"`
-	WirelessPool                          types.Bool   `tfsdk:"wireless_pool"`
-	IpDirectedBroadcast                   types.Bool   `tfsdk:"ip_directed_broadcast"`
-	IntraSubnetRoutingEnabled             types.Bool   `tfsdk:"intra_subnet_routing_enabled"`
-	MultipleIpToMacAddresses              types.Bool   `tfsdk:"multiple_ip_to_mac_addresses"`
-	SupplicantBasedExtendedNodeOnboarding types.Bool   `tfsdk:"supplicant_based_extended_node_onboarding"`
-	GroupBasedPolicyEnforcementEnabled    types.Bool   `tfsdk:"group_based_policy_enforcement_enabled"`
-	AutoGenerateVlanName                  types.Bool   `tfsdk:"auto_generate_vlan_name"`
+	Id                                    types.String                      `tfsdk:"id"`
+	FabricId                              types.String                      `tfsdk:"fabric_id"`
+	VirtualNetworkName                    types.String                      `tfsdk:"virtual_network_name"`
+	IpPoolName                            types.String                      `tfsdk:"ip_pool_name"`
+	AdditionalIpPools                     []AnycastGatewayAdditionalIpPools `tfsdk:"additional_ip_pools"`
+	TcpMssAdjustment                      types.Int64                       `tfsdk:"tcp_mss_adjustment"`
+	VlanName                              types.String                      `tfsdk:"vlan_name"`
+	VlanId                                types.Int64                       `tfsdk:"vlan_id"`
+	TrafficType                           types.String                      `tfsdk:"traffic_type"`
+	PoolType                              types.String                      `tfsdk:"pool_type"`
+	SecurityGroupName                     types.String                      `tfsdk:"security_group_name"`
+	CriticalPool                          types.Bool                        `tfsdk:"critical_pool"`
+	L2FloodingEnabled                     types.Bool                        `tfsdk:"l2_flooding_enabled"`
+	WirelessFloodingEnabled               types.Bool                        `tfsdk:"wireless_flooding_enabled"`
+	WirelessPool                          types.Bool                        `tfsdk:"wireless_pool"`
+	IpDirectedBroadcast                   types.Bool                        `tfsdk:"ip_directed_broadcast"`
+	IntraSubnetRoutingEnabled             types.Bool                        `tfsdk:"intra_subnet_routing_enabled"`
+	MultipleIpToMacAddresses              types.Bool                        `tfsdk:"multiple_ip_to_mac_addresses"`
+	SupplicantBasedExtendedNodeOnboarding types.Bool                        `tfsdk:"supplicant_based_extended_node_onboarding"`
+	GroupBasedPolicyEnforcementEnabled    types.Bool                        `tfsdk:"group_based_policy_enforcement_enabled"`
+	AutoGenerateVlanName                  types.Bool                        `tfsdk:"auto_generate_vlan_name"`
+}
+
+type AnycastGatewayAdditionalIpPools struct {
+	Name  types.String `tfsdk:"name"`
+	Order types.Int64  `tfsdk:"order"`
 }
 
 // End of section. //template:end types
@@ -82,6 +89,19 @@ func (data AnycastGateway) toBody(ctx context.Context, state AnycastGateway) str
 	if !data.IpPoolName.IsNull() {
 		body, _ = sjson.Set(body, "0.ipPoolName", data.IpPoolName.ValueString())
 	}
+	if true {
+		body, _ = sjson.Set(body, "0.additionalIpPools", []interface{}{})
+		for _, item := range data.AdditionalIpPools {
+			itemBody := ""
+			if !item.Name.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
+			}
+			if !item.Order.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "order", item.Order.ValueInt64())
+			}
+			body, _ = sjson.SetRaw(body, "0.additionalIpPools.-1", itemBody)
+		}
+	}
 	if !data.TcpMssAdjustment.IsNull() {
 		body, _ = sjson.Set(body, "0.tcpMssAdjustment", data.TcpMssAdjustment.ValueInt64())
 	}
@@ -105,6 +125,9 @@ func (data AnycastGateway) toBody(ctx context.Context, state AnycastGateway) str
 	}
 	if !data.L2FloodingEnabled.IsNull() {
 		body, _ = sjson.Set(body, "0.isLayer2FloodingEnabled", data.L2FloodingEnabled.ValueBool())
+	}
+	if !data.WirelessFloodingEnabled.IsNull() {
+		body, _ = sjson.Set(body, "0.isWirelessFloodingEnabled", data.WirelessFloodingEnabled.ValueBool())
 	}
 	if !data.WirelessPool.IsNull() {
 		body, _ = sjson.Set(body, "0.isWirelessPool", data.WirelessPool.ValueBool())
@@ -155,6 +178,24 @@ func (data *AnycastGateway) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.IpPoolName = types.StringNull()
 	}
+	if value := res.Get("response.0.additionalIpPools"); value.Exists() && len(value.Array()) > 0 {
+		data.AdditionalIpPools = make([]AnycastGatewayAdditionalIpPools, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := AnycastGatewayAdditionalIpPools{}
+			if cValue := v.Get("name"); cValue.Exists() {
+				item.Name = types.StringValue(cValue.String())
+			} else {
+				item.Name = types.StringNull()
+			}
+			if cValue := v.Get("order"); cValue.Exists() {
+				item.Order = types.Int64Value(cValue.Int())
+			} else {
+				item.Order = types.Int64Null()
+			}
+			data.AdditionalIpPools = append(data.AdditionalIpPools, item)
+			return true
+		})
+	}
 	if value := res.Get("response.0.tcpMssAdjustment"); value.Exists() {
 		data.TcpMssAdjustment = types.Int64Value(value.Int())
 	} else {
@@ -194,6 +235,11 @@ func (data *AnycastGateway) fromBody(ctx context.Context, res gjson.Result) {
 		data.L2FloodingEnabled = types.BoolValue(value.Bool())
 	} else {
 		data.L2FloodingEnabled = types.BoolNull()
+	}
+	if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() {
+		data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.WirelessFloodingEnabled = types.BoolNull()
 	}
 	if value := res.Get("response.0.isWirelessPool"); value.Exists() {
 		data.WirelessPool = types.BoolValue(value.Bool())
@@ -246,6 +292,40 @@ func (data *AnycastGateway) updateFromBody(ctx context.Context, res gjson.Result
 	} else {
 		data.IpPoolName = types.StringNull()
 	}
+	for i := range data.AdditionalIpPools {
+		keys := [...]string{"name"}
+		keyValues := [...]string{data.AdditionalIpPools[i].Name.ValueString()}
+
+		var r gjson.Result
+		res.Get("response.0.additionalIpPools").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("name"); value.Exists() && !data.AdditionalIpPools[i].Name.IsNull() {
+			data.AdditionalIpPools[i].Name = types.StringValue(value.String())
+		} else {
+			data.AdditionalIpPools[i].Name = types.StringNull()
+		}
+		if value := r.Get("order"); value.Exists() && !data.AdditionalIpPools[i].Order.IsNull() {
+			data.AdditionalIpPools[i].Order = types.Int64Value(value.Int())
+		} else {
+			data.AdditionalIpPools[i].Order = types.Int64Null()
+		}
+	}
 	if value := res.Get("response.0.tcpMssAdjustment"); value.Exists() && !data.TcpMssAdjustment.IsNull() {
 		data.TcpMssAdjustment = types.Int64Value(value.Int())
 	} else {
@@ -285,6 +365,11 @@ func (data *AnycastGateway) updateFromBody(ctx context.Context, res gjson.Result
 		data.L2FloodingEnabled = types.BoolValue(value.Bool())
 	} else {
 		data.L2FloodingEnabled = types.BoolNull()
+	}
+	if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() && !data.WirelessFloodingEnabled.IsNull() {
+		data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.WirelessFloodingEnabled = types.BoolNull()
 	}
 	if value := res.Get("response.0.isWirelessPool"); value.Exists() && !data.WirelessPool.IsNull() {
 		data.WirelessPool = types.BoolValue(value.Bool())
@@ -402,6 +487,13 @@ func (data *AnycastGateway) fromBodyUnknowns(ctx context.Context, res gjson.Resu
 			data.L2FloodingEnabled = types.BoolNull()
 		}
 	}
+	if data.WirelessFloodingEnabled.IsUnknown() {
+		if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() && !data.WirelessFloodingEnabled.IsNull() {
+			data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+		} else {
+			data.WirelessFloodingEnabled = types.BoolNull()
+		}
+	}
 	if data.WirelessPool.IsUnknown() {
 		if value := res.Get("response.0.isWirelessPool"); value.Exists() && !data.WirelessPool.IsNull() {
 			data.WirelessPool = types.BoolValue(value.Bool())
@@ -450,6 +542,9 @@ func (data *AnycastGateway) fromBodyUnknowns(ctx context.Context, res gjson.Resu
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AnycastGateway) isNull(ctx context.Context, res gjson.Result) bool {
+	if len(data.AdditionalIpPools) > 0 {
+		return false
+	}
 	if !data.TcpMssAdjustment.IsNull() {
 		return false
 	}
@@ -472,6 +567,9 @@ func (data *AnycastGateway) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.L2FloodingEnabled.IsNull() {
+		return false
+	}
+	if !data.WirelessFloodingEnabled.IsNull() {
 		return false
 	}
 	if !data.WirelessPool.IsNull() {

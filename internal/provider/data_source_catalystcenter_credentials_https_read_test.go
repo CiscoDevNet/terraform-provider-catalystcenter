@@ -54,7 +54,8 @@ func testAccDataSourceCcCredentialsHTTPSReadConfig() string {
 	config := `resource "catalystcenter_credentials_https_read" "test" {` + "\n"
 	config += `	description = "My HTTPS read credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
-	config += `	password = "password1"` + "\n"
+	config += `	password_wo = "password1"` + "\n"
+	config += `	password_wo_version = 1` + "\n"
 	config += `	port = 444` + "\n"
 	config += `}` + "\n"
 

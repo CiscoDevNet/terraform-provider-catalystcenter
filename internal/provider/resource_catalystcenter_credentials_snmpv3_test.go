@@ -33,7 +33,9 @@ func TestAccCcCredentialsSNMPv3(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv3.test", "description", "My SNMPv3 credentials"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv3.test", "username", "user1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv3.test", "privacy_type", "AES128"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv3.test", "privacy_password_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv3.test", "auth_type", "SHA"))
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv3.test", "auth_password_wo_version", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_credentials_snmpv3.test", "snmp_mode", "AUTHPRIV"))
 
 	var steps []resource.TestStep
@@ -81,9 +83,11 @@ func testAccCcCredentialsSNMPv3Config_all() string {
 	config += `	description = "My SNMPv3 credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
 	config += `	privacy_type = "AES128"` + "\n"
-	config += `	privacy_password = "password1"` + "\n"
+	config += `	privacy_password_wo = "password1"` + "\n"
+	config += `	privacy_password_wo_version = 1` + "\n"
 	config += `	auth_type = "SHA"` + "\n"
-	config += `	auth_password = "password1"` + "\n"
+	config += `	auth_password_wo = "password1"` + "\n"
+	config += `	auth_password_wo_version = 1` + "\n"
 	config += `	snmp_mode = "AUTHPRIV"` + "\n"
 	config += `}` + "\n"
 	return config

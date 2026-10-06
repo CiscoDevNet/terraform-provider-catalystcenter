@@ -30,9 +30,11 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type CredentialsSNMPv2Write struct {
-	Id             types.String `tfsdk:"id"`
-	Description    types.String `tfsdk:"description"`
-	WriteCommunity types.String `tfsdk:"write_community"`
+	Id                      types.String `tfsdk:"id"`
+	Description             types.String `tfsdk:"description"`
+	WriteCommunity          types.String `tfsdk:"write_community"`
+	WriteCommunityWo        types.String `tfsdk:"write_community_wo"`
+	WriteCommunityWoVersion types.Int64  `tfsdk:"write_community_wo_version"`
 }
 
 // End of section. //template:end types
@@ -65,6 +67,13 @@ func (data CredentialsSNMPv2Write) toBody(ctx context.Context, state Credentials
 			body, _ = sjson.Set(body, "snmpV2cWrite.writeCommunity", data.WriteCommunity.ValueString())
 		} else {
 			body, _ = sjson.Set(body, "snmpV2cWrite.0.writeCommunity", data.WriteCommunity.ValueString())
+		}
+	}
+	if !data.WriteCommunityWo.IsNull() {
+		if put {
+			body, _ = sjson.Set(body, "snmpV2cWrite.writeCommunity", data.WriteCommunityWo.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "snmpV2cWrite.0.writeCommunity", data.WriteCommunityWo.ValueString())
 		}
 	}
 	return body
@@ -100,6 +109,12 @@ func (data *CredentialsSNMPv2Write) isNull(ctx context.Context, res gjson.Result
 		return false
 	}
 	if !data.WriteCommunity.IsNull() {
+		return false
+	}
+	if !data.WriteCommunityWo.IsNull() {
+		return false
+	}
+	if !data.WriteCommunityWoVersion.IsNull() {
 		return false
 	}
 	return true

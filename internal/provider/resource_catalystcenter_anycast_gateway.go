@@ -97,6 +97,25 @@ func (r *AnycastGatewayResource) Schema(ctx context.Context, req resource.Schema
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"additional_ip_pools": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN). Requires Catalyst Center 3.2.3 or later.").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Name of the additional IP pool associated with the anycast gateway").String,
+							Required:            true,
+						},
+						"order": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Sequence in which this IP pool will be used").AddIntegerRangeDescription(2, 5).String,
+							Required:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(2, 5),
+							},
+						},
+					},
+				},
+			},
 			"tcp_mss_adjustment": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("TCP maximum segment size adjustment").AddIntegerRangeDescription(500, 1440).String,
 				Optional:            true,
@@ -147,6 +166,10 @@ func (r *AnycastGatewayResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"l2_flooding_enabled": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable layer 2 flooding (not applicable to INFRA_VN)").String,
+				Optional:            true,
+			},
+			"wireless_flooding_enabled": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enable/disable wireless flooding (not applicable to INFRA_VN). Requires isWirelessPool to be true. Available from Catalyst Center 3.1").String,
 				Optional:            true,
 			},
 			"wireless_pool": schema.BoolAttribute{

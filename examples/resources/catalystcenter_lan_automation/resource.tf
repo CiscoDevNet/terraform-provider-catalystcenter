@@ -8,12 +8,13 @@ resource "catalystcenter_lan_automation" "example" {
       ip_pool_role = "MAIN_POOL"
     }
   ]
-  multicast_enabled        = true
-  host_name_prefix         = "TEST"
-  isis_domain_password     = "cisco123"
-  redistribute_isis_to_bgp = true
-  discovery_level          = 2
-  discovery_timeout        = 20
+  multicast_enabled               = true
+  host_name_prefix                = "TEST"
+  isis_domain_password_wo         = "cisco123"
+  isis_domain_password_wo_version = 1
+  redistribute_isis_to_bgp        = true
+  discovery_level                 = 2
+  discovery_timeout               = 20
   discovery_devices = [
     {
       device_serial_number         = "FOC12345678"

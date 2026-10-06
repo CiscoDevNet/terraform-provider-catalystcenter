@@ -57,9 +57,11 @@ func testAccDataSourceCcCredentialsSNMPv3Config() string {
 	config += `	description = "My SNMPv3 credentials"` + "\n"
 	config += `	username = "user1"` + "\n"
 	config += `	privacy_type = "AES128"` + "\n"
-	config += `	privacy_password = "password1"` + "\n"
+	config += `	privacy_password_wo = "password1"` + "\n"
+	config += `	privacy_password_wo_version = 1` + "\n"
 	config += `	auth_type = "SHA"` + "\n"
-	config += `	auth_password = "password1"` + "\n"
+	config += `	auth_password_wo = "password1"` + "\n"
+	config += `	auth_password_wo_version = 1` + "\n"
 	config += `	snmp_mode = "AUTHPRIV"` + "\n"
 	config += `}` + "\n"
 

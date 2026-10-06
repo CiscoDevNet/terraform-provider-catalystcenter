@@ -38,6 +38,7 @@ attributes:
     type: String
     description: Passphrase (Only applicable for SSID with PERSONAL security level). Passphrase needs to be between 8 and 63 characters for ASCII type. HEX passphrase needs to be 64 characters
     write_only: true
+    write_only_tf: true
     example: Cisco123
   - model_name: isFastLaneEnabled
     tf_name: fast_lane
@@ -179,6 +180,7 @@ attributes:
       - model_name: passphrase
         type: String
         write_only: true
+        write_only_tf: true
         description: Passphrase
   - model_name: clientRateLimit
     type: Int64

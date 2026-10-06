@@ -58,6 +58,7 @@ attributes:
     description: Password for 802.1X authentication. AP dot1x password length should not exceed 120.
     response_data_path: response.0.managementSetting.dot1xPassword
     write_only: true
+    write_only_tf: true
     exclude_test: true
   - model_name: sshEnabled
     data_path: managementSetting
@@ -89,6 +90,7 @@ attributes:
     description: Management password for the AP. Length must be 8-120 characters.
     response_data_path: response.0.managementSetting.managementPassword
     write_only: true
+    write_only_tf: true
     exclude_test: true
   - model_name: managementEnablePassword
     data_path: managementSetting
@@ -98,6 +100,7 @@ attributes:
     description: Enable password for managing the AP. Length must be 8-120 characters.
     response_data_path: response.0.managementSetting.managementEnablePassword
     write_only: true
+    write_only_tf: true
     exclude_test: true
   - model_name: cdpState
     data_path: managementSetting

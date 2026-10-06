@@ -1,6 +1,6 @@
 name: IP Pool
 rest_endpoint: /dna/intent/api/v1/ipam/globalIpAddressPools
-fallback_rest_endpoint: /dna/intent/api/v1/global-pool
+fallback_rest_endpoint: /dna/intent/api/v1/global-pool?limit=500
 id_from_query_path: response
 id_from_query_path_attribute: id
 get_from_all: true

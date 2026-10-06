@@ -11,12 +11,13 @@ All resources and data sources have been tested with the following releases.
 | Catalyst Center | 2.3.7.10 |
 | Catalyst Center | 2.3.7.11 |
 | Catalyst Center | 3.1.5 |
+| Catalyst Center | 3.2.3 |
 
 Documentation: <https://registry.terraform.io/providers/CiscoDevNet/catalystcenter/latest>
 
 ## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) >= 1.0
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.11
 - [Go](https://golang.org/doc/install) >= 1.25
 
 ## Building The Provider

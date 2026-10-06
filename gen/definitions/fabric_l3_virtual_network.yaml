@@ -6,15 +6,16 @@
 # `merge_fabric_sites` (additive) mode. Specifically:
 #   * Anchored Create is a two-phase POST+PUT (CatC rejects POST with multiple
 #     fabricIds when anchoredSiteId is set).
+#   * Adding an anchor on Update is a three-phase PUT: shrink the unanchored VN
+#     to the future anchor site, set the anchor, then restore all fabricIds.
 #   * Anchored Update splits a combined add+remove of fabricIds into two
 #     sequential PUTs (CatC errorCode NCHS20477).
 #   * Anchored Delete pre-shrinks fabricIds to the anchor only before DELETE
 #     (CatC errorCode NCHS20691).
-#   * `anchored_site_id` mutations: CatC does not allow adding, changing, or
-#     removing the anchor of an existing L3 VN that still has fabric
-#     associations. The Update handler rejects such mutations with a validation
-#     error, except for the special case of removing the anchor together with
-#     emptying `fabric_ids` (i.e. unassociating the VN from all fabric sites).
+#   * `anchored_site_id` mutations: CatC allows adding and removing an anchor,
+#     but not changing directly from one configured anchor to another. A custom
+#     plan modifier pinned below rejects direct replacement at plan time, and
+#     the Update handler enforces the same rule at apply time.
 #   * `INFRA_VN` / `DEFAULT_VN` cannot be anchored and are managed via PUT only.
 # If you re-run `go generate`, remove the //template:begin/end markers around
 # these hand-edited functions so they are preserved.
@@ -51,7 +52,8 @@ attributes:
   - model_name: anchoredSiteId
     data_path: "0"
     response_data_path: response.0.anchoredSiteId
-    description: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center does not allow adding, changing, or removing the anchor on an existing L3 VN that has fabric associations; the only supported mutation is removing the anchor together with emptying `fabric_ids` (effectively unassociating the VN from all fabric sites)."
+    custom_modifier: rejectInPlaceStringChangePlanModifier
+    description: "Fabric ID of the fabric site this layer 3 virtual network is to be anchored at. Must be one of the `fabric_ids` entries. Catalyst Center allows adding and removing an anchor, but does not allow changing directly from one configured anchor site to another. Remove the anchor and apply before configuring a different anchor site."
     type: String
     example: ""
     exclude_test: true

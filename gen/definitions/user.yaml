@@ -26,6 +26,7 @@ attributes:
     type: String
     mandatory: true
     write_only: true
+    write_only_tf: true
     description: The password
     example: C1sco1357
   - model_name: email

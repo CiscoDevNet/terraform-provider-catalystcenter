@@ -30,11 +30,15 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type CredentialsCLI struct {
-	Id             types.String `tfsdk:"id"`
-	Description    types.String `tfsdk:"description"`
-	Username       types.String `tfsdk:"username"`
-	Password       types.String `tfsdk:"password"`
-	EnablePassword types.String `tfsdk:"enable_password"`
+	Id                      types.String `tfsdk:"id"`
+	Description             types.String `tfsdk:"description"`
+	Username                types.String `tfsdk:"username"`
+	Password                types.String `tfsdk:"password"`
+	PasswordWo              types.String `tfsdk:"password_wo"`
+	PasswordWoVersion       types.Int64  `tfsdk:"password_wo_version"`
+	EnablePassword          types.String `tfsdk:"enable_password"`
+	EnablePasswordWo        types.String `tfsdk:"enable_password_wo"`
+	EnablePasswordWoVersion types.Int64  `tfsdk:"enable_password_wo_version"`
 }
 
 // End of section. //template:end types
@@ -76,11 +80,25 @@ func (data CredentialsCLI) toBody(ctx context.Context, state CredentialsCLI) str
 			body, _ = sjson.Set(body, "cliCredential.0.password", data.Password.ValueString())
 		}
 	}
+	if !data.PasswordWo.IsNull() {
+		if put {
+			body, _ = sjson.Set(body, "cliCredential.password", data.PasswordWo.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "cliCredential.0.password", data.PasswordWo.ValueString())
+		}
+	}
 	if !data.EnablePassword.IsNull() {
 		if put {
 			body, _ = sjson.Set(body, "cliCredential.enablePassword", data.EnablePassword.ValueString())
 		} else {
 			body, _ = sjson.Set(body, "cliCredential.0.enablePassword", data.EnablePassword.ValueString())
+		}
+	}
+	if !data.EnablePasswordWo.IsNull() {
+		if put {
+			body, _ = sjson.Set(body, "cliCredential.enablePassword", data.EnablePasswordWo.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "cliCredential.0.enablePassword", data.EnablePasswordWo.ValueString())
 		}
 	}
 	return body
@@ -131,7 +149,19 @@ func (data *CredentialsCLI) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Password.IsNull() {
 		return false
 	}
+	if !data.PasswordWo.IsNull() {
+		return false
+	}
+	if !data.PasswordWoVersion.IsNull() {
+		return false
+	}
 	if !data.EnablePassword.IsNull() {
+		return false
+	}
+	if !data.EnablePasswordWo.IsNull() {
+		return false
+	}
+	if !data.EnablePasswordWoVersion.IsNull() {
 		return false
 	}
 	return true

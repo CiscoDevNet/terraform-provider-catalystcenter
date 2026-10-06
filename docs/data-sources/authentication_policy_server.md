@@ -31,17 +31,23 @@ data "catalystcenter_authentication_policy_server" "example" {
 - `authentication_port` (Number) Authentication port of RADIUS server
 - `cisco_ise_dtos` (Attributes List) Cisco ISE Server DTOs (see [below for nested schema](#nestedatt--cisco_ise_dtos))
 - `encryption_key` (String) Encryption key used to encrypt shared secret
+- `encryption_key_wo` (String) Encryption key used to encrypt shared secret
+- `encryption_key_wo_version` (Number) Rotation trigger for `encryption_key_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `encryption_scheme` (String) Type of encryption scheme for additional security
 - `external_cisco_ise_ip_addr_dtos` (Attributes List) For future use (see [below for nested schema](#nestedatt--external_cisco_ise_ip_addr_dtos))
 - `ip_address` (String) IP address of authentication and policy server
 - `is_ise_enabled` (Boolean) Value true for Cisco ISE Server. Default value is false
 - `message_key` (String) Message key used to encrypt shared secret
+- `message_key_wo` (String) Message key used to encrypt shared secret
+- `message_key_wo_version` (Number) Rotation trigger for `message_key_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `port` (Number) Port of TACACS server
 - `protocol` (String) Type of protocol for authentication and policy server. If already saved with RADIUS, can update to RADIUS_TACACS. If already saved with TACACS, can update to RADIUS_TACACS
 - `pxgrid_enabled` (Boolean) Value true for enable, false for disable. Default value is true
 - `retries` (Number) Number of communication retries between devices and authentication and policy server. The range is from 1 to 3
 - `role` (String) Role of authentication and policy server
 - `shared_secret` (String) Shared secret between devices and authentication and policy server
+- `shared_secret_wo` (String) Shared secret between devices and authentication and policy server
+- `shared_secret_wo_version` (Number) Rotation trigger for `shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `timeout_seconds` (Number) Number of seconds before timing out between devices and authentication and policy server. The range is from 2 to 20
 - `use_dnac_cert_for_pxgrid` (Boolean) Value true to use DNAC certificate for Pxgrid. Default value is false
 
@@ -54,7 +60,11 @@ Read-Only:
 - `fqdn` (String) Fully-qualified domain name of the Cisco ISE server
 - `ip_address` (String) IP Address of the Cisco ISE Server
 - `password` (String) Password of the Cisco ISE server
+- `password_wo` (String) Password of the Cisco ISE server
+- `password_wo_version` (Number) Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `sshkey` (String) SSH key of the Cisco ISE server
+- `sshkey_wo` (String) SSH key of the Cisco ISE server
+- `sshkey_wo_version` (Number) Rotation trigger for `sshkey_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `subscriber_name` (String) Subscriber name of the Cisco ISE server
 - `user_name` (String) User name of the Cisco ISE server
 

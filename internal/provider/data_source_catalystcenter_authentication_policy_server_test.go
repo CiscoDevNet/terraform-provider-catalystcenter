@@ -70,7 +70,8 @@ func testAccDataSourceCcAuthenticationPolicyServerConfig() string {
 	config += `	protocol = "RADIUS"` + "\n"
 	config += `	retries = 2` + "\n"
 	config += `	role = "secondary"` + "\n"
-	config += `	shared_secret = "Cisco123"` + "\n"
+	config += `	shared_secret_wo = "Cisco123"` + "\n"
+	config += `	shared_secret_wo_version = 1` + "\n"
 	config += `	timeout_seconds = 2` + "\n"
 	config += `}` + "\n"
 

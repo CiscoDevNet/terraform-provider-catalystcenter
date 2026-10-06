@@ -296,7 +296,7 @@ func (p *CcProvider) Configure(ctx context.Context, req provider.ConfigureReques
 	}
 
 	// Create a new catalyst center client and set it to the provider client
-	c, err := cc.NewClient(url, username, password, cc.Insecure(insecure), cc.MaxRetries(int(retries)), cc.DefaultMaxAsyncWaitTime(int(maxTimeout)), cc.UserAgent(fmt.Sprintf("Terraform/%s Cisco", p.version)))
+	c, err := cc.NewClient(url, username, password, cc.Insecure(insecure), cc.MaxRetries(int(retries)), cc.DefaultMaxAsyncWaitTime(int(maxTimeout)), cc.UserAgent(fmt.Sprintf("CatalystCenterTerraform/%s Cisco", p.version)))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to create client",

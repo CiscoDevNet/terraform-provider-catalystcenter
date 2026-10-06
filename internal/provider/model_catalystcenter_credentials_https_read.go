@@ -30,11 +30,13 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type CredentialsHTTPSRead struct {
-	Id          types.String `tfsdk:"id"`
-	Description types.String `tfsdk:"description"`
-	Username    types.String `tfsdk:"username"`
-	Password    types.String `tfsdk:"password"`
-	Port        types.Int64  `tfsdk:"port"`
+	Id                types.String `tfsdk:"id"`
+	Description       types.String `tfsdk:"description"`
+	Username          types.String `tfsdk:"username"`
+	Password          types.String `tfsdk:"password"`
+	PasswordWo        types.String `tfsdk:"password_wo"`
+	PasswordWoVersion types.Int64  `tfsdk:"password_wo_version"`
+	Port              types.Int64  `tfsdk:"port"`
 }
 
 // End of section. //template:end types
@@ -74,6 +76,13 @@ func (data CredentialsHTTPSRead) toBody(ctx context.Context, state CredentialsHT
 			body, _ = sjson.Set(body, "httpsRead.password", data.Password.ValueString())
 		} else {
 			body, _ = sjson.Set(body, "httpsRead.0.password", data.Password.ValueString())
+		}
+	}
+	if !data.PasswordWo.IsNull() {
+		if put {
+			body, _ = sjson.Set(body, "httpsRead.password", data.PasswordWo.ValueString())
+		} else {
+			body, _ = sjson.Set(body, "httpsRead.0.password", data.PasswordWo.ValueString())
 		}
 	}
 	if !data.Port.IsNull() {
@@ -139,6 +148,12 @@ func (data *CredentialsHTTPSRead) isNull(ctx context.Context, res gjson.Result) 
 		return false
 	}
 	if !data.Password.IsNull() {
+		return false
+	}
+	if !data.PasswordWo.IsNull() {
+		return false
+	}
+	if !data.PasswordWoVersion.IsNull() {
 		return false
 	}
 	if !data.Port.IsNull() {

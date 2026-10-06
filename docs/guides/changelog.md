@@ -7,10 +7,43 @@ description: |-
 
 # Changelog
 
+## 0.6.4 (unreleased)
 
-## 0.6.0 (unreleased)
+- Add `deployment_timeout` attribute to the `catalystcenter_deploy_template` resource to configure how long (in seconds) the provider waits for a template deployment to reach `SUCCESS` or `FAILURE`. Defaults to `300`, matching the previous fixed timeout; changing it alone does not trigger a redeployment
 
+## 0.6.3
+
+- Fix `catalystcenter_fabric_l3_virtual_network` resource to allow adding and removing `anchored_site_id` on an existing Layer 3 Virtual Network; changing it from one site to another is still unsupported and is now rejected at plan time
+- Add `SHA256` to the allowed values of `auth_type` on the `catalystcenter_credentials_snmpv3` resource
+
+## 0.6.2
+
+- Add `wireless_flooding_enabled` (`isWirelessFloodingEnabled`) attribute to the `catalystcenter_fabric_l2_virtual_network`, `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources and data sources to enable wireless flooding on SD-Access layer 2 virtual networks (`/dna/intent/api/v1/sda/layer2VirtualNetworks`) and anycast gateways (`/dna/intent/api/v1/sda/anycastGateways`). The attribute is only sent when explicitly configured, so existing configurations are unaffected on controllers that do not support it; requires Catalyst Center 3.1 or later
+- Fix `catalystcenter_assign_credentials` resource to assign credentials at the `Global` site. `Global` is the common-settings root and rejects a partial credential body (`NCND01090` on 2.3.7.x, `NCND10603` on 3.2.2/3.2.3), so Create, Update and Delete now retry once with a complete six-slot payload
+- Fix `catalystcenter_assign_credentials` resource so clearing a credential makes the slot inherit from the parent site again, instead of leaving it unset, which blocked deleting the underlying credential object (`NCIM01100`)
+- Add `preserve_unmanaged` attribute to the `catalystcenter_assign_credentials` resource (default `true`), which keeps `Global` credential slots configured outside Terraform instead of clearing them; no effect on non-Global sites, which inherit unspecified slots from their parent
+
+## 0.6.1
+
+- Fix `radio_role_assignment` on the `catalystcenter_access_point_configuration` resource, which accepted only `auto`/`serving`/`monitor` while Catalyst Center accepts only `AUTO`/`SERVING`/`MONITOR`, making the attribute impossible to use. The published API schema lists the enum in lowercase but the service is case-sensitive and rejects it
+- Add `mac_address` and `ap_ethernet_mac_address` attributes to the `catalystcenter_network_devices` data source. On an access point these differ: `mac_address` is the base radio MAC, while `ap_ethernet_mac_address` is the ethernet MAC that the Configure Access Points intent API selects access points by
+- Add write-only support for the `dot1x_password`, `management_password` and `management_enable_password` secret attributes on `catalystcenter_ap_profile`. Each secret gains an `<attr>_wo` [write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) variant that is never persisted to Terraform state, paired with an `<attr>_wo_version` integer that must be incremented to rotate the value. The existing attribute keeps working unchanged, and exactly one of the two spellings may be set; using the `_wo` form requires Terraform 1.11 or later
+- Fix `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources to always send `additionalIpPools` as an empty array `[]` when no additional IP pools are set, instead of omitting the field from the PUT, which Catalyst Center rejects
+
+## 0.6.0
+
+- Add `assign_anchor_managed_ap_locations` resource
+- Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources to ignore inherited child `site_ids` returned by Catalyst Center 3.2.3+ GET, so assigning a parent site remains idempotent on older and newer controllers
+- Fix `catalystcenter_assign_credentials` resource to unassign credentials as `{"credentialsId": null}` instead of a top-level `null` slot, which Catalyst Center 3.2.2 rejects with `NCND00010`
+- Fix `catalystcenter_ip_pool_reservation` resource to preserve the Catalyst Center-assigned anycast gateway when updating an SDA-reserved pool. When an update does not set `ipv4_gateway`/`ipv6_gateway` (e.g. changing `ipv4_dhcp_servers`), the resource now reuses the controller's current `gatewayIpAddress` instead of omitting it from the PUT, which previously failed with `NCIP10368` (`Cannot remove gateway from a pool that is reserved by SDA`) and on older releases detached the anycast gateway and left the fabric needing reprovision
+- Fix `catalystcenter_anycast_gateways` resource to send the Catalyst Center-generated `vlan_name` when updating a gateway created with `auto_generate_vlan_name`, which previously omitted `vlanName` from the PUT and failed with `NCHS20599` (`vlanName must not be null or empty`)
+- Add `serial_number` attribute to the `catalystcenter_network_devices` data source
+- Add write-only support for secret attributes on `catalystcenter_aaa_settings`, `catalystcenter_authentication_policy_server`, `catalystcenter_credentials_cli`, `catalystcenter_credentials_https_read`, `catalystcenter_credentials_https_write`, `catalystcenter_credentials_snmpv2_read`, `catalystcenter_credentials_snmpv2_write`, `catalystcenter_credentials_snmpv3`, `catalystcenter_lan_automation`, `catalystcenter_user` and `catalystcenter_wireless_ssid`. Each secret gains an `<attr>_wo` [write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) variant that is never persisted to Terraform state, paired with an `<attr>_wo_version` integer that must be incremented to rotate the value. The existing attribute keeps working unchanged, and exactly one of the two spellings may be set; using the `_wo` form requires Terraform 1.11 or later
 - Update `go-catalystcenter` dependency to `v0.2.0` to add a `UserAgent` option for setting a custom HTTP User-Agent string on authentication, API, and async task-polling requests
+- Fix `catalystcenter_area`, `catalystcenter_building` and `catalystcenter_floor` resources to remove the object from Terraform state when it no longer exists in Catalyst Center, so it is re-created instead of failing an update with `NCMP00002: No site found`
+- Add `catalystcenter_access_point_configuration` resource to configure and rename access points via the Configure Access Points V1 intent API (`/dna/intent/api/v1/wireless/accesspoint-configuration`). Access points are selected by ethernet MAC address; the resource is create-only, as the endpoint has no corresponding GET
+- Add `additional_ip_pools` attribute to the `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources and data sources, to associate up to 4 secondary IP pools that are used in order once the primary pool is exhausted; requires Catalyst Center 3.2.x
+- Fix `catalystcenter_ip_pool` resource to append `?limit=500` to the fallback GET (`/dna/intent/api/v1/global-pool`), which previously used the API's default page size and could fail to find an existing pool by name on controllers with many global pools
 
 ## 0.5.25
 
@@ -202,7 +235,7 @@ description: |-
 
 ## 0.4.3
 
-- Add `catalystcenter_fabric_devices` resource and data_source to manage multiple fabric devices under same fabric site within single resource 
+- Add `catalystcenter_fabric_devices` resource and data_source to manage multiple fabric devices under same fabric site within single resource
 - Add `catalystcenter_fabric_multicast_virtual_networks` resource and data_source to manage multiple multicast virtual networks under same fabric site within single resource
 - Add `catalystcenter_fabric_multicast_virtual_network` resource and data_source
 - Add `catalystcenter_extranet_policy` resource and data_source
@@ -318,7 +351,7 @@ description: |-
 ## 0.2.9
 
 - Modify `catalystcenter_pnp_device` resource and skip error if device already exists and add to terraform state
-- Add 400 406 and 500 status codes for handling manually deleted objects 
+- Add 400 406 and 500 status codes for handling manually deleted objects
 - Fix issue with list order of `ssid_details` attribute in `catalystcenter_wireless_profile` resource
 
 ## 0.2.8
@@ -330,7 +363,7 @@ description: |-
 ## 0.2.7
 
 - Add import and data source to `catalystcenter_update_authentication_profile` resource
-- Remove default value from `interface_name` in the `catalystcenter_wireless_profile` resource 
+- Remove default value from `interface_name` in the `catalystcenter_wireless_profile` resource
 - Add import to `catalystcenter_assign_templates_to_tag` resource
 - Add `catalystcenter_assign_devices_to_tag` resource and data source
 

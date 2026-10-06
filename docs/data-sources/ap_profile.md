@@ -39,12 +39,18 @@ data "catalystcenter_ap_profile" "example" {
 - `country_code` (String) Country code for the AP profile.
 - `description` (String) Description of the AP profile. Max length is 241 characters
 - `dot1x_password` (String) Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+- `dot1x_password_wo` (String) Password for 802.1X authentication. AP dot1x password length should not exceed 120.
+- `dot1x_password_wo_version` (Number) Rotation trigger for `dot1x_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `dot1x_username` (String) Username for 802.1X authentication. dot1xUsername must have a minimum of 1 character and a maximum of 32 characters.
 - `ghz24_backhaul_data_rates` (String) 2.4GHz backhaul data rates.
 - `ghz5_backhaul_data_rates` (String) 5GHz backhaul data rates.
 - `id` (String) The id of the object
 - `management_enable_password` (String) Enable password for managing the AP. Length must be 8-120 characters.
+- `management_enable_password_wo` (String) Enable password for managing the AP. Length must be 8-120 characters.
+- `management_enable_password_wo_version` (Number) Rotation trigger for `management_enable_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `management_password` (String) Management password for the AP. Length must be 8-120 characters.
+- `management_password_wo` (String) Management password for the AP. Length must be 8-120 characters.
+- `management_password_wo_version` (Number) Rotation trigger for `management_password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.
 - `management_user_name` (String) Management username must have a minimum of 1 character and a maximum of 32 characters.
 - `mesh_enabled` (Boolean) This indicates whether mesh networking is enabled on the AP. For IOS-XE devices, when mesh networking is enabled, a custom mesh profile with the configured parameters will be created and mapped to the AP join profile on the device. When mesh networking is disabled, any existing custom mesh profile will be deleted from the device, and the AP join profile will be mapped to the default mesh profile on the device.
 - `pmf_denial_enabled` (Boolean) Indicates if PMF denial is active on the AP. PMF Denial is supported from IOS-XE version 17.12 and above.

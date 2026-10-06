@@ -41,6 +41,8 @@ type LANAutomation struct {
 	HostNamePrefix                    types.String                    `tfsdk:"host_name_prefix"`
 	HostNameFileId                    types.String                    `tfsdk:"host_name_file_id"`
 	IsisDomainPassword                types.String                    `tfsdk:"isis_domain_password"`
+	IsisDomainPasswordWo              types.String                    `tfsdk:"isis_domain_password_wo"`
+	IsisDomainPasswordWoVersion       types.Int64                     `tfsdk:"isis_domain_password_wo_version"`
 	RedistributeIsisToBgp             types.Bool                      `tfsdk:"redistribute_isis_to_bgp"`
 	DiscoveryLevel                    types.Int64                     `tfsdk:"discovery_level"`
 	DiscoveryTimeout                  types.Int64                     `tfsdk:"discovery_timeout"`
@@ -122,6 +124,9 @@ func (data LANAutomation) toBody(ctx context.Context, state LANAutomation) strin
 	}
 	if !data.IsisDomainPassword.IsNull() {
 		body, _ = sjson.Set(body, "0.isisDomainPwd", data.IsisDomainPassword.ValueString())
+	}
+	if !data.IsisDomainPasswordWo.IsNull() {
+		body, _ = sjson.Set(body, "0.isisDomainPwd", data.IsisDomainPasswordWo.ValueString())
 	}
 	if !data.RedistributeIsisToBgp.IsNull() {
 		body, _ = sjson.Set(body, "0.redistributeIsisToBgp", data.RedistributeIsisToBgp.ValueBool())
@@ -419,6 +424,12 @@ func (data *LANAutomation) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.IsisDomainPassword.IsNull() {
+		return false
+	}
+	if !data.IsisDomainPasswordWo.IsNull() {
+		return false
+	}
+	if !data.IsisDomainPasswordWoVersion.IsNull() {
 		return false
 	}
 	if !data.RedistributeIsisToBgp.IsNull() {

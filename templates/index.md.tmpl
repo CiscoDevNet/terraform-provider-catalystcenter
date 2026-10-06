@@ -1,6 +1,4 @@
-
 ---
-layout: ""
 page_title: "Provider: Catalyst Center"
 description: |-
   The Catalyst Center provider provides resources to interact with a Cisco Catalyst Center instance.
@@ -17,6 +15,13 @@ All resources and data sources have been tested with the following releases.
 | Catalyst Center | 2.3.7.10 |
 | Catalyst Center | 2.3.7.11 |
 | Catalyst Center | 3.1.5 |
+| Catalyst Center | 3.2.3 |
+
+## Requirements
+
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.11
+
+Resources that manage secrets expose them as [write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) (the `*_wo` attributes), which are only supported in Terraform 1.11 and later.
 
 ## Getting Started
 

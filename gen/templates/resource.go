@@ -109,6 +109,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					{{- if .DefaultValue -}}
 					.AddDefaultValueDescription("{{.DefaultValue}}")
 					{{- end -}}
+					{{- if len .MutualExclusivityNote -}}
+					.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+					{{- end -}}
+					{{- if len .CoexistenceNote -}}
+					.AddCoexistenceNote("{{.CoexistenceNote}}")
+					{{- end -}}
 					.String,
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
@@ -119,6 +125,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				ElementType:         types.StringType,
 				{{- end}}
 				{{- end}}
+				{{- if .WriteOnlyTF}}
+				Optional:            true,
+				WriteOnly:           true,
+				Sensitive:           true,
+				{{- else}}
+				{{- if .CoexistingSecret}}
+				Sensitive:           true,
+				{{- end}}
 				{{- if or .Id .MatchId (and .Reference (not .Computed)) .Mandatory}}
 				Required:            true,
 				{{- else}}
@@ -126,6 +140,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- end}}
 				{{- if or (len .DefaultValue) .Computed}}
 				Computed:            true,
+				{{- end}}
 				{{- end}}
 				{{- if len .EnumValues}}
 				{{- if eq .Type "Int64" }}
@@ -196,6 +211,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								{{- if .DefaultValue -}}
 								.AddDefaultValueDescription("{{.DefaultValue}}")
 								{{- end -}}
+								{{- if len .MutualExclusivityNote -}}
+								.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+								{{- end -}}
+								{{- if len .CoexistenceNote -}}
+								.AddCoexistenceNote("{{.CoexistenceNote}}")
+								{{- end -}}
 								.String,
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
@@ -205,6 +226,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else}}
 							ElementType:         types.StringType,
 							{{- end}}
+							{{- end}}
+							{{- if .WriteOnlyTF}}
+							Optional:            true,
+							WriteOnly:           true,
+							Sensitive:           true,
+							{{- else}}
+							{{- if .CoexistingSecret}}
+							Sensitive:           true,
 							{{- end}}
 							{{- if or (and .Id (not .ComputedRefreshValue)) .Reference .Mandatory }}
 							Required:            true,
@@ -218,10 +247,17 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- if or (len .DefaultValue) .Computed}}
 							Computed:            true,
 							{{- end}}
+							{{- end}}
 							{{- if len .EnumValues}}
+							{{- if eq .Type "Int64" }}
+							Validators: []validator.Int64{
+								int64validator.OneOf({{range .EnumValues}}{{.}}, {{end}}),
+							},
+							{{- else }}
 							Validators: []validator.String{
 								stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 							},
+							{{- end }}
 							{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
 							Validators: []validator.String{
 								{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
@@ -282,6 +318,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											{{- if .DefaultValue -}}
 											.AddDefaultValueDescription("{{.DefaultValue}}")
 											{{- end -}}
+											{{- if len .MutualExclusivityNote -}}
+											.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+											{{- end -}}
+											{{- if len .CoexistenceNote -}}
+											.AddCoexistenceNote("{{.CoexistenceNote}}")
+											{{- end -}}
 											.String,
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
@@ -292,6 +334,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										ElementType:         types.StringType,
 										{{- end}}
 										{{- end}}
+										{{- if .WriteOnlyTF}}
+										Optional:            true,
+										WriteOnly:           true,
+										Sensitive:           true,
+										{{- else}}
+										{{- if .CoexistingSecret}}
+										Sensitive:           true,
+										{{- end}}
 										{{- if or .Id .Reference .Mandatory}}
 										Required:            true,
 										{{- else}}
@@ -300,10 +350,17 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- if or (len .DefaultValue) .Computed}}
 										Computed:            true,
 										{{- end}}
+										{{- end}}
 										{{- if len .EnumValues}}
+										{{- if eq .Type "Int64" }}
+										Validators: []validator.Int64{
+											int64validator.OneOf({{range .EnumValues}}{{.}}, {{end}}),
+										},
+										{{- else }}
 										Validators: []validator.String{
 											stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 										},
+										{{- end }}
 										{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
 										Validators: []validator.String{
 											{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
@@ -364,6 +421,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 														{{- if .DefaultValue -}}
 														.AddDefaultValueDescription("{{.DefaultValue}}")
 														{{- end -}}
+														{{- if len .MutualExclusivityNote -}}
+														.AddMutualExclusivityDescription("{{.MutualExclusivityNote}}")
+														{{- end -}}
+														{{- if len .CoexistenceNote -}}
+														.AddCoexistenceNote("{{.CoexistenceNote}}")
+														{{- end -}}
 														.String,
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
@@ -374,6 +437,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													ElementType:         types.StringType,
 													{{- end}}
 													{{- end}}
+													{{- if .WriteOnlyTF}}
+													Optional:            true,
+													WriteOnly:           true,
+													Sensitive:           true,
+													{{- else}}
+													{{- if .CoexistingSecret}}
+													Sensitive:           true,
+													{{- end}}
 													{{- if or .Id .Reference .Mandatory}}
 													Required:            true,
 													{{- else}}
@@ -382,10 +453,17 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- if or (len .DefaultValue) .Computed}}
 													Computed:            true,
 													{{- end}}
+													{{- end}}
 													{{- if len .EnumValues}}
+													{{- if eq .Type "Int64" }}
+													Validators: []validator.Int64{
+														int64validator.OneOf({{range .EnumValues}}{{.}}, {{end}}),
+													},
+													{{- else }}
 													Validators: []validator.String{
 														stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 													},
+													{{- end }}
 													{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
 													Validators: []validator.String{
 														{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
@@ -491,6 +569,93 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 	r.AllowExistingOnCreate = req.ProviderData.(*CcProviderData).AllowExistingOnCreate
 	r.cache = req.ProviderData.(*CcProviderData).Cache
 }
+{{- if or (coexistingSecretAttributes .) (coexistingSecretParentLists .)}}
+
+// ValidateConfig enforces the relationship between a secret attribute, its write-only
+// "_wo" counterpart and the "_wo_version" rotation trigger.
+//
+// These checks live here, at resource level, rather than as schema validators. The
+// equivalent validators (ConflictsWith, ExactlyOneOf, AlsoRequires) report against an
+// attribute path, and Terraform renders an attribute-scoped diagnostic together with the
+// offending configuration line - which for a secret prints the value itself into plan
+// output and CI logs. A resource-scoped diagnostic is rendered against the resource block
+// header instead, so the messages name the attributes explicitly, and identify the list
+// element by index for secrets nested inside a list.
+func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	{{- range coexistingSecretAttributes .}}
+	{{- $go := toGoName .TfName}}
+	var legacy{{$go}} types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &legacy{{$go}})...)
+	var wo{{$go}} types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}_wo"), &wo{{$go}})...)
+	{{- if .WoPairHasVersion}}
+	var woVersion{{$go}} types.Int64
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}_wo_version"), &woVersion{{$go}})...)
+	{{- end}}
+	if !legacy{{$go}}.IsUnknown() && !wo{{$go}}.IsUnknown() && !legacy{{$go}}.IsNull() && !wo{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Only one of `{{.TfName}}` and `{{.TfName}}_wo` can be set.",
+		)
+	}
+	{{- if .WoPairMandatory}}
+	if !legacy{{$go}}.IsUnknown() && !wo{{$go}}.IsUnknown() && legacy{{$go}}.IsNull() && wo{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"Exactly one of `{{.TfName}}` and `{{.TfName}}_wo` must be set.",
+		)
+	}
+	{{- end}}
+	{{- if .WoPairHasVersion}}
+	if !wo{{$go}}.IsUnknown() && !woVersion{{$go}}.IsUnknown() && !wo{{$go}}.IsNull() && woVersion{{$go}}.IsNull() {
+		resp.Diagnostics.AddError(
+			"Invalid Attribute Combination",
+			"`{{.TfName}}_wo_version` must be set when `{{.TfName}}_wo` is used. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.",
+		)
+	}
+	{{- end}}
+	{{- end}}
+	{{- range coexistingSecretParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	{
+		// Secrets nested in "{{$parentTf}}" are validated per element. A list that cannot be
+		// read as a whole - because it is still unknown at validation time - is skipped
+		// rather than reported, since there is nothing to check yet.
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		if diags := req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}}); !diags.HasError() {
+			for i := range cfg{{$parentGo}} {
+				{{- range coexistingSecretChildren .}}
+				{{- $go := toGoName .TfName}}
+				if !cfg{{$parentGo}}[i].{{$go}}.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}.IsNull() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("Only one of `{{.TfName}}` and `{{.TfName}}_wo` can be set in `{{$parentTf}}` element %d.", i),
+					)
+				}
+				{{- if .WoPairMandatory}}
+				if !cfg{{$parentGo}}[i].{{$go}}.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && cfg{{$parentGo}}[i].{{$go}}.IsNull() && cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("Exactly one of `{{.TfName}}` and `{{.TfName}}_wo` must be set in `{{$parentTf}}` element %d.", i),
+					)
+				}
+				{{- end}}
+				{{- if .WoPairHasVersion}}
+				if !cfg{{$parentGo}}[i].{{$go}}Wo.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}WoVersion.IsUnknown() && !cfg{{$parentGo}}[i].{{$go}}Wo.IsNull() && cfg{{$parentGo}}[i].{{$go}}WoVersion.IsNull() {
+					resp.Diagnostics.AddError(
+						"Invalid Attribute Combination",
+						fmt.Sprintf("`{{.TfName}}_wo_version` must be set when `{{.TfName}}_wo` is used in `{{$parentTf}}` element %d. The write-only value is not stored in state, so Terraform can only detect a change to it through the version.", i),
+					)
+				}
+				{{- end}}
+				{{- end}}
+			}
+		}
+	}
+	{{- end}}
+}
+{{- end}}
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -509,6 +674,34 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	{{- range .Attributes}}
+	{{- if .WriteOnlyTF}}
+	// Write-only value "{{.TfName}}" is not stored in plan/state; read it from config so it can be sent to the API.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &plan.{{toGoName .TfName}})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	{{- end}}
+	{{- end}}
+	{{- range writeOnlyTFParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	// Write-only values in list "{{.TfName}}" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element.
+	{
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.{{$parentGo}} {
+			if i < len(cfg{{$parentGo}}) {
+				{{- range writeOnlyTFChildren .}}
+				plan.{{$parentGo}}[i].{{toGoName .TfName}} = cfg{{$parentGo}}[i].{{toGoName .TfName}}
+				{{- end}}
+			}
+		}
+	}
+	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
@@ -987,12 +1180,111 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	{{- range .Attributes}}
+	{{- if .WriteOnlyTF}}
+	// Write-only value "{{.TfName}}" is not stored in plan/state; read it from config so it can be sent to the API. It is read unconditionally on every Update because CatC updates are full-object replace PUTs (the whole toBody is sent), and the API requires the secret to be present on every write (omitting an unchanged secret is rejected, e.g. wireless_ssid NCND03006). The "{{.TfName}}_version" companion still drives whether Terraform detects a change worth applying; it cannot make the on-wire PUT omit the field.
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{.TfName}}"), &plan.{{toGoName .TfName}})...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	{{- end}}
+	{{- end}}
+	{{- range writeOnlyTFParentLists .}}
+	{{- $parentTf := .TfName}}
+	{{- $parentGo := toGoName .TfName}}
+	// Write-only values in list "{{.TfName}}" are not stored in plan/state; read the parent list from config and copy them into plan element-by-element. Read unconditionally for the same reason as the top-level secrets above (full-object replace PUT requires every secret present).
+	{
+		var cfg{{$parentGo}} []{{camelCase $.Name}}{{$parentGo}}
+		resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("{{$parentTf}}"), &cfg{{$parentGo}})...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i := range plan.{{$parentGo}} {
+			if i < len(cfg{{$parentGo}}) {
+				{{- range writeOnlyTFChildren .}}
+				plan.{{$parentGo}}[i].{{toGoName .TfName}} = cfg{{$parentGo}}[i].{{toGoName .TfName}}
+				{{- end}}
+			}
+		}
+	}
+	{{- end}}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 	{{- if not .NoUpdate}}
 	{{- if or (not .UpdateComputed) (not .RootList)}}
+	{{- if getIfUnsetOnUpdateAttributes .}}
+
+	// Some attributes are assigned by Catalyst Center out-of-band (for example an SDA anycast
+	// gateway) and are not part of the data model. When such an attribute was never tracked by
+	// Terraform (null in prior state) and is left unset in the plan, a full-object replace PUT would
+	// omit it and Catalyst Center treats the omission as a removal request (e.g. the IP pool
+	// reservation gateway is rejected with NCIP10368 on SDA-reserved pools, and silently detached on
+	// older releases). In that case fetch the current value from the controller and include it in
+	// the PUT body. A value the user previously managed (non-null in state) is left to the plan, so
+	// clearing it in the configuration still removes it. A copy of the plan is used so the
+	// plan/state Terraform persists is untouched and the apply result stays consistent with the plan.
+	bodyPlan := plan
+	getIfUnsetNeeded := false
+	{{- range getIfUnsetOnUpdateAttributes .}}
+	if bodyPlan.{{toGoName .TfName}}.ValueString() == "" && state.{{toGoName .TfName}}.IsNull() {
+		getIfUnsetNeeded = true
+	}
+	{{- end}}
+	if getIfUnsetNeeded {
+		getIfUnsetParams := ""
+		{{- $queryParams := generateQueryParamString "GET" "state" .Attributes }}
+		{{- if .IdQueryParam}}
+		getIfUnsetParams += "?{{.IdQueryParam}}=" + url.QueryEscape(state.Id.ValueString())
+		{{- else if and (hasQueryParam .Attributes) (not .GetRequiresId)}}
+		{{- if $queryParams }}
+		getIfUnsetParams += {{$queryParams}}
+		{{- end}}
+		{{- else if and (not .GetNoId) (not .GetFromAll) (not (and .GetRestEndpoint (strContains .GetRestEndpoint "%v")))}}
+		getIfUnsetParams += "/" + url.QueryEscape(state.Id.ValueString())
+		{{- end}}
+		{{- if hasGetQueryParam .Attributes }}
+		getIfUnsetParams += {{$queryParams}}
+		{{- end }}
+		{{- if .GetExtraQueryParams}}
+		getIfUnsetParams += "{{.GetExtraQueryParams}}"
+		{{- end}}
+		{{- if .UseCache}}
+		curRes, curErr := r.ReadCache(ctx, resource.ReadRequest{}, state, getIfUnsetParams)
+		{{- else}}
+		curRes, curErr := r.client.Get({{if .GetRestEndpoint}}{{if strContains .GetRestEndpoint "%v"}}state.getPathGet(){{else}}"{{.GetRestEndpoint}}"{{end}}{{else}}state.getPath(){{end}} + getIfUnsetParams)
+		{{- end}}
+		{{- if .FallbackRestEndpoint }}
+		if curErr != nil && (strings.Contains(curErr.Error(), "StatusCode 404") || strings.Contains(curErr.Error(), "StatusCode 500")) {
+			curRes, curErr = r.client.Get(state.getFallbackPath() + getIfUnsetParams)
+		}
+		{{- end}}
+		if curErr == nil {
+			{{- if .GetFromAll}}
+			{{- if .IdFromAttribute}}
+			{{- $id := getId .Attributes}}
+			curRes = curRes.Get("{{.IdFromQueryPath}}.#({{if $id.ResponseModelName}}{{$id.ResponseModelName}}{{else}}{{$id.ModelName}}{{end}}==\"" + state.{{toGoName $id.TfName}}.Value{{$id.Type}}() + "\")")
+			{{- else}}
+			curRes = curRes.Get("{{.IdFromQueryPath}}.#({{if .IdFromQueryPathAttribute}}{{.IdFromQueryPathAttribute}}{{else}}id{{end}}==\"" + state.Id.ValueString() + "\")")
+			{{- end}}
+			{{- end}}
+			if curRes.Exists() {
+				{{- range getIfUnsetOnUpdateAttributes .}}
+				if bodyPlan.{{toGoName .TfName}}.ValueString() == "" && state.{{toGoName .TfName}}.IsNull() {
+					if v := curRes.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else if .DataPath}}{{.DataPath}}.{{.ModelName}}{{else}}{{.ModelName}}{{end}}"); v.Exists() && v.String() != "" {
+						bodyPlan.{{toGoName .TfName}} = types.StringValue(v.String())
+					}
+				}
+				{{- end}}
+			}
+		} else {
+			tflog.Warn(ctx, fmt.Sprintf("%s: Unable to fetch current object to preserve server-assigned attributes: %s", state.Id.ValueString(), curErr))
+		}
+	}
+	body := bodyPlan.toBody(ctx, state)
+	{{- else}}
 
 	body := plan.toBody(ctx, state)
+	{{- end}}
 	params := ""
 	{{- if hasCreateQueryPath .Attributes}}
 		{{- $createQueryPath := getCreateQueryPath .Attributes}}
@@ -1573,9 +1865,15 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		}
 
 		existingNoPut := make(map[string]types.{{$noPutAttrType}})
+		{{- range .Attributes}}{{- if eq .Type "Set"}}{{- range .Attributes}}{{- if and .NoPut (ne .ModelName $noPutAttr)}}
+		existing{{toGoName .ModelName}} := make(map[string]types.{{.Type}})
+		{{- end}}{{- end}}{{- end}}{{- end}}
 		for _, item := range getState.{{toGoName $items}} {
 			updateKey := {{$idValue}}
 			existingNoPut[updateKey] = item.{{toGoName $noPutAttr}}
+			{{- range .Attributes}}{{- if eq .Type "Set"}}{{- range .Attributes}}{{- if and .NoPut (ne .ModelName $noPutAttr)}}
+			existing{{toGoName .ModelName}}[updateKey] = item.{{toGoName .ModelName}}
+			{{- end}}{{- end}}{{- end}}{{- end}}
 		}
 		{{- end}}
 
@@ -1589,6 +1887,11 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					{{- if ne $noPutAttr ""}}
 					updatedItem.{{toGoName $noPutAttr}} = existingNoPut[toUpdateKey]
+					{{- range $.Attributes}}{{- if eq .Type "Set"}}{{- range .Attributes}}{{- if and .NoPut (ne .ModelName $noPutAttr)}}
+					if v, ok := existing{{toGoName .ModelName}}[toUpdateKey]; ok {
+						updatedItem.{{toGoName .ModelName}} = v
+					}
+					{{- end}}{{- end}}{{- end}}{{- end}}
 					{{- end}}
 					plan.{{toGoName $items}}[toUpdateKey] = updatedItem
 				}
@@ -1606,7 +1909,16 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 				if updatedItem, exists := planMap[toUpdateKey]; exists {
 					if index, found := planIndexMap[toUpdateKey]; found {
 						{{- if ne $noPutAttr ""}}
-						pl.{{toGoName $items}}[itemInd].{{toGoName $noPutAttr}} = existingNoPut[toUpdateKey]
+						if noPutValue, noPutOk := existingNoPut[toUpdateKey]; noPutOk {
+							updatedItem.{{toGoName $noPutAttr}} = noPutValue
+							pl.{{toGoName $items}}[itemInd].{{toGoName $noPutAttr}} = noPutValue
+						}
+						{{- range $.Attributes}}{{- if eq .Type "Set"}}{{- range .Attributes}}{{- if and .NoPut (ne .ModelName $noPutAttr)}}
+						if v, ok := existing{{toGoName .ModelName}}[toUpdateKey]; ok {
+							updatedItem.{{toGoName .ModelName}} = v
+							pl.{{toGoName $items}}[itemInd].{{toGoName .ModelName}} = v
+						}
+						{{- end}}{{- end}}{{- end}}{{- end}}
 						{{- end}}
 						plan.{{toGoName $items}}[index] = updatedItem
 					}

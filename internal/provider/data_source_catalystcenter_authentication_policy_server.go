@@ -85,8 +85,24 @@ func (d *AuthenticationPolicyServerDataSource) Schema(ctx context.Context, req d
 							MarkdownDescription: "Password of the Cisco ISE server",
 							Computed:            true,
 						},
+						"password_wo": schema.StringAttribute{
+							MarkdownDescription: "Password of the Cisco ISE server",
+							Computed:            true,
+						},
+						"password_wo_version": schema.Int64Attribute{
+							MarkdownDescription: "Rotation trigger for `password_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+							Computed:            true,
+						},
 						"sshkey": schema.StringAttribute{
 							MarkdownDescription: "SSH key of the Cisco ISE server",
+							Computed:            true,
+						},
+						"sshkey_wo": schema.StringAttribute{
+							MarkdownDescription: "SSH key of the Cisco ISE server",
+							Computed:            true,
+						},
+						"sshkey_wo_version": schema.Int64Attribute{
+							MarkdownDescription: "Rotation trigger for `sshkey_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 							Computed:            true,
 						},
 						"ip_address": schema.StringAttribute{
@@ -140,6 +156,14 @@ func (d *AuthenticationPolicyServerDataSource) Schema(ctx context.Context, req d
 				MarkdownDescription: "Shared secret between devices and authentication and policy server",
 				Computed:            true,
 			},
+			"shared_secret_wo": schema.StringAttribute{
+				MarkdownDescription: "Shared secret between devices and authentication and policy server",
+				Computed:            true,
+			},
+			"shared_secret_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `shared_secret_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
 			"timeout_seconds": schema.Int64Attribute{
 				MarkdownDescription: "Number of seconds before timing out between devices and authentication and policy server. The range is from 2 to 20",
 				Computed:            true,
@@ -152,8 +176,24 @@ func (d *AuthenticationPolicyServerDataSource) Schema(ctx context.Context, req d
 				MarkdownDescription: "Message key used to encrypt shared secret",
 				Computed:            true,
 			},
+			"message_key_wo": schema.StringAttribute{
+				MarkdownDescription: "Message key used to encrypt shared secret",
+				Computed:            true,
+			},
+			"message_key_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `message_key_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
 			"encryption_key": schema.StringAttribute{
 				MarkdownDescription: "Encryption key used to encrypt shared secret",
+				Computed:            true,
+			},
+			"encryption_key_wo": schema.StringAttribute{
+				MarkdownDescription: "Encryption key used to encrypt shared secret",
+				Computed:            true,
+			},
+			"encryption_key_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `encryption_key_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
 				Computed:            true,
 			},
 			"external_cisco_ise_ip_addr_dtos": schema.ListNestedAttribute{

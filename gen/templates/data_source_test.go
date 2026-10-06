@@ -36,36 +36,36 @@ func TestAccDataSourceCc{{camelCase .Name}}(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	{{- $name := .Name }}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (isNestedMap .)}}
+	{{- if and (not .WriteOnly) (not .WriteOnlyTF) (not .WoVersion) (not .ExcludeTest) (not .Value) (not .TestValue) (isNestedMap .)}}
 	{{- $list := .TfName }}
 	{{- $mapKey := .MapKeyExample }}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .KeyPart) (not (isSet .)) (not (isNestedListSetMap .))}}
+	{{- if and (not .WriteOnly) (not .WriteOnlyTF) (not .WoVersion) (not .ExcludeTest) (not .Value) (not .TestValue) (not .KeyPart) (not (isSet .)) (not (isNestedListSetMap .))}}
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_{{snakeCase $name}}.test", "{{$list}}.{{$mapKey}}.{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
 	{{- end}}
 	{{- end}}
-	{{- else if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
+	{{- else if and (not .WriteOnly) (not .WriteOnlyTF) (not .WoVersion) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
 	{{- if isNestedListSet .}}
 	{{- $list := .TfName }}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
+	{{- if and (not .WriteOnly) (not .WriteOnlyTF) (not .WoVersion) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
 	{{- if isNestedListSet .}}
 	{{- $clist := .TfName }}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
+	{{- if and (not .WriteOnly) (not .WriteOnlyTF) (not .WoVersion) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map")}}
 	{{- if isNestedListSet .}}
 	{{- $cclist := .TfName }}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map") (not (isSet .))}}
+	{{- if and (not .WriteOnly) (not .WriteOnlyTF) (not .WoVersion) (not .ExcludeTest) (not .Value) (not .TestValue) (ne .Type "Map") (not (isSet .))}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 		checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_{{snakeCase $name}}.test", "{{$list}}.0.{{$clist}}.0.{{$cclist}}.0.{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))

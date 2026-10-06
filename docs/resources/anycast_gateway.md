@@ -44,6 +44,7 @@ resource "catalystcenter_anycast_gateway" "example" {
 
 ### Optional
 
+- `additional_ip_pools` (Attributes Set) Names of up to 4 additional (secondary) IP pools associated with the anycast gateway. Additional IP pools provide more IP addresses that can be used when the primary IP pool is exhausted. When an additional IP pool is exhausted, the next IP pool is used. The order in which the additional IP pools are used is defined by the order property. IP pools with lower order numbers will be used first (not applicable to INFRA_VN). Requires Catalyst Center 3.2.3 or later. (see [below for nested schema](#nestedatt--additional_ip_pools))
 - `critical_pool` (Boolean) Enable/disable critical VLAN. if true, autoGenerateVlanName must also be true. (isCriticalPool is not applicable to INFRA_VN)
 - `group_based_policy_enforcement_enabled` (Boolean) Enable/disable Group-Based Policy Enforcement (applicable only to INFRA_VN; defaults to false)
 - `intra_subnet_routing_enabled` (Boolean) Enable/disable Intra-Subnet Routing (not applicable to INFRA_VN)
@@ -58,11 +59,21 @@ resource "catalystcenter_anycast_gateway" "example" {
   - Range: `500`-`1440`
 - `vlan_id` (Number) ID of the VLAN of the anycast gateway. allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, 2046, and 4094. if deploying an anycast gateway on a fabric zone, this vlanId must match the vlanId of the corresponding anycast gateway on the fabric site
 - `vlan_name` (String) Name of the VLAN of the anycast gateway
+- `wireless_flooding_enabled` (Boolean) Enable/disable wireless flooding (not applicable to INFRA_VN). Requires isWirelessPool to be true. Available from Catalyst Center 3.1
 - `wireless_pool` (Boolean) Enable/disable fabric-enabled wireless (not applicable to INFRA_VN)
 
 ### Read-Only
 
 - `id` (String) The id of the object
+
+<a id="nestedatt--additional_ip_pools"></a>
+### Nested Schema for `additional_ip_pools`
+
+Required:
+
+- `name` (String) Name of the additional IP pool associated with the anycast gateway
+- `order` (Number) Sequence in which this IP pool will be used
+  - Range: `2`-`5`
 
 ## Import
 

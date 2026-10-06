@@ -74,6 +74,14 @@ func (d *CredentialsSNMPv2WriteDataSource) Schema(ctx context.Context, req datas
 				MarkdownDescription: "Write community",
 				Computed:            true,
 			},
+			"write_community_wo": schema.StringAttribute{
+				MarkdownDescription: "Write community",
+				Computed:            true,
+			},
+			"write_community_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Rotation trigger for `write_community_wo`. Increment this integer whenever the write-only value changes so Terraform sends the new secret. The value is stored in state; the secret is not.",
+				Computed:            true,
+			},
 		},
 	}
 }

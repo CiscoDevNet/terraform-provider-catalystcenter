@@ -254,7 +254,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 	{{- end}}
 	{{- end}}
-	{{- else if and (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
+	{{- else if and (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody) (not .WoVersion)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 	if {{- if .Computed}} data.{{toGoName .TfName}}.Value{{if eq .Type "Int64"}}Int64() != 0{{else}}String() != ""{{end}} &&{{- end}} !data.{{toGoName .TfName}}.IsNull() {{if .ExcludeFromPut}}&& put == false{{end}} {
 		{{- if .PutDataPath}}
@@ -377,7 +377,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 			itemBody, _ = sjson.Set(itemBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 			{{- end}}
 			{{- end}}
-			{{- else if and (not .Reference) (not .QueryParamNoBody)}}
+			{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion)}}
 			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 			if {{- if .Computed}} item.{{toGoName .TfName}}.Value{{if eq .Type "Int64"}}Int64() != 0{{else}}String() != ""{{end}} &&{{- end}} !item.{{toGoName .TfName}}.IsNull() {{if .ExcludeFromPut}}&& put == false{{end}} {
 				{{- if .PutDataPath}}
@@ -443,7 +443,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 				{{- end}}
 			}
 			{{- else if isNestedListSetMap .}}
+			{{- if .AlwaysInclude}}
+			if true {
+			{{- else}}
 			if len(item.{{toGoName .TfName}}) > 0 {
+			{{- end}}
 				{{- if .PutDataPath}}
 				if put {
 					itemBody, _ = sjson.Set(itemBody, "{{.PutDataPath}}.{{.ModelName}}", []interface{}{})
@@ -480,7 +484,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 					itemChildBody, _ = sjson.Set(itemChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 					{{- end}}
 					{{- end}}
-					{{- else if and (not .Reference) (not .QueryParamNoBody)}}
+					{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion)}}
 					{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 					if !childItem.{{toGoName .TfName}}.IsNull() {
 						{{- if .PutDataPath}}
@@ -546,7 +550,11 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 						{{- end}}
 					}
 					{{- else if isNestedListSetMap .}}
+					{{- if .AlwaysInclude}}
+					if true {
+					{{- else}}
 					if len(childItem.{{toGoName .TfName}}) > 0 {
+					{{- end}}
 						{{- if .PutDataPath}}
 						if put {
 							itemChildBody, _ = sjson.Set(itemChildBody, "{{.PutDataPath}}.{{.ModelName}}", []interface{}{})
@@ -583,7 +591,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 							itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 							{{- end}}
 							{{- end}}
-		{{- else if and (not .Reference) (not .QueryParamNoBody)}}
+		{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion)}}
 							{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 							if !childChildItem.{{toGoName .TfName}}.IsNull() {
 								{{- if .PutDataPath}}
@@ -726,7 +734,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 	} else {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value(false)
 	}
-	{{- else if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
+	{{- else if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
 	{{- $cname := toGoName .TfName}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists(){{if and .NullOnEmpty (eq .Type "String")}} && value.String() != ""{{end}} {
@@ -774,7 +782,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 			} else {
 				item.{{toGoName .TfName}} = types.{{.Type}}Value(false)
 			}
-			{{- else if and (not .Value) (not .WriteOnly) (not .Reference)}}
+			{{- else if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
 			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 			if cValue := v.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cValue.Exists(){{if and .NullOnEmpty (eq .Type "String")}} && cValue.String() != ""{{end}} {
 				item.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "cValue" .}}{{else}}cValue.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
@@ -803,7 +811,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
 					cItem := {{$name}}{{$cname}}{{toGoName .TfName}}{}
 					{{- range .Attributes}}
-					{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+					{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
 					{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 					if ccValue := cv.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); ccValue.Exists(){{if and .NullOnEmpty (eq .Type "String")}} && ccValue.String() != ""{{end}} {
 						cItem.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "ccValue" .}}{{else}}ccValue.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
@@ -832,7 +840,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 						ccValue.ForEach(func(cck, ccv gjson.Result) bool {
 							ccItem := {{$name}}{{$cname}}{{$ccname}}{{toGoName .TfName}}{}
 							{{- range .Attributes}}
-							{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+							{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
 							{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 							if cccValue := ccv.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); cccValue.Exists(){{if and .NullOnEmpty (eq .Type "String")}} && cccValue.String() != ""{{end}} {
 								ccItem.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "cccValue" .}}{{else}}cccValue.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
@@ -916,7 +924,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	} else {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value(false)
 	}
-	{{- else if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
+	{{- else if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists(){{if and .NullOnEmpty (eq .Type "String")}} && value.String() != ""{{end}} && !data.{{toGoName .TfName}}.IsNull() {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "value" .}}{{else}}value.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
@@ -927,9 +935,17 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	}
 	{{- else if isListSet .}}
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+		{{- if and .IgnoreExtraResponseValues (eq .Type "Set") (eq .ElementType "String")}}
+		data.{{toGoName .TfName}} = helpers.KeepStringSetIn(ctx, data.{{toGoName .TfName}}, value.Array())
+		{{- else}}
 		data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+		{{- end}}
 	}{{if or .FallbackResponseDataPath .FallbackResponseModelName}} else if value := res.Get("{{if .FallbackResponseDataPath}}{{.FallbackResponseDataPath}}{{else}}{{.FallbackResponseModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+		{{- if and .IgnoreExtraResponseValues (eq .Type "Set") (eq .ElementType "String")}}
+		data.{{toGoName .TfName}} = helpers.KeepStringSetIn(ctx, data.{{toGoName .TfName}}, value.Array())
+		{{- else}}
 		data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+		{{- end}}
 	}{{end}} else {
 		data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 	}
@@ -950,7 +966,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 					return true
 				}
 				{{- range .Attributes}}
-				{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+				{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
 				{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 				if fv := v.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); fv.Exists() && !mapItem.{{toGoName .TfName}}.IsNull() {
 					mapItem.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "fv" .}}{{else}}fv.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
@@ -1022,13 +1038,13 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 		{{- end}}
 
 		{{- range .Attributes}}
-		{{- if and .WriteOnly .ExcludeTest }}
+		{{- if and .WriteOnly .ExcludeTest (eq .Type "Bool") }}
 		if value := r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
 			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "value" .}}{{else}}value.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
 		} else {{if .DefaultValue}}if data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
 			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value(false)
 		}		
-		{{- else if and (not .Value) (not .WriteOnly) (not .Reference)}}
+		{{- else if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
 		{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 		if value := r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists(){{if and .NullOnEmpty (eq .Type "String")}} && value.String() != ""{{end}} && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
 			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "value" .}}{{else}}value.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
@@ -1081,7 +1097,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 			)
 
 			{{- range .Attributes}}
-			{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+			{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
 			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 			if value := cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists(){{if and .NullOnEmpty (eq .Type "String")}} && value.String() != ""{{end}} && !data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.IsNull() {
 				data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "value" .}}{{else}}value.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
@@ -1134,7 +1150,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 				)
 
 				{{- range .Attributes}}
-				{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+				{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
 				{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 				if value := ccr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}"); value.Exists(){{if and .NullOnEmpty (eq .Type "String")}} && value.String() != ""{{end}} && !data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.IsNull() {
 					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "Float64"}}{{floatReadExpr "value" .}}{{else}}value.{{if eq .Type "Int64"}}Int{{else}}{{.Type}}{{end}}(){{end}})
@@ -1200,7 +1216,7 @@ res = res.Get("{{.ResponseDataPath}}")
 {{- end}}
 {{- end}}
 {{- range .Attributes}}
-{{- if and (not .Value) (not .WriteOnly) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
+{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody)}}
 {{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 if data.{{toGoName .TfName}}.IsUnknown() {
 	if value := res.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
@@ -1249,6 +1265,7 @@ if value := res{{if .ModelName}}.Get("{{if .ResponseDataPath}}{{.ResponseDataPat
 	}
 }
 {{- else if isNestedListSetMap .}}
+{{- if hasUnknownsChildren .Attributes}}
 {{- $list := (toGoName .TfName)}}
 for i := range data.{{toGoName .TfName}} {
 	keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}}{{end}} }
@@ -1419,6 +1436,7 @@ for i := range data.{{toGoName .TfName}} {
 	{{- end}}
 	{{- end}}
 }
+{{- end}}
 {{- end}}
 {{- end}}
 {{- end}}
