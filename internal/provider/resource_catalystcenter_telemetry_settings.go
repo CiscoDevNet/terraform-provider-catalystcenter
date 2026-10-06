@@ -256,6 +256,7 @@ func (r *TelemetrySettingsResource) Update(ctx context.Context, req resource.Upd
 // For Global site: Full structured body with defaults
 // For other sites: {}
 func (r *TelemetrySettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state TelemetrySettings
 
 	// Read state

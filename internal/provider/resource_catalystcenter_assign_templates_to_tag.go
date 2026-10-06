@@ -172,6 +172,7 @@ func (r *AssignTemplatesToTagResource) Read(ctx context.Context, req resource.Re
 // End of section. //template:end read
 
 func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AssignTemplatesToTag
 
 	// Read plan
@@ -234,6 +235,7 @@ func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.
 }
 
 func (r *AssignTemplatesToTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignTemplatesToTag
 
 	// Read state

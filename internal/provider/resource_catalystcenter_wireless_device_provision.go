@@ -156,6 +156,7 @@ func (r *WirelessDeviceProvisionResource) Configure(_ context.Context, req resou
 // End of section. //template:end model
 
 func (r *WirelessDeviceProvisionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessDeviceProvision
 
 	// Read plan
@@ -211,6 +212,7 @@ func (r *WirelessDeviceProvisionResource) Read(ctx context.Context, req resource
 }
 
 func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessDeviceProvision
 
 	// Read plan

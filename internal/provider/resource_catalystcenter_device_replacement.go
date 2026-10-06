@@ -205,6 +205,7 @@ func (r *DeviceReplacementResource) Configure(_ context.Context, req resource.Co
 
 // Section below has custom code (not generated). Do not add template markers.
 func (r *DeviceReplacementResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan DeviceReplacement
 
 	// Read plan
@@ -388,6 +389,7 @@ func (r *DeviceReplacementResource) Update(ctx context.Context, req resource.Upd
 
 // Custom Delete: unmarks device by sending PUT with replacementStatus=NON-FAULTY (only if currently marked)
 func (r *DeviceReplacementResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state DeviceReplacement
 
 	// Read state

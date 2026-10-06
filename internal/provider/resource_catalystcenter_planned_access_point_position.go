@@ -205,6 +205,7 @@ func (r *PlannedAccessPointPositionResource) Create(ctx context.Context, req res
 
 // Custom Read: template markers removed for import ID resolution
 func (r *PlannedAccessPointPositionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PlannedAccessPointPosition
 
 	diags := req.State.Get(ctx, &state)

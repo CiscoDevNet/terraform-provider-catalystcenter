@@ -288,6 +288,7 @@ func (r *LANAutomationResource) Update(ctx context.Context, req resource.UpdateR
 // End of section. //template:end update
 
 func (r *LANAutomationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state LANAutomation
 
 	// Read state

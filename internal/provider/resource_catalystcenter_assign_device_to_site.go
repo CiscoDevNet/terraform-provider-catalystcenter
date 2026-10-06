@@ -173,6 +173,7 @@ func (r *AssignDeviceToSiteResource) Read(ctx context.Context, req resource.Read
 // End of section. //template:end read
 
 func (r *AssignDeviceToSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AssignDeviceToSite
 
 	// Read plan
@@ -260,6 +261,7 @@ func (r *AssignDeviceToSiteResource) Update(ctx context.Context, req resource.Up
 }
 
 func (r *AssignDeviceToSiteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignDeviceToSite
 
 	// Read state

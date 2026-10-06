@@ -101,6 +101,7 @@ func (r *TemplateVersionResource) Configure(_ context.Context, req resource.Conf
 // End of section. //template:end model
 
 func (r *TemplateVersionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan TemplateVersion
 
 	// Read plan
@@ -135,6 +136,7 @@ func (r *TemplateVersionResource) Create(ctx context.Context, req resource.Creat
 }
 
 func (r *TemplateVersionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state TemplateVersion
 
 	// Read state

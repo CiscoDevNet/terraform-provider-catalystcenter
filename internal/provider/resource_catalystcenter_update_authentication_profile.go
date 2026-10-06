@@ -168,6 +168,7 @@ func (r *UpdateAuthenticationProfileResource) Configure(_ context.Context, req r
 // End of section. //template:end model
 
 func (r *UpdateAuthenticationProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan UpdateAuthenticationProfile
 
 	// Read plan
@@ -214,6 +215,7 @@ func (r *UpdateAuthenticationProfileResource) Create(ctx context.Context, req re
 }
 
 func (r *UpdateAuthenticationProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state UpdateAuthenticationProfile
 
 	// Read state

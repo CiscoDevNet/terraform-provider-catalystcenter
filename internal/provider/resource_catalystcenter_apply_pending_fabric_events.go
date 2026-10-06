@@ -99,6 +99,7 @@ func (r *ApplyPendingFabricEventsResource) Configure(_ context.Context, req reso
 // End of section. //template:end model
 
 func (r *ApplyPendingFabricEventsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan ApplyPendingFabricEvents
 
 	// Read plan
@@ -152,6 +153,7 @@ func (r *ApplyPendingFabricEventsResource) Create(ctx context.Context, req resou
 }
 
 func (r *ApplyPendingFabricEventsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ApplyPendingFabricEvents
 
 	// Read state

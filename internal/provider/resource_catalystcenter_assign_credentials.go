@@ -317,6 +317,7 @@ func (r *AssignCredentialsResource) Update(ctx context.Context, req resource.Upd
 // there is nothing to inherit. Transient NCND00010 ("Global Settings Save is in
 // progress") errors are retried.
 func (r *AssignCredentialsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignCredentials
 
 	// Read state

@@ -111,6 +111,7 @@ func (r *SyncDeviceCredentialResource) Configure(_ context.Context, req resource
 // resources targeting the same site (one per credential type) get distinct Terraform IDs.
 // The framework's id_from_attribute path only supports a single id-marked attribute.
 func (r *SyncDeviceCredentialResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan SyncDeviceCredential
 
 	// Read plan

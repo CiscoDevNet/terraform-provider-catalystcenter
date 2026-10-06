@@ -223,6 +223,7 @@ func (r *FabricEWLCResource) Update(ctx context.Context, req resource.UpdateRequ
 // End of section. //template:end update
 
 func (r *FabricEWLCResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricEWLC
 
 	// Read state

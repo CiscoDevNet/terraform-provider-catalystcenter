@@ -103,6 +103,7 @@ func (r *FloorImageResource) Configure(_ context.Context, req resource.Configure
 // End of section. //template:end model
 
 func (r *FloorImageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FloorImage
 
 	diags := req.Plan.Get(ctx, &plan)

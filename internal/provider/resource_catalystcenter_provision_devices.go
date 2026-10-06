@@ -127,6 +127,7 @@ func (r *ProvisionDevicesResource) Configure(_ context.Context, req resource.Con
 // End of section. //template:end model
 
 func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan ProvisionDevices
 
 	// Read plan
@@ -323,6 +324,7 @@ func (r *ProvisionDevicesResource) Read(ctx context.Context, req resource.ReadRe
 // End of section. //template:end read
 
 func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state ProvisionDevices
 
 	// Read plan
@@ -669,6 +671,7 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 }
 
 func (r *ProvisionDevicesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ProvisionDevices
 
 	// Read state

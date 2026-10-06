@@ -113,6 +113,7 @@ func (r *ImageActivationResource) Configure(_ context.Context, req resource.Conf
 // End of section. //template:end model
 
 func (r *ImageActivationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan ImageActivation
 
 	// Read plan

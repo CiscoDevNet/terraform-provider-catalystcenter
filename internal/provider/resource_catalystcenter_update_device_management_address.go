@@ -96,6 +96,7 @@ func (r *UpdateDeviceManagementAddressResource) Configure(_ context.Context, req
 // End of section. //template:end model
 
 func (r *UpdateDeviceManagementAddressResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan UpdateDeviceManagementAddress
 
 	// Read plan
@@ -181,6 +182,7 @@ func (r *UpdateDeviceManagementAddressResource) Read(ctx context.Context, req re
 // End of section. //template:end read
 
 func (r *UpdateDeviceManagementAddressResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state UpdateDeviceManagementAddress
 
 	// Read plan

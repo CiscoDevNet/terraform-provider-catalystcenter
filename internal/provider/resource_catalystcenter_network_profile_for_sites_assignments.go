@@ -106,6 +106,7 @@ func (r *NetworkProfileForSitesAssignmentsResource) Configure(_ context.Context,
 // End of section. //template:end model
 
 func (r *NetworkProfileForSitesAssignmentsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan NetworkProfileForSitesAssignments
 
 	// Read plan
@@ -175,6 +176,7 @@ func (r *NetworkProfileForSitesAssignmentsResource) Read(ctx context.Context, re
 // End of section. //template:end read
 
 func (r *NetworkProfileForSitesAssignmentsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state NetworkProfileForSitesAssignments
 
 	// Read plan
@@ -253,6 +255,7 @@ func (r *NetworkProfileForSitesAssignmentsResource) Update(ctx context.Context, 
 }
 
 func (r *NetworkProfileForSitesAssignmentsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state NetworkProfileForSitesAssignments
 
 	// Read state

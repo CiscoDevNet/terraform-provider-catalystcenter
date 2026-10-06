@@ -290,6 +290,7 @@ func (r *FabricMulticastVirtualNetworksResource) Read(ctx context.Context, req r
 // End of section. //template:end read
 
 func (r *FabricMulticastVirtualNetworksResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricMulticastVirtualNetworks
 
 	// Read plan

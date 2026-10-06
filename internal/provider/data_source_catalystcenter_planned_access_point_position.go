@@ -144,6 +144,7 @@ func (d *PlannedAccessPointPositionDataSource) Configure(_ context.Context, req 
 // Custom Read: template markers removed because floor_id is a URL path parameter
 // with no model_name, causing the generated query-by-name code to fail
 func (d *PlannedAccessPointPositionDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config PlannedAccessPointPosition
 
 	// Read config

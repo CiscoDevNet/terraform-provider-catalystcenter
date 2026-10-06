@@ -172,6 +172,7 @@ func (r *AssignDevicesToTagResource) Read(ctx context.Context, req resource.Read
 // End of section. //template:end read
 
 func (r *AssignDevicesToTagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AssignDevicesToTag
 
 	// Read plan
@@ -236,6 +237,7 @@ func (r *AssignDevicesToTagResource) Update(ctx context.Context, req resource.Up
 // End of section. //template:end update
 
 func (r *AssignDevicesToTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignDevicesToTag
 
 	// Read state

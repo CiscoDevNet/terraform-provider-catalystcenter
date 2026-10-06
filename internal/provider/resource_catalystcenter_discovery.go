@@ -310,6 +310,7 @@ func (r *DiscoveryResource) Configure(_ context.Context, req resource.ConfigureR
 // End of section. //template:end model
 
 func (r *DiscoveryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Discovery
 
 	// Read plan

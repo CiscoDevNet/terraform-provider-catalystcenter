@@ -111,6 +111,7 @@ func (r *FabricL3VirtualNetworkResource) Configure(_ context.Context, req resour
 // End of section. //template:end model
 
 func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricL3VirtualNetwork
 
 	// Read plan
@@ -397,6 +398,7 @@ func (r *FabricL3VirtualNetworkResource) Create(ctx context.Context, req resourc
 }
 
 func (r *FabricL3VirtualNetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricL3VirtualNetwork
 
 	// Read state
@@ -451,6 +453,7 @@ func (r *FabricL3VirtualNetworkResource) Read(ctx context.Context, req resource.
 }
 
 func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricL3VirtualNetwork
 
 	// Read plan
@@ -675,6 +678,7 @@ func (r *FabricL3VirtualNetworkResource) Update(ctx context.Context, req resourc
 }
 
 func (r *FabricL3VirtualNetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricL3VirtualNetwork
 
 	// Read state

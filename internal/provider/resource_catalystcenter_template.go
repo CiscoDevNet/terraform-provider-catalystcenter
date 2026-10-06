@@ -267,6 +267,7 @@ func (r *TemplateResource) Configure(_ context.Context, req resource.ConfigureRe
 // End of section. //template:end model
 
 func (r *TemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Template
 
 	// Read plan

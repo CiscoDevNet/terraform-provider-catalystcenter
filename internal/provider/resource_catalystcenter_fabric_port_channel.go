@@ -147,6 +147,7 @@ func (r *FabricPortChannelResource) Configure(_ context.Context, req resource.Co
 // End of section. //template:end model
 
 func (r *FabricPortChannelResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricPortChannel
 
 	diags := req.Plan.Get(ctx, &plan)

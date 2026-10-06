@@ -132,6 +132,7 @@ func lanAutomationLinkFeature(action string) (string, error) {
 
 // Custom Create: map action to the feature query param and build a composite resource ID.
 func (r *LANAutomationLinkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan LANAutomationLink
 
 	diags := req.Plan.Get(ctx, &plan)

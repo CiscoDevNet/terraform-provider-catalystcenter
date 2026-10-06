@@ -229,6 +229,7 @@ func (r *FabricVLANToSSIDResource) Update(ctx context.Context, req resource.Upda
 // End of section. //template:end update
 
 func (r *FabricVLANToSSIDResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricVLANToSSID
 
 	// Read state

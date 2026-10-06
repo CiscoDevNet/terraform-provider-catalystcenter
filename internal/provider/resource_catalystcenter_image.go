@@ -136,6 +136,7 @@ func (r *ImageResource) Configure(_ context.Context, req resource.ConfigureReque
 // End of section. //template:end model
 
 func (r *ImageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Image
 
 	// Read plan

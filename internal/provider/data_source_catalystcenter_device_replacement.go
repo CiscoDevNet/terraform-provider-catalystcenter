@@ -149,6 +149,7 @@ func (d *DeviceReplacementDataSource) Configure(_ context.Context, req datasourc
 // End of section. //template:end model
 
 func (d *DeviceReplacementDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config DeviceReplacement
 
 	// Read config

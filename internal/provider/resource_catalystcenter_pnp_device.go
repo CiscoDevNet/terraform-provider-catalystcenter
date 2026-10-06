@@ -104,6 +104,7 @@ func (r *PnPDeviceResource) Configure(_ context.Context, req resource.ConfigureR
 // End of section. //template:end model
 
 func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan PnPDevice
 
 	// Read plan
@@ -178,6 +179,7 @@ func (r *PnPDeviceResource) Create(ctx context.Context, req resource.CreateReque
 // an empty serial and by requiring the returned primary serial (or a stack
 // member serial) to match, case-insensitively, before writing state.
 func (r *PnPDeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PnPDevice
 
 	// Read state
@@ -285,6 +287,7 @@ func (r *PnPDeviceResource) Update(ctx context.Context, req resource.UpdateReque
 // End of section. //template:end update
 
 func (r *PnPDeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PnPDevice
 
 	// Read state

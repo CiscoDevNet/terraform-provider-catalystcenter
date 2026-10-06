@@ -218,6 +218,7 @@ func (r *BannerSettingsResource) Update(ctx context.Context, req resource.Update
 // For Global site: {"banner": {"type": "Builtin"}}
 // For other sites: {}
 func (r *BannerSettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state BannerSettings
 
 	// Read state

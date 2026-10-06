@@ -92,6 +92,7 @@ func (r *IntegrateISEResource) Configure(_ context.Context, req resource.Configu
 // End of section. //template:end model
 
 func (r *IntegrateISEResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan IntegrateISE
 
 	// Read plan

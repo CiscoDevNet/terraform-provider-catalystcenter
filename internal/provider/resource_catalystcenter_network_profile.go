@@ -130,6 +130,7 @@ func (r *NetworkProfileResource) Configure(_ context.Context, req resource.Confi
 // End of section. //template:end model
 
 func (r *NetworkProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan NetworkProfile
 
 	// Read plan
