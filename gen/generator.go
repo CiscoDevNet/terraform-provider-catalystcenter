@@ -411,6 +411,18 @@ func GetMatchId(attributes []YamlConfigAttribute) YamlConfigAttribute {
 	return YamlConfigAttribute{}
 }
 
+// Templating helper function to return true if a top-level "match_id" attribute exists.
+// Nested match_id attributes are deliberately not considered, as they identify rows within
+// a list and not the resource itself.
+func HasMatchId(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.MatchId {
+			return true
+		}
+	}
+	return false
+}
+
 // Templating helper function to build a GJSON filter expression for cache lookups.
 // Given cache_filter_attributes [siteId, networkDeviceId] it produces Go code like:
 //
@@ -884,6 +896,7 @@ var functions = template.FuncMap{
 	"generateDeleteOnlyQueryParamString": GenerateDeleteOnlyQueryParamString,
 	"getId":                              GetId,
 	"getMatchId":                         GetMatchId,
+	"hasMatchId":                         HasMatchId,
 	"cacheFilterGjsonExpr":               CacheFilterGjsonExpr,
 	"hasCreateQueryPath":                 HasCreateQueryPath,
 	"getCreateQueryPath":                 GetCreateQueryPath,
