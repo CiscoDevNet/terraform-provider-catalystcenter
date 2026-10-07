@@ -68,9 +68,9 @@ Required:
 Optional:
 
 - `destination_ports` (String) Destination port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.
-  - Default value: `0-65535`
+  - Default value: `1-65535`
 - `source_ports` (String) Source port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.
-  - Default value: `0-65535`
+  - Default value: `1-65535`
 
 ## Import
 

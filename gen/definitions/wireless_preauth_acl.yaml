@@ -60,12 +60,12 @@ attributes:
         example: 32
       - model_name: sourcePorts
         type: String
-        default_value: "0-65535"
+        default_value: "1-65535"
         description: Source port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.
         example: "100"
       - model_name: destinationPorts
         type: String
-        default_value: "0-65535"
+        default_value: "1-65535"
         description: Destination port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.
         example: "100-200"
       - model_name: protocol
