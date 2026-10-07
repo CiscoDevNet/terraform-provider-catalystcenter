@@ -279,6 +279,7 @@ func (r *ApplicationResource) Configure(_ context.Context, req resource.Configur
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *ApplicationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Application
 
 	// Read plan
@@ -320,6 +321,7 @@ func (r *ApplicationResource) Create(ctx context.Context, req resource.CreateReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *ApplicationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Application
 
 	// Read state
@@ -365,6 +367,7 @@ func (r *ApplicationResource) Read(ctx context.Context, req resource.ReadRequest
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *ApplicationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Application
 
 	// Read plan
@@ -400,6 +403,7 @@ func (r *ApplicationResource) Update(ctx context.Context, req resource.UpdateReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *ApplicationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Application
 
 	// Read state

@@ -176,6 +176,7 @@ func (r *ApplicationPolicyResource) Configure(_ context.Context, req resource.Co
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *ApplicationPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan ApplicationPolicy
 
 	// Read plan
@@ -208,6 +209,7 @@ func (r *ApplicationPolicyResource) Create(ctx context.Context, req resource.Cre
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *ApplicationPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ApplicationPolicy
 
 	// Read state
@@ -442,6 +444,7 @@ func (r *ApplicationPolicyResource) ModifyPlan(ctx context.Context, req resource
 }
 
 func (r *ApplicationPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state ApplicationPolicy
 
 	diags := req.Plan.Get(ctx, &plan)
@@ -519,6 +522,7 @@ func (r *ApplicationPolicyResource) Update(ctx context.Context, req resource.Upd
 }
 
 func (r *ApplicationPolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state ApplicationPolicy
 
 	diags := req.State.Get(ctx, &state)

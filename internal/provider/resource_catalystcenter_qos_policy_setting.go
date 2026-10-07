@@ -99,6 +99,7 @@ func (r *QoSPolicySettingResource) Configure(_ context.Context, req resource.Con
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *QoSPolicySettingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan QoSPolicySetting
 
 	// Read plan
@@ -131,6 +132,7 @@ func (r *QoSPolicySettingResource) Create(ctx context.Context, req resource.Crea
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *QoSPolicySettingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state QoSPolicySetting
 
 	// Read state
@@ -169,6 +171,7 @@ func (r *QoSPolicySettingResource) Read(ctx context.Context, req resource.ReadRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *QoSPolicySettingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state QoSPolicySetting
 
 	// Read plan
@@ -204,6 +207,7 @@ func (r *QoSPolicySettingResource) Update(ctx context.Context, req resource.Upda
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *QoSPolicySettingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state QoSPolicySetting
 
 	// Read state
