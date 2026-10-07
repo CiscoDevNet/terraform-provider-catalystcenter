@@ -40,36 +40,39 @@ attributes:
     attributes:
       - model_name: sourceAddress
         type: String
+        id: true
         mandatory: true
         description: An IPv4 or IPv6 source address.
         example: "250.162.252.170"
       - model_name: sourceSubnetMaskOrPrefix
         type: Int64
+        id: true
         mandatory: true
         description: Source subnet (IPv4) / Source prefix (IPv6). Value should be in CIDR notation.
         example: 32
       - model_name: destinationAddress
         type: String
+        id: true
         mandatory: true
         description: An IPv4 or IPv6 destination address.
         example: "250.162.252.171"
       - model_name: destinationSubnetMaskOrPrefix
         type: Int64
+        id: true
         mandatory: true
         description: Destination subnet (IPv4) / Destination prefix (IPv6). Value should be in CIDR notation.
         example: 32
       - model_name: sourcePorts
         type: String
-        default_value: "1-65535"
-        description: Source port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.
+        description: Source port. Mandatory when protocol is TCP or UDP, and must be in the range 1-65535 (port 0 is rejected). Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For any other protocol this attribute is ignored and Catalyst Center normalizes it to `0-65535`, so it should be left unset to avoid persistent differences.
         example: "100"
       - model_name: destinationPorts
         type: String
-        default_value: "1-65535"
-        description: Destination port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.
+        description: Destination port. Mandatory when protocol is TCP or UDP, and must be in the range 1-65535 (port 0 is rejected). Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For any other protocol this attribute is ignored and Catalyst Center normalizes it to `0-65535`, so it should be left unset to avoid persistent differences.
         example: "100-200"
       - model_name: protocol
         type: String
+        id: true
         mandatory: true
         enum_values: [ANY, AHP, ESP, GRE, ICMP, IGMP, IP, IPINIP, NOS, OSPF, PCP, PIM, TCP, UDP, ICMPV6, IPV6, SCTP]
         description: "An IPv4 or IPv6 protocol. IPv4 values: ANY, AHP, ESP, GRE, ICMP, IGMP, IP, IPINIP, NOS, OSPF, PCP, PIM, TCP, UDP. IPv6 values: ANY, AHP, ESP, ICMPV6, IPV6, PCP, SCTP, TCP, UDP."

@@ -1,3 +1,8 @@
+## 0.6.5 (unreleased)
+
+- Fix `catalystcenter_wireless_pre_auth_acl` resource failing to create rules that omit `source_ports` or `destination_ports`. Both attributes defaulted to `0-65535`, which Catalyst Center rejects with `NCND13014` / `NCND13016`, as a port must be in the range `1-65535`. The static defaults are removed: both attributes are mandatory when `protocol` is `TCP` or `UDP`, and should be left unset for any other protocol, which Catalyst Center ignores and normalizes to `0-65535`
+- Fix `catalystcenter_wireless_pre_auth_acl` resource reporting a permanent difference on rules whose ports Catalyst Center rewrites. `source_ports` and `destination_ports` are no longer part of the ACL rule identity, so a rule is matched to its state entry by source, destination and protocol alone
+
 ## 0.6.4
 
 - Add support for module identification through `provider_meta.module_name`, including the module name and version in the User-Agent header for API requests
