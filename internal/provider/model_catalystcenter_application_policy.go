@@ -31,26 +31,25 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type ApplicationPolicy struct {
-	Id             types.String             `tfsdk:"id"`
-	PolicyScope    types.String             `tfsdk:"policy_scope"`
-	UndeployAction types.String             `tfsdk:"undeploy_action"`
-	Items          []ApplicationPolicyItems `tfsdk:"items"`
+	Id                      types.String             `tfsdk:"id"`
+	PolicyScope             types.String             `tfsdk:"policy_scope"`
+	UndeployAction          types.String             `tfsdk:"undeploy_action"`
+	AdvancedPolicyScopeName types.String             `tfsdk:"advanced_policy_scope_name"`
+	SiteIds                 types.Set                `tfsdk:"site_ids"`
+	Ssids                   types.Set                `tfsdk:"ssids"`
+	Items                   []ApplicationPolicyItems `tfsdk:"items"`
 }
 
 type ApplicationPolicyItems struct {
-	Name                    types.String `tfsdk:"name"`
-	PolicyScope             types.String `tfsdk:"policy_scope"`
-	Priority                types.String `tfsdk:"priority"`
-	DeletePolicyStatus      types.String `tfsdk:"delete_policy_status"`
-	AdvancedPolicyScopeName types.String `tfsdk:"advanced_policy_scope_name"`
-	SiteIds                 types.Set    `tfsdk:"site_ids"`
-	Ssids                   types.Set    `tfsdk:"ssids"`
-	ClauseType              types.String `tfsdk:"clause_type"`
-	RelevanceLevel          types.String `tfsdk:"relevance_level"`
-	DeviceRemovalBehavior   types.String `tfsdk:"device_removal_behavior"`
-	HostTrackingEnabled     types.Bool   `tfsdk:"host_tracking_enabled"`
-	QueuingProfileId        types.String `tfsdk:"queuing_profile_id"`
-	ApplicationSetId        types.String `tfsdk:"application_set_id"`
+	Name                  types.String `tfsdk:"name"`
+	Priority              types.String `tfsdk:"priority"`
+	DeletePolicyStatus    types.String `tfsdk:"delete_policy_status"`
+	ClauseType            types.String `tfsdk:"clause_type"`
+	RelevanceLevel        types.String `tfsdk:"relevance_level"`
+	DeviceRemovalBehavior types.String `tfsdk:"device_removal_behavior"`
+	HostTrackingEnabled   types.Bool   `tfsdk:"host_tracking_enabled"`
+	QueuingProfileId      types.String `tfsdk:"queuing_profile_id"`
+	ApplicationSetId      types.String `tfsdk:"application_set_id"`
 }
 
 // End of section. //template:end types
@@ -90,17 +89,30 @@ func (data ApplicationPolicy) getPathGet() string {
 
 // End of section. //template:end getPathIdQuery
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
+// Custom toBody: the policy-wide fields are declared once on the resource but the
+// controller stores them on every sibling, so they are fanned out here rather than
+// repeated in `items`. The generator writes one attribute to one path, so it cannot
+// broadcast a resource-level attribute across the elements of a list. The emitted
+// body is identical to the one produced when every sibling carried its own copy.
 func (data ApplicationPolicy) toBody(ctx context.Context, state ApplicationPolicy) string {
 	body := ""
-	put := false
-	if state.Id.ValueString() != "" {
-		put = true
-	}
-	_ = put
 	if !data.PolicyScope.IsNull() {
 		body, _ = sjson.Set(body, "policyScope", data.PolicyScope.ValueString())
 	}
+
+	// advancedPolicyScope.name defaults to the policy scope, which is what the GUI writes.
+	scopeName := data.PolicyScope.ValueString()
+	if !data.AdvancedPolicyScopeName.IsNull() {
+		scopeName = data.AdvancedPolicyScopeName.ValueString()
+	}
+	var siteIds, ssids []string
+	if !data.SiteIds.IsNull() {
+		data.SiteIds.ElementsAs(ctx, &siteIds, false)
+	}
+	if !data.Ssids.IsNull() {
+		data.Ssids.ElementsAs(ctx, &ssids, false)
+	}
+
 	if len(data.Items) > 0 {
 		body, _ = sjson.Set(body, "createList", []interface{}{})
 		for _, item := range data.Items {
@@ -108,27 +120,23 @@ func (data ApplicationPolicy) toBody(ctx context.Context, state ApplicationPolic
 			if !item.Name.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
 			}
-			if !item.PolicyScope.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "policyScope", item.PolicyScope.ValueString())
+			if !data.PolicyScope.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "policyScope", data.PolicyScope.ValueString())
+			}
+			if scopeName != "" {
+				itemBody, _ = sjson.Set(itemBody, "advancedPolicyScope.name", scopeName)
+			}
+			if !data.SiteIds.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "advancedPolicyScope.advancedPolicyScopeElement.0.groupId", siteIds)
+			}
+			if !data.Ssids.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "advancedPolicyScope.advancedPolicyScopeElement.0.ssid", ssids)
 			}
 			if !item.Priority.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "priority", item.Priority.ValueString())
 			}
 			if !item.DeletePolicyStatus.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "deletePolicyStatus", item.DeletePolicyStatus.ValueString())
-			}
-			if !item.AdvancedPolicyScopeName.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "advancedPolicyScope.name", item.AdvancedPolicyScopeName.ValueString())
-			}
-			if !item.SiteIds.IsNull() {
-				var values []string
-				item.SiteIds.ElementsAs(ctx, &values, false)
-				itemBody, _ = sjson.Set(itemBody, "advancedPolicyScope.advancedPolicyScopeElement.0.groupId", values)
-			}
-			if !item.Ssids.IsNull() {
-				var values []string
-				item.Ssids.ElementsAs(ctx, &values, false)
-				itemBody, _ = sjson.Set(itemBody, "advancedPolicyScope.advancedPolicyScopeElement.0.ssid", values)
 			}
 			if !item.ClauseType.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "exclusiveContract.clause.0.type", item.ClauseType.ValueString())
@@ -154,10 +162,23 @@ func (data ApplicationPolicy) toBody(ctx context.Context, state ApplicationPolic
 	return body
 }
 
-// End of section. //template:end toBody
-
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *ApplicationPolicy) fromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("response.0.advancedPolicyScope.name"); value.Exists() {
+		data.AdvancedPolicyScopeName = types.StringValue(value.String())
+	} else {
+		data.AdvancedPolicyScopeName = types.StringNull()
+	}
+	if value := res.Get("response.0.advancedPolicyScope.advancedPolicyScopeElement.0.groupId"); value.Exists() && len(value.Array()) > 0 {
+		data.SiteIds = helpers.GetStringSet(value.Array())
+	} else {
+		data.SiteIds = types.SetNull(types.StringType)
+	}
+	if value := res.Get("response.0.advancedPolicyScope.advancedPolicyScopeElement.0.ssid"); value.Exists() && len(value.Array()) > 0 {
+		data.Ssids = helpers.GetStringSet(value.Array())
+	} else {
+		data.Ssids = types.SetNull(types.StringType)
+	}
 	if value := res.Get("response"); value.Exists() && len(value.Array()) > 0 {
 		data.Items = make([]ApplicationPolicyItems, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
@@ -166,11 +187,6 @@ func (data *ApplicationPolicy) fromBody(ctx context.Context, res gjson.Result) {
 				item.Name = types.StringValue(cValue.String())
 			} else {
 				item.Name = types.StringNull()
-			}
-			if cValue := v.Get("policyScope"); cValue.Exists() {
-				item.PolicyScope = types.StringValue(cValue.String())
-			} else {
-				item.PolicyScope = types.StringNull()
 			}
 			if cValue := v.Get("priority"); cValue.Exists() {
 				item.Priority = types.StringValue(cValue.String())
@@ -181,21 +197,6 @@ func (data *ApplicationPolicy) fromBody(ctx context.Context, res gjson.Result) {
 				item.DeletePolicyStatus = types.StringValue(cValue.String())
 			} else {
 				item.DeletePolicyStatus = types.StringNull()
-			}
-			if cValue := v.Get("advancedPolicyScope.name"); cValue.Exists() {
-				item.AdvancedPolicyScopeName = types.StringValue(cValue.String())
-			} else {
-				item.AdvancedPolicyScopeName = types.StringNull()
-			}
-			if cValue := v.Get("advancedPolicyScope.advancedPolicyScopeElement.0.groupId"); cValue.Exists() && len(cValue.Array()) > 0 {
-				item.SiteIds = helpers.GetStringSet(cValue.Array())
-			} else {
-				item.SiteIds = types.SetNull(types.StringType)
-			}
-			if cValue := v.Get("advancedPolicyScope.advancedPolicyScopeElement.0.ssid"); cValue.Exists() && len(cValue.Array()) > 0 {
-				item.Ssids = helpers.GetStringSet(cValue.Array())
-			} else {
-				item.Ssids = types.SetNull(types.StringType)
 			}
 			if cValue := v.Get("exclusiveContract.clause.0.type"); cValue.Exists() {
 				item.ClauseType = types.StringValue(cValue.String())
@@ -237,6 +238,21 @@ func (data *ApplicationPolicy) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *ApplicationPolicy) updateFromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("response.0.advancedPolicyScope.name"); value.Exists() && !data.AdvancedPolicyScopeName.IsNull() {
+		data.AdvancedPolicyScopeName = types.StringValue(value.String())
+	} else {
+		data.AdvancedPolicyScopeName = types.StringNull()
+	}
+	if value := res.Get("response.0.advancedPolicyScope.advancedPolicyScopeElement.0.groupId"); value.Exists() && !data.SiteIds.IsNull() {
+		data.SiteIds = helpers.GetStringSet(value.Array())
+	} else {
+		data.SiteIds = types.SetNull(types.StringType)
+	}
+	if value := res.Get("response.0.advancedPolicyScope.advancedPolicyScopeElement.0.ssid"); value.Exists() && !data.Ssids.IsNull() {
+		data.Ssids = helpers.GetStringSet(value.Array())
+	} else {
+		data.Ssids = types.SetNull(types.StringType)
+	}
 	for i := range data.Items {
 		keys := [...]string{"name"}
 		keyValues := [...]string{data.Items[i].Name.ValueString()}
@@ -265,11 +281,6 @@ func (data *ApplicationPolicy) updateFromBody(ctx context.Context, res gjson.Res
 		} else {
 			data.Items[i].Name = types.StringNull()
 		}
-		if value := r.Get("policyScope"); value.Exists() && !data.Items[i].PolicyScope.IsNull() {
-			data.Items[i].PolicyScope = types.StringValue(value.String())
-		} else {
-			data.Items[i].PolicyScope = types.StringNull()
-		}
 		if value := r.Get("priority"); value.Exists() && !data.Items[i].Priority.IsNull() {
 			data.Items[i].Priority = types.StringValue(value.String())
 		} else {
@@ -279,21 +290,6 @@ func (data *ApplicationPolicy) updateFromBody(ctx context.Context, res gjson.Res
 			data.Items[i].DeletePolicyStatus = types.StringValue(value.String())
 		} else {
 			data.Items[i].DeletePolicyStatus = types.StringNull()
-		}
-		if value := r.Get("advancedPolicyScope.name"); value.Exists() && !data.Items[i].AdvancedPolicyScopeName.IsNull() {
-			data.Items[i].AdvancedPolicyScopeName = types.StringValue(value.String())
-		} else {
-			data.Items[i].AdvancedPolicyScopeName = types.StringNull()
-		}
-		if value := r.Get("advancedPolicyScope.advancedPolicyScopeElement.0.groupId"); value.Exists() && !data.Items[i].SiteIds.IsNull() {
-			data.Items[i].SiteIds = helpers.GetStringSet(value.Array())
-		} else {
-			data.Items[i].SiteIds = types.SetNull(types.StringType)
-		}
-		if value := r.Get("advancedPolicyScope.advancedPolicyScopeElement.0.ssid"); value.Exists() && !data.Items[i].Ssids.IsNull() {
-			data.Items[i].Ssids = helpers.GetStringSet(value.Array())
-		} else {
-			data.Items[i].Ssids = types.SetNull(types.StringType)
 		}
 		if value := r.Get("exclusiveContract.clause.0.type"); value.Exists() && !data.Items[i].ClauseType.IsNull() {
 			data.Items[i].ClauseType = types.StringValue(value.String())
@@ -332,6 +328,15 @@ func (data *ApplicationPolicy) updateFromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *ApplicationPolicy) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.AdvancedPolicyScopeName.IsNull() {
+		return false
+	}
+	if !data.SiteIds.IsNull() {
+		return false
+	}
+	if !data.Ssids.IsNull() {
+		return false
+	}
 	if len(data.Items) > 0 {
 		return false
 	}

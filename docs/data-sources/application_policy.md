@@ -29,23 +29,22 @@ data "catalystcenter_application_policy" "example" {
 
 ### Read-Only
 
-- `items` (Attributes Set) The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering. (see [below for nested schema](#nestedatt--items))
+- `advanced_policy_scope_name` (String) Name carried by the advanced policy scope. Defaults to `policy_scope`, which is what the GUI writes.
+- `items` (Attributes Set) The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering. Only what differs between siblings belongs here; everything shared by the policy is declared on the resource, so changing the deployment scope does not churn every entry. (see [below for nested schema](#nestedatt--items))
+- `site_ids` (Set of String) Site IDs this policy is deployed to. The scope belongs to the policy, not to an individual sibling, so it is set once here and written to every entry in `items`.
+- `ssids` (Set of String) SSIDs this policy applies to, which makes it a wireless policy. Like `site_ids` it belongs to the policy and is written to every entry in `items`.
 
 <a id="nestedatt--items"></a>
 ### Nested Schema for `items`
 
 Read-Only:
 
-- `advanced_policy_scope_name` (String) Name carried by the advanced policy scope, normally the policy scope
 - `application_set_id` (String) ID of the application set this sibling policy applies to, set on `BUSINESS_RELEVANCE` sibling policies.
 - `clause_type` (String) Kind of exclusive contract clause carried by this sibling policy
 - `delete_policy_status` (String) Deployment state of the sibling policy
 - `device_removal_behavior` (String) Device removal behaviour, when `clause_type` is `APPLICATION_POLICY_KNOBS`
 - `host_tracking_enabled` (Boolean) Whether host tracking is enabled, when `clause_type` is `APPLICATION_POLICY_KNOBS`
 - `name` (String) Name of the sibling policy, conventionally `<policy_scope>_<application set>`, `<policy_scope>_queuing_customization` or `<policy_scope>_global_policy_configuration`.
-- `policy_scope` (String) Must equal the resource's `policy_scope`
 - `priority` (String) Priority of the sibling policy. `100` normally, `4095` when the producer refers to an application scalable group.
 - `queuing_profile_id` (String) ID of the queuing profile, set on the `<policy_scope>_queuing_customization` sibling policy only.
 - `relevance_level` (String) Business relevance, when `clause_type` is `BUSINESS_RELEVANCE`
-- `site_ids` (Set of String) Site IDs this sibling policy is deployed to
-- `ssids` (Set of String) SSIDs this sibling policy applies to

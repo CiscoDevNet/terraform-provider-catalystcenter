@@ -66,17 +66,27 @@ func (d *ApplicationPolicyDataSource) Schema(ctx context.Context, req datasource
 				MarkdownDescription: "Name of the policy. On the controller every sibling object carries this as its `policyScope`, and their names are prefixed with it.",
 				Required:            true,
 			},
+			"advanced_policy_scope_name": schema.StringAttribute{
+				MarkdownDescription: "Name carried by the advanced policy scope. Defaults to `policy_scope`, which is what the GUI writes.",
+				Computed:            true,
+			},
+			"site_ids": schema.SetAttribute{
+				MarkdownDescription: "Site IDs this policy is deployed to. The scope belongs to the policy, not to an individual sibling, so it is set once here and written to every entry in `items`.",
+				ElementType:         types.StringType,
+				Computed:            true,
+			},
+			"ssids": schema.SetAttribute{
+				MarkdownDescription: "SSIDs this policy applies to, which makes it a wireless policy. Like `site_ids` it belongs to the policy and is written to every entry in `items`.",
+				ElementType:         types.StringType,
+				Computed:            true,
+			},
 			"items": schema.SetNestedAttribute{
-				MarkdownDescription: "The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering.",
+				MarkdownDescription: "The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering. Only what differs between siblings belongs here; everything shared by the policy is declared on the resource, so changing the deployment scope does not churn every entry.",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
 							MarkdownDescription: "Name of the sibling policy, conventionally `<policy_scope>_<application set>`, `<policy_scope>_queuing_customization` or `<policy_scope>_global_policy_configuration`.",
-							Computed:            true,
-						},
-						"policy_scope": schema.StringAttribute{
-							MarkdownDescription: "Must equal the resource's `policy_scope`",
 							Computed:            true,
 						},
 						"priority": schema.StringAttribute{
@@ -85,20 +95,6 @@ func (d *ApplicationPolicyDataSource) Schema(ctx context.Context, req datasource
 						},
 						"delete_policy_status": schema.StringAttribute{
 							MarkdownDescription: "Deployment state of the sibling policy",
-							Computed:            true,
-						},
-						"advanced_policy_scope_name": schema.StringAttribute{
-							MarkdownDescription: "Name carried by the advanced policy scope, normally the policy scope",
-							Computed:            true,
-						},
-						"site_ids": schema.SetAttribute{
-							MarkdownDescription: "Site IDs this sibling policy is deployed to",
-							ElementType:         types.StringType,
-							Computed:            true,
-						},
-						"ssids": schema.SetAttribute{
-							MarkdownDescription: "SSIDs this sibling policy applies to",
-							ElementType:         types.StringType,
 							Computed:            true,
 						},
 						"clause_type": schema.StringAttribute{

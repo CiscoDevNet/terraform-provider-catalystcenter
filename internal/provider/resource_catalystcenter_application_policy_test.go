@@ -30,11 +30,10 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcApplicationPolicy(t *testing.T) {
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "advanced_policy_scope_name", ""))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "items.0.name", "Branch_Office_QoS_Policy_collaboration-apps"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "items.0.policy_scope", "Branch_Office_QoS_Policy"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "items.0.priority", "100"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "items.0.delete_policy_status", "NONE"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "items.0.advanced_policy_scope_name", "Branch_Office_QoS_Policy"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "items.0.clause_type", "BUSINESS_RELEVANCE"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "items.0.relevance_level", "BUSINESS_RELEVANT"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy.test", "items.0.device_removal_behavior", "RESTORE"))
@@ -71,7 +70,6 @@ func testAccCcApplicationPolicyConfig_minimum() string {
 	config += `	policy_scope = "Branch_Office_QoS_Policy"` + "\n"
 	config += `	items = [{` + "\n"
 	config += `	  name = "Branch_Office_QoS_Policy_collaboration-apps"` + "\n"
-	config += `	  policy_scope = "Branch_Office_QoS_Policy"` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
@@ -83,14 +81,13 @@ func testAccCcApplicationPolicyConfig_minimum() string {
 func testAccCcApplicationPolicyConfig_all() string {
 	config := `resource "catalystcenter_application_policy" "test" {` + "\n"
 	config += `	policy_scope = "Branch_Office_QoS_Policy"` + "\n"
+	config += `	advanced_policy_scope_name = ""` + "\n"
+	config += `	site_ids = ["12345678-1234-1234-1234-123456789012"]` + "\n"
+	config += `	ssids = [""]` + "\n"
 	config += `	items = [{` + "\n"
 	config += `	  name = "Branch_Office_QoS_Policy_collaboration-apps"` + "\n"
-	config += `	  policy_scope = "Branch_Office_QoS_Policy"` + "\n"
 	config += `	  priority = "100"` + "\n"
 	config += `	  delete_policy_status = "NONE"` + "\n"
-	config += `	  advanced_policy_scope_name = "Branch_Office_QoS_Policy"` + "\n"
-	config += `	  site_ids = ["12345678-1234-1234-1234-123456789012"]` + "\n"
-	config += `	  ssids = ["corp-ssid"]` + "\n"
 	config += `	  clause_type = "BUSINESS_RELEVANCE"` + "\n"
 	config += `	  relevance_level = "BUSINESS_RELEVANT"` + "\n"
 	config += `	  device_removal_behavior = "RESTORE"` + "\n"

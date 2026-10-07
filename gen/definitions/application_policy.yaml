@@ -12,8 +12,10 @@ res_description:
   typically one per application set (carrying a `BUSINESS_RELEVANCE` clause), plus a
   `<policy>_queuing_customization` entry carrying the queuing profile reference, and
   optionally a `<policy>_global_policy_configuration` entry carrying
-  `APPLICATION_POLICY_KNOBS`. A site may only be used by one wired policy
-  (`NCAS10157`). `terraform import` expects the policy scope.'
+  `APPLICATION_POLICY_KNOBS`. The deployment scope (`site_ids`, `ssids`) is a property
+  of the policy, so it is declared once on the resource and written to every sibling.
+  A site may only be used by one wired policy (`NCAS10157`). `terraform import`
+  expects the policy scope.'
 attributes:
   - model_name: policyScope
     type: String
@@ -41,6 +43,33 @@ attributes:
       action it uses. Never sent on create or update.
     example: DELETED
     exclude_test: true
+  - model_name: name
+    tf_name: advanced_policy_scope_name
+    response_data_path: response.0.advancedPolicyScope.name
+    type: String
+    description:
+      Name carried by the advanced policy scope. Defaults to `policy_scope`,
+      which is what the GUI writes.
+    exclude_example: true
+  - model_name: groupId
+    tf_name: site_ids
+    response_data_path: response.0.advancedPolicyScope.advancedPolicyScopeElement.0.groupId
+    type: Set
+    element_type: String
+    description:
+      Site IDs this policy is deployed to. The scope belongs to the policy, not to
+      an individual sibling, so it is set once here and written to every entry in
+      `items`.
+    example: 12345678-1234-1234-1234-123456789012
+  - model_name: ssid
+    tf_name: ssids
+    response_data_path: response.0.advancedPolicyScope.advancedPolicyScopeElement.0.ssid
+    type: Set
+    element_type: String
+    description:
+      SSIDs this policy applies to, which makes it a wireless policy. Like
+      `site_ids` it belongs to the policy and is written to every entry in `items`.
+    exclude_example: true
   - model_name: createList
     tf_name: items
     response_data_path: response
@@ -48,7 +77,9 @@ attributes:
     mandatory: true
     description:
       The sibling group-based policies making up this policy. Modelled as a set
-      because the controller does not preserve ordering.
+      because the controller does not preserve ordering. Only what differs between
+      siblings belongs here; everything shared by the policy is declared on the
+      resource, so changing the deployment scope does not churn every entry.
     attributes:
       - model_name: name
         type: String
@@ -59,11 +90,6 @@ attributes:
           set>`, `<policy_scope>_queuing_customization` or
           `<policy_scope>_global_policy_configuration`.
         example: Branch_Office_QoS_Policy_collaboration-apps
-      - model_name: policyScope
-        type: String
-        mandatory: true
-        description: Must equal the resource's `policy_scope`
-        example: Branch_Office_QoS_Policy
       - model_name: priority
         type: String
         description:
@@ -75,26 +101,6 @@ attributes:
         enum_values: [NONE, DELETED, RESTORED]
         description: Deployment state of the sibling policy
         example: NONE
-      - model_name: name
-        tf_name: advanced_policy_scope_name
-        data_path: advancedPolicyScope
-        type: String
-        description: Name carried by the advanced policy scope, normally the policy scope
-        example: Branch_Office_QoS_Policy
-      - model_name: groupId
-        tf_name: site_ids
-        data_path: advancedPolicyScope.advancedPolicyScopeElement.0
-        type: Set
-        element_type: String
-        description: Site IDs this sibling policy is deployed to
-        example: 12345678-1234-1234-1234-123456789012
-      - model_name: ssid
-        tf_name: ssids
-        data_path: advancedPolicyScope.advancedPolicyScopeElement.0
-        type: Set
-        element_type: String
-        description: SSIDs this sibling policy applies to
-        example: corp-ssid
       - model_name: type
         tf_name: clause_type
         data_path: exclusiveContract.clause.0

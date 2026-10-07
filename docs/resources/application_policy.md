@@ -3,30 +3,27 @@
 page_title: "catalystcenter_application_policy Resource - terraform-provider-catalystcenter"
 subcategory: "Policy"
 description: |-
-  Manages a Catalyst Center Application QoS Policy. A single logical policy is not one API object: the controller stores it as a set of sibling group-based policies that all share the same policy_scope. Each entry in items is one such sibling — typically one per application set (carrying a BUSINESS_RELEVANCE clause), plus a <policy>_queuing_customization entry carrying the queuing profile reference, and optionally a <policy>_global_policy_configuration entry carrying APPLICATION_POLICY_KNOBS. A site may only be used by one wired policy (NCAS10157). terraform import expects the policy scope.
+  Manages a Catalyst Center Application QoS Policy. A single logical policy is not one API object: the controller stores it as a set of sibling group-based policies that all share the same policy_scope. Each entry in items is one such sibling — typically one per application set (carrying a BUSINESS_RELEVANCE clause), plus a <policy>_queuing_customization entry carrying the queuing profile reference, and optionally a <policy>_global_policy_configuration entry carrying APPLICATION_POLICY_KNOBS. The deployment scope (site_ids, ssids) is a property of the policy, so it is declared once on the resource and written to every sibling. A site may only be used by one wired policy (NCAS10157). terraform import expects the policy scope.
 ---
 
 # catalystcenter_application_policy (Resource)
 
-Manages a Catalyst Center Application QoS Policy. A single logical policy is not one API object: the controller stores it as a set of sibling group-based policies that all share the same `policy_scope`. Each entry in `items` is one such sibling — typically one per application set (carrying a `BUSINESS_RELEVANCE` clause), plus a `<policy>_queuing_customization` entry carrying the queuing profile reference, and optionally a `<policy>_global_policy_configuration` entry carrying `APPLICATION_POLICY_KNOBS`. A site may only be used by one wired policy (`NCAS10157`). `terraform import` expects the policy scope.
+Manages a Catalyst Center Application QoS Policy. A single logical policy is not one API object: the controller stores it as a set of sibling group-based policies that all share the same `policy_scope`. Each entry in `items` is one such sibling — typically one per application set (carrying a `BUSINESS_RELEVANCE` clause), plus a `<policy>_queuing_customization` entry carrying the queuing profile reference, and optionally a `<policy>_global_policy_configuration` entry carrying `APPLICATION_POLICY_KNOBS`. The deployment scope (`site_ids`, `ssids`) is a property of the policy, so it is declared once on the resource and written to every sibling. A site may only be used by one wired policy (`NCAS10157`). `terraform import` expects the policy scope.
 
 ## Example Usage
 
 ```terraform
 resource "catalystcenter_application_policy" "example" {
   policy_scope = "Branch_Office_QoS_Policy"
+  site_ids     = ["12345678-1234-1234-1234-123456789012"]
   items = [
     {
-      name                       = "Branch_Office_QoS_Policy_collaboration-apps"
-      policy_scope               = "Branch_Office_QoS_Policy"
-      priority                   = "100"
-      delete_policy_status       = "NONE"
-      advanced_policy_scope_name = "Branch_Office_QoS_Policy"
-      site_ids                   = ["12345678-1234-1234-1234-123456789012"]
-      ssids                      = ["corp-ssid"]
-      clause_type                = "BUSINESS_RELEVANCE"
-      relevance_level            = "BUSINESS_RELEVANT"
-      application_set_id         = "12345678-1234-1234-1234-123456789012"
+      name                 = "Branch_Office_QoS_Policy_collaboration-apps"
+      priority             = "100"
+      delete_policy_status = "NONE"
+      clause_type          = "BUSINESS_RELEVANCE"
+      relevance_level      = "BUSINESS_RELEVANT"
+      application_set_id   = "12345678-1234-1234-1234-123456789012"
     }
   ]
 }
@@ -37,11 +34,14 @@ resource "catalystcenter_application_policy" "example" {
 
 ### Required
 
-- `items` (Attributes Set) The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering. (see [below for nested schema](#nestedatt--items))
+- `items` (Attributes Set) The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering. Only what differs between siblings belongs here; everything shared by the policy is declared on the resource, so changing the deployment scope does not churn every entry. (see [below for nested schema](#nestedatt--items))
 - `policy_scope` (String) Name of the policy. On the controller every sibling object carries this as its `policyScope`, and their names are prefixed with it.
 
 ### Optional
 
+- `advanced_policy_scope_name` (String) Name carried by the advanced policy scope. Defaults to `policy_scope`, which is what the GUI writes.
+- `site_ids` (Set of String) Site IDs this policy is deployed to. The scope belongs to the policy, not to an individual sibling, so it is set once here and written to every entry in `items`.
+- `ssids` (Set of String) SSIDs this policy applies to, which makes it a wireless policy. Like `site_ids` it belongs to the policy and is written to every entry in `items`.
 - `undeploy_action` (String) What to do with the devices when this policy is destroyed. `DELETED` removes the policy from the devices, `RESTORED` returns them to their original configuration. Defaults to `DELETED`, matching the GUI. The controller requires the policy to be undeployed before its objects can be removed, so destroy always performs that step; this only selects which action it uses. Never sent on create or update.
   - Choices: `DELETED`, `RESTORED`
 
@@ -55,11 +55,9 @@ resource "catalystcenter_application_policy" "example" {
 Required:
 
 - `name` (String) Name of the sibling policy, conventionally `<policy_scope>_<application set>`, `<policy_scope>_queuing_customization` or `<policy_scope>_global_policy_configuration`.
-- `policy_scope` (String) Must equal the resource's `policy_scope`
 
 Optional:
 
-- `advanced_policy_scope_name` (String) Name carried by the advanced policy scope, normally the policy scope
 - `application_set_id` (String) ID of the application set this sibling policy applies to, set on `BUSINESS_RELEVANCE` sibling policies.
 - `clause_type` (String) Kind of exclusive contract clause carried by this sibling policy
   - Choices: `BUSINESS_RELEVANCE`, `APPLICATION_POLICY_KNOBS`
@@ -72,8 +70,6 @@ Optional:
 - `queuing_profile_id` (String) ID of the queuing profile, set on the `<policy_scope>_queuing_customization` sibling policy only.
 - `relevance_level` (String) Business relevance, when `clause_type` is `BUSINESS_RELEVANCE`
   - Choices: `BUSINESS_RELEVANT`, `BUSINESS_IRRELEVANT`, `DEFAULT`
-- `site_ids` (Set of String) Site IDs this sibling policy is deployed to
-- `ssids` (Set of String) SSIDs this sibling policy applies to
 
 ## Import
 

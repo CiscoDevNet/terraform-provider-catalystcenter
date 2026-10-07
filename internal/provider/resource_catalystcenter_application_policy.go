@@ -64,7 +64,7 @@ func (r *ApplicationPolicyResource) Metadata(ctx context.Context, req resource.M
 func (r *ApplicationPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("Manages a Catalyst Center Application QoS Policy. A single logical policy is not one API object: the controller stores it as a set of sibling group-based policies that all share the same `policy_scope`. Each entry in `items` is one such sibling — typically one per application set (carrying a `BUSINESS_RELEVANCE` clause), plus a `<policy>_queuing_customization` entry carrying the queuing profile reference, and optionally a `<policy>_global_policy_configuration` entry carrying `APPLICATION_POLICY_KNOBS`. A site may only be used by one wired policy (`NCAS10157`). `terraform import` expects the policy scope.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Manages a Catalyst Center Application QoS Policy. A single logical policy is not one API object: the controller stores it as a set of sibling group-based policies that all share the same `policy_scope`. Each entry in `items` is one such sibling — typically one per application set (carrying a `BUSINESS_RELEVANCE` clause), plus a `<policy>_queuing_customization` entry carrying the queuing profile reference, and optionally a `<policy>_global_policy_configuration` entry carrying `APPLICATION_POLICY_KNOBS`. The deployment scope (`site_ids`, `ssids`) is a property of the policy, so it is declared once on the resource and written to every sibling. A site may only be used by one wired policy (`NCAS10157`). `terraform import` expects the policy scope.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -88,17 +88,27 @@ func (r *ApplicationPolicyResource) Schema(ctx context.Context, req resource.Sch
 					stringvalidator.OneOf("DELETED", "RESTORED"),
 				},
 			},
+			"advanced_policy_scope_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name carried by the advanced policy scope. Defaults to `policy_scope`, which is what the GUI writes.").String,
+				Optional:            true,
+			},
+			"site_ids": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Site IDs this policy is deployed to. The scope belongs to the policy, not to an individual sibling, so it is set once here and written to every entry in `items`.").String,
+				ElementType:         types.StringType,
+				Optional:            true,
+			},
+			"ssids": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("SSIDs this policy applies to, which makes it a wireless policy. Like `site_ids` it belongs to the policy and is written to every entry in `items`.").String,
+				ElementType:         types.StringType,
+				Optional:            true,
+			},
 			"items": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering. Only what differs between siblings belongs here; everything shared by the policy is declared on the resource, so changing the deployment scope does not churn every entry.").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Name of the sibling policy, conventionally `<policy_scope>_<application set>`, `<policy_scope>_queuing_customization` or `<policy_scope>_global_policy_configuration`.").String,
-							Required:            true,
-						},
-						"policy_scope": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Must equal the resource's `policy_scope`").String,
 							Required:            true,
 						},
 						"priority": schema.StringAttribute{
@@ -111,20 +121,6 @@ func (r *ApplicationPolicyResource) Schema(ctx context.Context, req resource.Sch
 							Validators: []validator.String{
 								stringvalidator.OneOf("NONE", "DELETED", "RESTORED"),
 							},
-						},
-						"advanced_policy_scope_name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Name carried by the advanced policy scope, normally the policy scope").String,
-							Optional:            true,
-						},
-						"site_ids": schema.SetAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Site IDs this sibling policy is deployed to").String,
-							ElementType:         types.StringType,
-							Optional:            true,
-						},
-						"ssids": schema.SetAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("SSIDs this sibling policy applies to").String,
-							ElementType:         types.StringType,
-							Optional:            true,
 						},
 						"clause_type": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Kind of exclusive contract clause carried by this sibling policy").AddStringEnumDescription("BUSINESS_RELEVANCE", "APPLICATION_POLICY_KNOBS").String,
@@ -398,20 +394,16 @@ func carryOverOpaqueIDs(item string, existing gjson.Result) string {
 	return item
 }
 
-// ModifyPlan checks, at plan time, that each sibling policy belongs to the policy
-// it is declared under.
+// ModifyPlan warns, at plan time, when a sibling policy name does not carry the
+// policy scope as its prefix.
 //
 // The controller groups sibling policies by their `policyScope` field, and
-// GET /app-policy?policyScope=<scope> filters on that field alone. Two different
-// checks follow from this, with different severity:
-//
-//   - A wrong `policy_scope` is an error. The sibling is stored under another
-//     scope, so this resource never reads it back and never deletes it. It is
-//     left behind on the controller.
-//   - A `name` without the scope prefix is a warning only. Verified against the
-//     controller: the API accepts such a name, and GET still returns the sibling
-//     because the filter uses `policyScope`, not the name. Only the naming
-//     convention that Catalyst Center uses to group rows in the GUI is broken.
+// GET /app-policy?policyScope=<scope> filters on that field alone. toBody writes
+// the resource's `policy_scope` onto every sibling, so a sibling can no longer be
+// filed under the wrong scope. The name is a warning only: verified against the
+// controller, the API accepts a name without the prefix and GET still returns the
+// sibling because the filter uses `policyScope`, not the name. Only the naming
+// convention that Catalyst Center uses to group rows in the GUI is broken.
 func (r *ApplicationPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	if req.Plan.Raw.IsNull() {
 		return
@@ -443,19 +435,6 @@ func (r *ApplicationPolicyResource) ModifyPlan(ctx context.Context, req resource
 						"<policy_scope>_global_policy_configuration. The controller accepts this name and "+
 						"Terraform still manages the sibling, but the Application Policy GUI groups rows by "+
 						"this convention.", name, prefix),
-				)
-			}
-		}
-
-		if !item.PolicyScope.IsNull() && !item.PolicyScope.IsUnknown() {
-			if got := item.PolicyScope.ValueString(); got != want {
-				resp.Diagnostics.AddAttributeError(
-					itemPath.AtName("policy_scope"),
-					"Mismatched policy scope",
-					fmt.Sprintf("Item policy_scope %q must equal the resource's policy_scope %q. "+
-						"The controller stores the sibling under %q, so this resource never reads it back "+
-						"and never deletes it, and the sibling is left behind on the controller.",
-						got, want, got),
 				)
 			}
 		}
