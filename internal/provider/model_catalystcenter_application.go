@@ -83,6 +83,10 @@ func (data Application) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 
+func (data Application) getPathDelete() string {
+	return "/dna/intent/api/v1/applications"
+}
+
 // End of section. //template:end getPathDelete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathGet

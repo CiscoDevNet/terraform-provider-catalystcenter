@@ -1,6 +1,8 @@
 ---
 name: Application
 rest_endpoint: /dna/intent/api/v2/applications
+delete_rest_endpoint: /dna/intent/api/v1/applications
+delete_id_query_param: id
 get_extra_query_params: '&attributes=application&limit=500'
 id_from_query_path: response
 put_no_id: true

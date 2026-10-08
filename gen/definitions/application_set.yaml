@@ -1,6 +1,8 @@
 ---
 name: Application Set
 rest_endpoint: /dna/intent/api/v2/application-policy-application-set
+delete_rest_endpoint: /dna/intent/api/v1/application-policy-application-set
+delete_id_query_param: id
 get_extra_query_params: '?attributes=applicationSet&limit=500'
 get_from_all: true
 id_from_query_path: response
