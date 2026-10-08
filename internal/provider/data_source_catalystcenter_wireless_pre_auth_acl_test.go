@@ -43,7 +43,7 @@ func TestAccDataSourceCcWirelessPreAuthACL(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_pre_auth_acl.test", "ip_acl_rules.0.destination_subnet_mask_or_prefix", "32"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_pre_auth_acl.test", "ip_acl_rules.0.source_ports", "100"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_pre_auth_acl.test", "ip_acl_rules.0.destination_ports", "100-200"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_pre_auth_acl.test", "ip_acl_rules.0.protocol", "IP"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_wireless_pre_auth_acl.test", "ip_acl_rules.0.protocol", "TCP"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -75,7 +75,7 @@ func testAccDataSourceCcWirelessPreAuthACLConfig() string {
 	config += `	  destination_subnet_mask_or_prefix = 32` + "\n"
 	config += `	  source_ports = "100"` + "\n"
 	config += `	  destination_ports = "100-200"` + "\n"
-	config += `	  protocol = "IP"` + "\n"
+	config += `	  protocol = "TCP"` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 

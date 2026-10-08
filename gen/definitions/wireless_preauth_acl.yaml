@@ -64,11 +64,11 @@ attributes:
         example: 32
       - model_name: sourcePorts
         type: String
-        description: Source port. Mandatory when protocol is TCP or UDP, and must be in the range 1-65535 (port 0 is rejected). Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For any other protocol this attribute is ignored and Catalyst Center normalizes it to `0-65535`, so it should be left unset to avoid persistent differences.
+        description: Source port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.
         example: "100"
       - model_name: destinationPorts
         type: String
-        description: Destination port. Mandatory when protocol is TCP or UDP, and must be in the range 1-65535 (port 0 is rejected). Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For any other protocol this attribute is ignored and Catalyst Center normalizes it to `0-65535`, so it should be left unset to avoid persistent differences.
+        description: Destination port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.
         example: "100-200"
       - model_name: protocol
         type: String
@@ -76,7 +76,7 @@ attributes:
         mandatory: true
         enum_values: [ANY, AHP, ESP, GRE, ICMP, IGMP, IP, IPINIP, NOS, OSPF, PCP, PIM, TCP, UDP, ICMPV6, IPV6, SCTP]
         description: "An IPv4 or IPv6 protocol. IPv4 values: ANY, AHP, ESP, GRE, ICMP, IGMP, IP, IPINIP, NOS, OSPF, PCP, PIM, TCP, UDP. IPv6 values: ANY, AHP, ESP, ICMPV6, IPV6, PCP, SCTP, TCP, UDP."
-        example: IP
+        example: TCP
   - model_name: walledGardenUrls
     type: Set
     element_type: String

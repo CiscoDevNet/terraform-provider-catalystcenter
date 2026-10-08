@@ -1,7 +1,7 @@
 ## 0.6.5 (unreleased)
 
-- Fix `catalystcenter_wireless_pre_auth_acl` resource failing to create rules that omit `source_ports` or `destination_ports`. Both attributes defaulted to `0-65535`, which Catalyst Center rejects with `NCND13014` / `NCND13016`, as a port must be in the range `1-65535`. The static defaults are removed: both attributes are mandatory when `protocol` is `TCP` or `UDP`, and should be left unset for any other protocol, which Catalyst Center ignores and normalizes to `0-65535`
-- Fix `catalystcenter_wireless_pre_auth_acl` resource reporting a permanent difference on rules whose ports Catalyst Center rewrites. `source_ports` and `destination_ports` are no longer part of the ACL rule identity, so a rule is matched to its state entry by source, destination and protocol alone
+- Fix `catalystcenter_wireless_pre_auth_acl` resource rejecting rules that omit `source_ports` or `destination_ports`; both defaulted to `0-65535`, which Catalyst Center rejects (`NCND13014` / `NCND13016`) as ports must be in the range `1-65535`, so the static defaults are removed and the attributes are sent only when set
+- Fix `catalystcenter_wireless_pre_auth_acl` resource showing a permanent difference on rules whose ports Catalyst Center normalizes; ACL rules are now matched by source, destination and protocol only, so `source_ports` and `destination_ports` no longer affect rule identity
 
 ## 0.6.4
 

@@ -40,9 +40,9 @@ data "catalystcenter_wireless_pre_auth_acl" "example" {
 Read-Only:
 
 - `destination_address` (String) An IPv4 or IPv6 destination address.
-- `destination_ports` (String) Destination port. Mandatory when protocol is TCP or UDP, and must be in the range 1-65535 (port 0 is rejected). Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For any other protocol this attribute is ignored and Catalyst Center normalizes it to `0-65535`, so it should be left unset to avoid persistent differences.
+- `destination_ports` (String) Destination port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.
 - `destination_subnet_mask_or_prefix` (Number) Destination subnet (IPv4) / Destination prefix (IPv6). Value should be in CIDR notation.
 - `protocol` (String) An IPv4 or IPv6 protocol. IPv4 values: ANY, AHP, ESP, GRE, ICMP, IGMP, IP, IPINIP, NOS, OSPF, PCP, PIM, TCP, UDP. IPv6 values: ANY, AHP, ESP, ICMPV6, IPV6, PCP, SCTP, TCP, UDP.
 - `source_address` (String) An IPv4 or IPv6 source address.
-- `source_ports` (String) Source port. Mandatory when protocol is TCP or UDP, and must be in the range 1-65535 (port 0 is rejected). Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For any other protocol this attribute is ignored and Catalyst Center normalizes it to `0-65535`, so it should be left unset to avoid persistent differences.
+- `source_ports` (String) Source port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.
 - `source_subnet_mask_or_prefix` (Number) Source subnet (IPv4) / Source prefix (IPv6). Value should be in CIDR notation.
