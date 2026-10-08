@@ -190,6 +190,32 @@ attributes:
         description: Versioned template ID to be provisioned
         example: 12345678-1234-1234-1234-123456789012
         test_value: catalystcenter_template_version.example.id
+  - tf_name: secret_params
+    type: List
+    custom_modifier: deploymentSecretParamsListPlanModifier
+    query_param_no_body: true
+    write_only: true
+    exclude_test: true
+    description: Secret parameters for existing deployment targets. Terraform >= 1.11 is required. Secret values must be supplied whenever a target is redeployed; only target references and rotation versions are stored in state. Entries are matched by target and member identity, not list position.
+    attributes:
+      - tf_name: target_id
+        type: String
+        description: Target ID matching an existing target_info.id. Exactly one of target_id and target_host_name must be set.
+      - tf_name: target_host_name
+        type: String
+        description: Hostname matching an existing target_info.host_name. Exactly one of target_id and target_host_name must be set.
+      - tf_name: member_template_id
+        type: String
+        description: Composite member template_id containing the target. Omit for a regular or top-level target.
+      - tf_name: params_wo
+        type: Map
+        write_only_tf_native: true
+        write_only: true
+        description: Write-only secret parameter values as lists of strings. Values are omitted from Terraform plan and state. Names must not also exist in the target's public params. Every key requires a matching params_wo_versions key. All secrets are resent whenever the target is deployed.
+      - tf_name: params_wo_versions
+        type: Map
+        element_type: Int64
+        description: Positive integer rotation versions keyed by secret parameter name. Every known secret entry must supply this map with matching keys. Change a version whenever its secret changes. Versions remain in state and are never sent to CatC. Version changes respect the target's redeploy policy.
 test_prerequisites: |
   resource "catalystcenter_project" "test" {
     name        = "Project1"

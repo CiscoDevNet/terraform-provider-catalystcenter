@@ -68,7 +68,7 @@ attribute:
   fallback_response_model_name: str(required=False) # Name of the attribute in the fallback response model (if fallback endpoint returns different field names)
   tf_name: str(required=False) # Name of the attribute in the Terraform resource, by default derived from model_name
   type: enum('String', 'Int64', 'Float64', 'Bool', 'List', 'Set', 'Map', required=False) # Type of the attribute
-  element_type: enum('String', 'Int64', required=False) # only relevant if type is either 'List' or 'Set'
+  element_type: enum('String', 'Int64', required=False) # Scalar element type for List, Set, or Map
   data_path: str(required=False) # Path to the attribute in the model structure
   response_data_path: str(required=False) # Path to the attribute in the response model structure
   fallback_response_data_path: str(required=False) # Path to the attribute in the fallback response model structure (if fallback endpoint returns different structure)
@@ -95,6 +95,7 @@ attribute:
   computed_refresh_value: bool(required=False) # Set to true if the computed value should be refreshed on every update (no UseStateForUnknown). Needs to be used in conjunction with `computed`
   no_use_state_for_unknown: bool(required=False) # Set to true to suppress the UseStateForUnknown plan modifier on a computed attribute (prevents stale value inheritance, e.g. vlan_id/vlan_name across set-nested anycast gateways)
   write_only: bool(required=False) # Set to true if the attribute is write-only, meaning we cannot read the value
+  write_only_tf_native: bool(required=False) # Native Terraform write-only attribute, without legacy/version expansion; resource handles configuration and rotation.
   write_only_tf: bool(required=False) # Requires `write_only` to be set as well. Terraform-core write-only: expands the attribute into three coexisting attributes - the original (kept, still stored in state), "<attr>_wo" (write-only, never stored in state/plan) and "<attr>_wo_version" (Int64, Optional) as the rotation trigger. The original and "<attr>_wo" are mutually exclusive. Requires Terraform >= 1.11 to use the "_wo" form.
   coexistence_note: str(required=False) # Documentation note recommending the write-only spelling of an attribute. Generated automatically for the legacy twin of a `write_only_tf` attribute.
   exclude_from_put: bool(required=False) # Set to true if the attribute should be excluded from the PUT request

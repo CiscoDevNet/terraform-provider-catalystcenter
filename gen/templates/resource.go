@@ -119,13 +119,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
                 {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
-				{{- if $.NoRead}}
+				{{- if .ElementType}}
+				ElementType: types.{{.ElementType}}Type,
+				{{- else if $.NoRead}}
 				ElementType:         types.ListType{ElemType: types.StringType},
 				{{- else}}
 				ElementType:         types.StringType,
 				{{- end}}
 				{{- end}}
-				{{- if .WriteOnlyTF}}
+				{{- if or .WriteOnlyTF .WriteOnlyTFNative}}
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
@@ -221,13 +223,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
                             {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
-							{{- if $.NoRead}}
+							{{- if .ElementType}}
+							ElementType: types.{{.ElementType}}Type,
+							{{- else if $.NoRead}}
 							ElementType:         types.ListType{ElemType: types.StringType},
 							{{- else}}
 							ElementType:         types.StringType,
 							{{- end}}
 							{{- end}}
-							{{- if .WriteOnlyTF}}
+							{{- if or .WriteOnlyTF .WriteOnlyTFNative}}
 							Optional:            true,
 							WriteOnly:           true,
 							Sensitive:           true,
@@ -328,13 +332,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
                                         {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
-										{{- if $.NoRead}}
+										{{- if .ElementType}}
+										ElementType: types.{{.ElementType}}Type,
+										{{- else if $.NoRead}}
 										ElementType:         types.ListType{ElemType: types.StringType},
 										{{- else}}
 										ElementType:         types.StringType,
 										{{- end}}
 										{{- end}}
-										{{- if .WriteOnlyTF}}
+										{{- if or .WriteOnlyTF .WriteOnlyTFNative}}
 										Optional:            true,
 										WriteOnly:           true,
 										Sensitive:           true,
@@ -431,13 +437,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
                                                     {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
-													{{- if $.NoRead}}
+													{{- if .ElementType}}
+													ElementType: types.{{.ElementType}}Type,
+													{{- else if $.NoRead}}
 													ElementType:         types.ListType{ElemType: types.StringType},
 													{{- else}}
 													ElementType:         types.StringType,
 													{{- end}}
 													{{- end}}
-													{{- if .WriteOnlyTF}}
+													{{- if or .WriteOnlyTF .WriteOnlyTFNative}}
 													Optional:            true,
 													WriteOnly:           true,
 													Sensitive:           true,
