@@ -1,5 +1,5 @@
 ---
-name: App Policy Queuing Profile
+name: Application Policy Queuing Profile
 rest_endpoint: /dna/intent/api/v1/app-policy-queuing-profile
 get_from_all: true
 id_from_query_path: response
@@ -38,6 +38,8 @@ attributes:
     response_data_path: clause
     type: Set
     mandatory: true
+    minimum_test_value: '[{ type = "BANDWIDTH", is_common_between_all_interface_speeds = true, interface_speed_bandwidth_clauses = [{ interface_speed = "ALL", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }] }]'
+    test_value: '[{ type = "BANDWIDTH", is_common_between_all_interface_speeds = true, interface_speed_bandwidth_clauses = [{ interface_speed = "ALL", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }] }, { type = "DSCP_CUSTOMIZATION", tc_dscp_settings = [{ traffic_class = "VOIP_TELEPHONY", dscp = "46" }, { traffic_class = "BROADCAST_VIDEO", dscp = "40" }, { traffic_class = "REAL_TIME_INTERACTIVE", dscp = "32" }, { traffic_class = "MULTIMEDIA_CONFERENCING", dscp = "34" }, { traffic_class = "MULTIMEDIA_STREAMING", dscp = "26" }, { traffic_class = "NETWORK_CONTROL", dscp = "48" }, { traffic_class = "SIGNALING", dscp = "24" }, { traffic_class = "OPS_ADMIN_MGMT", dscp = "16" }, { traffic_class = "TRANSACTIONAL_DATA", dscp = "18" }, { traffic_class = "BULK_DATA", dscp = "10" }, { traffic_class = "SCAVENGER", dscp = "8" }, { traffic_class = "BEST_EFFORT", dscp = "0" }] }]'
     description:
       The clauses carried by this profile. Supply a `BANDWIDTH` clause, a
       `DSCP_CUSTOMIZATION` clause, or both. The controller does not add a missing

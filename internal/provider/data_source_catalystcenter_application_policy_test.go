@@ -29,22 +29,12 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcApplicationPolicy(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "advanced_policy_scope_name", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.name", "Branch_Office_QoS_Policy_collaboration-apps"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.priority", "100"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.delete_policy_status", "NONE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.clause_type", "BUSINESS_RELEVANCE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.relevance_level", "BUSINESS_RELEVANT"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.device_removal_behavior", "RESTORE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.host_tracking_enabled", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.queuing_profile_id", "12345678-1234-1234-1234-123456789012"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy.test", "items.0.application_set_id", "12345678-1234-1234-1234-123456789012"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCcApplicationPolicyConfig(),
+				Config: testAccDataSourceCcApplicationPolicyPrerequisitesConfig + testAccDataSourceCcApplicationPolicyConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -54,26 +44,34 @@ func TestAccDataSourceCcApplicationPolicy(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceCcApplicationPolicyPrerequisitesConfig = `
+data "catalystcenter_site" "test" {
+  name_hierarchy = "Global"
+}
+
+resource "catalystcenter_area" "test" {
+  name      = "AppPolicyTestArea"
+  parent_id = data.catalystcenter_site.test.id
+}
+
+data "catalystcenter_application_set" "test" {
+  name = "collaboration-apps"
+}
+
+data "catalystcenter_application_policy_queuing_profile" "test" {
+  name = "CVD_QUEUING_PROFILE"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceCcApplicationPolicyConfig() string {
 	config := `resource "catalystcenter_application_policy" "test" {` + "\n"
 	config += `	policy_scope = "Branch_Office_QoS_Policy"` + "\n"
-	config += `	advanced_policy_scope_name = ""` + "\n"
-	config += `	site_ids = ["12345678-1234-1234-1234-123456789012"]` + "\n"
-	config += `	ssids = [""]` + "\n"
-	config += `	items = [{` + "\n"
-	config += `	  name = "Branch_Office_QoS_Policy_collaboration-apps"` + "\n"
-	config += `	  priority = "100"` + "\n"
-	config += `	  delete_policy_status = "NONE"` + "\n"
-	config += `	  clause_type = "BUSINESS_RELEVANCE"` + "\n"
-	config += `	  relevance_level = "BUSINESS_RELEVANT"` + "\n"
-	config += `	  device_removal_behavior = "RESTORE"` + "\n"
-	config += `	  host_tracking_enabled = true` + "\n"
-	config += `	  queuing_profile_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	  application_set_id = "12345678-1234-1234-1234-123456789012"` + "\n"
-	config += `	}]` + "\n"
+	config += `	site_ids = [catalystcenter_area.test.id]` + "\n"
+	config += `	items = [{ name = "Branch_Office_QoS_Policy_collaboration-apps", priority = "100", delete_policy_status = "NONE", clause_type = "BUSINESS_RELEVANCE", relevance_level = "BUSINESS_RELEVANT", application_set_id = data.catalystcenter_application_set.test.id }, { name = "Branch_Office_QoS_Policy_queuing_customization", priority = "100", delete_policy_status = "NONE", queuing_profile_id = data.catalystcenter_application_policy_queuing_profile.test.id }]` + "\n"
 	config += `}` + "\n"
 
 	config += `

@@ -24,3 +24,4 @@ data "catalystcenter_qos_policy_setting" "example" {
 
 - `deploy_by_default_on_wired_devices` (Boolean) Whether a QoS policy is deployed automatically to a wired network device when it is provisioned. Applies only where the device is assigned to a site that has a QoS policy configured.
 - `id` (String) The id of the object
+- `name` (String) Fixed resource identifier.

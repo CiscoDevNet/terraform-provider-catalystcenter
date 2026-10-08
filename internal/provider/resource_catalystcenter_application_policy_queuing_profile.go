@@ -43,24 +43,24 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &AppPolicyQueuingProfileResource{}
-var _ resource.ResourceWithImportState = &AppPolicyQueuingProfileResource{}
+var _ resource.Resource = &ApplicationPolicyQueuingProfileResource{}
+var _ resource.ResourceWithImportState = &ApplicationPolicyQueuingProfileResource{}
 
-func NewAppPolicyQueuingProfileResource() resource.Resource {
-	return &AppPolicyQueuingProfileResource{}
+func NewApplicationPolicyQueuingProfileResource() resource.Resource {
+	return &ApplicationPolicyQueuingProfileResource{}
 }
 
-type AppPolicyQueuingProfileResource struct {
+type ApplicationPolicyQueuingProfileResource struct {
 	client                *cc.Client
 	AllowExistingOnCreate bool
 	cache                 *ThreadSafeCache
 }
 
-func (r *AppPolicyQueuingProfileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_app_policy_queuing_profile"
+func (r *ApplicationPolicyQueuingProfileResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_application_policy_queuing_profile"
 }
 
-func (r *AppPolicyQueuingProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *ApplicationPolicyQueuingProfileResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: helpers.NewAttributeDescription("Manages a Catalyst Center Application QoS Queuing Profile. A profile carries a `BANDWIDTH` clause, a `DSCP_CUSTOMIZATION` clause, or both. Built-in profiles such as `CVD_QUEUING_PROFILE` are seeded by the controller and must not be managed by this resource; reference them from an application policy instead. `terraform import` expects the two-part identifier `<name>,<id>` — the profile name followed by the controller-assigned UUID — because the name is the attribute used to match the object on the collection endpoint.").String,
@@ -163,7 +163,7 @@ func (r *AppPolicyQueuingProfileResource) Schema(ctx context.Context, req resour
 	}
 }
 
-func (r *AppPolicyQueuingProfileResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *ApplicationPolicyQueuingProfileResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -176,9 +176,9 @@ func (r *AppPolicyQueuingProfileResource) Configure(_ context.Context, req resou
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *AppPolicyQueuingProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *ApplicationPolicyQueuingProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	applyProviderMeta(r.client, ctx, req.ProviderMeta)
-	var plan AppPolicyQueuingProfile
+	var plan ApplicationPolicyQueuingProfile
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -190,7 +190,7 @@ func (r *AppPolicyQueuingProfileResource) Create(ctx context.Context, req resour
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, AppPolicyQueuingProfile{})
+	body := plan.toBody(ctx, ApplicationPolicyQueuingProfile{})
 
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body)
@@ -215,9 +215,9 @@ func (r *AppPolicyQueuingProfileResource) Create(ctx context.Context, req resour
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *AppPolicyQueuingProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *ApplicationPolicyQueuingProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	applyProviderMeta(r.client, ctx, req.ProviderMeta)
-	var state AppPolicyQueuingProfile
+	var state ApplicationPolicyQueuingProfile
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -259,9 +259,9 @@ func (r *AppPolicyQueuingProfileResource) Read(ctx context.Context, req resource
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *AppPolicyQueuingProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *ApplicationPolicyQueuingProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	applyProviderMeta(r.client, ctx, req.ProviderMeta)
-	var plan, state AppPolicyQueuingProfile
+	var plan, state ApplicationPolicyQueuingProfile
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -295,9 +295,9 @@ func (r *AppPolicyQueuingProfileResource) Update(ctx context.Context, req resour
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *AppPolicyQueuingProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *ApplicationPolicyQueuingProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	applyProviderMeta(r.client, ctx, req.ProviderMeta)
-	var state AppPolicyQueuingProfile
+	var state ApplicationPolicyQueuingProfile
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -321,7 +321,7 @@ func (r *AppPolicyQueuingProfileResource) Delete(ctx context.Context, req resour
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *AppPolicyQueuingProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *ApplicationPolicyQueuingProfileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
@@ -338,9 +338,9 @@ func (r *AppPolicyQueuingProfileResource) ImportState(ctx context.Context, req r
 // End of section. //template:end import
 
 // Section below is generated&owned by "gen/generator.go". //template:begin readcache
-func (r *AppPolicyQueuingProfileResource) ReadCache(ctx context.Context, req resource.ReadRequest, state AppPolicyQueuingProfile, params string) (cc.Res, error) {
+func (r *ApplicationPolicyQueuingProfileResource) ReadCache(ctx context.Context, req resource.ReadRequest, state ApplicationPolicyQueuingProfile, params string) (cc.Res, error) {
 	var err error
-	cacheKey := "AppPolicyQueuingProfile::"
+	cacheKey := "ApplicationPolicyQueuingProfile::"
 
 	_, cacheSuffix, found := strings.Cut(params, "?")
 	queryPart, err := url.ParseQuery(cacheSuffix)

@@ -328,6 +328,9 @@ func (data *ApplicationPolicy) updateFromBody(ctx context.Context, res gjson.Res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *ApplicationPolicy) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.UndeployAction.IsNull() {
+		return false
+	}
 	if !data.AdvancedPolicyScopeName.IsNull() {
 		return false
 	}

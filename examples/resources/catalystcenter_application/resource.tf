@@ -9,13 +9,10 @@ resource "catalystcenter_application" "example" {
   app_protocol       = "TCP"
   server_type        = "_servername"
   server_name        = "app.example.com"
-  url                = "example.com/path"
   network_identity = [
     {
       protocol    = "TCP"
       ports       = "8080"
-      lower_port  = 8080
-      upper_port  = 8090
       ipv4_subnet = ["10.0.0.0/24"]
     }
   ]

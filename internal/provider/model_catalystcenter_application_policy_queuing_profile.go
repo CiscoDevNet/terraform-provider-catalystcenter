@@ -29,30 +29,30 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-type AppPolicyQueuingProfile struct {
-	Id          types.String                     `tfsdk:"id"`
-	Name        types.String                     `tfsdk:"name"`
-	Description types.String                     `tfsdk:"description"`
-	Clauses     []AppPolicyQueuingProfileClauses `tfsdk:"clauses"`
+type ApplicationPolicyQueuingProfile struct {
+	Id          types.String                             `tfsdk:"id"`
+	Name        types.String                             `tfsdk:"name"`
+	Description types.String                             `tfsdk:"description"`
+	Clauses     []ApplicationPolicyQueuingProfileClauses `tfsdk:"clauses"`
 }
 
-type AppPolicyQueuingProfileClauses struct {
-	Type                              types.String                                                   `tfsdk:"type"`
-	IsCommonBetweenAllInterfaceSpeeds types.Bool                                                     `tfsdk:"is_common_between_all_interface_speeds"`
-	InterfaceSpeedBandwidthClauses    []AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses `tfsdk:"interface_speed_bandwidth_clauses"`
-	TcDscpSettings                    []AppPolicyQueuingProfileClausesTcDscpSettings                 `tfsdk:"tc_dscp_settings"`
+type ApplicationPolicyQueuingProfileClauses struct {
+	Type                              types.String                                                           `tfsdk:"type"`
+	IsCommonBetweenAllInterfaceSpeeds types.Bool                                                             `tfsdk:"is_common_between_all_interface_speeds"`
+	InterfaceSpeedBandwidthClauses    []ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses `tfsdk:"interface_speed_bandwidth_clauses"`
+	TcDscpSettings                    []ApplicationPolicyQueuingProfileClausesTcDscpSettings                 `tfsdk:"tc_dscp_settings"`
 }
 
-type AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses struct {
-	InterfaceSpeed      types.String                                                                      `tfsdk:"interface_speed"`
-	TcBandwidthSettings []AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings `tfsdk:"tc_bandwidth_settings"`
+type ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses struct {
+	InterfaceSpeed      types.String                                                                              `tfsdk:"interface_speed"`
+	TcBandwidthSettings []ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings `tfsdk:"tc_bandwidth_settings"`
 }
-type AppPolicyQueuingProfileClausesTcDscpSettings struct {
+type ApplicationPolicyQueuingProfileClausesTcDscpSettings struct {
 	TrafficClass types.String `tfsdk:"traffic_class"`
 	Dscp         types.String `tfsdk:"dscp"`
 }
 
-type AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings struct {
+type ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings struct {
 	TrafficClass        types.String `tfsdk:"traffic_class"`
 	BandwidthPercentage types.Int64  `tfsdk:"bandwidth_percentage"`
 }
@@ -60,7 +60,7 @@ type AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSett
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
-func (data AppPolicyQueuingProfile) getPath() string {
+func (data ApplicationPolicyQueuingProfile) getPath() string {
 	return "/dna/intent/api/v1/app-policy-queuing-profile"
 }
 
@@ -91,7 +91,7 @@ func (data AppPolicyQueuingProfile) getPath() string {
 // End of section. //template:end getPathIdQuery
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data AppPolicyQueuingProfile) toBody(ctx context.Context, state AppPolicyQueuingProfile) string {
+func (data ApplicationPolicyQueuingProfile) toBody(ctx context.Context, state ApplicationPolicyQueuingProfile) string {
 	body := ""
 	put := false
 	if state.Id.ValueString() != "" {
@@ -160,7 +160,7 @@ func (data AppPolicyQueuingProfile) toBody(ctx context.Context, state AppPolicyQ
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-func (data *AppPolicyQueuingProfile) fromBody(ctx context.Context, res gjson.Result) {
+func (data *ApplicationPolicyQueuingProfile) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -172,9 +172,9 @@ func (data *AppPolicyQueuingProfile) fromBody(ctx context.Context, res gjson.Res
 		data.Description = types.StringNull()
 	}
 	if value := res.Get("clause"); value.Exists() && len(value.Array()) > 0 {
-		data.Clauses = make([]AppPolicyQueuingProfileClauses, 0)
+		data.Clauses = make([]ApplicationPolicyQueuingProfileClauses, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := AppPolicyQueuingProfileClauses{}
+			item := ApplicationPolicyQueuingProfileClauses{}
 			if cValue := v.Get("type"); cValue.Exists() {
 				item.Type = types.StringValue(cValue.String())
 			} else {
@@ -186,18 +186,18 @@ func (data *AppPolicyQueuingProfile) fromBody(ctx context.Context, res gjson.Res
 				item.IsCommonBetweenAllInterfaceSpeeds = types.BoolNull()
 			}
 			if cValue := v.Get("interfaceSpeedBandwidthClauses"); cValue.Exists() && len(cValue.Array()) > 0 {
-				item.InterfaceSpeedBandwidthClauses = make([]AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses, 0)
+				item.InterfaceSpeedBandwidthClauses = make([]ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
-					cItem := AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses{}
+					cItem := ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses{}
 					if ccValue := cv.Get("interfaceSpeed"); ccValue.Exists() {
 						cItem.InterfaceSpeed = types.StringValue(ccValue.String())
 					} else {
 						cItem.InterfaceSpeed = types.StringNull()
 					}
 					if ccValue := cv.Get("tcBandwidthSettings"); ccValue.Exists() && len(ccValue.Array()) > 0 {
-						cItem.TcBandwidthSettings = make([]AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings, 0)
+						cItem.TcBandwidthSettings = make([]ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings, 0)
 						ccValue.ForEach(func(cck, ccv gjson.Result) bool {
-							ccItem := AppPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings{}
+							ccItem := ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings{}
 							if cccValue := ccv.Get("trafficClass"); cccValue.Exists() {
 								ccItem.TrafficClass = types.StringValue(cccValue.String())
 							} else {
@@ -217,9 +217,9 @@ func (data *AppPolicyQueuingProfile) fromBody(ctx context.Context, res gjson.Res
 				})
 			}
 			if cValue := v.Get("tcDscpSettings"); cValue.Exists() && len(cValue.Array()) > 0 {
-				item.TcDscpSettings = make([]AppPolicyQueuingProfileClausesTcDscpSettings, 0)
+				item.TcDscpSettings = make([]ApplicationPolicyQueuingProfileClausesTcDscpSettings, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
-					cItem := AppPolicyQueuingProfileClausesTcDscpSettings{}
+					cItem := ApplicationPolicyQueuingProfileClausesTcDscpSettings{}
 					if ccValue := cv.Get("trafficClass"); ccValue.Exists() {
 						cItem.TrafficClass = types.StringValue(ccValue.String())
 					} else {
@@ -243,7 +243,7 @@ func (data *AppPolicyQueuingProfile) fromBody(ctx context.Context, res gjson.Res
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *AppPolicyQueuingProfile) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *ApplicationPolicyQueuingProfile) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -390,7 +390,7 @@ func (data *AppPolicyQueuingProfile) updateFromBody(ctx context.Context, res gjs
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
-func (data *AppPolicyQueuingProfile) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *ApplicationPolicyQueuingProfile) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Description.IsNull() {
 		return false
 	}

@@ -1,4 +1,4 @@
-resource "catalystcenter_app_policy_queuing_profile" "example" {
+resource "catalystcenter_application_policy_queuing_profile" "example" {
   name        = "branch-queuing"
   description = "Branch WAN queuing profile"
   clauses = [

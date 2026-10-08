@@ -7,6 +7,7 @@ put_no_id: true
 put_id_include_path: "0.id"
 remove_resource_on_empty_response: true
 update_computed: true
+data_source_no_id: true
 doc_category: Policy
 res_description:
   'Manages a custom Catalyst Center Application. The controller ships roughly 1500
@@ -21,7 +22,6 @@ attributes:
     type: String
     id: true
     match_id: true
-    data_source_query: true
     query_param: true
     query_param_name: name
     mandatory: true
@@ -49,6 +49,7 @@ attributes:
       categories, so this opaque UUID must be copied from an existing application in
       the desired category.
     example: f378fea2-3b99-4172-b73b-2fd17a8b1df1
+    test_value: data.catalystcenter_application.category_reference.category_id
   - model_name: trafficClass
     data_path: "0.networkApplications.0"
     response_data_path: response.0.networkApplications.0.trafficClass
@@ -106,18 +107,22 @@ attributes:
       How the application is identified. `_servername` pairs with `server_name`,
       `_url` with `url`.
     example: _servername
+    minimum_test_value: '"_servername"'
   - model_name: serverName
     data_path: "0.networkApplications.0"
     response_data_path: response.0.networkApplications.0.serverName
     type: String
     description: Server name identifying the application, when `server_type` is `_servername`
     example: app.example.com
+    minimum_test_value: '"tf-acc-application.example.com"'
+    test_value: '"tf-acc-application.example.com"'
   - model_name: url
     data_path: "0.networkApplications.0"
     response_data_path: response.0.networkApplications.0.url
     type: String
     description: URL identifying the application, when `server_type` is `_url`
     example: example.com/path
+    exclude_test: true
   - model_name: applicationType
     data_path: "0.networkApplications.0"
     value: CUSTOM
@@ -150,6 +155,8 @@ attributes:
         enum_values: [TCP_OR_UDP, TCP, UDP, IP]
         description: Protocol of the signature
         example: TCP
+        minimum_test_value: '"TCP"'
+        test_value: '"TCP"'
       - model_name: ports
         type: String
         description:
@@ -158,23 +165,29 @@ attributes:
           controller requires this key to be present even when empty, so send an
           empty string when only a range is used.
         example: "8080"
+        minimum_test_value: '"65529"'
+        test_value: '"65529"'
       - model_name: lowerPort
         type: Int64
         description:
           Start of a port range, used with `upper_port`. Leave `ports` empty when
           a range is used. The controller returns `0` when no range is set.
         example: 8080
+        exclude_test: true
       - model_name: upperPort
         type: Int64
         description:
           End of a port range, used with `lower_port`. Leave `ports` empty when a
           range is used. The controller returns `0` when no range is set.
         example: 8090
+        exclude_test: true
       - model_name: ipv4Subnet
         type: Set
         element_type: String
         description: IPv4 subnets matching the application
         example: 10.0.0.0/24
+        minimum_test_value: '["198.51.100.0/24"]'
+        test_value: '["198.51.100.0/24"]'
   - model_name: instanceId
     data_path: "0"
     response_data_path: response.0.instanceId
@@ -283,3 +296,13 @@ attributes:
     exclude_example: true
     exclude_test: true
     description: Server-assigned selector ID, echoed back on update
+
+test_prerequisites: |
+  resource "catalystcenter_application_set" "test" {
+    name                       = "tf-acc-application-set"
+    default_business_relevance = "BUSINESS_RELEVANT"
+  }
+
+  data "catalystcenter_application" "category_reference" {
+    name = "3com-amp3"
+  }

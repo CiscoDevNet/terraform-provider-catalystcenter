@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"fmt"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -215,6 +216,8 @@ func (data Application) toBody(ctx context.Context, state Application) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
+	// Retrieve the 'id' attribute, if Data Source doesn't require id
+	data.Id = types.StringValue(fmt.Sprint(data.Name.ValueString()))
 	if value := res.Get("response.0.name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {

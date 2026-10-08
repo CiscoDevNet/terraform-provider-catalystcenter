@@ -66,6 +66,10 @@ func (d *ApplicationPolicyDataSource) Schema(ctx context.Context, req datasource
 				MarkdownDescription: "Name of the policy. On the controller every sibling object carries this as its `policyScope`, and their names are prefixed with it.",
 				Required:            true,
 			},
+			"undeploy_action": schema.StringAttribute{
+				MarkdownDescription: "What to do with the devices when this policy is destroyed. `DELETED` removes the policy from the devices, `RESTORED` returns them to their original configuration. Defaults to `DELETED`, matching the GUI. The controller requires the policy to be undeployed before its objects can be removed, so destroy always performs that step; this only selects which action it uses. Never sent on create or update.",
+				Computed:            true,
+			},
 			"advanced_policy_scope_name": schema.StringAttribute{
 				MarkdownDescription: "Name carried by the advanced policy scope. Defaults to `policy_scope`, which is what the GUI writes.",
 				Computed:            true,

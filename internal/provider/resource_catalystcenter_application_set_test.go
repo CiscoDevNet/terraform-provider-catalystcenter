@@ -19,10 +19,12 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"fmt"
 	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 // End of section. //template:end imports
@@ -46,6 +48,13 @@ func TestAccCcApplicationSet(t *testing.T) {
 	steps = append(steps, resource.TestStep{
 		ResourceName: "catalystcenter_application_set.test",
 		ImportState:  true,
+		ImportStateIdFunc: func(s *terraform.State) (string, error) {
+			rs, ok := s.RootModule().Resources["catalystcenter_application_set.test"]
+			if !ok {
+				return "", fmt.Errorf("resource not found in state")
+			}
+			return fmt.Sprintf("%s,%s", rs.Primary.Attributes["name"], rs.Primary.ID), nil
+		},
 	})
 
 	resource.Test(t, resource.TestCase{

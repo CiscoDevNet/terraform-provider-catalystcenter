@@ -38,26 +38,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &AppPolicyQueuingProfileDataSource{}
-	_ datasource.DataSourceWithConfigure = &AppPolicyQueuingProfileDataSource{}
+	_ datasource.DataSource              = &ApplicationPolicyQueuingProfileDataSource{}
+	_ datasource.DataSourceWithConfigure = &ApplicationPolicyQueuingProfileDataSource{}
 )
 
-func NewAppPolicyQueuingProfileDataSource() datasource.DataSource {
-	return &AppPolicyQueuingProfileDataSource{}
+func NewApplicationPolicyQueuingProfileDataSource() datasource.DataSource {
+	return &ApplicationPolicyQueuingProfileDataSource{}
 }
 
-type AppPolicyQueuingProfileDataSource struct {
+type ApplicationPolicyQueuingProfileDataSource struct {
 	client *cc.Client
 }
 
-func (d *AppPolicyQueuingProfileDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_app_policy_queuing_profile"
+func (d *ApplicationPolicyQueuingProfileDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_application_policy_queuing_profile"
 }
 
-func (d *AppPolicyQueuingProfileDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *ApplicationPolicyQueuingProfileDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the App Policy Queuing Profile.",
+		MarkdownDescription: "This data source can read the Application Policy Queuing Profile.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -137,7 +137,7 @@ func (d *AppPolicyQueuingProfileDataSource) Schema(ctx context.Context, req data
 		},
 	}
 }
-func (d *AppPolicyQueuingProfileDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *ApplicationPolicyQueuingProfileDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -146,7 +146,7 @@ func (d *AppPolicyQueuingProfileDataSource) ConfigValidators(ctx context.Context
 	}
 }
 
-func (d *AppPolicyQueuingProfileDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *ApplicationPolicyQueuingProfileDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -157,9 +157,9 @@ func (d *AppPolicyQueuingProfileDataSource) Configure(_ context.Context, req dat
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *AppPolicyQueuingProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *ApplicationPolicyQueuingProfileDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	applyProviderMeta(d.client, ctx, req.ProviderMeta)
-	var config AppPolicyQueuingProfile
+	var config ApplicationPolicyQueuingProfile
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

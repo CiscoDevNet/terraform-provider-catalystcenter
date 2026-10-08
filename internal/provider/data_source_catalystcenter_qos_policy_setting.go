@@ -24,13 +24,17 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	cc "github.com/netascode/go-catalystcenter"
 )
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin model
+// Custom (frozen) section: this data source is a singleton whose synthetic "name"
+// identifier is marked query_param_no_body and would therefore be dropped from the
+// generated schema. It is added here as a computed attribute so the struct and schema
+// stay in sync. Kept outside the generator markers so `go generate` preserves it.
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
@@ -60,6 +64,10 @@ func (d *QoSPolicySettingDataSource) Schema(ctx context.Context, req datasource.
 				MarkdownDescription: "The id of the object",
 				Computed:            true,
 			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Fixed resource identifier.",
+				Computed:            true,
+			},
 			"deploy_by_default_on_wired_devices": schema.BoolAttribute{
 				MarkdownDescription: "Whether a QoS policy is deployed automatically to a wired network device when it is provisioned. Applies only where the device is assigned to a site that has a QoS policy configured.",
 				Computed:            true,
@@ -76,9 +84,11 @@ func (d *QoSPolicySettingDataSource) Configure(_ context.Context, req datasource
 	d.client = req.ProviderData.(*CcProviderData).Client
 }
 
-// End of section. //template:end model
+// End of custom (frozen) section.
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
+// Custom (frozen) read: the data source has no "name" input (data_source_no_id), so the
+// synthetic identifier is defaulted to the fixed value before fromBody derives the id from
+// it. Kept outside the generator markers so `go generate` preserves it.
 func (d *QoSPolicySettingDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config QoSPolicySetting
@@ -88,6 +98,10 @@ func (d *QoSPolicySettingDataSource) Read(ctx context.Context, req datasource.Re
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	if config.Name.IsNull() {
+		config.Name = types.StringValue("qos_policy_setting")
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
@@ -107,4 +121,4 @@ func (d *QoSPolicySettingDataSource) Read(ctx context.Context, req datasource.Re
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end read
+// End of custom (frozen) section.
