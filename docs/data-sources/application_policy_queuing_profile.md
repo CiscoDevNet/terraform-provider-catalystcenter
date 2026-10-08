@@ -36,9 +36,9 @@ data "catalystcenter_application_policy_queuing_profile" "example" {
 
 Read-Only:
 
-- `interface_speed_bandwidth_clauses` (Attributes Set) Per-interface-speed bandwidth allocation. Only valid on a `BANDWIDTH` clause. (see [below for nested schema](#nestedatt--clauses--interface_speed_bandwidth_clauses))
+- `interface_speed_bandwidth_clauses` (Attributes List) Per-interface-speed bandwidth allocation. Only valid on a `BANDWIDTH` clause. (see [below for nested schema](#nestedatt--clauses--interface_speed_bandwidth_clauses))
 - `is_common_between_all_interface_speeds` (Boolean) Whether the same bandwidth allocation applies to every interface speed. When `true` supply a single `ALL` entry in `interface_speed_bandwidth_clauses`. Only valid on a `BANDWIDTH` clause.
-- `tc_dscp_settings` (Attributes Set) DSCP value per traffic class. All twelve traffic classes must be supplied and every DSCP value must be unique across them. Only valid on a `DSCP_CUSTOMIZATION` clause. (see [below for nested schema](#nestedatt--clauses--tc_dscp_settings))
+- `tc_dscp_settings` (Attributes List) DSCP value per traffic class. All twelve traffic classes must be supplied and every DSCP value must be unique across them. Only valid on a `DSCP_CUSTOMIZATION` clause. (see [below for nested schema](#nestedatt--clauses--tc_dscp_settings))
 - `type` (String) The kind of clause
 
 <a id="nestedatt--clauses--interface_speed_bandwidth_clauses"></a>
@@ -47,7 +47,7 @@ Read-Only:
 Read-Only:
 
 - `interface_speed` (String) The interface speed this allocation applies to
-- `tc_bandwidth_settings` (Attributes Set) Bandwidth percentage per traffic class. All twelve traffic classes must be supplied and the percentages must total 100. (see [below for nested schema](#nestedatt--clauses--interface_speed_bandwidth_clauses--tc_bandwidth_settings))
+- `tc_bandwidth_settings` (Attributes List) Bandwidth percentage per traffic class. All twelve traffic classes must be supplied and the percentages must total 100. (see [below for nested schema](#nestedatt--clauses--interface_speed_bandwidth_clauses--tc_bandwidth_settings))
 
 <a id="nestedatt--clauses--interface_speed_bandwidth_clauses--tc_bandwidth_settings"></a>
 ### Nested Schema for `clauses.interface_speed_bandwidth_clauses.tc_bandwidth_settings`

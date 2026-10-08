@@ -100,7 +100,7 @@ func (r *ApplicationPolicyQueuingProfileResource) Schema(ctx context.Context, re
 							MarkdownDescription: helpers.NewAttributeDescription("Whether the same bandwidth allocation applies to every interface speed. When `true` supply a single `ALL` entry in `interface_speed_bandwidth_clauses`. Only valid on a `BANDWIDTH` clause.").String,
 							Optional:            true,
 						},
-						"interface_speed_bandwidth_clauses": schema.SetNestedAttribute{
+						"interface_speed_bandwidth_clauses": schema.ListNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Per-interface-speed bandwidth allocation. Only valid on a `BANDWIDTH` clause.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -112,7 +112,7 @@ func (r *ApplicationPolicyQueuingProfileResource) Schema(ctx context.Context, re
 											stringvalidator.OneOf("ALL", "HUNDRED_GBPS", "TEN_GBPS", "ONE_GBPS", "HUNDRED_MBPS", "TEN_MBPS", "ONE_MBPS"),
 										},
 									},
-									"tc_bandwidth_settings": schema.SetNestedAttribute{
+									"tc_bandwidth_settings": schema.ListNestedAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Bandwidth percentage per traffic class. All twelve traffic classes must be supplied and the percentages must total 100.").String,
 										Required:            true,
 										NestedObject: schema.NestedAttributeObject{
@@ -137,7 +137,7 @@ func (r *ApplicationPolicyQueuingProfileResource) Schema(ctx context.Context, re
 								},
 							},
 						},
-						"tc_dscp_settings": schema.SetNestedAttribute{
+						"tc_dscp_settings": schema.ListNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("DSCP value per traffic class. All twelve traffic classes must be supplied and every DSCP value must be unique across them. Only valid on a `DSCP_CUSTOMIZATION` clause.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{

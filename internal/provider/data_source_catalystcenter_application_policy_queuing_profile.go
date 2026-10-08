@@ -87,7 +87,7 @@ func (d *ApplicationPolicyQueuingProfileDataSource) Schema(ctx context.Context, 
 							MarkdownDescription: "Whether the same bandwidth allocation applies to every interface speed. When `true` supply a single `ALL` entry in `interface_speed_bandwidth_clauses`. Only valid on a `BANDWIDTH` clause.",
 							Computed:            true,
 						},
-						"interface_speed_bandwidth_clauses": schema.SetNestedAttribute{
+						"interface_speed_bandwidth_clauses": schema.ListNestedAttribute{
 							MarkdownDescription: "Per-interface-speed bandwidth allocation. Only valid on a `BANDWIDTH` clause.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -96,7 +96,7 @@ func (d *ApplicationPolicyQueuingProfileDataSource) Schema(ctx context.Context, 
 										MarkdownDescription: "The interface speed this allocation applies to",
 										Computed:            true,
 									},
-									"tc_bandwidth_settings": schema.SetNestedAttribute{
+									"tc_bandwidth_settings": schema.ListNestedAttribute{
 										MarkdownDescription: "Bandwidth percentage per traffic class. All twelve traffic classes must be supplied and the percentages must total 100.",
 										Computed:            true,
 										NestedObject: schema.NestedAttributeObject{
@@ -115,7 +115,7 @@ func (d *ApplicationPolicyQueuingProfileDataSource) Schema(ctx context.Context, 
 								},
 							},
 						},
-						"tc_dscp_settings": schema.SetNestedAttribute{
+						"tc_dscp_settings": schema.ListNestedAttribute{
 							MarkdownDescription: "DSCP value per traffic class. All twelve traffic classes must be supplied and every DSCP value must be unique across them. Only valid on a `DSCP_CUSTOMIZATION` clause.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
