@@ -26,7 +26,7 @@ resource "catalystcenter_wireless_pre_auth_acl" "example" {
       destination_subnet_mask_or_prefix = 32
       source_ports                      = "100"
       destination_ports                 = "100-200"
-      protocol                          = "IP"
+      protocol                          = "TCP"
     }
   ]
 }
@@ -67,10 +67,8 @@ Required:
 
 Optional:
 
-- `destination_ports` (String) Destination port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.
-  - Default value: `0-65535`
-- `source_ports` (String) Source port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.
-  - Default value: `0-65535`
+- `destination_ports` (String) Destination port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.
+- `source_ports` (String) Source port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.
 
 ## Import
 

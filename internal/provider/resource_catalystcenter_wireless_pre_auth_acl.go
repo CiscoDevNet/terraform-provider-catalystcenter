@@ -31,7 +31,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -119,16 +118,12 @@ func (r *WirelessPreAuthACLResource) Schema(ctx context.Context, req resource.Sc
 							Required:            true,
 						},
 						"source_ports": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Source port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.").AddDefaultValueDescription("0-65535").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Source port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.").String,
 							Optional:            true,
-							Computed:            true,
-							Default:             stringdefault.StaticString("0-65535"),
 						},
 						"destination_ports": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Destination port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.").AddDefaultValueDescription("0-65535").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Destination port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.").String,
 							Optional:            true,
-							Computed:            true,
-							Default:             stringdefault.StaticString("0-65535"),
 						},
 						"protocol": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("An IPv4 or IPv6 protocol. IPv4 values: ANY, AHP, ESP, GRE, ICMP, IGMP, IP, IPINIP, NOS, OSPF, PCP, PIM, TCP, UDP. IPv6 values: ANY, AHP, ESP, ICMPV6, IPV6, PCP, SCTP, TCP, UDP.").AddStringEnumDescription("ANY", "AHP", "ESP", "GRE", "ICMP", "IGMP", "IP", "IPINIP", "NOS", "OSPF", "PCP", "PIM", "TCP", "UDP", "ICMPV6", "IPV6", "SCTP").String,

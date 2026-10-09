@@ -1,6 +1,8 @@
-## Unreleased
+## 0.6.5 (unreleased)
 
 - Add `secret_params` to `catalystcenter_deploy_template` for write-only template parameters with per-parameter rotation versions, including composite template deployments; requires Terraform 1.11 or later
+- Fix `catalystcenter_wireless_pre_auth_acl` resource sending `0-65535` for `source_ports` and `destination_ports` when unset, which Catalyst Center rejects on TCP and UDP rules; both are now omitted when not configured
+- Fix `catalystcenter_wireless_pre_auth_acl` resource showing a permanent difference on rules whose ports Catalyst Center normalizes; ACL rules are now matched by source, destination and protocol only
 
 ## 0.6.4
 
