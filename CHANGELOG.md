@@ -3,6 +3,8 @@
 - Add `secret_params` to `catalystcenter_deploy_template` for write-only template parameters with per-parameter rotation versions, including composite template deployments; requires Terraform 1.11 or later
 - Fix `catalystcenter_wireless_pre_auth_acl` resource sending `0-65535` for `source_ports` and `destination_ports` when unset, which Catalyst Center rejects on TCP and UDP rules; both are now omitted when not configured
 - Fix `catalystcenter_wireless_pre_auth_acl` resource showing a permanent difference on rules whose ports Catalyst Center normalizes; ACL rules are now matched by source, destination and protocol only
+- Add `catalystcenter_application_policy_queuing_profile`, `catalystcenter_application_set`, `catalystcenter_application` and `catalystcenter_qos_policy_setting` resources and data sources for Application QoS. The `catalystcenter_application_policy_queuing_profile`, `catalystcenter_application_set` and `catalystcenter_application` data sources can be looked up by `name`
+- Add `catalystcenter_application_policy` resource and data source. Catalyst Center stores an application policy as several sibling policies sharing one `policy_scope`; each sibling is an entry in `items`, while the deployment scope (`site_ids`, `ssids`) is declared once on the resource. Destroy first undeploys the policy from its devices and then deletes it, matching the GUI; `undeploy_action` selects whether the devices are cleaned (`DELETED`, the default) or restored to their original configuration (`RESTORED`)
 
 ## 0.6.4
 

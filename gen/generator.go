@@ -884,6 +884,7 @@ var functions = template.FuncMap{
 	"toGoName":                           ToGoName,
 	"camelCase":                          CamelCase,
 	"strContains":                        strings.Contains,
+	"trimPrefix":                         strings.TrimPrefix,
 	"snakeCase":                          SnakeCase,
 	"sprintf":                            fmt.Sprintf,
 	"toLower":                            strings.ToLower,
@@ -1265,7 +1266,9 @@ func main() {
 				(configs[i].NoResource && t.path == "./gen/templates/resource.go") ||
 				(configs[i].NoResource && t.path == "./gen/templates/resource_test.go") ||
 				(configs[i].NoResource && t.path == "./gen/templates/resource.tf") ||
-				(configs[i].NoResource && t.path == "./gen/templates/import.sh") {
+				(configs[i].NoResource && t.path == "./gen/templates/import.sh") ||
+				(configs[i].ExcludeTest && t.path == "./gen/templates/resource_test.go") ||
+				(configs[i].ExcludeTest && t.path == "./gen/templates/data_source_test.go") {
 				continue
 			}
 			renderTemplate(t.path, t.prefix+SnakeCase(configs[i].Name)+t.suffix, configs[i])
