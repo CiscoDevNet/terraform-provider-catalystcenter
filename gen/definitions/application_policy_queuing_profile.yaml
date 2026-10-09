@@ -6,6 +6,7 @@ id_from_query_path: response
 put_no_id: true
 put_id_include_path: "0.id"
 doc_category: Policy
+test_tags: [QOS]
 res_description:
   'Manages a Catalyst Center Application QoS Queuing Profile. A profile carries a
   `BANDWIDTH` clause, a `DSCP_CUSTOMIZATION` clause, or both. Built-in profiles such

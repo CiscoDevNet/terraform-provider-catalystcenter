@@ -31,6 +31,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcApplicationPolicyQueuingProfile(t *testing.T) {
+	if os.Getenv("QOS") == "" {
+		t.Skip("skipping test, set environment variable QOS")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy_queuing_profile.test", "name", "branch-queuing"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_policy_queuing_profile.test", "description", "Branch WAN queuing profile"))

@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcApplicationPolicyQueuingProfile(t *testing.T) {
+	if os.Getenv("QOS") == "" {
+		t.Skip("skipping test, set environment variable QOS")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy_queuing_profile.test", "name", "branch-queuing"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application_policy_queuing_profile.test", "description", "Branch WAN queuing profile"))
