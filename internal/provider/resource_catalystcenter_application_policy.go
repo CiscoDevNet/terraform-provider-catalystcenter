@@ -95,7 +95,7 @@ func (r *ApplicationPolicyResource) Schema(ctx context.Context, req resource.Sch
 			"site_ids": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Site IDs this policy is deployed to. The scope belongs to the policy, not to an individual sibling, so it is set once here and written to every entry in `items`.").String,
 				ElementType:         types.StringType,
-				Optional:            true,
+				Required:            true,
 			},
 			"ssids": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("SSIDs this policy applies to, which makes it a wireless policy. Like `site_ids` it belongs to the policy and is written to every entry in `items`.").String,
@@ -113,7 +113,7 @@ func (r *ApplicationPolicyResource) Schema(ctx context.Context, req resource.Sch
 						},
 						"priority": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Priority of the sibling policy. `100` normally, `4095` when the producer refers to an application scalable group.").String,
-							Optional:            true,
+							Required:            true,
 						},
 						"delete_policy_status": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Deployment state of the sibling policy").AddStringEnumDescription("NONE", "DELETED", "RESTORED").String,

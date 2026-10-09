@@ -190,14 +190,6 @@ func testAccCc{{camelCase .Name}}Config_minimum() string {
 		{{- end}}
 	config += `	  }` + "\n"
 	config += `	}` + "\n"
-	{{- else if and (isNestedListSet .) (or .MinimumTestValue .TestValue)}}
-	{{- if len .TestTags}}
-	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
-	{{- end}}
-	config += `	{{.TfName}} = {{if .MinimumTestValue}}{{.MinimumTestValue}}{{else}}{{.TestValue}}{{end}}` + "\n"
-	{{- if len .TestTags}}
-	}
-	{{- end}}
 	{{- else if isNestedListSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
@@ -293,14 +285,6 @@ func testAccCc{{camelCase .Name}}Config_all() string {
 		{{- end}}
 	config += `	  }` + "\n"
 	config += `	}` + "\n"
-	{{- else if and (isNestedListSet .) .TestValue}}
-	{{- if len .TestTags}}
-	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
-	{{- end}}
-	config += `	{{.TfName}} = {{.TestValue}}` + "\n"
-	{{- if len .TestTags}}
-	}
-	{{- end}}
 	{{- else if isNestedListSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {

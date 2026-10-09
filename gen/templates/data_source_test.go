@@ -154,14 +154,6 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 		{{- end}}
 	config += `	  }` + "\n"
 	config += `	}` + "\n"
-	{{- else if and (isNestedListSet .) .TestValue}}
-	{{- if len .TestTags}}
-	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
-	{{- end}}
-	config += `	{{.TfName}} = {{.TestValue}}` + "\n"
-	{{- if len .TestTags}}
-	}
-	{{- end}}
 	{{- else if isNestedListSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
