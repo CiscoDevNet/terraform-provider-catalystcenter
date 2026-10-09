@@ -42,6 +42,7 @@ type DeployTemplate struct {
 	MainTemplateId               types.String                                 `tfsdk:"main_template_id"`
 	MemberTemplateDeploymentInfo []DeployTemplateMemberTemplateDeploymentInfo `tfsdk:"member_template_deployment_info"`
 	TargetInfo                   []DeployTemplateTargetInfo                   `tfsdk:"target_info"`
+	SecretParams                 []DeployTemplateSecretParams                 `tfsdk:"secret_params"`
 }
 
 type DeployTemplateMemberTemplateDeploymentInfo struct {
@@ -61,6 +62,14 @@ type DeployTemplateTargetInfo struct {
 	ResourceParams      []DeployTemplateTargetInfoResourceParams `tfsdk:"resource_params"`
 	Type                types.String                             `tfsdk:"type"`
 	VersionedTemplateId types.String                             `tfsdk:"versioned_template_id"`
+}
+
+type DeployTemplateSecretParams struct {
+	TargetId         types.String `tfsdk:"target_id"`
+	TargetHostName   types.String `tfsdk:"target_host_name"`
+	MemberTemplateId types.String `tfsdk:"member_template_id"`
+	ParamsWo         types.Map    `tfsdk:"params_wo"`
+	ParamsWoVersions types.Map    `tfsdk:"params_wo_versions"`
 }
 
 type DeployTemplateMemberTemplateDeploymentInfoTargetInfo struct {

@@ -193,6 +193,7 @@ type YamlConfigAttribute struct {
 	NoUseStateForUnknown      bool                  `yaml:"no_use_state_for_unknown"`
 	WriteOnly                 bool                  `yaml:"write_only"`
 	WriteOnlyTF               bool                  `yaml:"write_only_tf"`
+	WriteOnlyTFNative         bool                  `yaml:"write_only_tf_native"` // Native schema write-only input without legacy or generated version companions.
 	WoVersion                 bool                  `yaml:"-"` // Internal: marks a generated "<attr>_wo_version" companion attribute (state-only rotation trigger)
 	CoexistingSecret          bool                  `yaml:"-"` // Internal: marks the legacy state-storing twin of a "<attr>_wo" write-only attribute
 	WoBaseName                string                `yaml:"-"` // Internal: on a "<attr>_wo" attribute, the name of its legacy twin
@@ -1039,6 +1040,9 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 	for _, attr := range attrs {
 		if len(attr.Attributes) > 0 {
 			attr.Attributes = rewriteWriteOnlyTF(attr.Attributes)
+		}
+		if attr.WriteOnlyTFNative && (!attr.WriteOnly || attr.WriteOnlyTF || attr.Computed || attr.DefaultValue != "") {
+			panic(fmt.Sprintf("write_only_tf_native requires write_only and cannot be combined with write_only_tf, computed, or default_value: %q", attr.TfName))
 		}
 		if !attr.WriteOnlyTF {
 			newAttrs = append(newAttrs, attr)
