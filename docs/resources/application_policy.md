@@ -36,11 +36,11 @@ resource "catalystcenter_application_policy" "example" {
 
 - `items` (Attributes Set) The sibling group-based policies making up this policy. Modelled as a set because the controller does not preserve ordering. Only what differs between siblings belongs here; everything shared by the policy is declared on the resource, so changing the deployment scope does not churn every entry. (see [below for nested schema](#nestedatt--items))
 - `policy_scope` (String) Name of the policy. On the controller every sibling object carries this as its `policyScope`, and their names are prefixed with it.
+- `site_ids` (Set of String) Site IDs this policy is deployed to. The scope belongs to the policy, not to an individual sibling, so it is set once here and written to every entry in `items`.
 
 ### Optional
 
 - `advanced_policy_scope_name` (String) Name carried by the advanced policy scope. Defaults to `policy_scope`, which is what the GUI writes.
-- `site_ids` (Set of String) Site IDs this policy is deployed to. The scope belongs to the policy, not to an individual sibling, so it is set once here and written to every entry in `items`.
 - `ssids` (Set of String) SSIDs this policy applies to, which makes it a wireless policy. Like `site_ids` it belongs to the policy and is written to every entry in `items`.
 - `undeploy_action` (String) What to do with the devices when this policy is destroyed. `DELETED` removes the policy from the devices, `RESTORED` returns them to their original configuration. Defaults to `DELETED`, matching the GUI. The controller requires the policy to be undeployed before its objects can be removed, so destroy always performs that step; this only selects which action it uses. Never sent on create or update.
   - Choices: `DELETED`, `RESTORED`
@@ -55,6 +55,7 @@ resource "catalystcenter_application_policy" "example" {
 Required:
 
 - `name` (String) Name of the sibling policy, conventionally `<policy_scope>_<application set>`, `<policy_scope>_queuing_customization` or `<policy_scope>_global_policy_configuration`.
+- `priority` (String) Priority of the sibling policy. `100` normally, `4095` when the producer refers to an application scalable group.
 
 Optional:
 
@@ -66,7 +67,6 @@ Optional:
 - `device_removal_behavior` (String) Device removal behaviour, when `clause_type` is `APPLICATION_POLICY_KNOBS`
   - Choices: `DELETE`, `RESTORE`, `IGNORE`
 - `host_tracking_enabled` (Boolean) Whether host tracking is enabled, when `clause_type` is `APPLICATION_POLICY_KNOBS`
-- `priority` (String) Priority of the sibling policy. `100` normally, `4095` when the producer refers to an application scalable group.
 - `queuing_profile_id` (String) ID of the queuing profile, set on the `<policy_scope>_queuing_customization` sibling policy only.
 - `relevance_level` (String) Business relevance, when `clause_type` is `BUSINESS_RELEVANCE`
   - Choices: `BUSINESS_RELEVANT`, `BUSINESS_IRRELEVANT`, `DEFAULT`

@@ -30,29 +30,29 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type ApplicationPolicyQueuingProfile struct {
-	Id          types.String                             `tfsdk:"id"`
-	Name        types.String                             `tfsdk:"name"`
-	Description types.String                             `tfsdk:"description"`
-	Clauses     []ApplicationPolicyQueuingProfileClauses `tfsdk:"clauses"`
+	Id          types.String                            `tfsdk:"id"`
+	Name        types.String                            `tfsdk:"name"`
+	Description types.String                            `tfsdk:"description"`
+	Clause      []ApplicationPolicyQueuingProfileClause `tfsdk:"clause"`
 }
 
-type ApplicationPolicyQueuingProfileClauses struct {
-	Type                              types.String                                                           `tfsdk:"type"`
-	IsCommonBetweenAllInterfaceSpeeds types.Bool                                                             `tfsdk:"is_common_between_all_interface_speeds"`
-	InterfaceSpeedBandwidthClauses    []ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses `tfsdk:"interface_speed_bandwidth_clauses"`
-	TcDscpSettings                    []ApplicationPolicyQueuingProfileClausesTcDscpSettings                 `tfsdk:"tc_dscp_settings"`
+type ApplicationPolicyQueuingProfileClause struct {
+	Type                              types.String                                                          `tfsdk:"type"`
+	IsCommonBetweenAllInterfaceSpeeds types.Bool                                                            `tfsdk:"is_common_between_all_interface_speeds"`
+	InterfaceSpeedBandwidthClauses    []ApplicationPolicyQueuingProfileClauseInterfaceSpeedBandwidthClauses `tfsdk:"interface_speed_bandwidth_clauses"`
+	TcDscpSettings                    []ApplicationPolicyQueuingProfileClauseTcDscpSettings                 `tfsdk:"tc_dscp_settings"`
 }
 
-type ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses struct {
-	InterfaceSpeed      types.String                                                                              `tfsdk:"interface_speed"`
-	TcBandwidthSettings []ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings `tfsdk:"tc_bandwidth_settings"`
+type ApplicationPolicyQueuingProfileClauseInterfaceSpeedBandwidthClauses struct {
+	InterfaceSpeed      types.String                                                                             `tfsdk:"interface_speed"`
+	TcBandwidthSettings []ApplicationPolicyQueuingProfileClauseInterfaceSpeedBandwidthClausesTcBandwidthSettings `tfsdk:"tc_bandwidth_settings"`
 }
-type ApplicationPolicyQueuingProfileClausesTcDscpSettings struct {
+type ApplicationPolicyQueuingProfileClauseTcDscpSettings struct {
 	TrafficClass types.String `tfsdk:"traffic_class"`
 	Dscp         types.String `tfsdk:"dscp"`
 }
 
-type ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings struct {
+type ApplicationPolicyQueuingProfileClauseInterfaceSpeedBandwidthClausesTcBandwidthSettings struct {
 	TrafficClass        types.String `tfsdk:"traffic_class"`
 	BandwidthPercentage types.Int64  `tfsdk:"bandwidth_percentage"`
 }
@@ -105,9 +105,9 @@ func (data ApplicationPolicyQueuingProfile) toBody(ctx context.Context, state Ap
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "0.description", data.Description.ValueString())
 	}
-	if len(data.Clauses) > 0 {
+	if len(data.Clause) > 0 {
 		body, _ = sjson.Set(body, "0.clause", []interface{}{})
-		for _, item := range data.Clauses {
+		for _, item := range data.Clause {
 			itemBody := ""
 			if !item.Type.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
@@ -172,9 +172,9 @@ func (data *ApplicationPolicyQueuingProfile) fromBody(ctx context.Context, res g
 		data.Description = types.StringNull()
 	}
 	if value := res.Get("clause"); value.Exists() && len(value.Array()) > 0 {
-		data.Clauses = make([]ApplicationPolicyQueuingProfileClauses, 0)
+		data.Clause = make([]ApplicationPolicyQueuingProfileClause, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := ApplicationPolicyQueuingProfileClauses{}
+			item := ApplicationPolicyQueuingProfileClause{}
 			if cValue := v.Get("type"); cValue.Exists() {
 				item.Type = types.StringValue(cValue.String())
 			} else {
@@ -186,18 +186,18 @@ func (data *ApplicationPolicyQueuingProfile) fromBody(ctx context.Context, res g
 				item.IsCommonBetweenAllInterfaceSpeeds = types.BoolNull()
 			}
 			if cValue := v.Get("interfaceSpeedBandwidthClauses"); cValue.Exists() && len(cValue.Array()) > 0 {
-				item.InterfaceSpeedBandwidthClauses = make([]ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses, 0)
+				item.InterfaceSpeedBandwidthClauses = make([]ApplicationPolicyQueuingProfileClauseInterfaceSpeedBandwidthClauses, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
-					cItem := ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClauses{}
+					cItem := ApplicationPolicyQueuingProfileClauseInterfaceSpeedBandwidthClauses{}
 					if ccValue := cv.Get("interfaceSpeed"); ccValue.Exists() {
 						cItem.InterfaceSpeed = types.StringValue(ccValue.String())
 					} else {
 						cItem.InterfaceSpeed = types.StringNull()
 					}
 					if ccValue := cv.Get("tcBandwidthSettings"); ccValue.Exists() && len(ccValue.Array()) > 0 {
-						cItem.TcBandwidthSettings = make([]ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings, 0)
+						cItem.TcBandwidthSettings = make([]ApplicationPolicyQueuingProfileClauseInterfaceSpeedBandwidthClausesTcBandwidthSettings, 0)
 						ccValue.ForEach(func(cck, ccv gjson.Result) bool {
-							ccItem := ApplicationPolicyQueuingProfileClausesInterfaceSpeedBandwidthClausesTcBandwidthSettings{}
+							ccItem := ApplicationPolicyQueuingProfileClauseInterfaceSpeedBandwidthClausesTcBandwidthSettings{}
 							if cccValue := ccv.Get("trafficClass"); cccValue.Exists() {
 								ccItem.TrafficClass = types.StringValue(cccValue.String())
 							} else {
@@ -217,9 +217,9 @@ func (data *ApplicationPolicyQueuingProfile) fromBody(ctx context.Context, res g
 				})
 			}
 			if cValue := v.Get("tcDscpSettings"); cValue.Exists() && len(cValue.Array()) > 0 {
-				item.TcDscpSettings = make([]ApplicationPolicyQueuingProfileClausesTcDscpSettings, 0)
+				item.TcDscpSettings = make([]ApplicationPolicyQueuingProfileClauseTcDscpSettings, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
-					cItem := ApplicationPolicyQueuingProfileClausesTcDscpSettings{}
+					cItem := ApplicationPolicyQueuingProfileClauseTcDscpSettings{}
 					if ccValue := cv.Get("trafficClass"); ccValue.Exists() {
 						cItem.TrafficClass = types.StringValue(ccValue.String())
 					} else {
@@ -234,7 +234,7 @@ func (data *ApplicationPolicyQueuingProfile) fromBody(ctx context.Context, res g
 					return true
 				})
 			}
-			data.Clauses = append(data.Clauses, item)
+			data.Clause = append(data.Clause, item)
 			return true
 		})
 	}
@@ -254,9 +254,9 @@ func (data *ApplicationPolicyQueuingProfile) updateFromBody(ctx context.Context,
 	} else {
 		data.Description = types.StringNull()
 	}
-	for i := range data.Clauses {
+	for i := range data.Clause {
 		keys := [...]string{"type"}
-		keyValues := [...]string{data.Clauses[i].Type.ValueString()}
+		keyValues := [...]string{data.Clause[i].Type.ValueString()}
 
 		var r gjson.Result
 		res.Get("clause").ForEach(
@@ -277,19 +277,19 @@ func (data *ApplicationPolicyQueuingProfile) updateFromBody(ctx context.Context,
 				return true
 			},
 		)
-		if value := r.Get("type"); value.Exists() && !data.Clauses[i].Type.IsNull() {
-			data.Clauses[i].Type = types.StringValue(value.String())
+		if value := r.Get("type"); value.Exists() && !data.Clause[i].Type.IsNull() {
+			data.Clause[i].Type = types.StringValue(value.String())
 		} else {
-			data.Clauses[i].Type = types.StringNull()
+			data.Clause[i].Type = types.StringNull()
 		}
-		if value := r.Get("isCommonBetweenAllInterfaceSpeeds"); value.Exists() && !data.Clauses[i].IsCommonBetweenAllInterfaceSpeeds.IsNull() {
-			data.Clauses[i].IsCommonBetweenAllInterfaceSpeeds = types.BoolValue(value.Bool())
+		if value := r.Get("isCommonBetweenAllInterfaceSpeeds"); value.Exists() && !data.Clause[i].IsCommonBetweenAllInterfaceSpeeds.IsNull() {
+			data.Clause[i].IsCommonBetweenAllInterfaceSpeeds = types.BoolValue(value.Bool())
 		} else {
-			data.Clauses[i].IsCommonBetweenAllInterfaceSpeeds = types.BoolNull()
+			data.Clause[i].IsCommonBetweenAllInterfaceSpeeds = types.BoolNull()
 		}
-		for ci := range data.Clauses[i].InterfaceSpeedBandwidthClauses {
+		for ci := range data.Clause[i].InterfaceSpeedBandwidthClauses {
 			keys := [...]string{"interfaceSpeed"}
-			keyValues := [...]string{data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].InterfaceSpeed.ValueString()}
+			keyValues := [...]string{data.Clause[i].InterfaceSpeedBandwidthClauses[ci].InterfaceSpeed.ValueString()}
 
 			var cr gjson.Result
 			r.Get("interfaceSpeedBandwidthClauses").ForEach(
@@ -310,14 +310,14 @@ func (data *ApplicationPolicyQueuingProfile) updateFromBody(ctx context.Context,
 					return true
 				},
 			)
-			if value := cr.Get("interfaceSpeed"); value.Exists() && !data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].InterfaceSpeed.IsNull() {
-				data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].InterfaceSpeed = types.StringValue(value.String())
+			if value := cr.Get("interfaceSpeed"); value.Exists() && !data.Clause[i].InterfaceSpeedBandwidthClauses[ci].InterfaceSpeed.IsNull() {
+				data.Clause[i].InterfaceSpeedBandwidthClauses[ci].InterfaceSpeed = types.StringValue(value.String())
 			} else {
-				data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].InterfaceSpeed = types.StringNull()
+				data.Clause[i].InterfaceSpeedBandwidthClauses[ci].InterfaceSpeed = types.StringNull()
 			}
-			for cci := range data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings {
+			for cci := range data.Clause[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings {
 				keys := [...]string{"trafficClass"}
-				keyValues := [...]string{data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].TrafficClass.ValueString()}
+				keyValues := [...]string{data.Clause[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].TrafficClass.ValueString()}
 
 				var ccr gjson.Result
 				cr.Get("tcBandwidthSettings").ForEach(
@@ -338,21 +338,21 @@ func (data *ApplicationPolicyQueuingProfile) updateFromBody(ctx context.Context,
 						return true
 					},
 				)
-				if value := ccr.Get("trafficClass"); value.Exists() && !data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].TrafficClass.IsNull() {
-					data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].TrafficClass = types.StringValue(value.String())
+				if value := ccr.Get("trafficClass"); value.Exists() && !data.Clause[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].TrafficClass.IsNull() {
+					data.Clause[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].TrafficClass = types.StringValue(value.String())
 				} else {
-					data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].TrafficClass = types.StringNull()
+					data.Clause[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].TrafficClass = types.StringNull()
 				}
-				if value := ccr.Get("bandwidthPercentage"); value.Exists() && !data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].BandwidthPercentage.IsNull() {
-					data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].BandwidthPercentage = types.Int64Value(value.Int())
+				if value := ccr.Get("bandwidthPercentage"); value.Exists() && !data.Clause[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].BandwidthPercentage.IsNull() {
+					data.Clause[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].BandwidthPercentage = types.Int64Value(value.Int())
 				} else {
-					data.Clauses[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].BandwidthPercentage = types.Int64Null()
+					data.Clause[i].InterfaceSpeedBandwidthClauses[ci].TcBandwidthSettings[cci].BandwidthPercentage = types.Int64Null()
 				}
 			}
 		}
-		for ci := range data.Clauses[i].TcDscpSettings {
+		for ci := range data.Clause[i].TcDscpSettings {
 			keys := [...]string{"trafficClass"}
-			keyValues := [...]string{data.Clauses[i].TcDscpSettings[ci].TrafficClass.ValueString()}
+			keyValues := [...]string{data.Clause[i].TcDscpSettings[ci].TrafficClass.ValueString()}
 
 			var cr gjson.Result
 			r.Get("tcDscpSettings").ForEach(
@@ -373,15 +373,15 @@ func (data *ApplicationPolicyQueuingProfile) updateFromBody(ctx context.Context,
 					return true
 				},
 			)
-			if value := cr.Get("trafficClass"); value.Exists() && !data.Clauses[i].TcDscpSettings[ci].TrafficClass.IsNull() {
-				data.Clauses[i].TcDscpSettings[ci].TrafficClass = types.StringValue(value.String())
+			if value := cr.Get("trafficClass"); value.Exists() && !data.Clause[i].TcDscpSettings[ci].TrafficClass.IsNull() {
+				data.Clause[i].TcDscpSettings[ci].TrafficClass = types.StringValue(value.String())
 			} else {
-				data.Clauses[i].TcDscpSettings[ci].TrafficClass = types.StringNull()
+				data.Clause[i].TcDscpSettings[ci].TrafficClass = types.StringNull()
 			}
-			if value := cr.Get("dscp"); value.Exists() && !data.Clauses[i].TcDscpSettings[ci].Dscp.IsNull() {
-				data.Clauses[i].TcDscpSettings[ci].Dscp = types.StringValue(value.String())
+			if value := cr.Get("dscp"); value.Exists() && !data.Clause[i].TcDscpSettings[ci].Dscp.IsNull() {
+				data.Clause[i].TcDscpSettings[ci].Dscp = types.StringValue(value.String())
 			} else {
-				data.Clauses[i].TcDscpSettings[ci].Dscp = types.StringNull()
+				data.Clause[i].TcDscpSettings[ci].Dscp = types.StringNull()
 			}
 		}
 	}
@@ -394,7 +394,7 @@ func (data *ApplicationPolicyQueuingProfile) isNull(ctx context.Context, res gjs
 	if !data.Description.IsNull() {
 		return false
 	}
-	if len(data.Clauses) > 0 {
+	if len(data.Clause) > 0 {
 		return false
 	}
 	return true

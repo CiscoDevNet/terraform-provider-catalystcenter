@@ -1,7 +1,7 @@
 resource "catalystcenter_application_policy_queuing_profile" "example" {
   name        = "branch-queuing"
   description = "Branch WAN queuing profile"
-  clauses = [
+  clause = [
     {
       type                                   = "BANDWIDTH"
       is_common_between_all_interface_speeds = true

@@ -22,7 +22,6 @@ attributes:
     id: true
     match_id: true
     data_source_query: true
-    mandatory: true
     requires_replace: true
     description: The name of the application set
     example: my-app-set

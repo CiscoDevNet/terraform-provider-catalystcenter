@@ -16,7 +16,7 @@ Manages a Catalyst Center Application QoS Queuing Profile. A profile carries a `
 resource "catalystcenter_application_policy_queuing_profile" "example" {
   name        = "branch-queuing"
   description = "Branch WAN queuing profile"
-  clauses = [
+  clause = [
     {
       type                                   = "BANDWIDTH"
       is_common_between_all_interface_speeds = true
@@ -47,7 +47,7 @@ resource "catalystcenter_application_policy_queuing_profile" "example" {
 
 ### Required
 
-- `clauses` (Attributes Set) The clauses carried by this profile. Supply a `BANDWIDTH` clause, a `DSCP_CUSTOMIZATION` clause, or both. The controller does not add a missing clause automatically. (see [below for nested schema](#nestedatt--clauses))
+- `clause` (Attributes Set) The clauses carried by this profile. Supply a `BANDWIDTH` clause, a `DSCP_CUSTOMIZATION` clause, or both. The controller does not add a missing clause automatically. (see [below for nested schema](#nestedatt--clause))
 - `name` (String) The name of the queuing profile
 
 ### Optional
@@ -58,8 +58,8 @@ resource "catalystcenter_application_policy_queuing_profile" "example" {
 
 - `id` (String) The id of the object
 
-<a id="nestedatt--clauses"></a>
-### Nested Schema for `clauses`
+<a id="nestedatt--clause"></a>
+### Nested Schema for `clause`
 
 Required:
 
@@ -68,21 +68,21 @@ Required:
 
 Optional:
 
-- `interface_speed_bandwidth_clauses` (Attributes List) Per-interface-speed bandwidth allocation. Only valid on a `BANDWIDTH` clause. (see [below for nested schema](#nestedatt--clauses--interface_speed_bandwidth_clauses))
+- `interface_speed_bandwidth_clauses` (Attributes List) Per-interface-speed bandwidth allocation. Only valid on a `BANDWIDTH` clause. (see [below for nested schema](#nestedatt--clause--interface_speed_bandwidth_clauses))
 - `is_common_between_all_interface_speeds` (Boolean) Whether the same bandwidth allocation applies to every interface speed. When `true` supply a single `ALL` entry in `interface_speed_bandwidth_clauses`. Only valid on a `BANDWIDTH` clause.
-- `tc_dscp_settings` (Attributes List) DSCP value per traffic class. All twelve traffic classes must be supplied and every DSCP value must be unique across them. Only valid on a `DSCP_CUSTOMIZATION` clause. (see [below for nested schema](#nestedatt--clauses--tc_dscp_settings))
+- `tc_dscp_settings` (Attributes List) DSCP value per traffic class. All twelve traffic classes must be supplied and every DSCP value must be unique across them. Only valid on a `DSCP_CUSTOMIZATION` clause. (see [below for nested schema](#nestedatt--clause--tc_dscp_settings))
 
-<a id="nestedatt--clauses--interface_speed_bandwidth_clauses"></a>
-### Nested Schema for `clauses.interface_speed_bandwidth_clauses`
+<a id="nestedatt--clause--interface_speed_bandwidth_clauses"></a>
+### Nested Schema for `clause.interface_speed_bandwidth_clauses`
 
 Required:
 
 - `interface_speed` (String) The interface speed this allocation applies to
   - Choices: `ALL`, `HUNDRED_GBPS`, `TEN_GBPS`, `ONE_GBPS`, `HUNDRED_MBPS`, `TEN_MBPS`, `ONE_MBPS`
-- `tc_bandwidth_settings` (Attributes List) Bandwidth percentage per traffic class. All twelve traffic classes must be supplied and the percentages must total 100. (see [below for nested schema](#nestedatt--clauses--interface_speed_bandwidth_clauses--tc_bandwidth_settings))
+- `tc_bandwidth_settings` (Attributes List) Bandwidth percentage per traffic class. All twelve traffic classes must be supplied and the percentages must total 100. (see [below for nested schema](#nestedatt--clause--interface_speed_bandwidth_clauses--tc_bandwidth_settings))
 
-<a id="nestedatt--clauses--interface_speed_bandwidth_clauses--tc_bandwidth_settings"></a>
-### Nested Schema for `clauses.interface_speed_bandwidth_clauses.tc_bandwidth_settings`
+<a id="nestedatt--clause--interface_speed_bandwidth_clauses--tc_bandwidth_settings"></a>
+### Nested Schema for `clause.interface_speed_bandwidth_clauses.tc_bandwidth_settings`
 
 Required:
 
@@ -93,8 +93,8 @@ Required:
 
 
 
-<a id="nestedatt--clauses--tc_dscp_settings"></a>
-### Nested Schema for `clauses.tc_dscp_settings`
+<a id="nestedatt--clause--tc_dscp_settings"></a>
+### Nested Schema for `clause.tc_dscp_settings`
 
 Required:
 

@@ -17,7 +17,6 @@ res_description:
 attributes:
   - model_name: name
     type: String
-    mandatory: true
     id: true
     query_param_no_body: true
     description: Fixed resource identifier.

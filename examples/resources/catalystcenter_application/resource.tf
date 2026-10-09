@@ -12,7 +12,7 @@ resource "catalystcenter_application" "example" {
   network_identity = [
     {
       protocol    = "TCP"
-      ports       = "8080"
+      ports       = "65529"
       ipv4_subnet = ["10.0.0.0/24"]
     }
   ]

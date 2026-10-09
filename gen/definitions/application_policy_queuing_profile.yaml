@@ -6,6 +6,7 @@ id_from_query_path: response
 put_no_id: true
 put_id_include_path: "0.id"
 doc_category: Policy
+exclude_test: true
 res_description:
   'Manages a Catalyst Center Application QoS Queuing Profile. A profile carries a
   `BANDWIDTH` clause, a `DSCP_CUSTOMIZATION` clause, or both. Built-in profiles such
@@ -22,7 +23,6 @@ attributes:
     id: true
     match_id: true
     data_source_query: true
-    mandatory: true
     requires_replace: true
     description: The name of the queuing profile
     example: branch-queuing
@@ -33,13 +33,10 @@ attributes:
     description: Description of the queuing profile
     example: Branch WAN queuing profile
   - model_name: clause
-    tf_name: clauses
     data_path: "0"
     response_data_path: clause
     type: Set
     mandatory: true
-    minimum_test_value: '[{ type = "BANDWIDTH", is_common_between_all_interface_speeds = true, interface_speed_bandwidth_clauses = [{ interface_speed = "ALL", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }] }]'
-    test_value: '[{ type = "BANDWIDTH", is_common_between_all_interface_speeds = false, interface_speed_bandwidth_clauses = [{ interface_speed = "HUNDRED_GBPS", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }, { interface_speed = "TEN_GBPS", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }, { interface_speed = "ONE_GBPS", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }, { interface_speed = "HUNDRED_MBPS", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }, { interface_speed = "TEN_MBPS", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }, { interface_speed = "ONE_MBPS", tc_bandwidth_settings = [{ traffic_class = "VOIP_TELEPHONY", bandwidth_percentage = 10 }, { traffic_class = "BROADCAST_VIDEO", bandwidth_percentage = 10 }, { traffic_class = "REAL_TIME_INTERACTIVE", bandwidth_percentage = 13 }, { traffic_class = "MULTIMEDIA_CONFERENCING", bandwidth_percentage = 10 }, { traffic_class = "MULTIMEDIA_STREAMING", bandwidth_percentage = 10 }, { traffic_class = "NETWORK_CONTROL", bandwidth_percentage = 3 }, { traffic_class = "SIGNALING", bandwidth_percentage = 2 }, { traffic_class = "OPS_ADMIN_MGMT", bandwidth_percentage = 5 }, { traffic_class = "TRANSACTIONAL_DATA", bandwidth_percentage = 10 }, { traffic_class = "BULK_DATA", bandwidth_percentage = 4 }, { traffic_class = "SCAVENGER", bandwidth_percentage = 1 }, { traffic_class = "BEST_EFFORT", bandwidth_percentage = 22 }] }] }, { type = "DSCP_CUSTOMIZATION", tc_dscp_settings = [{ traffic_class = "VOIP_TELEPHONY", dscp = "46" }, { traffic_class = "BROADCAST_VIDEO", dscp = "40" }, { traffic_class = "REAL_TIME_INTERACTIVE", dscp = "32" }, { traffic_class = "MULTIMEDIA_CONFERENCING", dscp = "34" }, { traffic_class = "MULTIMEDIA_STREAMING", dscp = "26" }, { traffic_class = "NETWORK_CONTROL", dscp = "48" }, { traffic_class = "SIGNALING", dscp = "24" }, { traffic_class = "OPS_ADMIN_MGMT", dscp = "16" }, { traffic_class = "TRANSACTIONAL_DATA", dscp = "18" }, { traffic_class = "BULK_DATA", dscp = "10" }, { traffic_class = "SCAVENGER", dscp = "8" }, { traffic_class = "BEST_EFFORT", dscp = "0" }] }]'
     description:
       The clauses carried by this profile. Supply a `BANDWIDTH` clause, a
       `DSCP_CUSTOMIZATION` clause, or both. The controller does not add a missing
@@ -48,7 +45,6 @@ attributes:
       - model_name: type
         type: String
         id: true
-        mandatory: true
         enum_values: [BANDWIDTH, DSCP_CUSTOMIZATION]
         description: The kind of clause
         example: BANDWIDTH
@@ -68,7 +64,6 @@ attributes:
           - model_name: interfaceSpeed
             type: String
             id: true
-            mandatory: true
             enum_values:
               [
                 ALL,
@@ -91,7 +86,6 @@ attributes:
               - model_name: trafficClass
                 type: String
                 id: true
-                mandatory: true
                 enum_values:
                   [
                     BROADCAST_VIDEO,
@@ -126,7 +120,6 @@ attributes:
           - model_name: trafficClass
             type: String
             id: true
-            mandatory: true
             enum_values:
               [
                 BROADCAST_VIDEO,

@@ -74,7 +74,7 @@ func (d *ApplicationPolicyQueuingProfileDataSource) Schema(ctx context.Context, 
 				MarkdownDescription: "Description of the queuing profile",
 				Computed:            true,
 			},
-			"clauses": schema.SetNestedAttribute{
+			"clause": schema.SetNestedAttribute{
 				MarkdownDescription: "The clauses carried by this profile. Supply a `BANDWIDTH` clause, a `DSCP_CUSTOMIZATION` clause, or both. The controller does not add a missing clause automatically.",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
