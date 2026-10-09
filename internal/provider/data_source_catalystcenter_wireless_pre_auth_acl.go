@@ -99,11 +99,11 @@ func (d *WirelessPreAuthACLDataSource) Schema(ctx context.Context, req datasourc
 							Computed:            true,
 						},
 						"source_ports": schema.StringAttribute{
-							MarkdownDescription: "Source port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.",
+							MarkdownDescription: "Source port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.",
 							Computed:            true,
 						},
 						"destination_ports": schema.StringAttribute{
-							MarkdownDescription: "Destination port. Required when protocol is TCP or UDP. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). Valid values are between 0 and 65535. When not specified, Catalyst Center defaults this to the full range `0-65535`.",
+							MarkdownDescription: "Destination port. Required when protocol is TCP or UDP, where valid values are in the range 1-65535; port 0 is rejected. Accepts a single number (e.g., 100) or a range with a hyphen and no whitespaces (e.g., 100-200). For all other protocols Catalyst Center ignores this attribute and always reports `0-65535`, so it is best left unset.",
 							Computed:            true,
 						},
 						"protocol": schema.StringAttribute{

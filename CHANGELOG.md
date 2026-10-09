@@ -1,3 +1,8 @@
+## 0.6.5 (unreleased)
+
+- Fix `catalystcenter_wireless_pre_auth_acl` resource sending `0-65535` for `source_ports` and `destination_ports` when unset, which Catalyst Center rejects on TCP and UDP rules; both are now omitted when not configured
+- Fix `catalystcenter_wireless_pre_auth_acl` resource showing a permanent difference on rules whose ports Catalyst Center normalizes; ACL rules are now matched by source, destination and protocol only
+
 ## 0.6.4
 
 - Add support for module identification through `provider_meta.module_name`, including the module name and version in the User-Agent header for API requests

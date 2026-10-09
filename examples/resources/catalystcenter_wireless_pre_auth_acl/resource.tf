@@ -11,7 +11,7 @@ resource "catalystcenter_wireless_pre_auth_acl" "example" {
       destination_subnet_mask_or_prefix = 32
       source_ports                      = "100"
       destination_ports                 = "100-200"
-      protocol                          = "IP"
+      protocol                          = "TCP"
     }
   ]
 }
