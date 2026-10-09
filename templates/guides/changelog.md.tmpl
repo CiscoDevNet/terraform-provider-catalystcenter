@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## Unreleased
+
+- Add `secret_params` to `catalystcenter_deploy_template` for write-only template parameters with per-parameter rotation versions, including composite template deployments; requires Terraform 1.11 or later
+
 ## 0.6.4
 
 - Add support for module identification through `provider_meta.module_name`, including the module name and version in the User-Agent header for API requests
