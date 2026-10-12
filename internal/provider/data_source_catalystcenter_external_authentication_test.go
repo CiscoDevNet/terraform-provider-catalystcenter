@@ -76,6 +76,7 @@ func testAccDataSourceCcExternalAuthenticationConfig() string {
 
 	config += `
 		data "catalystcenter_external_authentication" "test" {
+			name = "external_authentication"
 			depends_on = [catalystcenter_external_authentication.test]
 		}
 	`

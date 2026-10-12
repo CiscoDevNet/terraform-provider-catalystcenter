@@ -14,6 +14,7 @@ This data source can read the External Authentication.
 
 ```terraform
 data "catalystcenter_external_authentication" "example" {
+  name = "external_authentication"
 }
 ```
 

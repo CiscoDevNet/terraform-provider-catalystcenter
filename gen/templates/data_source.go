@@ -76,7 +76,8 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- end}}
 			},
 			{{- range  .Attributes}}
-			{{- if and (not .Value) (not .QueryParamNoBody)}}
+			{{- $localId := and .Id .QueryParamNoBody $.IdFromAttribute $.DataSourceNoId}}
+			{{- if and (not .Value) (or (not .QueryParamNoBody) $localId)}}
             "{{.TfName}}": schema.{{if isNestedListSetMap .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 				MarkdownDescription: "{{.Description}}",
 				{{- if isListSet .}}
@@ -84,7 +85,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
                 {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
 				ElementType:         types.StringType,
 				{{- end}}
-				{{- if and (or .Reference .QueryParam .GetQueryParam) (not .DataSourceQuery)}}
+				{{- if or $localId (and (or .Reference .QueryParam .GetQueryParam) (not .DataSourceQuery))}}
 				Required:            true,
 				{{- else}}
 				{{- if .DataSourceQuery}}

@@ -238,7 +238,7 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 			id = catalystcenter_{{snakeCase $name}}.test.id
 			{{- end}}
 			{{- range  .Attributes}}
-			{{- if or .Reference .QueryParam .GetQueryParam}}
+			{{- if or .Reference .QueryParam .GetQueryParam (and .Id .QueryParamNoBody $.IdFromAttribute $.DataSourceNoId)}}
 			{{- if and .Computed .Reference}}
 			{{.TfName}} = catalystcenter_{{snakeCase $name}}.test.{{.TfName}}
 			{{- else}}
