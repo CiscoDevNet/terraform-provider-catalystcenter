@@ -11,6 +11,7 @@ description: |-
 
 - Fix `catalystcenter_wireless_pre_auth_acl` resource sending `0-65535` for `source_ports` and `destination_ports` when unset, which Catalyst Center rejects on TCP and UDP rules; both are now omitted when not configured
 - Fix `catalystcenter_wireless_pre_auth_acl` resource showing a permanent difference on rules whose ports Catalyst Center normalizes; ACL rules are now matched by source, destination and protocol only
+- Fix `catalystcenter_assign_device_to_site` resource failing with `NCIM80106` on a device Catalyst Center has already provisioned, which made a wireless controller onboarded through Plug and Play impossible to provision, since the site-claim both assigns and provisions it; an existing assignment to the requested site is now adopted, while a device provisioned on a different site is rejected with an explicit error
 
 ## 0.6.4
 

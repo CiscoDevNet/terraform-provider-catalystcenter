@@ -99,7 +99,6 @@ func (r *AssignDeviceToSiteResource) Configure(_ context.Context, req resource.C
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AssignDeviceToSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AssignDeviceToSite
@@ -119,8 +118,34 @@ func (r *AssignDeviceToSiteResource) Create(ctx context.Context, req resource.Cr
 	params := ""
 	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
-		return
+		// NCIM80106 means Catalyst Center refuses to move an already provisioned
+		// device. A device onboarded through PnP hits this on its first apply,
+		// because the site-claim both assigned and provisioned it, and so does a
+		// brownfield device Terraform has not assigned itself. That is only
+		// benign when the device already sits on the requested site — adopt it
+		// then, and report a move that cannot happen otherwise. Delete ignores
+		// the same error unconditionally.
+		if !strings.Contains(res.Get("response.detail").String(), "NCIM80106") {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+			return
+		}
+		var misplaced []string
+		for _, deviceId := range plan.DeviceIds.Elements() {
+			id := deviceId.(types.String).ValueString()
+			currentSite, siteErr := r.assignedSite(id)
+			if siteErr != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve the current site of device %s (GET), got error: %s", id, siteErr))
+				return
+			}
+			if currentSite != plan.SiteId.ValueString() {
+				misplaced = append(misplaced, fmt.Sprintf("%s (currently on site %q)", id, currentSite))
+			}
+		}
+		if len(misplaced) > 0 {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Cannot assign provisioned device(s) to site %s: %s. Catalyst Center does not allow moving a provisioned device between sites; unprovision it first.", plan.SiteId.ValueString(), strings.Join(misplaced, ", ")))
+			return
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device(s) already assigned to the requested site, adopting the existing assignment", plan.SiteId.ValueString()))
 	}
 	plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
 
@@ -130,7 +155,15 @@ func (r *AssignDeviceToSiteResource) Create(ctx context.Context, req resource.Cr
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end create
+// assignedSite returns the id of the site a device is currently assigned to, or
+// an empty string when it is unassigned.
+func (r *AssignDeviceToSiteResource) assignedSite(deviceId string) (string, error) {
+	res, err := r.client.Get("/dna/intent/api/v1/networkDevices/" + url.QueryEscape(deviceId) + "/assignedToSite")
+	if err != nil {
+		return "", err
+	}
+	return res.Get("response.siteId").String(), nil
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignDeviceToSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
