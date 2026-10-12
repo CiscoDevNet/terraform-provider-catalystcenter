@@ -3,6 +3,7 @@ name: External Authentication
 rest_endpoint: /dna/system/api/v1/users/external-authentication
 get_no_id: true
 data_source_no_id: true
+data_source_no_inputs: true
 import_no_id: true
 post_update: true
 id_from_attribute: true

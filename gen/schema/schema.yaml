@@ -11,6 +11,7 @@ id_query_rest_endpoint: str(required=False) # Override REST endpoint path for ID
 fallback_rest_endpoint: str(required=False) # Fallback REST endpoint path if the main one is not available
 get_no_id: bool(required=False) # Set to true if the GET request does not require an ID
 data_source_no_id: bool(required=False) # Set to true if id in data source should be optional
+data_source_no_inputs: bool(required=False) # Make all data source attributes computed and omit inputs from examples and tests; use for endpoints read without identifiers
 get_from_all: bool(required=False) # Set to true if GET does not support querying individual objects
 get_requires_id: bool(required=False) # Set to true if the GET request requires an ID in the URL path
 get_extra_query_params: str(required=False) # Additional query parameters for GET request

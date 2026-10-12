@@ -234,11 +234,11 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 
 	config {{- if not .NoResource}} += {{- else}} := {{- end}} `
 		data "catalystcenter_{{snakeCase .Name}}" "test" {
-			{{- if not .DataSourceNoId}}
+			{{- if and (not .DataSourceNoId) (not .DataSourceNoInputs)}}
 			id = catalystcenter_{{snakeCase $name}}.test.id
 			{{- end}}
 			{{- range  .Attributes}}
-			{{- if or .Reference .QueryParam .GetQueryParam (and .Id .QueryParamNoBody $.IdFromAttribute $.DataSourceNoId)}}
+			{{- if and (not $.DataSourceNoInputs) (or .Reference .QueryParam .GetQueryParam (and .Id .QueryParamNoBody $.IdFromAttribute $.DataSourceNoId))}}
 			{{- if and .Computed .Reference}}
 			{{.TfName}} = catalystcenter_{{snakeCase $name}}.test.{{.TfName}}
 			{{- else}}
@@ -246,7 +246,7 @@ func testAccDataSourceCc{{camelCase .Name}}Config() string {
 			{{- end}}
 			{{- end}}
 			{{- end}}
-			{{- if and .DataSourceNoId (not .NoResource)}}
+			{{- if and (or .DataSourceNoId .DataSourceNoInputs) (not .NoResource)}}
 			depends_on = [catalystcenter_{{snakeCase $name}}.test]
 			{{- end}}
 		}
