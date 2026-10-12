@@ -147,6 +147,14 @@ func TestAccCc{{camelCase .Name}}(t *testing.T) {
 			{{- end}}
 			{{- end}}
 		},
+		{{- else if gt (len (importAttributes .)) 1 }}
+		ImportStateIdFunc: func(s *terraform.State) (string, error) {
+			rs, ok := s.RootModule().Resources["catalystcenter_{{snakeCase $name}}.test"]
+			if !ok {
+				return "", fmt.Errorf("resource not found in state")
+			}
+			return fmt.Sprintf("{{range $i, $a := importAttributes .}}{{if $i}},{{end}}%s{{end}}", {{range $i, $a := importAttributes .}}{{if $i}}, {{end}}{{if eq $a.TfName "id"}}rs.Primary.ID{{else}}rs.Primary.Attributes["{{$a.TfName}}"]{{end}}{{end}}), nil
+		},
 		{{- end}}
 	})
 	{{- end}}
@@ -182,6 +190,14 @@ func testAccCc{{camelCase .Name}}Config_minimum() string {
 		{{- end}}
 	config += `	  }` + "\n"
 	config += `	}` + "\n"
+	{{- else if and (isNestedListSet .) (or .MinimumTestValue .TestValue)}}
+	{{- if len .TestTags}}
+	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
+	{{- end}}
+	config += `	{{.TfName}} = {{if .MinimumTestValue}}{{.MinimumTestValue}}{{else}}{{.TestValue}}{{end}}` + "\n"
+	{{- if len .TestTags}}
+	}
+	{{- end}}
 	{{- else if isNestedListSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
@@ -277,6 +293,14 @@ func testAccCc{{camelCase .Name}}Config_all() string {
 		{{- end}}
 	config += `	  }` + "\n"
 	config += `	}` + "\n"
+	{{- else if and (isNestedListSet .) .TestValue}}
+	{{- if len .TestTags}}
+	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
+	{{- end}}
+	config += `	{{.TfName}} = {{.TestValue}}` + "\n"
+	{{- if len .TestTags}}
+	}
+	{{- end}}
 	{{- else if isNestedListSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {

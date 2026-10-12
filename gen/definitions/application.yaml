@@ -1,0 +1,286 @@
+---
+name: Application
+rest_endpoint: /dna/intent/api/v2/applications
+delete_rest_endpoint: /dna/intent/api/v1/applications
+delete_id_query_param: id
+get_extra_query_params: '&attributes=application&limit=500'
+id_from_query_path: response
+put_no_id: true
+put_id_include_path: "0.id"
+remove_resource_on_empty_response: true
+update_computed: true
+data_source_no_id: true
+doc_category: Policy
+res_description:
+  'Manages a custom Catalyst Center Application. The controller ships roughly 1500
+  built-in (NBAR) applications which are seeded and must not be managed by this
+  resource. An application always belongs to an application set via
+  `application_set_id`. `terraform import` expects the two-part identifier
+  `<name>,<id>`.'
+attributes:
+  - model_name: name
+    data_path: "0"
+    response_data_path: response.0.name
+    type: String
+    id: true
+    match_id: true
+    query_param: true
+    query_param_name: name
+    requires_replace: true
+    description: The name of the application
+    example: my-custom-app
+  - model_name: idRef
+    tf_name: application_set_id
+    data_path: "0.parentScalableGroup"
+    response_data_path: response.0.parentScalableGroup.idRef
+    type: String
+    mandatory: true
+    description:
+      ID of the application set this application belongs to. Only `idRef` is sent
+      on update; the `id` that `GET` returns alongside it must not be echoed back.
+    example: 12345678-1234-1234-1234-123456789012
+    test_value: catalystcenter_application_set.test.id
+  - model_name: categoryId
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.categoryId
+    type: String
+    mandatory: true
+    description:
+      ID of the application category. The controller exposes no endpoint to list
+      categories, so this opaque UUID must be copied from an existing application in
+      the desired category.
+    example: f378fea2-3b99-4172-b73b-2fd17a8b1df1
+    test_value: data.catalystcenter_application.category_reference.category_id
+  - model_name: trafficClass
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.trafficClass
+    type: String
+    mandatory: true
+    enum_values:
+      [
+        BROADCAST_VIDEO,
+        BULK_DATA,
+        MULTIMEDIA_CONFERENCING,
+        MULTIMEDIA_STREAMING,
+        NETWORK_CONTROL,
+        OPS_ADMIN_MGMT,
+        REAL_TIME_INTERACTIVE,
+        SIGNALING,
+        TRANSACTIONAL_DATA,
+        VOIP_TELEPHONY,
+        BEST_EFFORT,
+        SCAVENGER,
+      ]
+    description: The traffic class the application is assigned to
+    example: TRANSACTIONAL_DATA
+  - model_name: helpString
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.helpString
+    type: String
+    description: Description of the application shown in the GUI
+    example: Custom internal collaboration app
+  - model_name: dscp
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.dscp
+    type: String
+    description: DSCP value assigned to traffic matching this application
+    example: "18"
+    minimum_test_value: '"18"'
+  - model_name: rank
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.rank
+    type: Int64
+    description: Rank used to break ties between overlapping applications
+    example: 1
+  - model_name: appProtocol
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.appProtocol
+    type: String
+    enum_values: [TCP, UDP, TCP/UDP, IP]
+    description: Transport protocol the application runs over
+    example: TCP
+  - model_name: type
+    tf_name: server_type
+    data_path: "0.networkApplications.0"
+    write_only: true
+    type: String
+    enum_values: [_servername, _url, _server-ip]
+    description:
+      How the application is identified. `_servername` pairs with `server_name`,
+      `_url` with `url`.
+    example: _servername
+  - model_name: serverName
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.serverName
+    type: String
+    description: Server name identifying the application, when `server_type` is `_servername`
+    example: app.example.com
+  - model_name: url
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.url
+    type: String
+    description: URL identifying the application, when `server_type` is `_url`
+    example: example.com/path
+    exclude_test: true
+  - model_name: applicationType
+    data_path: "0.networkApplications.0"
+    value: CUSTOM
+    write_only: true
+    type: String
+    description: Application type, always `CUSTOM` for applications managed here
+  - model_name: scalableGroupType
+    data_path: "0"
+    value: APPLICATION
+    write_only: true
+    type: String
+    description: Scalable group type, always `APPLICATION`
+  - model_name: type
+    tf_name: scalable_group_object_type
+    data_path: "0"
+    value: scalablegroup
+    write_only: true
+    type: String
+    description: Object type, always `scalablegroup`
+  - model_name: networkIdentity
+    data_path: "0"
+    response_data_path: response.0.networkIdentity
+    type: Set
+    description: Optional L3/L4 signatures identifying the application
+    attributes:
+      - model_name: protocol
+        type: String
+        id: true
+        enum_values: [TCP_OR_UDP, TCP, UDP, IP]
+        description: Protocol of the signature
+        example: TCP
+      - model_name: ports
+        type: String
+        description:
+          Comma separated list of discrete ports. A hyphenated range is rejected
+          by the controller; use `lower_port` and `upper_port` for a range. The
+          controller requires this key to be present even when empty, so send an
+          empty string when only a range is used.
+        example: "65529"
+      - model_name: lowerPort
+        type: Int64
+        description:
+          Start of a port range, used with `upper_port`. Leave `ports` empty when
+          a range is used. The controller returns `0` when no range is set.
+        example: 8080
+        exclude_test: true
+      - model_name: upperPort
+        type: Int64
+        description:
+          End of a port range, used with `lower_port`. Leave `ports` empty when a
+          range is used. The controller returns `0` when no range is set.
+        example: 8090
+        exclude_test: true
+      - model_name: ipv4Subnet
+        type: Set
+        element_type: String
+        description: IPv4 subnets matching the application
+        example: 10.0.0.0/24
+  - model_name: instanceId
+    data_path: "0"
+    response_data_path: response.0.instanceId
+    type: Int64
+    computed: true
+    exclude_test: true
+    description: Server-assigned instance ID, echoed back on update
+  - model_name: displayName
+    data_path: "0"
+    response_data_path: response.0.displayName
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned display name, echoed back on update
+  - model_name: instanceVersion
+    data_path: "0"
+    response_data_path: response.0.instanceVersion
+    type: Int64
+    computed: true
+    exclude_test: true
+    description: Server-assigned instance version, echoed back on update
+  - model_name: namespace
+    data_path: "0"
+    response_data_path: response.0.namespace
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned namespace, echoed back on update
+  - model_name: qualifier
+    data_path: "0"
+    response_data_path: response.0.qualifier
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned qualifier, echoed back on update
+  - model_name: scalableGroupExternalHandle
+    data_path: "0"
+    response_data_path: response.0.scalableGroupExternalHandle
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned external handle, echoed back on update
+  - model_name: id
+    tf_name: network_application_id
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.id
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned ID of the nested network application, echoed back on update
+  - model_name: name
+    tf_name: network_application_name
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.name
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned name of the nested network application, echoed back on update
+  - model_name: applicationSubType
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.applicationSubType
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned application subtype, echoed back on update
+  - model_name: displayName
+    tf_name: network_application_display_name
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.displayName
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned display name of the nested network application
+  - model_name: engineId
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.engineId
+    type: String
+    description:
+      Classification engine. Custom applications use `6`. The controller accepts
+      an application without it, but the GUI then fails to render the
+      application's IP/Port classifier.
+    example: "6"
+  - model_name: popularity
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.popularity
+    type: Int64
+    computed: true
+    exclude_test: true
+    description: Server-assigned popularity, echoed back on update
+  - model_name: selectorId
+    data_path: "0.networkApplications.0"
+    response_data_path: response.0.networkApplications.0.selectorId
+    type: String
+    computed: true
+    exclude_test: true
+    description: Server-assigned selector ID, echoed back on update
+test_prerequisites: |
+  resource "catalystcenter_application_set" "test" {
+    name                       = "tf-acc-application-set"
+    default_business_relevance = "BUSINESS_RELEVANT"
+  }
+  data "catalystcenter_application" "category_reference" {
+    name = "3com-amp3"
+  }

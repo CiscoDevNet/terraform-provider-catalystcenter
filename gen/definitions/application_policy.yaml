@@ -1,0 +1,158 @@
+---
+name: Application Policy
+rest_endpoint: /dna/intent/api/v1/app-policy-intent
+get_rest_endpoint: /dna/intent/api/v1/app-policy
+remove_resource_on_empty_response: true
+id_from_attribute: true
+doc_category: Policy
+res_description:
+  'Manages a Catalyst Center Application QoS Policy. A single logical policy is not
+  one API object: the controller stores it as a set of sibling group-based policies
+  that all share the same `policy_scope`. Each entry in `items` is one such sibling —
+  typically one per application set (carrying a `BUSINESS_RELEVANCE` clause), plus a
+  `<policy>_queuing_customization` entry carrying the queuing profile reference, and
+  optionally a `<policy>_global_policy_configuration` entry carrying
+  `APPLICATION_POLICY_KNOBS`. The deployment scope (`site_ids`, `ssids`) is a property
+  of the policy, so it is declared once on the resource and written to every sibling.
+  A site may only be used by one wired policy (`NCAS10157`). `terraform import`
+  expects the policy scope.'
+attributes:
+  - model_name: policyScope
+    type: String
+    id: true
+    query_param: true
+    query_param_name: policyScope
+    write_only: true
+    requires_replace: true
+    description:
+      Name of the policy. On the controller every sibling object carries this as its
+      `policyScope`, and their names are prefixed with it.
+    example: Branch_Office_QoS_Policy
+  - model_name: undeployAction
+    type: String
+    write_only: true
+    enum_values: [DELETED, RESTORED]
+    description:
+      What to do with the devices when this policy is destroyed. `DELETED`
+      removes the policy from the devices, `RESTORED` returns them to their
+      original configuration. Defaults to `DELETED`, matching the GUI. The
+      controller requires the policy to be undeployed before its objects can be
+      removed, so destroy always performs that step; this only selects which
+      action it uses. Never sent on create or update.
+    example: DELETED
+    exclude_test: true
+  - model_name: name
+    tf_name: advanced_policy_scope_name
+    response_data_path: response.0.advancedPolicyScope.name
+    type: String
+    description:
+      Name carried by the advanced policy scope. Defaults to `policy_scope`,
+      which is what the GUI writes.
+    exclude_test: true
+  - model_name: groupId
+    tf_name: site_ids
+    response_data_path: response.0.advancedPolicyScope.advancedPolicyScopeElement.0.groupId
+    type: Set
+    element_type: String
+    mandatory: true
+    description:
+      Site IDs this policy is deployed to. The scope belongs to the policy, not to
+      an individual sibling, so it is set once here and written to every entry in
+      `items`.
+    example: 12345678-1234-1234-1234-123456789012
+    test_value: '[catalystcenter_area.test.id]'
+  - model_name: ssid
+    tf_name: ssids
+    response_data_path: response.0.advancedPolicyScope.advancedPolicyScopeElement.0.ssid
+    type: Set
+    element_type: String
+    description:
+      SSIDs this policy applies to, which makes it a wireless policy. Like
+      `site_ids` it belongs to the policy and is written to every entry in `items`.
+    exclude_test: true
+  - model_name: createList
+    tf_name: items
+    response_data_path: response
+    type: Set
+    mandatory: true
+    description:
+      The sibling group-based policies making up this policy. Modelled as a set
+      because the controller does not preserve ordering. Only what differs between
+      siblings belongs here; everything shared by the policy is declared on the
+      resource, so changing the deployment scope does not churn every entry.
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        description:
+          Name of the sibling policy, conventionally `<policy_scope>_<application
+          set>`, `<policy_scope>_queuing_customization` or
+          `<policy_scope>_global_policy_configuration`.
+        example: Branch_Office_QoS_Policy_collaboration-apps
+      - model_name: priority
+        type: String
+        mandatory: true
+        description:
+          Priority of the sibling policy. `100` normally, `4095` when the producer
+          refers to an application scalable group.
+        example: "100"
+      - model_name: deletePolicyStatus
+        type: String
+        enum_values: [NONE, DELETED, RESTORED]
+        description: Deployment state of the sibling policy
+        example: NONE
+      - model_name: type
+        tf_name: clause_type
+        data_path: exclusiveContract.clause.0
+        type: String
+        enum_values: [BUSINESS_RELEVANCE, APPLICATION_POLICY_KNOBS]
+        description: Kind of exclusive contract clause carried by this sibling policy
+        example: BUSINESS_RELEVANCE
+      - model_name: relevanceLevel
+        data_path: exclusiveContract.clause.0
+        type: String
+        enum_values: [BUSINESS_RELEVANT, BUSINESS_IRRELEVANT, DEFAULT]
+        description: Business relevance, when `clause_type` is `BUSINESS_RELEVANCE`
+        example: BUSINESS_RELEVANT
+      - model_name: deviceRemovalBehavior
+        data_path: exclusiveContract.clause.0
+        type: String
+        enum_values: [DELETE, RESTORE, IGNORE]
+        description: Device removal behaviour, when `clause_type` is `APPLICATION_POLICY_KNOBS`
+        example: RESTORE
+        exclude_test: true
+      - model_name: hostTrackingEnabled
+        data_path: exclusiveContract.clause.0
+        type: Bool
+        description: Whether host tracking is enabled, when `clause_type` is `APPLICATION_POLICY_KNOBS`
+        example: "true"
+        exclude_test: true
+      - model_name: idRef
+        tf_name: queuing_profile_id
+        data_path: contract
+        type: String
+        description:
+          ID of the queuing profile, set on the `<policy_scope>_queuing_customization`
+          sibling policy only.
+        example: 12345678-1234-1234-1234-123456789012
+        exclude_test: true
+      - model_name: idRef
+        tf_name: application_set_id
+        data_path: producer.scalableGroup.0
+        type: String
+        description:
+          ID of the application set this sibling policy applies to, set on
+          `BUSINESS_RELEVANCE` sibling policies.
+        example: 12345678-1234-1234-1234-123456789012
+        test_value: data.catalystcenter_application_set.test.id
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_area" "test" {
+    name      = "AppPolicyTestArea"
+    parent_id = data.catalystcenter_site.test.id
+  }
+  data "catalystcenter_application_set" "test" {
+    name = "collaboration-apps"
+  }

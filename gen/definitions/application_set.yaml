@@ -1,0 +1,47 @@
+---
+name: Application Set
+rest_endpoint: /dna/intent/api/v2/application-policy-application-set
+delete_rest_endpoint: /dna/intent/api/v1/application-policy-application-set
+delete_id_query_param: id
+get_extra_query_params: '?attributes=applicationSet&limit=500'
+get_from_all: true
+id_from_query_path: response
+no_update: true
+doc_category: Policy
+res_description:
+  'Manages a custom Catalyst Center Application Set. The controller ships roughly 29
+  built-in application sets (`collaboration-apps`, `consumer-gaming`, ...) which are
+  seeded and must not be managed by this resource. The API exposes no update verb,
+  so every attribute forces replacement. `terraform import` expects the two-part
+  identifier `<name>,<id>`.'
+attributes:
+  - model_name: name
+    data_path: "0"
+    response_data_path: name
+    type: String
+    id: true
+    match_id: true
+    data_source_query: true
+    requires_replace: true
+    description: The name of the application set
+    example: my-app-set
+  - model_name: defaultBusinessRelevance
+    data_path: "0"
+    response_data_path: defaultBusinessRelevance
+    type: String
+    mandatory: true
+    requires_replace: true
+    enum_values: [BUSINESS_RELEVANT, BUSINESS_IRRELEVANT, DEFAULT]
+    description:
+      The business relevance this application set defaults to. It determines which
+      column the set is pre-populated into in the Application Policy GUI; an
+      application policy may still override it per policy.
+    example: BUSINESS_RELEVANT
+  - model_name: scalableGroupType
+    data_path: "0"
+    value: APPLICATION_GROUP
+    write_only: true
+    type: String
+    description:
+      Scalable group type, always `APPLICATION_GROUP` on create. Write-only because
+      the controller normalises the stored value to `APPLICATION-GROUP`.

@@ -47,6 +47,7 @@ ds_description: str(required=False) # Define a data source description
 res_description: str(required=False) # Define a resource description
 doc_category: str(required=False) # Define a documentation category
 skip_minimum_test: bool(required=False) # Do not perform a "minimum" (only mandatory attributes) test
+exclude_test: bool(required=False) # Do not generate acceptance tests (resource and data source) for this definition
 attributes: list(include('attribute'), required=False) # List of attributes
 test_tags: list(str(), required=False) # List of test tags, tests are only executed if an environment variable with one of these tags is configured
 test_prerequisites: str(required=False) # HCL code that is included in the acceptance tests to define prerequisites
