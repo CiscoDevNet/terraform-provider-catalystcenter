@@ -104,7 +104,7 @@ attributes:
         ID of the application category. Copy this UUID from an existing application
         in the desired category.
       example: de3f7e1e-bdda-4a2c-87f8-0ff49b463997
-      test_value: data.catalystcenter_application.category_reference.network_applications[0].category_id
+      test_value: data.catalystcenter_application.reference.network_applications[0].category_id
     - model_name: ignoreConflict
       type: Bool
       mandatory: true
@@ -275,6 +275,6 @@ test_prerequisites: |
     name                       = "tf-acc-application-set"
     default_business_relevance = "BUSINESS_RELEVANT"
   }
-  data "catalystcenter_application" "test" {
+  data "catalystcenter_application" "reference" {
     name = "3com-amp3"
   }

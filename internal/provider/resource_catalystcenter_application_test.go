@@ -63,7 +63,7 @@ resource "catalystcenter_application_set" "test" {
   name                       = "tf-acc-application-set"
   default_business_relevance = "BUSINESS_RELEVANT"
 }
-data "catalystcenter_application" "test" {
+data "catalystcenter_application" "reference" {
   name = "3com-amp3"
 }
 `
@@ -79,7 +79,7 @@ func testAccCcApplicationConfig_minimum() string {
 	config += `	  application_type = "CUSTOM"` + "\n"
 	config += `	  type = "_server-ip"` + "\n"
 	config += `	  traffic_class = "TRANSACTIONAL_DATA"` + "\n"
-	config += `	  category_id = data.catalystcenter_application.category_reference.network_applications[0].category_id` + "\n"
+	config += `	  category_id = data.catalystcenter_application.reference.network_applications[0].category_id` + "\n"
 	config += `	  ignore_conflict = false` + "\n"
 	config += `	  rank = 1` + "\n"
 	config += `	  engine_id = 6` + "\n"
@@ -102,7 +102,7 @@ func testAccCcApplicationConfig_all() string {
 	config += `	  dscp = "18"` + "\n"
 	config += `	  app_protocol = "TCP"` + "\n"
 	config += `	  traffic_class = "TRANSACTIONAL_DATA"` + "\n"
-	config += `	  category_id = data.catalystcenter_application.category_reference.network_applications[0].category_id` + "\n"
+	config += `	  category_id = data.catalystcenter_application.reference.network_applications[0].category_id` + "\n"
 	config += `	  ignore_conflict = false` + "\n"
 	config += `	  rank = 1` + "\n"
 	config += `	  engine_id = 6` + "\n"
