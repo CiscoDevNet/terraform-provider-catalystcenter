@@ -14,7 +14,6 @@ Reads a Catalyst Center application, including built-in NBAR applications. Both 
 
 ```terraform
 data "catalystcenter_application" "example" {
-  id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   name = "my-custom-app"
 }
 ```
@@ -24,12 +23,12 @@ data "catalystcenter_application" "example" {
 
 ### Required
 
-- `id` (String) The id of the object
 - `name` (String) The name of the application
 
 ### Read-Only
 
 - `application_set_id` (String) Id reference to parent application set
+- `id` (String) The id of the object
 - `indicative_network_identity` (Attributes Set) Indicative signatures used by NBAR applications. Available when reading built-in applications through the data source. Each protocol, ports, lower-port and upper-port combination must be unique. (see [below for nested schema](#nestedatt--indicative_network_identity))
 - `network_applications` (Attributes List) Exactly one network application. (see [below for nested schema](#nestedatt--network_applications))
 - `network_identity` (Attributes Set) L3/L4 signatures for `_server-ip` applications (see [below for nested schema](#nestedatt--network_identity))

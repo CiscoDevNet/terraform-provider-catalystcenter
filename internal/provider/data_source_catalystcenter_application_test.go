@@ -92,8 +92,8 @@ func testAccDataSourceCcApplicationConfig() string {
 
 	config += `
 		data "catalystcenter_application" "test" {
-			id = catalystcenter_application.test.id
 			name = "my-custom-app"
+			depends_on = [catalystcenter_application.test]
 		}
 	`
 	return config
