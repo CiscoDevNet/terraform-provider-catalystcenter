@@ -146,6 +146,38 @@ func (r *ApplicationResource) Schema(ctx context.Context, req resource.SchemaReq
 							MarkdownDescription: helpers.NewAttributeDescription("Engine id, should be set to 6").String,
 							Required:            true,
 						},
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Controller-assigned network application ID.").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"application_sub_type": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Application subtype returned by the controller.").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"display_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Display name returned by the controller.").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Network application name returned by the controller.").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 					},
 				},
 				Validators: []validator.List{
@@ -192,6 +224,22 @@ func (r *ApplicationResource) Schema(ctx context.Context, req resource.SchemaReq
 							ElementType:         types.StringType,
 							Required:            true,
 						},
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Id").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"display_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Display name returned by the controller.").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 					},
 				},
 			},
@@ -233,6 +281,22 @@ func (r *ApplicationResource) Schema(ctx context.Context, req resource.SchemaReq
 							Required:            true,
 							Validators: []validator.Int64{
 								int64validator.Between(0, 65535),
+							},
+						},
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Id").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"display_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Display name returned by the controller.").String,
+							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 					},

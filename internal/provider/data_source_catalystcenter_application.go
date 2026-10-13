@@ -119,6 +119,22 @@ func (d *ApplicationDataSource) Schema(ctx context.Context, req datasource.Schem
 							MarkdownDescription: "Engine id, should be set to 6",
 							Computed:            true,
 						},
+						"id": schema.StringAttribute{
+							MarkdownDescription: "Controller-assigned network application ID.",
+							Computed:            true,
+						},
+						"application_sub_type": schema.StringAttribute{
+							MarkdownDescription: "Application subtype returned by the controller.",
+							Computed:            true,
+						},
+						"display_name": schema.StringAttribute{
+							MarkdownDescription: "Display name returned by the controller.",
+							Computed:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: "Network application name returned by the controller.",
+							Computed:            true,
+						},
 					},
 				},
 			},
@@ -150,6 +166,14 @@ func (d *ApplicationDataSource) Schema(ctx context.Context, req datasource.Schem
 						"ipv4_subnet": schema.SetAttribute{
 							MarkdownDescription: "IPv4 subnets matching the application",
 							ElementType:         types.StringType,
+							Computed:            true,
+						},
+						"id": schema.StringAttribute{
+							MarkdownDescription: "Id",
+							Computed:            true,
+						},
+						"display_name": schema.StringAttribute{
+							MarkdownDescription: "Display name returned by the controller.",
 							Computed:            true,
 						},
 					},
@@ -184,6 +208,14 @@ func (d *ApplicationDataSource) Schema(ctx context.Context, req datasource.Schem
 						},
 						"upper_port": schema.Int64Attribute{
 							MarkdownDescription: "Last port in the range, or `0` for discrete ports.",
+							Computed:            true,
+						},
+						"id": schema.StringAttribute{
+							MarkdownDescription: "Id",
+							Computed:            true,
+						},
+						"display_name": schema.StringAttribute{
+							MarkdownDescription: "Display name returned by the controller.",
 							Computed:            true,
 						},
 					},

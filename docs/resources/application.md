@@ -81,7 +81,11 @@ Optional:
 
 - `app_protocol` (String) Transport protocol. Omit for `_servername`; use `TCP` for `_url`.
   - Choices: `TCP`, `UDP`, `TCP/UDP`, `IP`
+- `application_sub_type` (String) Application subtype returned by the controller.
+- `display_name` (String) Display name returned by the controller.
 - `dscp` (String) DSCP value assigned to traffic matching this application
+- `id` (String) Controller-assigned network application ID.
+- `name` (String) Network application name returned by the controller.
 - `server_name` (String) Server name identifying the application, when `server_type` is `_servername`
 - `url` (String) URL identifying the application, when `server_type` is `_url`
 
@@ -101,6 +105,8 @@ Required:
 
 Optional:
 
+- `display_name` (String) Display name returned by the controller.
+- `id` (String) Id
 - `ipv4_subnet` (Set of String) IPv4 subnets of the indicative signature.
 - `ipv6_subnet` (Set of String) IPv6 subnets of the indicative signature.
 
@@ -118,6 +124,11 @@ Required:
   - Choices: `TCP_OR_UDP`, `TCP`, `UDP`, `IP`
 - `upper_port` (Number) End of a port range, used with `lower_port`. Leave `ports` empty when a range is used. The controller returns `0` when no range is set.
   - Range: `0`-`65535`
+
+Optional:
+
+- `display_name` (String) Display name returned by the controller.
+- `id` (String) Id
 
 ## Import
 

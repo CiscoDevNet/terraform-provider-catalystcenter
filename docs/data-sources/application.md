@@ -39,6 +39,8 @@ data "catalystcenter_application" "example" {
 
 Read-Only:
 
+- `display_name` (String) Display name returned by the controller.
+- `id` (String) Id
 - `ipv4_subnet` (Set of String) IPv4 subnets of the indicative signature.
 - `ipv6_subnet` (Set of String) IPv6 subnets of the indicative signature.
 - `lower_port` (Number) First port in the range, or `0` for discrete ports.
@@ -53,12 +55,16 @@ Read-Only:
 Read-Only:
 
 - `app_protocol` (String) Transport protocol. Omit for `_servername`; use `TCP` for `_url`.
+- `application_sub_type` (String) Application subtype returned by the controller.
 - `application_type` (String) Application type
 - `category_id` (String) ID of the application category. Copy this UUID from an existing application in the desired category.
+- `display_name` (String) Display name returned by the controller.
 - `dscp` (String) DSCP value assigned to traffic matching this application
 - `engine_id` (Number) Engine id, should be set to 6
 - `help_string` (String) Description of the application shown in the GUI
+- `id` (String) Controller-assigned network application ID.
 - `ignore_conflict` (Boolean) Whether to ignore conflicts with existing application signatures.
+- `name` (String) Network application name returned by the controller.
 - `rank` (Number) Rank used to break ties between overlapping applications
 - `server_name` (String) Server name identifying the application, when `server_type` is `_servername`
 - `traffic_class` (String) The traffic class the application is assigned to
@@ -71,6 +77,8 @@ Read-Only:
 
 Read-Only:
 
+- `display_name` (String) Display name returned by the controller.
+- `id` (String) Id
 - `ipv4_subnet` (Set of String) IPv4 subnets matching the application
 - `lower_port` (Number) Start of a port range, used with `upper_port`. Leave `ports` empty when a range is used. The controller returns `0` when no range is set.
 - `ports` (String) Comma separated list of discrete ports

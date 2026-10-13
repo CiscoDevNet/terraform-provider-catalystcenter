@@ -41,35 +41,43 @@ type Application struct {
 }
 
 type ApplicationNetworkApplications struct {
-	HelpString      types.String `tfsdk:"help_string"`
-	ApplicationType types.String `tfsdk:"application_type"`
-	Type            types.String `tfsdk:"type"`
-	Dscp            types.String `tfsdk:"dscp"`
-	AppProtocol     types.String `tfsdk:"app_protocol"`
-	ServerName      types.String `tfsdk:"server_name"`
-	Url             types.String `tfsdk:"url"`
-	TrafficClass    types.String `tfsdk:"traffic_class"`
-	CategoryId      types.String `tfsdk:"category_id"`
-	IgnoreConflict  types.Bool   `tfsdk:"ignore_conflict"`
-	Rank            types.Int64  `tfsdk:"rank"`
-	EngineId        types.Int64  `tfsdk:"engine_id"`
+	HelpString         types.String `tfsdk:"help_string"`
+	ApplicationType    types.String `tfsdk:"application_type"`
+	Type               types.String `tfsdk:"type"`
+	Dscp               types.String `tfsdk:"dscp"`
+	AppProtocol        types.String `tfsdk:"app_protocol"`
+	ServerName         types.String `tfsdk:"server_name"`
+	Url                types.String `tfsdk:"url"`
+	TrafficClass       types.String `tfsdk:"traffic_class"`
+	CategoryId         types.String `tfsdk:"category_id"`
+	IgnoreConflict     types.Bool   `tfsdk:"ignore_conflict"`
+	Rank               types.Int64  `tfsdk:"rank"`
+	EngineId           types.Int64  `tfsdk:"engine_id"`
+	Id                 types.String `tfsdk:"id"`
+	ApplicationSubType types.String `tfsdk:"application_sub_type"`
+	DisplayName        types.String `tfsdk:"display_name"`
+	Name               types.String `tfsdk:"name"`
 }
 
 type ApplicationNetworkIdentity struct {
-	Protocol   types.String `tfsdk:"protocol"`
-	Ports      types.String `tfsdk:"ports"`
-	LowerPort  types.Int64  `tfsdk:"lower_port"`
-	UpperPort  types.Int64  `tfsdk:"upper_port"`
-	Ipv4Subnet types.Set    `tfsdk:"ipv4_subnet"`
+	Protocol    types.String `tfsdk:"protocol"`
+	Ports       types.String `tfsdk:"ports"`
+	LowerPort   types.Int64  `tfsdk:"lower_port"`
+	UpperPort   types.Int64  `tfsdk:"upper_port"`
+	Ipv4Subnet  types.Set    `tfsdk:"ipv4_subnet"`
+	Id          types.String `tfsdk:"id"`
+	DisplayName types.String `tfsdk:"display_name"`
 }
 
 type ApplicationIndicativeNetworkIdentity struct {
-	Protocol   types.String `tfsdk:"protocol"`
-	Ports      types.String `tfsdk:"ports"`
-	Ipv4Subnet types.Set    `tfsdk:"ipv4_subnet"`
-	Ipv6Subnet types.Set    `tfsdk:"ipv6_subnet"`
-	LowerPort  types.Int64  `tfsdk:"lower_port"`
-	UpperPort  types.Int64  `tfsdk:"upper_port"`
+	Protocol    types.String `tfsdk:"protocol"`
+	Ports       types.String `tfsdk:"ports"`
+	Ipv4Subnet  types.Set    `tfsdk:"ipv4_subnet"`
+	Ipv6Subnet  types.Set    `tfsdk:"ipv6_subnet"`
+	LowerPort   types.Int64  `tfsdk:"lower_port"`
+	UpperPort   types.Int64  `tfsdk:"upper_port"`
+	Id          types.String `tfsdk:"id"`
+	DisplayName types.String `tfsdk:"display_name"`
 }
 
 // End of section. //template:end types
@@ -157,6 +165,18 @@ func (data Application) toBody(ctx context.Context, state Application) string {
 			if !item.EngineId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "engineId", item.EngineId.ValueInt64())
 			}
+			if item.Id.ValueString() != "" && !item.Id.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
+			if item.ApplicationSubType.ValueString() != "" && !item.ApplicationSubType.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "applicationSubType", item.ApplicationSubType.ValueString())
+			}
+			if item.DisplayName.ValueString() != "" && !item.DisplayName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "displayName", item.DisplayName.ValueString())
+			}
+			if item.Name.ValueString() != "" && !item.Name.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
+			}
 			body, _ = sjson.SetRaw(body, "0.networkApplications.-1", itemBody)
 		}
 	}
@@ -183,6 +203,12 @@ func (data Application) toBody(ctx context.Context, state Application) string {
 				var values []string
 				item.Ipv4Subnet.ElementsAs(ctx, &values, false)
 				itemBody, _ = sjson.Set(itemBody, "ipv4Subnet", values)
+			}
+			if item.Id.ValueString() != "" && !item.Id.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
+			if item.DisplayName.ValueString() != "" && !item.DisplayName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "displayName", item.DisplayName.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "0.networkIdentity.-1", itemBody)
 		}
@@ -212,6 +238,12 @@ func (data Application) toBody(ctx context.Context, state Application) string {
 			}
 			if !item.UpperPort.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "upperPort", item.UpperPort.ValueInt64())
+			}
+			if item.Id.ValueString() != "" && !item.Id.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
+			if item.DisplayName.ValueString() != "" && !item.DisplayName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "displayName", item.DisplayName.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "0.indicativeNetworkIdentity.-1", itemBody)
 		}
@@ -273,6 +305,26 @@ func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.EngineId = types.Int64Null()
 			}
+			if cValue := v.Get("id"); cValue.Exists() {
+				item.Id = types.StringValue(cValue.String())
+			} else {
+				item.Id = types.StringNull()
+			}
+			if cValue := v.Get("applicationSubType"); cValue.Exists() {
+				item.ApplicationSubType = types.StringValue(cValue.String())
+			} else {
+				item.ApplicationSubType = types.StringNull()
+			}
+			if cValue := v.Get("displayName"); cValue.Exists() {
+				item.DisplayName = types.StringValue(cValue.String())
+			} else {
+				item.DisplayName = types.StringNull()
+			}
+			if cValue := v.Get("name"); cValue.Exists() {
+				item.Name = types.StringValue(cValue.String())
+			} else {
+				item.Name = types.StringNull()
+			}
 			data.NetworkApplications = append(data.NetworkApplications, item)
 			return true
 		})
@@ -311,6 +363,16 @@ func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				item.Ipv4Subnet = types.SetNull(types.StringType)
 			}
+			if cValue := v.Get("id"); cValue.Exists() {
+				item.Id = types.StringValue(cValue.String())
+			} else {
+				item.Id = types.StringNull()
+			}
+			if cValue := v.Get("displayName"); cValue.Exists() {
+				item.DisplayName = types.StringValue(cValue.String())
+			} else {
+				item.DisplayName = types.StringNull()
+			}
 			data.NetworkIdentity = append(data.NetworkIdentity, item)
 			return true
 		})
@@ -348,6 +410,16 @@ func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
 				item.UpperPort = types.Int64Value(cValue.Int())
 			} else {
 				item.UpperPort = types.Int64Null()
+			}
+			if cValue := v.Get("id"); cValue.Exists() {
+				item.Id = types.StringValue(cValue.String())
+			} else {
+				item.Id = types.StringNull()
+			}
+			if cValue := v.Get("displayName"); cValue.Exists() {
+				item.DisplayName = types.StringValue(cValue.String())
+			} else {
+				item.DisplayName = types.StringNull()
 			}
 			data.IndicativeNetworkIdentity = append(data.IndicativeNetworkIdentity, item)
 			return true
@@ -406,6 +478,26 @@ func (data *Application) updateFromBody(ctx context.Context, res gjson.Result) {
 		} else {
 			data.NetworkApplications[i].EngineId = types.Int64Null()
 		}
+		if value := r.Get("id"); value.Exists() && !data.NetworkApplications[i].Id.IsNull() {
+			data.NetworkApplications[i].Id = types.StringValue(value.String())
+		} else {
+			data.NetworkApplications[i].Id = types.StringNull()
+		}
+		if value := r.Get("applicationSubType"); value.Exists() && !data.NetworkApplications[i].ApplicationSubType.IsNull() {
+			data.NetworkApplications[i].ApplicationSubType = types.StringValue(value.String())
+		} else {
+			data.NetworkApplications[i].ApplicationSubType = types.StringNull()
+		}
+		if value := r.Get("displayName"); value.Exists() && !data.NetworkApplications[i].DisplayName.IsNull() {
+			data.NetworkApplications[i].DisplayName = types.StringValue(value.String())
+		} else {
+			data.NetworkApplications[i].DisplayName = types.StringNull()
+		}
+		if value := r.Get("name"); value.Exists() && !data.NetworkApplications[i].Name.IsNull() {
+			data.NetworkApplications[i].Name = types.StringValue(value.String())
+		} else {
+			data.NetworkApplications[i].Name = types.StringNull()
+		}
 	}
 	if value := res.Get("response.0.parentScalableGroup.idRef"); value.Exists() && !data.ApplicationSetId.IsNull() {
 		data.ApplicationSetId = types.StringValue(value.String())
@@ -459,6 +551,16 @@ func (data *Application) updateFromBody(ctx context.Context, res gjson.Result) {
 			data.NetworkIdentity[i].Ipv4Subnet = helpers.GetStringSet(value.Array())
 		} else {
 			data.NetworkIdentity[i].Ipv4Subnet = types.SetNull(types.StringType)
+		}
+		if value := r.Get("id"); value.Exists() && !data.NetworkIdentity[i].Id.IsNull() {
+			data.NetworkIdentity[i].Id = types.StringValue(value.String())
+		} else {
+			data.NetworkIdentity[i].Id = types.StringNull()
+		}
+		if value := r.Get("displayName"); value.Exists() && !data.NetworkIdentity[i].DisplayName.IsNull() {
+			data.NetworkIdentity[i].DisplayName = types.StringValue(value.String())
+		} else {
+			data.NetworkIdentity[i].DisplayName = types.StringNull()
 		}
 	}
 	for i := range data.IndicativeNetworkIdentity {
@@ -514,6 +616,16 @@ func (data *Application) updateFromBody(ctx context.Context, res gjson.Result) {
 		} else {
 			data.IndicativeNetworkIdentity[i].UpperPort = types.Int64Null()
 		}
+		if value := r.Get("id"); value.Exists() && !data.IndicativeNetworkIdentity[i].Id.IsNull() {
+			data.IndicativeNetworkIdentity[i].Id = types.StringValue(value.String())
+		} else {
+			data.IndicativeNetworkIdentity[i].Id = types.StringNull()
+		}
+		if value := r.Get("displayName"); value.Exists() && !data.IndicativeNetworkIdentity[i].DisplayName.IsNull() {
+			data.IndicativeNetworkIdentity[i].DisplayName = types.StringValue(value.String())
+		} else {
+			data.IndicativeNetworkIdentity[i].DisplayName = types.StringNull()
+		}
 	}
 }
 
@@ -531,11 +643,126 @@ func (data *Application) fromBodyUnknowns(ctx context.Context, res gjson.Result)
 			data.Name = types.StringNull()
 		}
 	}
+	for i := range data.NetworkApplications {
+		values := res.Get("response.0.networkApplications").Array()
+		if len(values) != 1 {
+			data.NetworkApplications = nil
+			break
+		}
+		r := values[0]
+		if data.NetworkApplications[i].Id.IsUnknown() {
+			if value := r.Get("id"); value.Exists() && !data.NetworkApplications[i].Id.IsNull() {
+				data.NetworkApplications[i].Id = types.StringValue(value.String())
+			} else {
+				data.NetworkApplications[i].Id = types.StringNull()
+				continue
+			}
+		}
+		if data.NetworkApplications[i].ApplicationSubType.IsUnknown() {
+			if value := r.Get("applicationSubType"); value.Exists() && !data.NetworkApplications[i].ApplicationSubType.IsNull() {
+				data.NetworkApplications[i].ApplicationSubType = types.StringValue(value.String())
+			} else {
+				data.NetworkApplications[i].ApplicationSubType = types.StringNull()
+			}
+		}
+		if data.NetworkApplications[i].DisplayName.IsUnknown() {
+			if value := r.Get("displayName"); value.Exists() && !data.NetworkApplications[i].DisplayName.IsNull() {
+				data.NetworkApplications[i].DisplayName = types.StringValue(value.String())
+			} else {
+				data.NetworkApplications[i].DisplayName = types.StringNull()
+			}
+		}
+		if data.NetworkApplications[i].Name.IsUnknown() {
+			if value := r.Get("name"); value.Exists() && !data.NetworkApplications[i].Name.IsNull() {
+				data.NetworkApplications[i].Name = types.StringValue(value.String())
+			} else {
+				data.NetworkApplications[i].Name = types.StringNull()
+			}
+		}
+	}
 	if data.ApplicationSetId.IsUnknown() {
 		if value := res.Get("response.0.parentScalableGroup.idRef"); value.Exists() && !data.ApplicationSetId.IsNull() {
 			data.ApplicationSetId = types.StringValue(value.String())
 		} else {
 			data.ApplicationSetId = types.StringNull()
+		}
+	}
+	for i := range data.NetworkIdentity {
+		keys := [...]string{"protocol", "ports", "lowerPort", "upperPort"}
+		keyValues := [...]string{data.NetworkIdentity[i].Protocol.ValueString(), data.NetworkIdentity[i].Ports.ValueString(), strconv.FormatInt(data.NetworkIdentity[i].LowerPort.ValueInt64(), 10), strconv.FormatInt(data.NetworkIdentity[i].UpperPort.ValueInt64(), 10)}
+
+		var r gjson.Result
+		res.Get("response.0.networkIdentity").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if data.NetworkIdentity[i].Id.IsUnknown() {
+			if value := r.Get("id"); value.Exists() && !data.NetworkIdentity[i].Id.IsNull() {
+				data.NetworkIdentity[i].Id = types.StringValue(value.String())
+			} else {
+				data.NetworkIdentity[i].Id = types.StringNull()
+				continue
+			}
+		}
+		if data.NetworkIdentity[i].DisplayName.IsUnknown() {
+			if value := r.Get("displayName"); value.Exists() && !data.NetworkIdentity[i].DisplayName.IsNull() {
+				data.NetworkIdentity[i].DisplayName = types.StringValue(value.String())
+			} else {
+				data.NetworkIdentity[i].DisplayName = types.StringNull()
+			}
+		}
+	}
+	for i := range data.IndicativeNetworkIdentity {
+		keys := [...]string{"protocol", "ports", "lowerPort", "upperPort"}
+		keyValues := [...]string{data.IndicativeNetworkIdentity[i].Protocol.ValueString(), data.IndicativeNetworkIdentity[i].Ports.ValueString(), strconv.FormatInt(data.IndicativeNetworkIdentity[i].LowerPort.ValueInt64(), 10), strconv.FormatInt(data.IndicativeNetworkIdentity[i].UpperPort.ValueInt64(), 10)}
+
+		var r gjson.Result
+		res.Get("response.0.indicativeNetworkIdentity").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if data.IndicativeNetworkIdentity[i].Id.IsUnknown() {
+			if value := r.Get("id"); value.Exists() && !data.IndicativeNetworkIdentity[i].Id.IsNull() {
+				data.IndicativeNetworkIdentity[i].Id = types.StringValue(value.String())
+			} else {
+				data.IndicativeNetworkIdentity[i].Id = types.StringNull()
+				continue
+			}
+		}
+		if data.IndicativeNetworkIdentity[i].DisplayName.IsUnknown() {
+			if value := r.Get("displayName"); value.Exists() && !data.IndicativeNetworkIdentity[i].DisplayName.IsNull() {
+				data.IndicativeNetworkIdentity[i].DisplayName = types.StringValue(value.String())
+			} else {
+				data.IndicativeNetworkIdentity[i].DisplayName = types.StringNull()
+			}
 		}
 	}
 }

@@ -1,7 +1,6 @@
 ---
 name: Application
 rest_endpoint: /dna/intent/api/v2/applications
-#put_rest_endpoint: /dna/intent/api/v1/applications
 get_extra_query_params: '&attributes=application&offset=1&limit=500'
 id_from_query_path: response
 put_no_id: true
@@ -124,6 +123,26 @@ attributes:
       mandatory: true
       description: Engine id, should be set to 6
       example: 6
+    - model_name: id
+      type: String
+      computed: true
+      description: Controller-assigned network application ID.
+      exclude_test: true
+    - model_name: applicationSubType
+      type: String
+      computed: true
+      description: Application subtype returned by the controller.
+      exclude_test: true
+    - model_name: displayName
+      type: String
+      computed: true
+      description: Display name returned by the controller.
+      exclude_test: true
+    - model_name: name
+      type: String
+      computed: true
+      description: Network application name returned by the controller.
+      exclude_test: true
   - model_name: idRef
     tf_name: application_set_id
     data_path: "0.parentScalableGroup"
@@ -175,6 +194,16 @@ attributes:
         mandatory: true
         description: IPv4 subnets matching the application
         example: 10.0.0.0/24
+      - model_name: id
+        type: String
+        computed: true
+        description: Id
+        exclude_test: true
+      - model_name: displayName
+        type: String
+        computed: true
+        description: Display name returned by the controller.
+        exclude_test: true
   - model_name: indicativeNetworkIdentity
     data_path: "0"
     response_data_path: response.0.indicativeNetworkIdentity
@@ -220,6 +249,16 @@ attributes:
         max_int: 65535
         description: Last port in the range, or `0` for discrete ports.
         example: 0
+      - model_name: id
+        type: String
+        computed: true
+        description: Id
+        exclude_test: true
+      - model_name: displayName
+        type: String
+        computed: true
+        description: Display name returned by the controller.
+        exclude_test: true
   - model_name: scalableGroupType
     data_path: "0"
     value: APPLICATION
