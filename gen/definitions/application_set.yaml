@@ -5,7 +5,7 @@ get_extra_query_params: '?attributes=applicationSet&limit=500'
 get_from_all: true
 id_from_query_path: response
 no_update: true
-doc_category: Policy
+doc_category: Application Policy
 res_description:
   'Manages a custom Catalyst Center Application Set. Built-in application sets
   must not be managed by this resource. The API does not support updates, so

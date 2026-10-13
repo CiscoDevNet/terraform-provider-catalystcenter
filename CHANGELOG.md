@@ -1,5 +1,6 @@
 ## 0.6.5 (unreleased)
 
+- Add `catalystcenter_application` resource and data_source
 - Add `catalystcenter_qos_policy_setting` resource and data_source
 - Add `catalystcenter_application_set` resource and data_source
 - Add `secret_params` to `catalystcenter_deploy_template` for write-only template parameters with per-parameter rotation versions, including composite template deployments; requires Terraform 1.11 or later

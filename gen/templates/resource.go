@@ -37,6 +37,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -519,12 +520,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											},
 										},
 										{{- if or (ne .MinList 0) (ne .MaxList 0)}}
-										Validators: []validator.List{
+										Validators: []validator.{{.Type}}{
 											{{- if ne .MinList 0}}
-											listvalidator.SizeAtLeast({{.MinList}}),
+											{{toLower .Type}}validator.SizeAtLeast({{.MinList}}),
 											{{- end}}
 											{{- if ne .MaxList 0}}
-											listvalidator.SizeAtMost({{.MaxList}}),
+											{{toLower .Type}}validator.SizeAtMost({{.MaxList}}),
 											{{- end}}
 										},
 										{{- end}}
@@ -535,12 +536,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								},
 							},
 							{{- if or (ne .MinList 0) (ne .MaxList 0)}}
-							Validators: []validator.List{
+							Validators: []validator.{{.Type}}{
 								{{- if ne .MinList 0}}
-								listvalidator.SizeAtLeast({{.MinList}}),
+								{{toLower .Type}}validator.SizeAtLeast({{.MinList}}),
 								{{- end}}
 								{{- if ne .MaxList 0}}
-								listvalidator.SizeAtMost({{.MaxList}}),
+								{{toLower .Type}}validator.SizeAtMost({{.MaxList}}),
 								{{- end}}
 							},
 							{{- end}}
@@ -551,12 +552,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					},
 				},
 				{{- if or (ne .MinList 0) (ne .MaxList 0)}}
-				Validators: []validator.List{
+				Validators: []validator.{{.Type}}{
 					{{- if ne .MinList 0}}
-					listvalidator.SizeAtLeast({{.MinList}}),
+					{{toLower .Type}}validator.SizeAtLeast({{.MinList}}),
 					{{- end}}
 					{{- if ne .MaxList 0}}
-					listvalidator.SizeAtMost({{.MaxList}}),
+					{{toLower .Type}}validator.SizeAtMost({{.MaxList}}),
 					{{- end}}
 				},
 				{{- end}}
