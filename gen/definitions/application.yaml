@@ -3,6 +3,7 @@ name: Application
 rest_endpoint: /dna/intent/api/v2/applications
 get_extra_query_params: '&attributes=application&offset=1&limit=500'
 id_from_query_path: response
+id_from_query_path_attribute: '[id,0.id].0'
 put_no_id: true
 put_id_include_path: "0.id"
 remove_resource_on_empty_response: true

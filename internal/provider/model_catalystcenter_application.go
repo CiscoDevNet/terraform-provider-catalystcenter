@@ -258,7 +258,7 @@ func (data Application) toBody(ctx context.Context, state Application) string {
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
 	// Retrieve the 'id' attribute, if Data Source doesn't require id
-	if value := res.Get("response.id"); value.Exists() {
+	if value := res.Get("response.[id,0.id].0"); value.Exists() {
 		data.Id = types.StringValue(value.String())
 	} else {
 		data.Id = types.StringNull()
