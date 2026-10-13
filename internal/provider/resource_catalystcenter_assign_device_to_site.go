@@ -176,6 +176,10 @@ func unassignFromSiteBody(deviceIds []string) string {
 // genuinely cannot be unassigned and needs the extra requests solely in the
 // mixed case.
 func (r *AssignDeviceToSiteResource) unassignFromSite(ctx context.Context, data AssignDeviceToSite, deviceIds []string) error {
+	if len(deviceIds) == 0 {
+		return nil
+	}
+
 	res, err := r.client.Post(data.getPathDelete(), unassignFromSiteBody(deviceIds), cc.UseMutex)
 	if err == nil {
 		return nil
@@ -214,6 +218,10 @@ func (r *AssignDeviceToSiteResource) unassignFromSite(ctx context.Context, data 
 // therefore still completes. Only a device that has to move and cannot is
 // reported as an error.
 func (r *AssignDeviceToSiteResource) assignToSite(ctx context.Context, data AssignDeviceToSite, deviceIds []string) error {
+	if len(deviceIds) == 0 {
+		return nil
+	}
+
 	siteId := data.SiteId.ValueString()
 
 	res, err := r.client.Post(data.getPath(), assignToSiteBody(siteId, deviceIds), cc.UseMutex)
