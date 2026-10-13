@@ -32,7 +32,6 @@ func TestAccDataSourceCcApplication(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "name", "my-custom-app"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.dscp", "18"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.traffic_class", "TRANSACTIONAL_DATA"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.category_id", "de3f7e1e-bdda-4a2c-87f8-0ff49b463997"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.rank", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.engine_id", "6"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_identity.0.protocol", "TCP"))
@@ -59,7 +58,9 @@ resource "catalystcenter_application_set" "test" {
   name                       = "tf-acc-application-set"
   default_business_relevance = "BUSINESS_RELEVANT"
 }
-
+data "catalystcenter_application" "test" {
+  name = "3com-amp3"
+}
 `
 
 // End of section. //template:end testPrerequisites
@@ -75,7 +76,7 @@ func testAccDataSourceCcApplicationConfig() string {
 	config += `	  dscp = "18"` + "\n"
 	config += `	  app_protocol = "TCP"` + "\n"
 	config += `	  traffic_class = "TRANSACTIONAL_DATA"` + "\n"
-	config += `	  category_id = "de3f7e1e-bdda-4a2c-87f8-0ff49b463997"` + "\n"
+	config += `	  category_id = data.catalystcenter_application.category_reference.network_applications[0].category_id` + "\n"
 	config += `	  ignore_conflict = false` + "\n"
 	config += `	  rank = 1` + "\n"
 	config += `	  engine_id = 6` + "\n"
