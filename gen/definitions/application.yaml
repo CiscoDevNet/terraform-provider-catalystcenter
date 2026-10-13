@@ -8,7 +8,7 @@ put_id_include_path: "0.id"
 remove_resource_on_empty_response: true
 update_computed: true
 skip_minimum_test: true
-doc_category: Policy
+doc_category: Application Policy
 ds_description:
   'Reads a Catalyst Center application, including built-in NBAR applications.
   Both `name` and the controller UUID `id` are required.'
