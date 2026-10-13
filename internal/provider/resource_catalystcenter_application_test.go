@@ -31,8 +31,6 @@ func TestAccCcApplication(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "name", "my-custom-app"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_applications.0.dscp", "18"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_applications.0.server_name", "app.example.com"))
-	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_applications.0.url", "example.com/path"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_applications.0.traffic_class", "TRANSACTIONAL_DATA"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_applications.0.category_id", "de3f7e1e-bdda-4a2c-87f8-0ff49b463997"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application.test", "network_applications.0.rank", "1"))
@@ -75,7 +73,7 @@ func testAccCcApplicationConfig_minimum() string {
 	config += `	network_applications = [{` + "\n"
 	config += `	  help_string = "This is a custom application"` + "\n"
 	config += `	  application_type = "CUSTOM"` + "\n"
-	config += `	  server_type = "_server-ip"` + "\n"
+	config += `	  type = "_server-ip"` + "\n"
 	config += `	  traffic_class = "TRANSACTIONAL_DATA"` + "\n"
 	config += `	  category_id = "de3f7e1e-bdda-4a2c-87f8-0ff49b463997"` + "\n"
 	config += `	  ignore_conflict = false` + "\n"
@@ -96,11 +94,9 @@ func testAccCcApplicationConfig_all() string {
 	config += `	network_applications = [{` + "\n"
 	config += `	  help_string = "This is a custom application"` + "\n"
 	config += `	  application_type = "CUSTOM"` + "\n"
-	config += `	  server_type = "_server-ip"` + "\n"
+	config += `	  type = "_server-ip"` + "\n"
 	config += `	  dscp = "18"` + "\n"
 	config += `	  app_protocol = "TCP"` + "\n"
-	config += `	  server_name = "app.example.com"` + "\n"
-	config += `	  url = "example.com/path"` + "\n"
 	config += `	  traffic_class = "TRANSACTIONAL_DATA"` + "\n"
 	config += `	  category_id = "de3f7e1e-bdda-4a2c-87f8-0ff49b463997"` + "\n"
 	config += `	  ignore_conflict = false` + "\n"

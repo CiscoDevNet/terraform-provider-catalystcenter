@@ -97,7 +97,7 @@ func (r *ApplicationResource) Schema(ctx context.Context, req resource.SchemaReq
 								stringvalidator.OneOf("CUSTOM"),
 							},
 						},
-						"server_type": schema.StringAttribute{
+						"type": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("How the application is identified. `_servername` pairs with `server_name`, `_url` with `url`, and `_server-ip` with `network_identity`.").AddStringEnumDescription("_servername", "_url", "_server-ip").String,
 							Required:            true,
 							Validators: []validator.String{

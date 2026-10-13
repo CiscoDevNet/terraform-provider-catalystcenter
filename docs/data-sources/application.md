@@ -61,8 +61,8 @@ Read-Only:
 - `ignore_conflict` (Boolean) Whether to ignore conflicts with existing application signatures.
 - `rank` (Number) Rank used to break ties between overlapping applications
 - `server_name` (String) Server name identifying the application, when `server_type` is `_servername`
-- `server_type` (String) How the application is identified. `_servername` pairs with `server_name`, `_url` with `url`, and `_server-ip` with `network_identity`.
 - `traffic_class` (String) The traffic class the application is assigned to
+- `type` (String) How the application is identified. `_servername` pairs with `server_name`, `_url` with `url`, and `_server-ip` with `network_identity`.
 - `url` (String) URL identifying the application, when `server_type` is `_url`
 
 

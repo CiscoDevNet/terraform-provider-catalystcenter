@@ -1,6 +1,7 @@
 ---
 name: Application
 rest_endpoint: /dna/intent/api/v2/applications
+#put_rest_endpoint: /dna/intent/api/v1/applications
 get_extra_query_params: '&attributes=application&offset=1&limit=500'
 id_from_query_path: response
 put_no_id: true
@@ -51,7 +52,6 @@ attributes:
       description: Application type
       example: CUSTOM
     - model_name: type
-      tf_name: server_type
       write_only: true
       type: String
       mandatory: true
@@ -75,10 +75,12 @@ attributes:
       type: String
       description: Server name identifying the application, when `server_type` is `_servername`
       example: app.example.com
+      exclude_test: true
     - model_name: url
       type: String
       description: URL identifying the application, when `server_type` is `_url`
       example: example.com/path
+      exclude_test: true
     - model_name: trafficClass
       type: String
       mandatory: true

@@ -19,11 +19,9 @@ resource "catalystcenter_application" "example" {
     {
       help_string      = "This is a custom application"
       application_type = "CUSTOM"
-      server_type      = "_server-ip"
+      type             = "_server-ip"
       dscp             = "18"
       app_protocol     = "TCP"
-      server_name      = "app.example.com"
-      url              = "example.com/path"
       traffic_class    = "TRANSACTIONAL_DATA"
       category_id      = "de3f7e1e-bdda-4a2c-87f8-0ff49b463997"
       ignore_conflict  = false
@@ -74,10 +72,10 @@ Required:
 - `help_string` (String) Description of the application shown in the GUI
 - `ignore_conflict` (Boolean) Whether to ignore conflicts with existing application signatures.
 - `rank` (Number) Rank used to break ties between overlapping applications
-- `server_type` (String) How the application is identified. `_servername` pairs with `server_name`, `_url` with `url`, and `_server-ip` with `network_identity`.
-  - Choices: `_servername`, `_url`, `_server-ip`
 - `traffic_class` (String) The traffic class the application is assigned to
   - Choices: `BROADCAST_VIDEO`, `BULK_DATA`, `MULTIMEDIA_CONFERENCING`, `MULTIMEDIA_STREAMING`, `NETWORK_CONTROL`, `OPS_ADMIN_MGMT`, `REAL_TIME_INTERACTIVE`, `SIGNALING`, `TRANSACTIONAL_DATA`, `VOIP_TELEPHONY`, `BEST_EFFORT`, `SCAVENGER`
+- `type` (String) How the application is identified. `_servername` pairs with `server_name`, `_url` with `url`, and `_server-ip` with `network_identity`.
+  - Choices: `_servername`, `_url`, `_server-ip`
 
 Optional:
 

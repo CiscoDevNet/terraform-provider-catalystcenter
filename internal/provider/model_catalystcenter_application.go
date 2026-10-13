@@ -43,7 +43,7 @@ type Application struct {
 type ApplicationNetworkApplications struct {
 	HelpString      types.String `tfsdk:"help_string"`
 	ApplicationType types.String `tfsdk:"application_type"`
-	ServerType      types.String `tfsdk:"server_type"`
+	Type            types.String `tfsdk:"type"`
 	Dscp            types.String `tfsdk:"dscp"`
 	AppProtocol     types.String `tfsdk:"app_protocol"`
 	ServerName      types.String `tfsdk:"server_name"`
@@ -127,8 +127,8 @@ func (data Application) toBody(ctx context.Context, state Application) string {
 			if !item.ApplicationType.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "applicationType", item.ApplicationType.ValueString())
 			}
-			if !item.ServerType.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "type", item.ServerType.ValueString())
+			if !item.Type.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
 			}
 			if !item.Dscp.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "dscp", item.Dscp.ValueString())
@@ -236,7 +236,7 @@ func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
 			item := ApplicationNetworkApplications{}
 			item.HelpString = types.StringValue("")
 			item.ApplicationType = types.StringValue("")
-			item.ServerType = types.StringValue("")
+			item.Type = types.StringValue("")
 			if cValue := v.Get("dscp"); cValue.Exists() {
 				item.Dscp = types.StringValue(cValue.String())
 			} else {

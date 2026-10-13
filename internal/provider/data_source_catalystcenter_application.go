@@ -79,7 +79,7 @@ func (d *ApplicationDataSource) Schema(ctx context.Context, req datasource.Schem
 							MarkdownDescription: "Application type",
 							Computed:            true,
 						},
-						"server_type": schema.StringAttribute{
+						"type": schema.StringAttribute{
 							MarkdownDescription: "How the application is identified. `_servername` pairs with `server_name`, `_url` with `url`, and `_server-ip` with `network_identity`.",
 							Computed:            true,
 						},
