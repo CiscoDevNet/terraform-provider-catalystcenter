@@ -1,0 +1,32 @@
+---
+name: QoS Policy Setting
+rest_endpoint: /dna/intent/api/v1/qosPolicySetting
+put_no_id: true
+get_no_id: true
+data_source_no_id: true
+import_no_id: true
+put_create: true
+no_delete: true
+id_from_attribute: true
+doc_category: Policy
+res_description:
+  'Manages the global Application QoS policy setting. This is a singleton: the
+  object always exists on the controller, so creating this resource updates the
+  existing setting and destroying it only removes the resource from Terraform state
+  without changing the controller.'
+attributes:
+  - model_name: name
+    type: String
+    id: true
+    query_param_no_body: true
+    description: Fixed resource identifier.
+    example: qos_policy_setting
+  - model_name: deployByDefaultOnWiredDevices
+    response_data_path: response.deployByDefaultOnWiredDevices
+    type: Bool
+    mandatory: true
+    description:
+      Whether a QoS policy is deployed automatically to a wired network device when
+      it is provisioned. Applies only where the device is assigned to a site that
+      has a QoS policy configured.
+    example: "true"

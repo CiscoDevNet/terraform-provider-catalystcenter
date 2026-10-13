@@ -109,6 +109,7 @@ type YamlConfig struct {
 	GetExtraQueryParams           string                `yaml:"get_extra_query_params"`
 	NoDelete                      bool                  `yaml:"no_delete"`
 	DataSourceNoId                bool                  `yaml:"data_source_no_id"`
+	DataSourceNoInputs            bool                  `yaml:"data_source_no_inputs"`
 	DeleteNoId                    bool                  `yaml:"delete_no_id"`
 	NoUpdate                      bool                  `yaml:"no_update"`
 	NoRead                        bool                  `yaml:"no_read"`
