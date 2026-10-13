@@ -10,10 +10,8 @@ remove_resource_on_empty_response: true
 update_computed: true
 skip_minimum_test: true
 data_source_no_id: true
+import_no_id: true
 doc_category: Application Policy
-ds_description:
-  'Reads a Catalyst Center application, including built-in NBAR applications.
-  Both `name` and the controller UUID `id` are required.'
 res_description:
   'Manages a custom Catalyst Center Application. The controller ships roughly 1500
   built-in (NBAR) applications which are seeded and must not be managed by this
@@ -41,13 +39,11 @@ attributes:
     attributes:
     - model_name: helpString
       type: String
-      write_only: true
       mandatory: true
       description: Description of the application shown in the GUI
       example: "This is a custom application"
     - model_name: applicationType
       mandatory: true
-      write_only: true
       enum_values: [CUSTOM]
       type: String
       description: Application type
@@ -66,7 +62,6 @@ attributes:
       description: DSCP value assigned to traffic matching this application
       example: "18"
     - model_name: appProtocol
-      write_only: true
       type: String
       enum_values: [TCP, UDP, TCP/UDP, IP]
       description:

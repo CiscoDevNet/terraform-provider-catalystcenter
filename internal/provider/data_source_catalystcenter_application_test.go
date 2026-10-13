@@ -30,7 +30,10 @@ import (
 func TestAccDataSourceCcApplication(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "name", "my-custom-app"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.help_string", "This is a custom application"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.application_type", "CUSTOM"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.dscp", "18"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.app_protocol", "TCP"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.traffic_class", "TRANSACTIONAL_DATA"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.rank", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_application.test", "network_applications.0.engine_id", "6"))

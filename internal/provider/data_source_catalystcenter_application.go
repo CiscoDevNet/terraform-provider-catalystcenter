@@ -55,7 +55,7 @@ func (d *ApplicationDataSource) Metadata(_ context.Context, req datasource.Metad
 func (d *ApplicationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "Reads a Catalyst Center application, including built-in NBAR applications. Both `name` and the controller UUID `id` are required.",
+		MarkdownDescription: "This data source can read the Application.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

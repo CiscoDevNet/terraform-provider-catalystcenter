@@ -272,13 +272,26 @@ func (data *Application) fromBody(ctx context.Context, res gjson.Result) {
 		data.NetworkApplications = make([]ApplicationNetworkApplications, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := ApplicationNetworkApplications{}
-			item.HelpString = types.StringValue("")
-			item.ApplicationType = types.StringValue("")
+			if cValue := v.Get("helpString"); cValue.Exists() {
+				item.HelpString = types.StringValue(cValue.String())
+			} else {
+				item.HelpString = types.StringNull()
+			}
+			if cValue := v.Get("applicationType"); cValue.Exists() {
+				item.ApplicationType = types.StringValue(cValue.String())
+			} else {
+				item.ApplicationType = types.StringNull()
+			}
 			item.Type = types.StringValue("")
 			if cValue := v.Get("dscp"); cValue.Exists() {
 				item.Dscp = types.StringValue(cValue.String())
 			} else {
 				item.Dscp = types.StringNull()
+			}
+			if cValue := v.Get("appProtocol"); cValue.Exists() {
+				item.AppProtocol = types.StringValue(cValue.String())
+			} else {
+				item.AppProtocol = types.StringNull()
 			}
 			if cValue := v.Get("serverName"); cValue.Exists() {
 				item.ServerName = types.StringValue(cValue.String())
@@ -449,10 +462,25 @@ func (data *Application) updateFromBody(ctx context.Context, res gjson.Result) {
 			break
 		}
 		r := values[0]
+		if value := r.Get("helpString"); value.Exists() && !data.NetworkApplications[i].HelpString.IsNull() {
+			data.NetworkApplications[i].HelpString = types.StringValue(value.String())
+		} else {
+			data.NetworkApplications[i].HelpString = types.StringNull()
+		}
+		if value := r.Get("applicationType"); value.Exists() && !data.NetworkApplications[i].ApplicationType.IsNull() {
+			data.NetworkApplications[i].ApplicationType = types.StringValue(value.String())
+		} else {
+			data.NetworkApplications[i].ApplicationType = types.StringNull()
+		}
 		if value := r.Get("dscp"); value.Exists() && !data.NetworkApplications[i].Dscp.IsNull() {
 			data.NetworkApplications[i].Dscp = types.StringValue(value.String())
 		} else {
 			data.NetworkApplications[i].Dscp = types.StringNull()
+		}
+		if value := r.Get("appProtocol"); value.Exists() && !data.NetworkApplications[i].AppProtocol.IsNull() {
+			data.NetworkApplications[i].AppProtocol = types.StringValue(value.String())
+		} else {
+			data.NetworkApplications[i].AppProtocol = types.StringNull()
 		}
 		if value := r.Get("serverName"); value.Exists() && !data.NetworkApplications[i].ServerName.IsNull() {
 			data.NetworkApplications[i].ServerName = types.StringValue(value.String())

@@ -1,1 +1,1 @@
-terraform import catalystcenter_application.example "<name>,<id>"
+terraform import catalystcenter_application.example "<name>"

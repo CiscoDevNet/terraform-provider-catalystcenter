@@ -3,12 +3,12 @@
 page_title: "catalystcenter_application Data Source - terraform-provider-catalystcenter"
 subcategory: "Application Policy"
 description: |-
-  Reads a Catalyst Center application, including built-in NBAR applications. Both name and the controller UUID id are required.
+  This data source can read the Application.
 ---
 
 # catalystcenter_application (Data Source)
 
-Reads a Catalyst Center application, including built-in NBAR applications. Both `name` and the controller UUID `id` are required.
+This data source can read the Application.
 
 ## Example Usage
 
