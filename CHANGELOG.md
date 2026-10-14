@@ -1,4 +1,4 @@
-## 0.6.5 (unreleased)
+## 0.6.5
 
 - Add `catalystcenter_application` resource and data_source
 - Add `catalystcenter_qos_policy_setting` resource and data_source
