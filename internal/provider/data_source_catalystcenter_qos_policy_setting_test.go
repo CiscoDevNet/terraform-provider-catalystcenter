@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -28,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceCcQoSPolicySetting(t *testing.T) {
+	if os.Getenv("QOS") == "" {
+		t.Skip("skipping test, set environment variable QOS")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_qos_policy_setting.test", "name", "qos_policy_setting"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.catalystcenter_qos_policy_setting.test", "deploy_by_default_on_wired_devices", "true"))

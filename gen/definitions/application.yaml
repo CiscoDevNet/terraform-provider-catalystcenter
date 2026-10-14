@@ -11,6 +11,7 @@ update_computed: true
 skip_minimum_test: true
 data_source_no_id: true
 import_no_id: true
+test_tags: [QOS]
 doc_category: Application Policy
 res_description:
   'Manages a custom Catalyst Center Application. The controller ships roughly 1500

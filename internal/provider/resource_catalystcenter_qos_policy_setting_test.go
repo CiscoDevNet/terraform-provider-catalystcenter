@@ -29,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcQoSPolicySetting(t *testing.T) {
+	if os.Getenv("QOS") == "" {
+		t.Skip("skipping test, set environment variable QOS")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_qos_policy_setting.test", "name", "qos_policy_setting"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_qos_policy_setting.test", "deploy_by_default_on_wired_devices", "true"))

@@ -29,6 +29,9 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcApplicationSet(t *testing.T) {
+	if os.Getenv("QOS") == "" {
+		t.Skip("skipping test, set environment variable QOS")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_set.test", "name", "my-app-set"))
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_application_set.test", "default_business_relevance", "BUSINESS_RELEVANT"))

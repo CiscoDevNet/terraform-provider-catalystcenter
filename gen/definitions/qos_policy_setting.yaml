@@ -8,6 +8,7 @@ import_no_id: true
 put_create: true
 no_delete: true
 id_from_attribute: true
+test_tags: [QOS]
 doc_category: Application Policy
 res_description:
   'Manages the global Application QoS policy setting. This is a singleton: the
