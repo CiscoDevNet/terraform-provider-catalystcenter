@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.6.6 (unreleased)
+
+- Fix `catalystcenter_areas` resource failing with `NCGR10012` when an update removes nested areas; removed areas are now deleted children first, as on destroy
+
 ## 0.6.5
 
 - Add `catalystcenter_application` resource and data_source
