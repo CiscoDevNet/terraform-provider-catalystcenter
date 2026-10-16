@@ -42,6 +42,7 @@ put_no_id: bool(required=False) # Set to true if the PUT request does not requir
 put_update_id: bool(required=False) # Set to true if the PUT request updates the ID
 delete_id_query_param: str(required=False) # If DELETE needs to have specific query parameter where ID should be inserted
 delete_body: str(required=False) # Custom body to send with the delete request when using PUT or POST for delete (put_delete/post_delete: true), default is "{}"
+delete_inherit: bool(required=False) # Site settings (put_delete, delete_no_id, siteId attribute): on sites other than Global, delete writes the parent's effective settings to restore inheritance; Global gets delete_body
 no_wait: bool(required=False) # Set to true to indicate that the task should not wait for completion
 minimum_version: str(required=False) # Define a minimum supported version
 ds_description: str(required=False) # Define a data source description

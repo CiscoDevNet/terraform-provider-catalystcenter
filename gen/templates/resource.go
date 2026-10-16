@@ -2013,7 +2013,14 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 
 	{{- if not .NoDelete}}
 	{{- if or .PutDelete .PostDelete}}
-	{{- if .DeleteNoId}}
+	{{- if and .DeleteNoId .DeleteInherit}}
+	deleteBody, err := siteSettingsDeleteBody(r.client, "{{.RestEndpoint}}", state.SiteId.ValueString(), `{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s", "PUT", err))
+		return
+	}
+	res, err := r.client.Put(state.getPath(), deleteBody{{- if .Mutex }}, cc.UseMutex{{- end}})
+	{{- else if .DeleteNoId}}
 	res, err := r.client.{{if .PostDelete}}Post{{else}}Put{{end}}({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}}, {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else if .DeleteIdQueryParam}}
 	res, err := r.client.{{if .PostDelete}}Post{{else}}Put{{end}}({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "?{{.DeleteIdQueryParam}}=" + url.QueryEscape(state.Id.ValueString()), {{if and .DeleteBody (strContains .DeleteBody "{id}")}}strings.ReplaceAll(`{{.DeleteBody}}`, "{id}", state.Id.ValueString()){{else}}`{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`{{end}}{{- if .Mutex }}, cc.UseMutex{{- end}})

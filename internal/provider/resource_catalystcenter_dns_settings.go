@@ -223,7 +223,12 @@ func (r *DNSSettingsResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Put(state.getPath(), `{"dns": {}}`, cc.UseMutex)
+	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/dnsSettings", state.SiteId.ValueString(), `{"dns": {}}`)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s", "PUT", err))
+		return
+	}
+	res, err := r.client.Put(state.getPath(), deleteBody, cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
 		if strings.HasPrefix(errorCode, "NCND") {
