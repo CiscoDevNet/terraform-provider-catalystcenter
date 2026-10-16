@@ -214,9 +214,7 @@ func (r *BannerSettingsResource) Update(ctx context.Context, req resource.Update
 
 // End of section. //template:end update
 
-// Manual override: Different delete body needed for Global site vs other sites
-// For Global site: {"banner": {"type": "Builtin"}}
-// For other sites: {}
+// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *BannerSettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state BannerSettings
@@ -229,25 +227,11 @@ func (r *BannerSettingsResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-
-	// Determine the appropriate delete body based on whether this is the Global site
-	deleteBody := `{}`
-
-	// Query for the Global site and check if the current site ID matches
-	siteRes, err := r.client.Get("/dna/intent/api/v1/sites?nameHierarchy=Global")
-	if err == nil {
-		globalSiteId := siteRes.Get("response.0.id").String()
-		if globalSiteId == state.SiteId.ValueString() {
-			deleteBody = `{"banner": {"type": "Builtin"}}`
-			tflog.Debug(ctx, "Using Global site delete body for banner settings")
-		} else {
-			tflog.Debug(ctx, "Using standard delete body for non-Global site")
-		}
-	} else {
-		// If we can't determine the site, use empty body as fallback
-		tflog.Warn(ctx, fmt.Sprintf("Failed to fetch Global site information, using default delete body: %s", err))
+	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/bannerSettings", state.SiteId.ValueString(), `{"banner": {"type": "Builtin"}}`)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s", "PUT", err))
+		return
 	}
-
 	res, err := r.client.Put(state.getPath(), deleteBody, cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		errorCode := res.Get("response.errorCode").String()
@@ -265,6 +249,8 @@ func (r *BannerSettingsResource) Delete(ctx context.Context, req resource.Delete
 
 	resp.State.RemoveResource(ctx)
 }
+
+// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *BannerSettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

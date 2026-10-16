@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.6.6 (unreleased)
+
+- Fix `catalystcenter_aaa_settings`, `catalystcenter_dhcp_settings`, `catalystcenter_dns_settings`, `catalystcenter_ntp_settings` and `catalystcenter_timezone_settings` resources leaving the setting explicitly unset (or the time zone set to `GMT`) on a site when the resource is destroyed, instead of inheriting the parent site's value; on sites other than Global, destroy now restores inheritance. Destroy on Global still unsets the setting
+
 ## 0.6.5
 
 - Add `catalystcenter_application` resource and data_source
