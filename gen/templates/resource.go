@@ -2014,7 +2014,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- if not .NoDelete}}
 	{{- if or .PutDelete .PostDelete}}
 	{{- if and .DeleteNoId .DeleteInherit}}
-	deleteBody, err := siteSettingsDeleteBody(r.client, "{{.RestEndpoint}}", state.SiteId.ValueString(), `{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`)
+	deleteBody, err := siteSettingsDeleteBody(r.client, "{{.RestEndpoint}}", state.SiteId.ValueString(), `{{if .DeleteBody}}{{.DeleteBody}}{{else}}{}{{end}}`, `{{.DeleteInheritBody}}`)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s", "PUT", err))
 		return

@@ -11,6 +11,7 @@ put_create: true
 put_delete: true
 delete_body: '{"applicationVisibility":{"collector":{"collectorType":"Builtin"},"enableOnWiredAccessDevices":false},"wiredDataCollection":{"enableWiredDataCollection":false},"wirelessTelemetry":{"enableWirelessTelemetry":false},"snmpTraps":{"useBuiltinTrapServer":false,"externalTrapServers":[]},"syslogs":{"useBuiltinSyslogServer":false,"externalSyslogServers":[]}}'
 delete_inherit: true
+delete_inherit_body: '{}'
 mutex: true
 doc_category: Network Settings
 attributes:

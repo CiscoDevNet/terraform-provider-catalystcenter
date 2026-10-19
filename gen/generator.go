@@ -142,6 +142,7 @@ type YamlConfig struct {
 	DeleteIdQueryParam            string                `yaml:"delete_id_query_param"`
 	DeleteBody                    string                `yaml:"delete_body"`
 	DeleteInherit                 bool                  `yaml:"delete_inherit"`
+	DeleteInheritBody             string                `yaml:"delete_inherit_body"`
 	MinimumVersion                string                `yaml:"minimum_version"`
 	DsDescription                 string                `yaml:"ds_description"`
 	ResDescription                string                `yaml:"res_description"`

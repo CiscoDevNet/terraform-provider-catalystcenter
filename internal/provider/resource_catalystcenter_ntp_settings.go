@@ -219,7 +219,7 @@ func (r *NTPSettingsResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/ntpSettings", state.SiteId.ValueString(), `{"ntp": {}}`)
+	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/ntpSettings", state.SiteId.ValueString(), `{"ntp": {}}`, `{"ntp": null}`)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s", "PUT", err))
 		return

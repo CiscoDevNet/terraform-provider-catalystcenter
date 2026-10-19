@@ -42,19 +42,30 @@ func TestSiteSettingsDeleteBody(t *testing.T) {
 	client := newSiteSettingsTestClient(t)
 	const endpoint = "/dna/intent/api/v1/sites/%v/aaaSettings"
 	const globalBody = `{"aaaNetwork": {}, "aaaClient": {}}`
+	// Not served by the test server: an inherit body must not read the parent's settings.
+	const unservedEndpoint = "/dna/intent/api/v1/sites/%v/dnsSettings"
+	const inheritBody = `{"dns": null}`
 
 	tests := []struct {
-		name   string
-		siteId string
-		want   string
+		name        string
+		siteId      string
+		inheritBody string
+		want        string
 	}{
-		{"global unsets", "global", globalBody},
-		{"deleted site keeps delete body", "deleted", globalBody},
-		{"child gets parent values", "child", `{"aaaNetwork":{"serverType":"AAA","protocol":"RADIUS","primaryServerIp":"192.0.2.1"},"aaaClient":null}`},
+		{"global unsets", "global", "", globalBody},
+		{"deleted site keeps delete body", "deleted", "", globalBody},
+		{"child gets parent values", "child", "", `{"aaaNetwork":{"serverType":"AAA","protocol":"RADIUS","primaryServerIp":"192.0.2.1"},"aaaClient":null}`},
+		{"global ignores inherit body", "global", inheritBody, globalBody},
+		{"deleted site ignores inherit body", "deleted", inheritBody, globalBody},
+		{"child gets inherit body", "child", inheritBody, inheritBody},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := siteSettingsDeleteBody(client, endpoint, tt.siteId, globalBody)
+			ep := endpoint
+			if tt.inheritBody != "" {
+				ep = unservedEndpoint
+			}
+			got, err := siteSettingsDeleteBody(client, ep, tt.siteId, globalBody, tt.inheritBody)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -72,7 +83,7 @@ func TestSiteSettingsDeleteBody(t *testing.T) {
 
 func TestSiteSettingsDeleteBodyLookupError(t *testing.T) {
 	client := newSiteSettingsTestClient(t)
-	if _, err := siteSettingsDeleteBody(client, "/dna/intent/api/v1/sites/%v/aaaSettings", "missing", "{}"); err == nil {
+	if _, err := siteSettingsDeleteBody(client, "/dna/intent/api/v1/sites/%v/aaaSettings", "missing", "{}", ""); err == nil {
 		t.Error("expected error for unknown site")
 	}
 }

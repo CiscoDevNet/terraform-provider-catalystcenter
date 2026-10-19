@@ -218,7 +218,7 @@ func (r *TimeZoneSettingsResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/timeZoneSettings", state.SiteId.ValueString(), `{"timeZone": {"identifier": "GMT"}}`)
+	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/timeZoneSettings", state.SiteId.ValueString(), `{"timeZone": {"identifier": "GMT"}}`, ``)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s", "PUT", err))
 		return

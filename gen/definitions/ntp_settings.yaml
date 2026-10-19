@@ -11,6 +11,7 @@ put_create: true
 put_delete: true
 delete_body: '{"ntp": {}}'
 delete_inherit: true
+delete_inherit_body: '{"ntp": null}'
 mutex: true
 skip_minimum_test: true
 doc_category: Network Settings

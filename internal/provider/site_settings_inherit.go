@@ -24,16 +24,21 @@ func siteParentId(client *cc.Client, siteId string) (string, error) {
 
 // siteSettingsDeleteBody returns the PUT body that removes a site settings override.
 // Global has no parent, so it gets globalBody, which unsets the setting; so does a site that no longer exists.
-// Other sites get the parent's effective settings: Catalyst Center does not store an override
-// equal to the inherited value, so this restores inheritance. A null body is no alternative,
-// as time zone rejects it and AAA stores it as a copy of the parent's values.
-func siteSettingsDeleteBody(client *cc.Client, endpoint, siteId, globalBody string) (string, error) {
+// Other sites get inheritBody when the setting has an inherit form (e.g. {"dns": null}).
+// Without one, they get the parent's effective settings: Catalyst Center does not store an override
+// equal to the inherited value, so this restores inheritance. Time zone rejects null and AAA stores
+// it as a copy of the parent's values, so both need the parent's values. Copying them is racy:
+// if the parent's setting changes in the same apply, the child may keep the old value as an override.
+func siteSettingsDeleteBody(client *cc.Client, endpoint, siteId, globalBody, inheritBody string) (string, error) {
 	parentId, err := siteParentId(client, siteId)
 	if err != nil {
 		return "", fmt.Errorf("failed to retrieve parent site of %s: %w", siteId, err)
 	}
 	if parentId == "" {
 		return globalBody, nil
+	}
+	if inheritBody != "" {
+		return inheritBody, nil
 	}
 	res, err := client.Get(fmt.Sprintf(endpoint, url.QueryEscape(parentId)) + "?_inherited=true")
 	if err != nil {

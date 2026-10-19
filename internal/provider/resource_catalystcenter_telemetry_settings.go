@@ -265,7 +265,7 @@ func (r *TelemetrySettingsResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/telemetrySettings", state.SiteId.ValueString(), `{"applicationVisibility":{"collector":{"collectorType":"Builtin"},"enableOnWiredAccessDevices":false},"wiredDataCollection":{"enableWiredDataCollection":false},"wirelessTelemetry":{"enableWirelessTelemetry":false},"snmpTraps":{"useBuiltinTrapServer":false,"externalTrapServers":[]},"syslogs":{"useBuiltinSyslogServer":false,"externalSyslogServers":[]}}`)
+	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/telemetrySettings", state.SiteId.ValueString(), `{"applicationVisibility":{"collector":{"collectorType":"Builtin"},"enableOnWiredAccessDevices":false},"wiredDataCollection":{"enableWiredDataCollection":false},"wirelessTelemetry":{"enableWirelessTelemetry":false},"snmpTraps":{"useBuiltinTrapServer":false,"externalTrapServers":[]},"syslogs":{"useBuiltinSyslogServer":false,"externalSyslogServers":[]}}`, `{}`)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s", "PUT", err))
 		return

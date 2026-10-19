@@ -219,7 +219,7 @@ func (r *DHCPSettingsResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/dhcpSettings", state.SiteId.ValueString(), `{"dhcp": {}}`)
+	deleteBody, err := siteSettingsDeleteBody(r.client, "/dna/intent/api/v1/sites/%v/dhcpSettings", state.SiteId.ValueString(), `{"dhcp": {}}`, `{"dhcp": null}`)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s", "PUT", err))
 		return
