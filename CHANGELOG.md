@@ -1,3 +1,7 @@
+## 0.6.6 (unreleased)
+
+- Fix `catalystcenter_floors` resource showing a permanent difference when floors use different `units_of_measure`; Catalyst Center returns all floors in the unit requested on read, so floors are now read once per unit they use
+
 ## 0.6.5
 
 - Add `catalystcenter_application` resource and data_source

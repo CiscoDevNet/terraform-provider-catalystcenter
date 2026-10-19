@@ -325,6 +325,22 @@ func (data *Floors) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 	}
 }
 
+// floorsByUnitsOfMeasure splits the floors by units_of_measure ("" for floors
+// without one), keeping id and scope, so each group can be read in its own unit.
+func (data *Floors) floorsByUnitsOfMeasure() map[string]*Floors {
+	groups := make(map[string]*Floors)
+	for key, floor := range data.Floors {
+		unitsOfMeasure := floor.UnitsOfMeasure.ValueString()
+		group, ok := groups[unitsOfMeasure]
+		if !ok {
+			group = &Floors{Id: data.Id, Scope: data.Scope, Floors: make(map[string]FloorsFloors)}
+			groups[unitsOfMeasure] = group
+		}
+		group.Floors[key] = floor
+	}
+	return groups
+}
+
 func (data *Floors) isNull(ctx context.Context, res gjson.Result) bool {
 	if len(data.Floors) > 0 {
 		return false
