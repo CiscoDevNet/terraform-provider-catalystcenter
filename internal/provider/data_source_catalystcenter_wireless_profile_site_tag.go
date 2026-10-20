@@ -83,7 +83,7 @@ func (d *WirelessProfileSiteTagDataSource) Schema(ctx context.Context, req datas
 				Computed:            true,
 			},
 			"flex_profile_name": schema.StringAttribute{
-				MarkdownDescription: "Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. If not provided for a Flex profile, the system will auto-generate one.",
+				MarkdownDescription: "Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. Cannot be modified after creation; changing it replaces the Site Tag.",
 				Computed:            true,
 			},
 		},
