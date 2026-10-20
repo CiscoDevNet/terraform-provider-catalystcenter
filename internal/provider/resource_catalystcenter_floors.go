@@ -300,52 +300,53 @@ func (r *FloorsResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	// Get all floors with type=floor query parameter
-	params := "?type=floor"
-
-	// Add unitsOfMeasure query param if we have floors in state with units defined
-	// This ensures API returns values in the same units we're tracking
-	unitsOfMeasure := ""
-	if len(state.Floors) > 0 {
-		// Get first floor from map
-		for _, floor := range state.Floors {
-			if !floor.UnitsOfMeasure.IsNull() {
-				unitsOfMeasure = floor.UnitsOfMeasure.ValueString()
-				break
-			}
+	// The API does not store a floor's unit: it returns every floor converted to
+	// the unit requested via _unitsOfMeasure (feet by default). Floors in state
+	// are therefore read once per unit they use, each in its own unit.
+	getFloors := func(unitsOfMeasure string) (gjson.Result, bool) {
+		params := "?type=floor"
+		if unitsOfMeasure != "" {
+			params += "&_unitsOfMeasure=" + unitsOfMeasure
 		}
+		res, err := r.client.Get("/dna/intent/api/v1/sites" + params)
+		if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
+			resp.State.RemoveResource(ctx)
+			return res, false
+		} else if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects (GET), got error: %s, %s", err, res.String()))
+			return res, false
+		}
+		return res, true
 	}
 
-	// If we didn't find units in floors (e.g., during import), try to extract from ID
-	// ID format: "floors-bulk", "floors-bulk:meters", "Global/Area", "Global/Area:meters"
-	if unitsOfMeasure == "" && !state.Id.IsNull() {
-		idStr := state.Id.ValueString()
-		if strings.Contains(idStr, ":") {
-			parts := strings.Split(idStr, ":")
+	if len(state.Floors) == 0 {
+		// Import: no floors in state yet, use the unit from the ID if given
+		// ID format: "floors-bulk", "floors-bulk:meters", "Global/Area", "Global/Area:meters"
+		unitsOfMeasure := ""
+		if !state.Id.IsNull() {
+			parts := strings.Split(state.Id.ValueString(), ":")
 			if len(parts) == 2 {
 				unitsOfMeasure = parts[1]
 			}
 		}
-	}
-
-	if unitsOfMeasure != "" {
-		params += "&_unitsOfMeasure=" + unitsOfMeasure
-	}
-
-	res, err := r.client.Get("/dna/intent/api/v1/sites" + params)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 406") || strings.Contains(err.Error(), "StatusCode 500") || strings.Contains(err.Error(), "StatusCode 400")) {
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-
-	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
-	if state.isNull(ctx, res) {
+		res, ok := getFloors(unitsOfMeasure)
+		if !ok {
+			return
+		}
 		state.fromBody(ctx, res)
 	} else {
-		state.updateFromBody(ctx, res)
+		floors := make(map[string]FloorsFloors, len(state.Floors))
+		for unitsOfMeasure, group := range state.floorsByUnitsOfMeasure() {
+			res, ok := getFloors(unitsOfMeasure)
+			if !ok {
+				return
+			}
+			group.updateFromBody(ctx, res)
+			for key, floor := range group.Floors {
+				floors[key] = floor
+			}
+		}
+		state.Floors = floors
 	}
 
 	// Filter out any floors without a name
