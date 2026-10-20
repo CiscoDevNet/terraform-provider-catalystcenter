@@ -970,6 +970,12 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		{{- $id := getId .Attributes}}
 	plan.Id = types.StringValue(fmt.Sprint(plan.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
 	{{- end}}
+	{{- if .FailCreateOnEmptyId}}
+	if plan.Id.ValueString() == "" {
+		resp.Diagnostics.AddError("Client Error", "Failed to retrieve object ID: the object was not found by the ID query after creation")
+		return
+	}
+	{{- end}}
 	{{- if .IdFromQueryPathAttribute}}
 	{{- range .Attributes}}
 	{{- if and .Reference .Computed (eq .ModelName $.IdFromQueryPathAttribute)}}
