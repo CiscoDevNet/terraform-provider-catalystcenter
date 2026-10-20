@@ -10,6 +10,7 @@ description: |-
 ## 0.6.6 (unreleased)
 
 - Fix `catalystcenter_floors` resource showing a permanent difference when floors use different `units_of_measure`; Catalyst Center returns all floors in the unit requested on read, so floors are now read once per unit they use
+- Fix `catalystcenter_areas` resource failing with `NCGR10012` when an update removes nested areas; removed areas are now deleted children first, as on destroy
 
 ## 0.6.5
 
