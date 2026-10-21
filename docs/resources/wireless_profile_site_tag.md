@@ -33,7 +33,7 @@ resource "catalystcenter_wireless_profile_site_tag" "example" {
 
 ### Optional
 
-- `flex_profile_name` (String) Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. If not provided for a Flex profile, the system will auto-generate one.
+- `flex_profile_name` (String) Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. Cannot be modified after creation; changing it replaces the Site Tag.
   - Default value: `default-flex-profile`
 - `site_tag_id` (String) The ID of the Site Tag (computed after creation)
 

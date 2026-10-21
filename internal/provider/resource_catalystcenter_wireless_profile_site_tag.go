@@ -103,10 +103,13 @@ func (r *WirelessProfileSiteTagResource) Schema(ctx context.Context, req resourc
 				Required:            true,
 			},
 			"flex_profile_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. If not provided for a Flex profile, the system will auto-generate one.").AddDefaultValueDescription("default-flex-profile").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. Cannot be modified after creation; changing it replaces the Site Tag.").AddDefaultValueDescription("default-flex-profile").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             stringdefault.StaticString("default-flex-profile"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 		},
 	}

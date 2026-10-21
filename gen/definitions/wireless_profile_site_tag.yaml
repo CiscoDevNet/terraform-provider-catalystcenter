@@ -67,7 +67,8 @@ attributes:
     put_data_path: "_"
     response_data_path: response.flexProfileName
     default_value: default-flex-profile
-    description: Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. If not provided for a Flex profile, the system will auto-generate one.
+    requires_replace: true
+    description: Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. Cannot be modified after creation; changing it replaces the Site Tag.
     exclude_test: true
 test_prerequisites: |
   data "catalystcenter_site" "test" {
