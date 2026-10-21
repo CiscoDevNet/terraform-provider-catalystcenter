@@ -61,6 +61,7 @@ use_cache: bool(required=False) # Whether to use internal caching for get reques
 cache_rest_endpoint: str(required=False) # Override GET REST endpoint path for cached data
 cache_filter_attributes: list(str(), required=False) # List of model_name attributes to filter cached response by (instead of id). Also stripped from cache key to enable shared caching.
 skip_delete_on_empty_id: bool(required=False) # If true, skip DELETE request when ID is empty or null to prevent sending DELETE to base endpoint
+fail_create_on_empty_id: bool(required=False) # If true, Create fails when the ID resolved after the create request is empty (object not found by the ID query), instead of storing a resource without ID in state
 get_before_delete: bool(required=False) # If true, perform GET request before DELETE to verify resource exists with exact ID match, preventing mass deletion from path traversal attacks
 ---
 attribute:
