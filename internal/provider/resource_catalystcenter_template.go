@@ -283,7 +283,13 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 	body := plan.toBody(ctx, Template{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	// Catalyst Center fails concurrent creates of composites that share a member
+	// template (NCTP10008), so composite creates, including the task wait, run one at a time.
+	var mods []func(*cc.Req)
+	if plan.Composite.ValueBool() {
+		mods = append(mods, cc.UseMutex)
+	}
+	res, err := r.client.Post(plan.getPath()+params, body, mods...)
 	if err != nil {
 		// A failed template POST can leave a partial ("zombie") object behind in
 		// Catalyst Center. Every subsequent apply then re-POSTs the same name, which

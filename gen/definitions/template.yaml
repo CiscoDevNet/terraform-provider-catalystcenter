@@ -9,7 +9,7 @@ put_no_id: true
 id_path: response.data
 id_from_query_path_attribute: templateId
 get_extra_query_params: "?unCommitted=true"
-# Manual updates in the Create function and getExistingTemplateId helper in the resource file to honor allow_existing_on_create (project-scoped adopt of an existing template on create conflict); the generated adopt branch is not emitted because Create is hand-owned. See issue #419.
+# Manual updates in the Create function and getExistingTemplateId helper in the resource file to honor allow_existing_on_create (project-scoped adopt of an existing template on create conflict); the generated adopt branch is not emitted because Create is hand-owned. See issue #419. Create also sends composite POSTs with cc.UseMutex, because Catalyst Center fails concurrent creates of composites that share a member template (NCTP10008).
 allow_existing_on_create: true
 doc_category: Templates
 attributes:
