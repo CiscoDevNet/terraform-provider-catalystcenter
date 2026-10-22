@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -404,18 +405,18 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 			case "SUCCESS":
 				state.DeploymentId = types.StringNull()
 			case "FAILURE":
-				revertVersionedTemplateIds(&state)
+				reverted := revertVersionedTemplateIds(&state, statusRes)
 				resp.Diagnostics.AddWarning(
 					"Previous Template Deployment Failed",
-					fmt.Sprintf("Deployment %s reported FAILURE. State reverted to force redeploy.", deploymentId),
+					fmt.Sprintf("Deployment %s reported FAILURE. State reverted for %d of %d targets to force their redeploy.", deploymentId, reverted, len(state.TargetInfo)),
 				)
 			case "INIT", "IN_PROGRESS", "":
 				// Still in flight; leave state and id for next Read.
 			default:
-				revertVersionedTemplateIds(&state)
+				reverted := revertVersionedTemplateIds(&state, statusRes)
 				resp.Diagnostics.AddWarning(
 					"Previous Template Deployment Ended With Unexpected Status",
-					fmt.Sprintf("Deployment %s reported an unexpected status. API details are omitted because they may echo template parameters. State reverted to force redeploy.", deploymentId),
+					fmt.Sprintf("Deployment %s reported an unexpected status. API details are omitted because they may echo template parameters. State reverted for %d of %d targets to force their redeploy.", deploymentId, reverted, len(state.TargetInfo)),
 				)
 			}
 		}
@@ -599,21 +600,107 @@ func memberTargetChanged(planTarget, stateTarget DeployTemplateMemberTemplateDep
 	return false
 }
 
-// revertVersionedTemplateIds clears versioned_template_id on all targets and
-// secret rotation versions and deployment_id, so the next plan diffs and Update retries.
-func revertVersionedTemplateIds(state *DeployTemplate) {
-	for i := range state.TargetInfo {
-		state.TargetInfo[i].VersionedTemplateId = types.StringNull()
-	}
-	for i := range state.MemberTemplateDeploymentInfo {
-		for k := range state.MemberTemplateDeploymentInfo[i].TargetInfo {
-			state.MemberTemplateDeploymentInfo[i].TargetInfo[k].VersionedTemplateId = types.StringNull()
+// deploymentDeviceMatches reports whether a devices[] entry of a deployment
+// status response refers to the target with the given id or hostname.
+func deploymentDeviceMatches(device cc.Res, id, host types.String) bool {
+	if v := id.ValueString(); v != "" {
+		for _, field := range []string{"deviceId", "identifier", "ipAddress"} {
+			if strings.EqualFold(device.Get(field).String(), v) {
+				return true
+			}
 		}
 	}
-	for i := range state.SecretParams {
-		state.SecretParams[i].ParamsWoVersions = types.MapNull(types.Int64Type)
+	if v := host.ValueString(); v != "" {
+		for _, field := range []string{"name", "identifier"} {
+			if strings.EqualFold(device.Get(field).String(), v) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// revertVersionedTemplateIds clears versioned_template_id and secret rotation
+// versions on the targets whose device did not report SUCCESS in the deployment
+// status response, and clears deployment_id, so the next plan diffs and Update
+// retries only those targets. Targets missing from devices[] were not part of
+// the deployment and are kept. Every target is reverted when no target matches
+// a failed device, so a failure is never dropped. Returns the number of
+// reverted top-level targets.
+func revertVersionedTemplateIds(state *DeployTemplate, deployment cc.Res) int {
+	var failedDevices []cc.Res
+	for _, device := range deployment.Get("devices").Array() {
+		if device.Get("status").String() != "SUCCESS" {
+			failedDevices = append(failedDevices, device)
+		}
+	}
+	failed := func(id, host types.String) bool {
+		for _, device := range failedDevices {
+			if deploymentDeviceMatches(device, id, host) {
+				return true
+			}
+		}
+		return false
+	}
+	matched := false
+	for _, target := range state.TargetInfo {
+		matched = matched || failed(target.Id, target.HostName)
+	}
+	for _, member := range state.MemberTemplateDeploymentInfo {
+		for _, target := range member.TargetInfo {
+			matched = matched || failed(target.Id, target.HostName)
+		}
+	}
+	if !matched {
+		failed = func(types.String, types.String) bool { return true }
+	}
+
+	reverted := 0
+	for i, target := range state.TargetInfo {
+		if failed(target.Id, target.HostName) {
+			state.TargetInfo[i].VersionedTemplateId = types.StringNull()
+			reverted++
+		}
+	}
+	for i, member := range state.MemberTemplateDeploymentInfo {
+		for k, target := range member.TargetInfo {
+			if failed(target.Id, target.HostName) {
+				state.MemberTemplateDeploymentInfo[i].TargetInfo[k].VersionedTemplateId = types.StringNull()
+			}
+		}
+	}
+	for i, entry := range state.SecretParams {
+		if secretTargetFailed(*state, entry, failed) {
+			state.SecretParams[i].ParamsWoVersions = types.MapNull(types.Int64Type)
+		}
 	}
 	state.DeploymentId = types.StringNull()
+	return reverted
+}
+
+// secretTargetFailed resolves a secret_params entry to its target, which it may
+// reference by id or hostname, and reports whether that target failed.
+func secretTargetFailed(state DeployTemplate, entry DeployTemplateSecretParams, failed func(id, host types.String) bool) bool {
+	member := entry.MemberTemplateId.ValueString()
+	if member == "" {
+		for _, target := range state.TargetInfo {
+			if secretMatches(entry, "", target.Id, target.HostName) && failed(target.Id, target.HostName) {
+				return true
+			}
+		}
+		return false
+	}
+	for _, m := range state.MemberTemplateDeploymentInfo {
+		if m.TemplateId.ValueString() != member {
+			continue
+		}
+		for _, target := range m.TargetInfo {
+			if secretMatches(entry, member, target.Id, target.HostName) && failed(target.Id, target.HostName) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 const (
