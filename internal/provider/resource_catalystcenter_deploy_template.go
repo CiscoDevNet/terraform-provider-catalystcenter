@@ -405,18 +405,18 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 			case "SUCCESS":
 				state.DeploymentId = types.StringNull()
 			case "FAILURE":
-				reverted := revertVersionedTemplateIds(&state, statusRes)
+				failed, total := revertVersionedTemplateIds(&state, statusRes)
 				resp.Diagnostics.AddWarning(
 					"Previous Template Deployment Failed",
-					fmt.Sprintf("Deployment %s reported FAILURE. State reverted for %d of %d targets to force their redeploy.", deploymentId, reverted, len(state.TargetInfo)),
+					fmt.Sprintf("Deployment %s reported FAILURE. %s", deploymentId, revertedTargetsMessage(failed, total)),
 				)
 			case "INIT", "IN_PROGRESS", "":
 				// Still in flight; leave state and id for next Read.
 			default:
-				reverted := revertVersionedTemplateIds(&state, statusRes)
+				failed, total := revertVersionedTemplateIds(&state, statusRes)
 				resp.Diagnostics.AddWarning(
 					"Previous Template Deployment Ended With Unexpected Status",
-					fmt.Sprintf("Deployment %s reported an unexpected status. API details are omitted because they may echo template parameters. State reverted for %d of %d targets to force their redeploy.", deploymentId, reverted, len(state.TargetInfo)),
+					fmt.Sprintf("Deployment %s reported an unexpected status. API details are omitted because they may echo template parameters. %s", deploymentId, revertedTargetsMessage(failed, total)),
 				)
 			}
 		}
@@ -601,10 +601,12 @@ func memberTargetChanged(planTarget, stateTarget DeployTemplateMemberTemplateDep
 }
 
 // deploymentDeviceMatches reports whether a devices[] entry of a deployment
-// status response refers to the target with the given id or hostname.
+// status response refers to the target with the given id or hostname. A
+// MANAGED_DEVICE_HOSTNAME target carries the hostname in id, while devices[]
+// reports it in name and the device UUID in identifier.
 func deploymentDeviceMatches(device cc.Res, id, host types.String) bool {
 	if v := id.ValueString(); v != "" {
-		for _, field := range []string{"deviceId", "identifier", "ipAddress"} {
+		for _, field := range []string{"deviceId", "identifier", "ipAddress", "name"} {
 			if strings.EqualFold(device.Get(field).String(), v) {
 				return true
 			}
@@ -620,16 +622,36 @@ func deploymentDeviceMatches(device cc.Res, id, host types.String) bool {
 	return false
 }
 
+// deploymentDeviceHasTarget reports whether a devices[] entry of a deployment
+// status response refers to any top-level or composite member target.
+func deploymentDeviceHasTarget(state DeployTemplate, device cc.Res) bool {
+	for _, target := range state.TargetInfo {
+		if deploymentDeviceMatches(device, target.Id, target.HostName) {
+			return true
+		}
+	}
+	for _, member := range state.MemberTemplateDeploymentInfo {
+		for _, target := range member.TargetInfo {
+			if deploymentDeviceMatches(device, target.Id, target.HostName) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // revertVersionedTemplateIds clears versioned_template_id and secret rotation
 // versions on the targets whose device did not report SUCCESS in the deployment
 // status response, and clears deployment_id, so the next plan diffs and Update
 // retries only those targets. Targets missing from devices[] were not part of
-// the deployment and are kept. Every target is reverted when no target matches
-// a failed device, so a failure is never dropped. Returns the number of
-// reverted top-level targets.
-func revertVersionedTemplateIds(state *DeployTemplate, deployment cc.Res) int {
+// the deployment and are kept. Every target is reverted when devices[] lists no
+// failed device or a failed device matches no target, so a failure is never
+// dropped. Returns the number of failed devices and the number of devices in
+// devices[], or -1 and 0 when every target was reverted.
+func revertVersionedTemplateIds(state *DeployTemplate, deployment cc.Res) (int, int) {
+	devices := deployment.Get("devices").Array()
 	var failedDevices []cc.Res
-	for _, device := range deployment.Get("devices").Array() {
+	for _, device := range devices {
 		if device.Get("status").String() != "SUCCESS" {
 			failedDevices = append(failedDevices, device)
 		}
@@ -642,24 +664,17 @@ func revertVersionedTemplateIds(state *DeployTemplate, deployment cc.Res) int {
 		}
 		return false
 	}
-	matched := false
-	for _, target := range state.TargetInfo {
-		matched = matched || failed(target.Id, target.HostName)
+	revertAll := len(failedDevices) == 0
+	for _, device := range failedDevices {
+		revertAll = revertAll || !deploymentDeviceHasTarget(*state, device)
 	}
-	for _, member := range state.MemberTemplateDeploymentInfo {
-		for _, target := range member.TargetInfo {
-			matched = matched || failed(target.Id, target.HostName)
-		}
-	}
-	if !matched {
+	if revertAll {
 		failed = func(types.String, types.String) bool { return true }
 	}
 
-	reverted := 0
 	for i, target := range state.TargetInfo {
 		if failed(target.Id, target.HostName) {
 			state.TargetInfo[i].VersionedTemplateId = types.StringNull()
-			reverted++
 		}
 	}
 	for i, member := range state.MemberTemplateDeploymentInfo {
@@ -675,7 +690,18 @@ func revertVersionedTemplateIds(state *DeployTemplate, deployment cc.Res) int {
 		}
 	}
 	state.DeploymentId = types.StringNull()
-	return reverted
+	if revertAll {
+		return -1, 0
+	}
+	return len(failedDevices), len(devices)
+}
+
+// revertedTargetsMessage describes the result of revertVersionedTemplateIds.
+func revertedTargetsMessage(failed, total int) string {
+	if failed < 0 {
+		return "State reverted for all targets to force their redeploy."
+	}
+	return fmt.Sprintf("%d of %d devices failed. State reverted for the failed devices to force their redeploy.", failed, total)
 }
 
 // secretTargetFailed resolves a secret_params entry to its target, which it may
