@@ -283,13 +283,7 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 	body := plan.toBody(ctx, Template{})
 
 	params := ""
-	// Catalyst Center fails concurrent creates of composites that share a member
-	// template (NCTP10008), so composite creates, including the task wait, run one at a time.
-	var mods []func(*cc.Req)
-	if plan.Composite.ValueBool() {
-		mods = append(mods, cc.UseMutex)
-	}
-	res, err := r.client.Post(plan.getPath()+params, body, mods...)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		// A failed template POST can leave a partial ("zombie") object behind in
 		// Catalyst Center. Every subsequent apply then re-POSTs the same name, which
@@ -317,7 +311,7 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 
 		// Reconcile the adopted template so its content/params match the plan.
 		updateBody := plan.toBody(ctx, Template{Id: plan.Id})
-		updateRes, updateErr := r.client.Put("/dna/intent/api/v1/template-programmer/template", updateBody)
+		updateRes, updateErr := r.client.Put("/dna/intent/api/v1/template-programmer/template", updateBody, cc.UseMutex)
 		if updateErr != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update adopted object (PUT), got error: %s, %s", updateErr, updateRes.String()))
 			return
@@ -436,7 +430,7 @@ func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateReques
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put("/dna/intent/api/v1/template-programmer/template"+params, body)
+	res, err := r.client.Put("/dna/intent/api/v1/template-programmer/template"+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -463,7 +457,7 @@ func (r *TemplateResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPathDelete() + "/" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete(state.getPathDelete()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
