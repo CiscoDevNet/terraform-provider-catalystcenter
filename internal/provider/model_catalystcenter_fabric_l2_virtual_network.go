@@ -49,9 +49,29 @@ func (data FabricL2VirtualNetwork) getPath() string {
 
 // End of section. //template:end getPath
 
+// Section below is generated&owned by "gen/generator.go". //template:begin getFallbackPath
+
+// End of section. //template:end getFallbackPath
+
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathDelete
 
 // End of section. //template:end getPathDelete
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathGet
+
+// End of section. //template:end getPathGet
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathPost
+
+// End of section. //template:end getPathPost
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathPut
+
+// End of section. //template:end getPathPut
+
+// Section below is generated&owned by "gen/generator.go". //template:begin getPathIdQuery
+
+// End of section. //template:end getPathIdQuery
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 func (data FabricL2VirtualNetwork) toBody(ctx context.Context, state FabricL2VirtualNetwork) string {
@@ -68,7 +88,7 @@ func (data FabricL2VirtualNetwork) toBody(ctx context.Context, state FabricL2Vir
 	if !data.VlanName.IsNull() {
 		body, _ = sjson.Set(body, "0.vlanName", data.VlanName.ValueString())
 	}
-	if !data.VlanId.IsNull() {
+	if data.VlanId.ValueInt64() != 0 && !data.VlanId.IsNull() {
 		body, _ = sjson.Set(body, "0.vlanId", data.VlanId.ValueInt64())
 	}
 	if !data.TrafficType.IsNull() {
@@ -175,6 +195,64 @@ func (data *FabricL2VirtualNetwork) updateFromBody(ctx context.Context, res gjso
 }
 
 // End of section. //template:end updateFromBody
+
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
+
+// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
+// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
+func (data *FabricL2VirtualNetwork) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.FabricId.IsUnknown() {
+		if value := res.Get("response.0.fabricId"); value.Exists() && !data.FabricId.IsNull() {
+			data.FabricId = types.StringValue(value.String())
+		} else {
+			data.FabricId = types.StringNull()
+		}
+	}
+	if data.VlanName.IsUnknown() {
+		if value := res.Get("response.0.vlanName"); value.Exists() && !data.VlanName.IsNull() {
+			data.VlanName = types.StringValue(value.String())
+		} else {
+			data.VlanName = types.StringNull()
+		}
+	}
+	if data.VlanId.IsUnknown() {
+		if value := res.Get("response.0.vlanId"); value.Exists() && !data.VlanId.IsNull() {
+			data.VlanId = types.Int64Value(value.Int())
+		} else {
+			data.VlanId = types.Int64Null()
+		}
+	}
+	if data.TrafficType.IsUnknown() {
+		if value := res.Get("response.0.trafficType"); value.Exists() && !data.TrafficType.IsNull() {
+			data.TrafficType = types.StringValue(value.String())
+		} else {
+			data.TrafficType = types.StringNull()
+		}
+	}
+	if data.FabricEnabledWireless.IsUnknown() {
+		if value := res.Get("response.0.isFabricEnabledWireless"); value.Exists() && !data.FabricEnabledWireless.IsNull() {
+			data.FabricEnabledWireless = types.BoolValue(value.Bool())
+		} else {
+			data.FabricEnabledWireless = types.BoolNull()
+		}
+	}
+	if data.WirelessFloodingEnabled.IsUnknown() {
+		if value := res.Get("response.0.isWirelessFloodingEnabled"); value.Exists() && !data.WirelessFloodingEnabled.IsNull() {
+			data.WirelessFloodingEnabled = types.BoolValue(value.Bool())
+		} else {
+			data.WirelessFloodingEnabled = types.BoolNull()
+		}
+	}
+	if data.AssociatedL3VirtualNetworkName.IsUnknown() {
+		if value := res.Get("response.0.associatedLayer3VirtualNetworkName"); value.Exists() && !data.AssociatedL3VirtualNetworkName.IsNull() {
+			data.AssociatedL3VirtualNetworkName = types.StringValue(value.String())
+		} else {
+			data.AssociatedL3VirtualNetworkName = types.StringNull()
+		}
+	}
+}
+
+// End of section. //template:end fromBodyUnknowns
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *FabricL2VirtualNetwork) isNull(ctx context.Context, res gjson.Result) bool {

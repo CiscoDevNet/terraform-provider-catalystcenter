@@ -1241,7 +1241,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	bodyPlan := plan
 	getIfUnsetNeeded := false
 	{{- range getIfUnsetOnUpdateAttributes .}}
-	if bodyPlan.{{toGoName .TfName}}.ValueString() == "" && state.{{toGoName .TfName}}.IsNull() {
+	if bodyPlan.{{toGoName .TfName}}.{{if eq .Type "Int64"}}ValueInt64() == 0{{else}}ValueString() == ""{{end}} && state.{{toGoName .TfName}}.IsNull() {
 		getIfUnsetNeeded = true
 	}
 	{{- end}}
@@ -1284,9 +1284,9 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 			{{- end}}
 			if curRes.Exists() {
 				{{- range getIfUnsetOnUpdateAttributes .}}
-				if bodyPlan.{{toGoName .TfName}}.ValueString() == "" && state.{{toGoName .TfName}}.IsNull() {
-					if v := curRes.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else if .DataPath}}{{.DataPath}}.{{.ModelName}}{{else}}{{.ModelName}}{{end}}"); v.Exists() && v.String() != "" {
-						bodyPlan.{{toGoName .TfName}} = types.StringValue(v.String())
+				if bodyPlan.{{toGoName .TfName}}.{{if eq .Type "Int64"}}ValueInt64() == 0{{else}}ValueString() == ""{{end}} && state.{{toGoName .TfName}}.IsNull() {
+					if v := curRes.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else if .DataPath}}{{.DataPath}}.{{.ModelName}}{{else}}{{.ModelName}}{{end}}"); v.Exists() && {{if eq .Type "Int64"}}v.Int() != 0{{else}}v.String() != ""{{end}} {
+						bodyPlan.{{toGoName .TfName}} = types.{{if eq .Type "Int64"}}Int64Value(v.Int()){{else}}StringValue(v.String()){{end}}
 					}
 				}
 				{{- end}}
