@@ -90,8 +90,9 @@ func (r *FabricL2VirtualNetworkResource) Schema(ctx context.Context, req resourc
 			"vlan_id": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("ID of the VLAN of the layer 2 virtual network. Allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, and 2046. If deploying on a fabric zone, this vlanId must match the vlanId of the corresponding layer 2 virtual network on the fabric site").String,
 				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"traffic_type": schema.StringAttribute{
@@ -163,6 +164,7 @@ func (r *FabricL2VirtualNetworkResource) Create(ctx context.Context, req resourc
 		return
 	}
 	plan.Id = types.StringValue(res.Get("response.0.id").String())
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -232,7 +234,37 @@ func (r *FabricL2VirtualNetworkResource) Update(ctx context.Context, req resourc
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
+	// Some attributes are assigned by Catalyst Center out-of-band (for example an SDA anycast
+	// gateway) and are not part of the data model. When such an attribute was never tracked by
+	// Terraform (null in prior state) and is left unset in the plan, a full-object replace PUT would
+	// omit it and Catalyst Center treats the omission as a removal request (e.g. the IP pool
+	// reservation gateway is rejected with NCIP10368 on SDA-reserved pools, and silently detached on
+	// older releases). In that case fetch the current value from the controller and include it in
+	// the PUT body. A value the user previously managed (non-null in state) is left to the plan, so
+	// clearing it in the configuration still removes it. A copy of the plan is used so the
+	// plan/state Terraform persists is untouched and the apply result stays consistent with the plan.
+	bodyPlan := plan
+	getIfUnsetNeeded := false
+	if bodyPlan.VlanId.ValueInt64() == 0 && state.VlanId.IsNull() {
+		getIfUnsetNeeded = true
+	}
+	if getIfUnsetNeeded {
+		getIfUnsetParams := ""
+		getIfUnsetParams += "?fabricId=" + url.QueryEscape(state.FabricId.ValueString()) + "&vlanName=" + url.QueryEscape(state.VlanName.ValueString())
+		curRes, curErr := r.client.Get(state.getPath() + getIfUnsetParams)
+		if curErr == nil {
+			if curRes.Exists() {
+				if bodyPlan.VlanId.ValueInt64() == 0 && state.VlanId.IsNull() {
+					if v := curRes.Get("response.0.vlanId"); v.Exists() && v.Int() != 0 {
+						bodyPlan.VlanId = types.Int64Value(v.Int())
+					}
+				}
+			}
+		} else {
+			tflog.Warn(ctx, fmt.Sprintf("%s: Unable to fetch current object to preserve server-assigned attributes: %s", state.Id.ValueString(), curErr))
+		}
+	}
+	body := bodyPlan.toBody(ctx, state)
 	params := ""
 	res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {

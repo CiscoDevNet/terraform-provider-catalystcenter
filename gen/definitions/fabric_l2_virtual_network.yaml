@@ -8,6 +8,7 @@ data_source_no_id: true
 skip_minimum_test: true
 put_id_include_path: "0.id"
 put_no_id: true
+update_computed: true
 doc_category: SDA
 mutex: true
 attributes:
@@ -31,7 +32,8 @@ attributes:
     description: Name of the VLAN of the layer 2 virtual network. Must contain only alphanumeric characters, underscores, and hyphens
     example: VLAN401
   - model_name: vlanId
-    requires_replace: true
+    computed: true
+    get_if_unset_on_update: true
     data_path: '0'
     response_data_path: response.0.vlanId
     type: Int64
