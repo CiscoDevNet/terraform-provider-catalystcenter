@@ -4,6 +4,7 @@
 - Fix `catalystcenter_areas` resource failing with `NCGR10012` when an update removes nested areas; removed areas are now deleted children first, as on destroy
 - Fix `catalystcenter_wireless_profile_site_tag` resource failing with `NCND11185` when `flex_profile_name` changes; Catalyst Center does not allow modifying it, so a change now replaces the site tag
 - Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources losing tag changes when several tags of the same Wireless Profile are changed in one apply
+- Fix `catalystcenter_template` resource failing with `NCTP10008` when composite templates that share a member template are created in the same apply; template creates, updates and deletes now run one at a time
 
 ## 0.6.5
 
