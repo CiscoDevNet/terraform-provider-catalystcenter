@@ -14,6 +14,7 @@ description: |-
 - Fix `catalystcenter_wireless_profile_site_tag` resource failing with `NCND11185` when `flex_profile_name` changes; Catalyst Center does not allow modifying it, so a change now replaces the site tag
 - Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources losing tag changes when several tags of the same Wireless Profile are changed in one apply
 - Fix `catalystcenter_deploy_template` resource redeploying the template to every target after a failed deployment, including devices where it succeeded; only targets whose device did not report `SUCCESS` are now redeployed. If a failed device cannot be matched to a target, every target is still redeployed
+- Fix `catalystcenter_template` resource failing with `NCTP10008` when composite templates that share a member template are created in the same apply; template creates, updates and deletes now run one at a time
 
 ## 0.6.5
 
