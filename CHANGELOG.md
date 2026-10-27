@@ -4,8 +4,10 @@
 - Fix `catalystcenter_areas` resource failing with `NCGR10012` when an update removes nested areas; removed areas are now deleted children first, as on destroy
 - Fix `catalystcenter_wireless_profile_site_tag` resource failing with `NCND11185` when `flex_profile_name` changes; Catalyst Center does not allow modifying it, so a change now replaces the site tag
 - Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources losing tag changes when several tags of the same Wireless Profile are changed in one apply
+- Fix `catalystcenter_deploy_template` resource to redeploy only the failed targets after a failed template deployment
 - Fix `catalystcenter_template` resource failing with `NCTP10008` when composite templates that share a member template are created in the same apply; template creates, updates and deletes now run one at a time
 - Fix `catalystcenter_fabric_l2_virtual_network` resource failing with NCHS20499 on update when vlan_id is not configured; changing vlan_id on an existing virtual network is no longer done by replacing it, as Catalyst Center does not allow modifying it
+- Add `catalystcenter_pnp_network_device_claim` resource to claim Plug and Play devices, including StackWise Virtual (SVL) pairs; requires Catalyst Center 3.2.3 or later
 
 ## 0.6.5
 
