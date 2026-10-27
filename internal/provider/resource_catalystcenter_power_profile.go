@@ -134,6 +134,7 @@ func (r *PowerProfileResource) Configure(_ context.Context, req resource.Configu
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *PowerProfileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan PowerProfile
 
 	// Read plan
@@ -173,6 +174,7 @@ func (r *PowerProfileResource) Create(ctx context.Context, req resource.CreateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *PowerProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PowerProfile
 
 	// Read state
@@ -212,6 +214,7 @@ func (r *PowerProfileResource) Read(ctx context.Context, req resource.ReadReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *PowerProfileResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state PowerProfile
 
 	// Read plan
@@ -247,6 +250,7 @@ func (r *PowerProfileResource) Update(ctx context.Context, req resource.UpdateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *PowerProfileResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PowerProfile
 
 	// Read state

@@ -86,6 +86,7 @@ func (d *AssignTemplatesToTagDataSource) Configure(_ context.Context, req dataso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *AssignTemplatesToTagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config AssignTemplatesToTag
 
 	// Read config

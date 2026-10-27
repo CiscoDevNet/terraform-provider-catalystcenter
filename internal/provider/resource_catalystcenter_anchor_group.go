@@ -149,6 +149,7 @@ func (r *AnchorGroupResource) Configure(_ context.Context, req resource.Configur
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AnchorGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AnchorGroup
 
 	// Read plan
@@ -187,6 +188,7 @@ func (r *AnchorGroupResource) Create(ctx context.Context, req resource.CreateReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AnchorGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AnchorGroup
 
 	// Read state
@@ -230,6 +232,7 @@ func (r *AnchorGroupResource) Read(ctx context.Context, req resource.ReadRequest
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AnchorGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AnchorGroup
 
 	// Read plan
@@ -265,6 +268,7 @@ func (r *AnchorGroupResource) Update(ctx context.Context, req resource.UpdateReq
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AnchorGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AnchorGroup
 
 	// Read state

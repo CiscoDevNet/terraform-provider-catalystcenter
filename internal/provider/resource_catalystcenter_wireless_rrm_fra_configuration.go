@@ -132,6 +132,7 @@ func (r *WirelessRRMFRAConfigurationResource) Configure(_ context.Context, req r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessRRMFRAConfigurationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessRRMFRAConfiguration
 
 	// Read plan
@@ -164,6 +165,7 @@ func (r *WirelessRRMFRAConfigurationResource) Create(ctx context.Context, req re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessRRMFRAConfigurationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessRRMFRAConfiguration
 
 	// Read state
@@ -203,6 +205,7 @@ func (r *WirelessRRMFRAConfigurationResource) Read(ctx context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessRRMFRAConfigurationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessRRMFRAConfiguration
 
 	// Read plan
@@ -238,6 +241,7 @@ func (r *WirelessRRMFRAConfigurationResource) Update(ctx context.Context, req re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessRRMFRAConfigurationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessRRMFRAConfiguration
 
 	// Read state

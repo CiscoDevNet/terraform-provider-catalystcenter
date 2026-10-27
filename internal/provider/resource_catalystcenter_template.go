@@ -267,6 +267,7 @@ func (r *TemplateResource) Configure(_ context.Context, req resource.ConfigureRe
 // End of section. //template:end model
 
 func (r *TemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Template
 
 	// Read plan
@@ -282,7 +283,7 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 	body := plan.toBody(ctx, Template{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		// A failed template POST can leave a partial ("zombie") object behind in
 		// Catalyst Center. Every subsequent apply then re-POSTs the same name, which
@@ -310,7 +311,7 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 
 		// Reconcile the adopted template so its content/params match the plan.
 		updateBody := plan.toBody(ctx, Template{Id: plan.Id})
-		updateRes, updateErr := r.client.Put("/dna/intent/api/v1/template-programmer/template", updateBody)
+		updateRes, updateErr := r.client.Put("/dna/intent/api/v1/template-programmer/template", updateBody, cc.UseMutex)
 		if updateErr != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update adopted object (PUT), got error: %s, %s", updateErr, updateRes.String()))
 			return
@@ -368,6 +369,7 @@ func (r *TemplateResource) getExistingTemplateId(ctx context.Context, projectId,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Template
 
 	// Read state
@@ -408,6 +410,7 @@ func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Template
 
 	// Read plan
@@ -427,7 +430,7 @@ func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateReques
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put("/dna/intent/api/v1/template-programmer/template"+params, body)
+	res, err := r.client.Put("/dna/intent/api/v1/template-programmer/template"+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -443,6 +446,7 @@ func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *TemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Template
 
 	// Read state
@@ -453,7 +457,7 @@ func (r *TemplateResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPathDelete() + "/" + url.QueryEscape(state.Id.ValueString()))
+	res, err := r.client.Delete(state.getPathDelete()+"/"+url.QueryEscape(state.Id.ValueString()), cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

@@ -60,7 +60,7 @@ func (r *WirelessProfilePolicyTagResource) Metadata(ctx context.Context, req res
 func (r *WirelessProfilePolicyTagResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource manages Policy Tags associated with a Wireless Profile in Cisco Catalyst Center. Policy Tags control which AP Zones are active at specific sites. They are only relevant when AP Zones are configured on the Wireless Profile. Before creating a policy tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource. Resource refresh ignores extra `site_ids` that Catalyst Center 3.2.3+ returns for descendant sites of an assigned parent. `terraform import` and the data source still return the full GET list; if configuration lists only parent sites, the first plan after import updates the tag back to that set. GET does not distinguish inherited children from extra sites assigned out of band (GUI/API), so those extras are also ignored on refresh until they appear in configuration or an update is otherwise applied.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource manages Policy Tags associated with a Wireless Profile in Cisco Catalyst Center. Policy Tags control which AP Zones are active at specific sites. They are only relevant when AP Zones are configured on the Wireless Profile. Before creating a policy tag, the Wireless Profile must first be assigned to the site using the `catalystcenter_network_profile_for_sites_assignments` resource. Resource refresh ignores extra `site_ids` that Catalyst Center 3.2.3+ returns for descendant sites of an assigned parent. `terraform import` and the data source still return the full GET list; if configuration lists only parent sites, the first plan after import updates the tag back to that set. GET does not distinguish inherited children from extra sites assigned out of band (GUI/API), so those extras are also ignored on refresh until they appear in configuration or an update is otherwise applied. Create, update and delete requests are serialized, because Catalyst Center can silently drop one of several concurrent policy tag changes on the same Wireless Profile.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -120,6 +120,7 @@ func (r *WirelessProfilePolicyTagResource) Configure(_ context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessProfilePolicyTagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessProfilePolicyTag
 
 	// Read plan
@@ -135,7 +136,7 @@ func (r *WirelessProfilePolicyTagResource) Create(ctx context.Context, req resou
 	body := plan.toBody(ctx, WirelessProfilePolicyTag{})
 
 	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body)
+	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
@@ -146,7 +147,11 @@ func (r *WirelessProfilePolicyTagResource) Create(ctx context.Context, req resou
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("response.0.policyTagId").String())
+	plan.Id = types.StringValue(res.Get("response.#(policyTagName==\"" + plan.PolicyTagName.ValueString() + "\").policyTagId").String())
+	if plan.Id.ValueString() == "" {
+		resp.Diagnostics.AddError("Client Error", "Failed to retrieve object ID: the object was not found by the ID query after creation")
+		return
+	}
 	plan.PolicyTagId = plan.Id
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -159,6 +164,7 @@ func (r *WirelessProfilePolicyTagResource) Create(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessProfilePolicyTagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessProfilePolicyTag
 
 	// Read state
@@ -197,6 +203,7 @@ func (r *WirelessProfilePolicyTagResource) Read(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessProfilePolicyTagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessProfilePolicyTag
 
 	// Read plan
@@ -216,7 +223,7 @@ func (r *WirelessProfilePolicyTagResource) Update(ctx context.Context, req resou
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := r.client.Put(plan.getPathPut()+params, body)
+	res, err := r.client.Put(plan.getPathPut()+params, body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -232,6 +239,7 @@ func (r *WirelessProfilePolicyTagResource) Update(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessProfilePolicyTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessProfilePolicyTag
 
 	// Read state
@@ -242,7 +250,13 @@ func (r *WirelessProfilePolicyTagResource) Delete(ctx context.Context, req resou
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPathDelete())
+	// Skip delete if ID is empty or null to prevent sending DELETE to base endpoint
+	if state.Id.IsNull() || state.Id.IsUnknown() || state.Id.ValueString() == "" {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Skipping delete - ID is empty or null", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	res, err := r.client.Delete(state.getPathDelete(), cc.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

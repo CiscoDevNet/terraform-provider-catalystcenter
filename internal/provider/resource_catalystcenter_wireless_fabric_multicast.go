@@ -99,6 +99,7 @@ func (r *WirelessFabricMulticastResource) Configure(_ context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *WirelessFabricMulticastResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan WirelessFabricMulticast
 
 	// Read plan
@@ -131,6 +132,7 @@ func (r *WirelessFabricMulticastResource) Create(ctx context.Context, req resour
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *WirelessFabricMulticastResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessFabricMulticast
 
 	// Read state
@@ -169,6 +171,7 @@ func (r *WirelessFabricMulticastResource) Read(ctx context.Context, req resource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *WirelessFabricMulticastResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state WirelessFabricMulticast
 
 	// Read plan
@@ -204,6 +207,7 @@ func (r *WirelessFabricMulticastResource) Update(ctx context.Context, req resour
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *WirelessFabricMulticastResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state WirelessFabricMulticast
 
 	// Read state

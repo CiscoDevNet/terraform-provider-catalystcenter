@@ -1,6 +1,4 @@
-
 ---
-layout: ""
 page_title: "Provider: Catalyst Center"
 description: |-
   The Catalyst Center provider provides resources to interact with a Cisco Catalyst Center instance.
@@ -31,6 +29,7 @@ The following guides with examples exist to demonstrate the use of the provider:
 
 - [Getting Started](https://registry.terraform.io/providers/CiscoDevNet/catalystcenter/latest/docs/guides/getting_started)
 - [Image Management](https://registry.terraform.io/providers/CiscoDevNet/catalystcenter/latest/docs/guides/image_management)
+- [Managing Secrets](https://registry.terraform.io/providers/CiscoDevNet/catalystcenter/latest/docs/guides/secrets)
 
 ## Example Usage
 

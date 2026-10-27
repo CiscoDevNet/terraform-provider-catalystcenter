@@ -86,6 +86,7 @@ func (d *AssignDevicesToTagDataSource) Configure(_ context.Context, req datasour
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *AssignDevicesToTagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config AssignDevicesToTag
 
 	// Read config

@@ -175,6 +175,7 @@ func (r *PnPDeviceClaimSiteResource) Configure(_ context.Context, req resource.C
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *PnPDeviceClaimSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan PnPDeviceClaimSite
 
 	// Read plan
@@ -207,6 +208,7 @@ func (r *PnPDeviceClaimSiteResource) Create(ctx context.Context, req resource.Cr
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *PnPDeviceClaimSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PnPDeviceClaimSite
 
 	// Read state
@@ -228,6 +230,7 @@ func (r *PnPDeviceClaimSiteResource) Read(ctx context.Context, req resource.Read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *PnPDeviceClaimSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state PnPDeviceClaimSite
 
 	// Read plan
@@ -263,6 +266,7 @@ func (r *PnPDeviceClaimSiteResource) Update(ctx context.Context, req resource.Up
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *PnPDeviceClaimSiteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state PnPDeviceClaimSite
 
 	// Read state

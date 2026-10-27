@@ -1002,6 +1002,14 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	{{- else if isNestedListSetMap .}}
 	{{- $list := (toGoName .TfName)}}
 	for i := range data.{{toGoName .TfName}} {
+		{{- if and (isNestedListSet .) (eq .MaxList 1)}}
+		values := res{{if .ModelName}}.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"){{end}}.Array()
+		if len(values) != 1 {
+			data.{{$list}} = nil
+			break
+		}
+		r := values[0]
+		{{- else}}
 		keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 		keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 		{{- if hasComputedRefreshValueInKeys .Attributes}}
@@ -1031,6 +1039,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 				return true
 			},
 		)
+		{{- end}}
 		{{- if $.SkipUnmatchedRows}}
 		if !r.Exists() {
 			continue
@@ -1066,6 +1075,14 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 		{{- else if isNestedListSetMap .}}
 		{{- $clist := (toGoName .TfName)}}
 		for ci := range data.{{$list}}[i].{{toGoName .TfName}} {
+			{{- if and (isNestedListSet .) (eq .MaxList 1)}}
+			values := r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").Array()
+			if len(values) != 1 {
+				data.{{$list}}[i].{{$clist}} = nil
+				break
+			}
+			cr := values[0]
+			{{- else}}
 			keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 			{{- if hasComputedRefreshValueInKeys .Attributes}}
@@ -1095,6 +1112,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 					return true
 				},
 			)
+			{{- end}}
 
 			{{- range .Attributes}}
 			{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
@@ -1119,6 +1137,14 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 			{{- else if isNestedListSetMap .}}
 			{{- $cclist := (toGoName .TfName)}}
 			for cci := range data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} {
+				{{- if and (isNestedListSet .) (eq .MaxList 1)}}
+				values := cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").Array()
+				if len(values) != 1 {
+					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}} = nil
+					break
+				}
+				ccr := values[0]
+				{{- else}}
 				keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 				keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 				{{- if hasComputedRefreshValueInKeys .Attributes}}
@@ -1148,6 +1174,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 						return true
 					},
 				)
+				{{- end}}
 
 				{{- range .Attributes}}
 				{{- if and (not .Value) (not .WriteOnly) (not .WoVersion) (not .Reference)}}
@@ -1268,6 +1295,14 @@ if value := res{{if .ModelName}}.Get("{{if .ResponseDataPath}}{{.ResponseDataPat
 {{- if hasUnknownsChildren .Attributes}}
 {{- $list := (toGoName .TfName)}}
 for i := range data.{{toGoName .TfName}} {
+	{{- if and (isNestedListSet .) (eq .MaxList 1)}}
+	values := res{{if .ModelName}}.Get("{{if .ResponseDataPath}}{{.ResponseDataPath}}{{else}}{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}{{end}}"){{end}}.Array()
+	if len(values) != 1 {
+		data.{{$list}} = nil
+		break
+	}
+	r := values[0]
+	{{- else}}
 	keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}}{{end}} }
 	keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if not .Computed}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}}{{end}} }
 	{{- if hasComputedRefreshValueInKeys .Attributes}}
@@ -1297,6 +1332,7 @@ for i := range data.{{toGoName .TfName}} {
 			return true
 		},
 	)
+	{{- end}}
 
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference) .Computed}}
@@ -1326,6 +1362,14 @@ for i := range data.{{toGoName .TfName}} {
 	{{- else if isNestedListSetMap .}}
 	{{- $clist := (toGoName .TfName)}}
 	for ci := range data.{{$list}}[i].{{toGoName .TfName}} {
+		{{- if and (isNestedListSet .) (eq .MaxList 1)}}
+		values := r.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").Array()
+		if len(values) != 1 {
+			data.{{$list}}[i].{{$clist}} = nil
+			break
+		}
+		cr := values[0]
+		{{- else}}
 		keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 		keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 		emptyKeys := [...]string{ {{range .Attributes}}{{if .ComputedRefreshValue}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}",{{end}}{{end}} }
@@ -1349,6 +1393,7 @@ for i := range data.{{toGoName .TfName}} {
 				return true
 			},
 		)
+		{{- end}}
 
 		{{- range .Attributes}}
 		{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
@@ -1373,6 +1418,14 @@ for i := range data.{{toGoName .TfName}} {
 		{{- else if isNestedListSetMap .}}
 		{{- $cclist := (toGoName .TfName)}}
 		for cci := range data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} {
+			{{- if and (isNestedListSet .) (eq .MaxList 1)}}
+			values := cr.Get("{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}").Array()
+			if len(values) != 1 {
+				data.{{$list}}[i].{{$clist}}[ci].{{$cclist}} = nil
+				break
+			}
+			ccr := values[0]
+			{{- else}}
 			keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id $noId}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 			{{- if hasComputedRefreshValueInKeys .Attributes}}
@@ -1402,6 +1455,7 @@ for i := range data.{{toGoName .TfName}} {
 					return true
 				},
 			)
+			{{- end}}
 
 			{{- range .Attributes}}
 			{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}

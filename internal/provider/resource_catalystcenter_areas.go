@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -117,6 +118,7 @@ func (r *AreasResource) Configure(_ context.Context, req resource.ConfigureReque
 }
 
 func (r *AreasResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan Areas
 
 	// Read plan
@@ -255,6 +257,7 @@ func (r *AreasResource) Create(ctx context.Context, req resource.CreateRequest, 
 }
 
 func (r *AreasResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Areas
 
 	// Read state
@@ -305,6 +308,7 @@ func (r *AreasResource) Read(ctx context.Context, req resource.ReadRequest, resp
 }
 
 func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state Areas
 
 	// Read plan
@@ -423,14 +427,11 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	// If there are objects marked to be deleted
 	if len(toDelete.Areas) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.Areas)))
-		for _, v := range toDelete.Areas {
-			if v.Id.IsNull() {
-				continue // Skip if id is null
-			}
+		for _, v := range areasDeleteOrder(toDelete.Areas) {
 			// Use individual site delete endpoint
 			res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(v.Id.ValueString()))
-			if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (%s), got error: %s, %s", "DELETE", err, res.String()))
+			if err != nil && !areaAlreadyDeleted(err, res) {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete area %s (DELETE), got error: %s, %s", v.Name.ValueString(), err, res.String()))
 				return
 			}
 		}
@@ -546,6 +547,7 @@ func (r *AreasResource) Update(ctx context.Context, req resource.UpdateRequest, 
 }
 
 func (r *AreasResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state Areas
 
 	// Read state
@@ -557,44 +559,10 @@ func (r *AreasResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	// Sort areas by hierarchy depth (most slashes first) to delete children before parents
-	// This prevents "cannot delete parent before children" errors
-	type areaWithDepth struct {
-		area  AreasAreas
-		depth int
-	}
-
-	areasToDelete := make([]areaWithDepth, 0, len(state.Areas))
-	for _, area := range state.Areas {
-		if area.Id.IsNull() {
-			continue // Skip if id is null
-		}
-		// Calculate hierarchy depth by counting slashes
-		fullHierarchy := area.ParentNameHierarchy.ValueString() + "/" + area.Name.ValueString()
-		depth := strings.Count(fullHierarchy, "/")
-		areasToDelete = append(areasToDelete, areaWithDepth{area: area, depth: depth})
-	}
-
-	// Sort by depth descending (deepest first)
-	for i := 0; i < len(areasToDelete); i++ {
-		for j := i + 1; j < len(areasToDelete); j++ {
-			if areasToDelete[i].depth < areasToDelete[j].depth {
-				areasToDelete[i], areasToDelete[j] = areasToDelete[j], areasToDelete[i]
-			}
-		}
-	}
-
-	// Delete areas in sorted order (children first)
-	for _, item := range areasToDelete {
-		res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(item.area.Id.ValueString()))
-		if err != nil {
-			// Ignore if already deleted (404 or NCGR10008 "does not exist")
-			if strings.Contains(err.Error(), "StatusCode 404") ||
-				strings.Contains(res.String(), "NCGR10008") ||
-				strings.Contains(res.String(), "does not exist") {
-				continue // Already deleted, skip
-			}
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete area %s (DELETE), got error: %s, %s", item.area.Name.ValueString(), err, res.String()))
+	for _, area := range areasDeleteOrder(state.Areas) {
+		res, err := r.client.Delete("/dna/intent/api/v1/site/" + url.QueryEscape(area.Id.ValueString()))
+		if err != nil && !areaAlreadyDeleted(err, res) {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete area %s (DELETE), got error: %s, %s", area.Name.ValueString(), err, res.String()))
 			return
 		}
 	}
@@ -622,4 +590,32 @@ func (r *AreasResource) ImportState(ctx context.Context, req resource.ImportStat
 		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), importID)...)
 		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scope"), importID)...)
 	}
+}
+
+// areasDeleteOrder returns the areas that have an ID, deepest first, because
+// Catalyst Center rejects deleting an area that still has child areas (NCGR10012).
+func areasDeleteOrder(areas map[string]AreasAreas) []AreasAreas {
+	ordered := make([]AreasAreas, 0, len(areas))
+	for _, area := range areas {
+		if !area.Id.IsNull() {
+			ordered = append(ordered, area)
+		}
+	}
+	hierarchy := func(area AreasAreas) string {
+		return area.ParentNameHierarchy.ValueString() + "/" + area.Name.ValueString()
+	}
+	sort.Slice(ordered, func(i, j int) bool {
+		di, dj := strings.Count(hierarchy(ordered[i]), "/"), strings.Count(hierarchy(ordered[j]), "/")
+		if di != dj {
+			return di > dj
+		}
+		return hierarchy(ordered[i]) < hierarchy(ordered[j])
+	})
+	return ordered
+}
+
+func areaAlreadyDeleted(err error, res cc.Res) bool {
+	return strings.Contains(err.Error(), "StatusCode 404") ||
+		strings.Contains(res.String(), "NCGR10008") ||
+		strings.Contains(res.String(), "does not exist")
 }

@@ -37,6 +37,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -119,13 +120,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
                 {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
-				{{- if $.NoRead}}
+				{{- if .ElementType}}
+				ElementType: types.{{.ElementType}}Type,
+				{{- else if $.NoRead}}
 				ElementType:         types.ListType{ElemType: types.StringType},
 				{{- else}}
 				ElementType:         types.StringType,
 				{{- end}}
 				{{- end}}
-				{{- if .WriteOnlyTF}}
+				{{- if or .WriteOnlyTF .WriteOnlyTFNative}}
 				Optional:            true,
 				WriteOnly:           true,
 				Sensitive:           true,
@@ -221,13 +224,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
                             {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
-							{{- if $.NoRead}}
+							{{- if .ElementType}}
+							ElementType: types.{{.ElementType}}Type,
+							{{- else if $.NoRead}}
 							ElementType:         types.ListType{ElemType: types.StringType},
 							{{- else}}
 							ElementType:         types.StringType,
 							{{- end}}
 							{{- end}}
-							{{- if .WriteOnlyTF}}
+							{{- if or .WriteOnlyTF .WriteOnlyTFNative}}
 							Optional:            true,
 							WriteOnly:           true,
 							Sensitive:           true,
@@ -328,13 +333,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
                                         {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
-										{{- if $.NoRead}}
+										{{- if .ElementType}}
+										ElementType: types.{{.ElementType}}Type,
+										{{- else if $.NoRead}}
 										ElementType:         types.ListType{ElemType: types.StringType},
 										{{- else}}
 										ElementType:         types.StringType,
 										{{- end}}
 										{{- end}}
-										{{- if .WriteOnlyTF}}
+										{{- if or .WriteOnlyTF .WriteOnlyTFNative}}
 										Optional:            true,
 										WriteOnly:           true,
 										Sensitive:           true,
@@ -431,13 +438,15 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
                                                     {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
-													{{- if $.NoRead}}
+													{{- if .ElementType}}
+													ElementType: types.{{.ElementType}}Type,
+													{{- else if $.NoRead}}
 													ElementType:         types.ListType{ElemType: types.StringType},
 													{{- else}}
 													ElementType:         types.StringType,
 													{{- end}}
 													{{- end}}
-													{{- if .WriteOnlyTF}}
+													{{- if or .WriteOnlyTF .WriteOnlyTFNative}}
 													Optional:            true,
 													WriteOnly:           true,
 													Sensitive:           true,
@@ -511,12 +520,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											},
 										},
 										{{- if or (ne .MinList 0) (ne .MaxList 0)}}
-										Validators: []validator.List{
+										Validators: []validator.{{.Type}}{
 											{{- if ne .MinList 0}}
-											listvalidator.SizeAtLeast({{.MinList}}),
+											{{toLower .Type}}validator.SizeAtLeast({{.MinList}}),
 											{{- end}}
 											{{- if ne .MaxList 0}}
-											listvalidator.SizeAtMost({{.MaxList}}),
+											{{toLower .Type}}validator.SizeAtMost({{.MaxList}}),
 											{{- end}}
 										},
 										{{- end}}
@@ -527,12 +536,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								},
 							},
 							{{- if or (ne .MinList 0) (ne .MaxList 0)}}
-							Validators: []validator.List{
+							Validators: []validator.{{.Type}}{
 								{{- if ne .MinList 0}}
-								listvalidator.SizeAtLeast({{.MinList}}),
+								{{toLower .Type}}validator.SizeAtLeast({{.MinList}}),
 								{{- end}}
 								{{- if ne .MaxList 0}}
-								listvalidator.SizeAtMost({{.MaxList}}),
+								{{toLower .Type}}validator.SizeAtMost({{.MaxList}}),
 								{{- end}}
 							},
 							{{- end}}
@@ -543,12 +552,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					},
 				},
 				{{- if or (ne .MinList 0) (ne .MaxList 0)}}
-				Validators: []validator.List{
+				Validators: []validator.{{.Type}}{
 					{{- if ne .MinList 0}}
-					listvalidator.SizeAtLeast({{.MinList}}),
+					{{toLower .Type}}validator.SizeAtLeast({{.MinList}}),
 					{{- end}}
 					{{- if ne .MaxList 0}}
-					listvalidator.SizeAtMost({{.MaxList}}),
+					{{toLower .Type}}validator.SizeAtMost({{.MaxList}}),
 					{{- end}}
 				},
 				{{- end}}
@@ -660,6 +669,7 @@ func (r *{{camelCase .Name}}Resource) ValidateConfig(ctx context.Context, req re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan {{camelCase .Name}}
 
 	{{- if .UseCache}}
@@ -941,7 +951,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	{{- if and .IdFromQueryPathAttribute .IdFromQueryPath (not .GetExtraQueryParams) (not .GetFromAll) }}
+	{{- if and .IdFromQueryPathAttribute .IdFromQueryPath (not .GetExtraQueryParams) (not .GetFromAll) (not (hasMatchId .Attributes)) }}
 	plan.Id = types.StringValue(res.Get("{{if eq .IdFromQueryPath "." }}{{else}}{{.IdFromQueryPath}}.{{end}}{{.IdFromQueryPathAttribute}}").String())
 	{{- else}}
 	{{- if and .FallbackRestEndpoint $id.FallbackResponseModelName }}
@@ -959,6 +969,12 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	{{- else if hasId .Attributes}}
 		{{- $id := getId .Attributes}}
 	plan.Id = types.StringValue(fmt.Sprint(plan.{{toGoName $id.TfName}}.Value{{$id.Type}}()))
+	{{- end}}
+	{{- if .FailCreateOnEmptyId}}
+	if plan.Id.ValueString() == "" {
+		resp.Diagnostics.AddError("Client Error", "Failed to retrieve object ID: the object was not found by the ID query after creation")
+		return
+	}
 	{{- end}}
 	{{- if .IdFromQueryPathAttribute}}
 	{{- range .Attributes}}
@@ -1068,6 +1084,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state {{camelCase .Name}}
 
 	// Read state
@@ -1157,6 +1174,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state {{camelCase .Name}}
 	{{- $name := camelCase .Name}}
 
@@ -1982,6 +2000,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state {{camelCase .Name}}
 
 	{{- if .UseCache}}

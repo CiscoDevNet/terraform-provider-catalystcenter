@@ -91,6 +91,7 @@ func (d *FabricSitesDataSource) Configure(_ context.Context, req datasource.Conf
 }
 
 func (d *FabricSitesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config FabricSites
 
 	// Read config

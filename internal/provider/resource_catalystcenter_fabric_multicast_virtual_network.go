@@ -163,6 +163,7 @@ func (r *FabricMulticastVirtualNetworkResource) Configure(_ context.Context, req
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *FabricMulticastVirtualNetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan FabricMulticastVirtualNetwork
 
 	// Read plan
@@ -210,6 +211,7 @@ func (r *FabricMulticastVirtualNetworkResource) Create(ctx context.Context, req 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *FabricMulticastVirtualNetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricMulticastVirtualNetwork
 
 	// Read state
@@ -249,6 +251,7 @@ func (r *FabricMulticastVirtualNetworkResource) Read(ctx context.Context, req re
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *FabricMulticastVirtualNetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state FabricMulticastVirtualNetwork
 
 	// Read plan
@@ -292,6 +295,7 @@ func (r *FabricMulticastVirtualNetworkResource) Update(ctx context.Context, req 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *FabricMulticastVirtualNetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state FabricMulticastVirtualNetwork
 
 	// Read state

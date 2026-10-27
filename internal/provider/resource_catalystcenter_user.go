@@ -161,6 +161,7 @@ func (r *UserResource) ValidateConfig(ctx context.Context, req resource.Validate
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan User
 
 	// Read plan
@@ -198,6 +199,7 @@ func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *UserResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state User
 
 	// Read state
@@ -241,6 +243,7 @@ func (r *UserResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state User
 
 	// Read plan
@@ -281,6 +284,7 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *UserResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state User
 
 	// Read state

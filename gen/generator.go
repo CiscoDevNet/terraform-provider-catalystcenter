@@ -109,6 +109,7 @@ type YamlConfig struct {
 	GetExtraQueryParams           string                `yaml:"get_extra_query_params"`
 	NoDelete                      bool                  `yaml:"no_delete"`
 	DataSourceNoId                bool                  `yaml:"data_source_no_id"`
+	DataSourceNoInputs            bool                  `yaml:"data_source_no_inputs"`
 	DeleteNoId                    bool                  `yaml:"delete_no_id"`
 	NoUpdate                      bool                  `yaml:"no_update"`
 	NoRead                        bool                  `yaml:"no_read"`
@@ -156,6 +157,7 @@ type YamlConfig struct {
 	CacheRestEndpoint             string                `yaml:"cache_rest_endpoint"`
 	CacheFilterAttributes         []string              `yaml:"cache_filter_attributes"`
 	SkipDeleteOnEmptyId           bool                  `yaml:"skip_delete_on_empty_id"`
+	FailCreateOnEmptyId           bool                  `yaml:"fail_create_on_empty_id"`
 	GetBeforeDelete               bool                  `yaml:"get_before_delete"`
 }
 
@@ -193,6 +195,7 @@ type YamlConfigAttribute struct {
 	NoUseStateForUnknown      bool                  `yaml:"no_use_state_for_unknown"`
 	WriteOnly                 bool                  `yaml:"write_only"`
 	WriteOnlyTF               bool                  `yaml:"write_only_tf"`
+	WriteOnlyTFNative         bool                  `yaml:"write_only_tf_native"` // Native schema write-only input without legacy or generated version companions.
 	WoVersion                 bool                  `yaml:"-"` // Internal: marks a generated "<attr>_wo_version" companion attribute (state-only rotation trigger)
 	CoexistingSecret          bool                  `yaml:"-"` // Internal: marks the legacy state-storing twin of a "<attr>_wo" write-only attribute
 	WoBaseName                string                `yaml:"-"` // Internal: on a "<attr>_wo" attribute, the name of its legacy twin
@@ -409,6 +412,18 @@ func GetMatchId(attributes []YamlConfigAttribute) YamlConfigAttribute {
 		}
 	}
 	return YamlConfigAttribute{}
+}
+
+// Templating helper function to return true if a top-level "match_id" attribute exists.
+// Nested match_id attributes are deliberately not considered, as they identify rows within
+// a list and not the resource itself.
+func HasMatchId(attributes []YamlConfigAttribute) bool {
+	for _, attr := range attributes {
+		if attr.MatchId {
+			return true
+		}
+	}
+	return false
 }
 
 // Templating helper function to build a GJSON filter expression for cache lookups.
@@ -884,6 +899,7 @@ var functions = template.FuncMap{
 	"generateDeleteOnlyQueryParamString": GenerateDeleteOnlyQueryParamString,
 	"getId":                              GetId,
 	"getMatchId":                         GetMatchId,
+	"hasMatchId":                         HasMatchId,
 	"cacheFilterGjsonExpr":               CacheFilterGjsonExpr,
 	"hasCreateQueryPath":                 HasCreateQueryPath,
 	"getCreateQueryPath":                 GetCreateQueryPath,
@@ -1026,6 +1042,9 @@ func rewriteWriteOnlyTF(attrs []YamlConfigAttribute) []YamlConfigAttribute {
 	for _, attr := range attrs {
 		if len(attr.Attributes) > 0 {
 			attr.Attributes = rewriteWriteOnlyTF(attr.Attributes)
+		}
+		if attr.WriteOnlyTFNative && (!attr.WriteOnly || attr.WriteOnlyTF || attr.Computed || attr.DefaultValue != "") {
+			panic(fmt.Sprintf("write_only_tf_native requires write_only and cannot be combined with write_only_tf, computed, or default_value: %q", attr.TfName))
 		}
 		if !attr.WriteOnlyTF {
 			newAttrs = append(newAttrs, attr)

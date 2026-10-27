@@ -100,6 +100,7 @@ func (r *DeviceReplacementWorkflowResource) Configure(_ context.Context, req res
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DeviceReplacementWorkflowResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan DeviceReplacementWorkflow
 
 	// Read plan
@@ -132,6 +133,7 @@ func (r *DeviceReplacementWorkflowResource) Create(ctx context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DeviceReplacementWorkflowResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state DeviceReplacementWorkflow
 
 	// Read state
@@ -153,6 +155,7 @@ func (r *DeviceReplacementWorkflowResource) Read(ctx context.Context, req resour
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *DeviceReplacementWorkflowResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state DeviceReplacementWorkflow
 
 	// Read plan
@@ -180,6 +183,7 @@ func (r *DeviceReplacementWorkflowResource) Update(ctx context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *DeviceReplacementWorkflowResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state DeviceReplacementWorkflow
 
 	// Read state

@@ -7,8 +7,34 @@ description: |-
 
 # Changelog
 
-## 0.6.3 (unreleased)
+## 0.6.6 (unreleased)
 
+- Fix `catalystcenter_floors` resource showing a permanent difference when floors use different `units_of_measure`; Catalyst Center returns all floors in the unit requested on read, so floors are now read once per unit they use
+- Fix `catalystcenter_areas` resource failing with `NCGR10012` when an update removes nested areas; removed areas are now deleted children first, as on destroy
+- Fix `catalystcenter_wireless_profile_site_tag` resource failing with `NCND11185` when `flex_profile_name` changes; Catalyst Center does not allow modifying it, so a change now replaces the site tag
+- Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources losing tag changes when several tags of the same Wireless Profile are changed in one apply
+- Fix `catalystcenter_template` resource failing with `NCTP10008` when composite templates that share a member template are created in the same apply; template creates, updates and deletes now run one at a time
+
+## 0.6.5
+
+- Add `catalystcenter_application` resource and data_source
+- Add `catalystcenter_qos_policy_setting` resource and data_source
+- Add `catalystcenter_application_set` resource and data_source
+- Add `secret_params` to `catalystcenter_deploy_template` for write-only template parameters with per-parameter rotation versions, including composite template deployments; requires Terraform 1.11 or later
+- Fix `catalystcenter_wireless_pre_auth_acl` resource sending `0-65535` for `source_ports` and `destination_ports` when unset, which Catalyst Center rejects on TCP and UDP rules; both are now omitted when not configured
+- Fix `catalystcenter_wireless_pre_auth_acl` resource showing a permanent difference on rules whose ports Catalyst Center normalizes; ACL rules are now matched by source, destination and protocol only
+- Fix `catalystcenter_assign_device_to_site` resource failing with `NCIM80106` when `device_ids` includes already provisioned devices. Create and update now adopt existing assignments to the requested site and retry devices that still need assignment; devices provisioned at another site remain rejected with an error identifying the device and its current site
+- Fix `catalystcenter_assign_device_to_site` resource leaving removable devices assigned when a provisioned device causes batch unassignment to fail. Unassignment now retries device by device during destroy and removal from `device_ids`; provisioned devices are skipped and remain assigned
+
+## 0.6.4
+
+- Add support for module identification through `provider_meta.module_name`, including the module name and version in the User-Agent header for API requests
+- Add `deployment_timeout` attribute to the `catalystcenter_deploy_template` resource to configure how long (in seconds) the provider waits for a template deployment to reach `SUCCESS` or `FAILURE`. Defaults to `300`, matching the previous fixed timeout; changing it alone does not trigger a redeployment
+- Fix `catalystcenter_wireless_profile_site_tag` and `catalystcenter_wireless_profile_policy_tag` resources to resolve the tag ID by name after create, instead of taking the first tag of the profile, which gave every tag after the first the wrong ID
+
+## 0.6.3
+
+- Fix `catalystcenter_fabric_l3_virtual_network` resource to allow adding and removing `anchored_site_id` on an existing Layer 3 Virtual Network; changing it from one site to another is still unsupported and is now rejected at plan time
 - Add `SHA256` to the allowed values of `auth_type` on the `catalystcenter_credentials_snmpv3` resource
 - Add `catalystcenter_pnp_network_device_claim` resource to claim a device through the Plug and Play network device claim API (`POST /dna/intent/api/v1/pnpNetworkDevices/{id}/claim`). The claim type is selected with the required `device_type` attribute (`ACCESS_POINT`, `MOBILITY_EXPRESS`, `ROUTER`, `SENSOR`, `STACK_SWITCH`, `SVL`, `SWITCH` or `WIRELESS_CONTROLLER`), alongside the site, hostname, image and day-0 template parameters. Device-type specific attributes are also supported: `rf_profile` for access points, `top_of_stack_serial_number` and `cabling_scheme` for switch stacks, `sensor_profile` for sensors, `static_ip_address`, `subnet_mask`, `gateway`, `vlan_id` and `ip_interface_name` for wireless controllers, and `domain` plus `svl_members` (member serial numbers and roles, the SVL links between them and the optional Dual-Active-Detection link) for StackWise Virtual pairs. Each attribute is only sent when explicitly configured. The claim sub-path itself is POST-only, so Read refreshes `site_id` and `hostname` from the device object (`GET /dna/intent/api/v1/pnpNetworkDevices/{id}`) and the remaining claim-request attributes are write-only. Destroying the resource deletes the Plug and Play device record (`DELETE /dna/intent/api/v1/pnpNetworkDevices/{id}`); note that Catalyst Center has no un-claim operation, so this removes the device from the Plug and Play database rather than returning it to the unclaimed state. The resource is not importable. Requires Catalyst Center 3.2.3 or later
 

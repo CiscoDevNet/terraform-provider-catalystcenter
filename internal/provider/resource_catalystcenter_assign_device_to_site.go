@@ -99,8 +99,8 @@ func (r *AssignDeviceToSiteResource) Configure(_ context.Context, req resource.C
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AssignDeviceToSiteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AssignDeviceToSite
 
 	// Read plan
@@ -113,14 +113,14 @@ func (r *AssignDeviceToSiteResource) Create(ctx context.Context, req resource.Cr
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, AssignDeviceToSite{})
+	var deviceIds []string
+	plan.DeviceIds.ElementsAs(ctx, &deviceIds, false)
 
-	params := ""
-	res, err := r.client.Post(plan.getPath()+params, body, cc.UseMutex)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+	if err := r.assignToSite(ctx, plan, deviceIds); err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
+
 	plan.Id = types.StringValue(fmt.Sprint(plan.SiteId.ValueString()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -129,10 +129,144 @@ func (r *AssignDeviceToSiteResource) Create(ctx context.Context, req resource.Cr
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end create
+// assignedSite returns the id and the hierarchy name of the site a device is
+// currently assigned to. Both are empty when the device is unassigned. The id
+// is what can be compared against site_id, the name is what is worth putting in
+// front of an operator.
+func (r *AssignDeviceToSiteResource) assignedSite(deviceId string) (string, string, error) {
+	res, err := r.client.Get("/dna/intent/api/v1/networkDevices/" + url.QueryEscape(deviceId) + "/assignedToSite")
+	if err != nil {
+		return "", "", err
+	}
+	return res.Get("response.siteId").String(), res.Get("response.siteNameHierarchy").String(), nil
+}
+
+// isProvisionedDeviceError reports whether Catalyst Center refused a request
+// because it covers a device that has already been provisioned, which it does
+// not allow to be moved between sites.
+func isProvisionedDeviceError(res cc.Res) bool {
+	return strings.Contains(res.Get("response.detail").String(), "NCIM80106")
+}
+
+// isUnassignableDevice reports whether Catalyst Center refused to unassign a
+// device because it has been provisioned. "Input data is invalid" is an older
+// phrasing of the same refusal.
+func isUnassignableDevice(res cc.Res) bool {
+	return isProvisionedDeviceError(res) || res.Get("response.detail").String() == "Input data is invalid"
+}
+
+func assignToSiteBody(siteId string, deviceIds []string) string {
+	body := ""
+	body, _ = sjson.Set(body, "deviceIds", deviceIds)
+	body, _ = sjson.Set(body, "siteId", siteId)
+	return body
+}
+
+func unassignFromSiteBody(deviceIds []string) string {
+	body := ""
+	body, _ = sjson.Set(body, "deviceIds", deviceIds)
+	return body
+}
+
+// unassignFromSite removes devices from their site. A provisioned device cannot
+// be unassigned, and Catalyst Center rejects the whole request because of it,
+// so ignoring that error for a batch would silently leave every other device in
+// the batch assigned while Terraform reported them removed. The batch is
+// therefore retried one device at a time, which skips only the devices that
+// genuinely cannot be unassigned and needs the extra requests solely in the
+// mixed case.
+func (r *AssignDeviceToSiteResource) unassignFromSite(ctx context.Context, data AssignDeviceToSite, deviceIds []string) error {
+	if len(deviceIds) == 0 {
+		return nil
+	}
+
+	res, err := r.client.Post(data.getPathDelete(), unassignFromSiteBody(deviceIds), cc.UseMutex)
+	if err == nil {
+		return nil
+	}
+	if !isUnassignableDevice(res) {
+		return fmt.Errorf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String())
+	}
+
+	if len(deviceIds) > 1 {
+		for _, deviceId := range deviceIds {
+			res, err := r.client.Post(data.getPathDelete(), unassignFromSiteBody([]string{deviceId}), cc.UseMutex)
+			if err == nil {
+				continue
+			}
+			if !isUnassignableDevice(res) {
+				return fmt.Errorf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String())
+			}
+			tflog.Debug(ctx, fmt.Sprintf("%s: Device %s has been provisioned and cannot be unassigned, leaving it on its site", data.Id.ValueString(), deviceId))
+		}
+		return nil
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Device %s has been provisioned and cannot be unassigned, leaving it on its site", data.Id.ValueString(), deviceIds[0]))
+	return nil
+}
+
+// assignToSite assigns devices to a site, tolerating the NCIM80106 Catalyst
+// Center returns when the request covers a device it has already provisioned.
+// Such a device cannot be moved, but needs no action when it already sits on
+// the requested site, which is the normal state after a Plug and Play
+// site-claim because the claim both assigns and provisions. The endpoint
+// rejects the whole batch rather than applying it partially, and the error does
+// not identify the offending device, so the devices that still need assigning
+// are established and, if there are any, assigned on their own. A batch mixing
+// a provisioned controller with devices Terraform has not assigned yet
+// therefore still completes. Only a device that has to move and cannot is
+// reported as an error.
+func (r *AssignDeviceToSiteResource) assignToSite(ctx context.Context, data AssignDeviceToSite, deviceIds []string) error {
+	if len(deviceIds) == 0 {
+		return nil
+	}
+
+	siteId := data.SiteId.ValueString()
+
+	res, err := r.client.Post(data.getPath(), assignToSiteBody(siteId, deviceIds), cc.UseMutex)
+	if err == nil {
+		return nil
+	}
+	if !isProvisionedDeviceError(res) {
+		return fmt.Errorf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String())
+	}
+
+	var pending, pendingDetail []string
+	for _, deviceId := range deviceIds {
+		currentSiteId, currentSiteName, siteErr := r.assignedSite(deviceId)
+		if siteErr != nil {
+			return fmt.Errorf("Failed to retrieve the current site of device %s (GET), got error: %s", deviceId, siteErr)
+		}
+		if currentSiteId != siteId {
+			where := "currently unassigned"
+			if currentSiteName != "" {
+				where = fmt.Sprintf("currently on site %s", currentSiteName)
+			}
+			pending = append(pending, deviceId)
+			pendingDetail = append(pendingDetail, fmt.Sprintf("%s (%s)", deviceId, where))
+		}
+	}
+
+	if len(pending) == 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device(s) already assigned to the requested site, adopting the existing assignment", siteId))
+		return nil
+	}
+
+	res, err = r.client.Post(data.getPath(), assignToSiteBody(siteId, pending), cc.UseMutex)
+	if err == nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Adopted the existing assignment of the provisioned device(s) and assigned the remaining %d device(s)", siteId, len(pending)))
+		return nil
+	}
+	if !isProvisionedDeviceError(res) {
+		return fmt.Errorf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String())
+	}
+	return fmt.Errorf("Cannot assign device(s) to site %s: %s. At least one of them has been provisioned, and Catalyst Center does not allow moving a provisioned device between sites; unprovision it first", siteId, strings.Join(pendingDetail, ", "))
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignDeviceToSiteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignDeviceToSite
 
 	// Read state
@@ -171,6 +305,7 @@ func (r *AssignDeviceToSiteResource) Read(ctx context.Context, req resource.Read
 // End of section. //template:end read
 
 func (r *AssignDeviceToSiteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AssignDeviceToSite
 
 	// Read plan
@@ -222,15 +357,8 @@ func (r *AssignDeviceToSiteResource) Update(ctx context.Context, req resource.Up
 
 	// Assign devices to site based on added devices
 	if len(added) > 0 {
-		body := ""
-		for i, id := range added {
-			body, _ = sjson.Set(body, fmt.Sprintf("deviceIds.%d", i), id)
-		}
-		body, _ = sjson.Set(body, "siteId", plan.SiteId.ValueString())
-
-		res, err := r.client.Post(plan.getPath(), body, cc.UseMutex)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+		if err := r.assignToSite(ctx, plan, added); err != nil {
+			resp.Diagnostics.AddError("Client Error", err.Error())
 			return
 		}
 		tflog.Debug(ctx, fmt.Sprintf("Device added: %s", added))
@@ -238,14 +366,8 @@ func (r *AssignDeviceToSiteResource) Update(ctx context.Context, req resource.Up
 
 	// Unassign devices from site based on removed devices
 	if len(removed) > 0 {
-		body := ""
-		for i, id := range removed {
-			body, _ = sjson.Set(body, fmt.Sprintf("deviceIds.%d", i), id)
-		}
-
-		res, err := r.client.Post(plan.getPathDelete(), body, cc.UseMutex)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST2), got error: %s, %s", err, res.String()))
+		if err := r.unassignFromSite(ctx, plan, removed); err != nil {
+			resp.Diagnostics.AddError("Client Error", err.Error())
 			return
 		}
 		tflog.Debug(ctx, fmt.Sprintf("Device removed: %s", removed))
@@ -258,6 +380,7 @@ func (r *AssignDeviceToSiteResource) Update(ctx context.Context, req resource.Up
 }
 
 func (r *AssignDeviceToSiteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignDeviceToSite
 
 	// Read state
@@ -269,17 +392,12 @@ func (r *AssignDeviceToSiteResource) Delete(ctx context.Context, req resource.De
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
-	body := state.toBody(ctx, state)
-	params := ""
-	res, err := r.client.Post(state.getPathDelete()+params, body, cc.UseMutex)
-	if err != nil {
-		errorDetail := res.Get("response.detail").String()
-		if strings.HasPrefix(errorDetail, "NCIM80106") || errorDetail == "Input data is invalid" {
-			// This error means that the device was provisioned, and cannot be moved, so we need to ignore it.
-		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
-			return
-		}
+	var deviceIds []string
+	state.DeviceIds.ElementsAs(ctx, &deviceIds, false)
+
+	if err := r.unassignFromSite(ctx, state, deviceIds); err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
+		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))

@@ -1,0 +1,62 @@
+---
+name: Application Set
+rest_endpoint: /dna/intent/api/v2/application-policy-application-set
+get_extra_query_params: '?attributes=applicationSet&limit=500'
+get_from_all: true
+id_from_query_path: response
+no_update: true
+test_tags: [QOS]
+doc_category: Application Policy
+res_description:
+  'Manages a custom Catalyst Center Application Set. Built-in application sets
+  must not be managed by this resource. The API does not support updates, so
+  changing a configurable attribute replaces the application set.
+  `terraform import` expects the controller-assigned UUID.'
+attributes:
+  - model_name: name
+    data_path: "0"
+    response_data_path: name
+    type: String
+    match_id: true
+    data_source_query: true
+    description: The name of the application set.
+    example: my-app-set
+  - model_name: defaultBusinessRelevance
+    data_path: "0"
+    response_data_path: defaultBusinessRelevance
+    type: String
+    mandatory: true
+    requires_replace: true
+    enum_values: [BUSINESS_RELEVANT, BUSINESS_IRRELEVANT, DEFAULT]
+    description:
+      The business relevance this application set defaults to. It determines which
+      column the set is pre-populated into in the Application Policy GUI; an
+      application policy may still override it per policy.
+    example: BUSINESS_RELEVANT
+  - model_name: scalableGroupType
+    data_path: "0"
+    value: APPLICATION_GROUP
+    type: String
+    description: Scalable group type, always `APPLICATION_GROUP`.
+  - model_name: namespace
+    data_path: "0"
+    value: scalablegroup:application
+    type: String
+    description: Namespace, always `scalablegroup:application`.
+  - model_name: qualifier
+    data_path: "0"
+    value: application
+    type: String
+    description: Qualifier, always `application`.
+  - model_name: type
+    data_path: "0"
+    value: scalablegroup
+    type: String
+    description: Object type, always `scalablegroup`.
+  - model_name: scalableGroupExternalHandle
+    data_path: "0"
+    response_data_path: scalableGroupExternalHandle
+    type: String
+    requires_replace: true
+    description: External handle of the application set. Set to the same value as `name`.
+    example: my-app-set

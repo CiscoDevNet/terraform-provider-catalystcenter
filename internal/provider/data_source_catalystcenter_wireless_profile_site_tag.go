@@ -83,7 +83,7 @@ func (d *WirelessProfileSiteTagDataSource) Schema(ctx context.Context, req datas
 				Computed:            true,
 			},
 			"flex_profile_name": schema.StringAttribute{
-				MarkdownDescription: "Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. If not provided for a Flex profile, the system will auto-generate one.",
+				MarkdownDescription: "Name of the Flex Profile. Required for Flex-enabled Wireless Profiles. Cannot be modified after creation; changing it replaces the Site Tag.",
 				Computed:            true,
 			},
 		},
@@ -102,6 +102,7 @@ func (d *WirelessProfileSiteTagDataSource) Configure(_ context.Context, req data
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *WirelessProfileSiteTagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	applyProviderMeta(d.client, ctx, req.ProviderMeta)
 	var config WirelessProfileSiteTag
 
 	// Read config

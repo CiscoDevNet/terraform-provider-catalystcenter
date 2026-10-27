@@ -100,6 +100,7 @@ func (r *AssignTemplatesToTagResource) Configure(_ context.Context, req resource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *AssignTemplatesToTagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan AssignTemplatesToTag
 
 	// Read plan
@@ -132,6 +133,7 @@ func (r *AssignTemplatesToTagResource) Create(ctx context.Context, req resource.
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *AssignTemplatesToTagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignTemplatesToTag
 
 	// Read state
@@ -170,6 +172,7 @@ func (r *AssignTemplatesToTagResource) Read(ctx context.Context, req resource.Re
 // End of section. //template:end read
 
 func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var plan, state AssignTemplatesToTag
 
 	// Read plan
@@ -232,6 +235,7 @@ func (r *AssignTemplatesToTagResource) Update(ctx context.Context, req resource.
 }
 
 func (r *AssignTemplatesToTagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	applyProviderMeta(r.client, ctx, req.ProviderMeta)
 	var state AssignTemplatesToTag
 
 	// Read state

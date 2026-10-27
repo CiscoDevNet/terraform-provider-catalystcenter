@@ -1,0 +1,281 @@
+---
+name: Application
+rest_endpoint: /dna/intent/api/v2/applications
+get_extra_query_params: '&attributes=application&offset=1&limit=500'
+id_from_query_path: response
+id_from_query_path_attribute: '[id,0.id].0'
+put_no_id: true
+put_id_include_path: "0.id"
+remove_resource_on_empty_response: true
+update_computed: true
+skip_minimum_test: true
+data_source_no_id: true
+import_no_id: true
+test_tags: [QOS]
+doc_category: Application Policy
+res_description:
+  'Manages a custom Catalyst Center Application. The controller ships roughly 1500
+  built-in (NBAR) applications which are seeded and must not be managed by this
+  resource. An application always belongs to an application set via
+  `application_set_id`.'
+attributes:
+  - model_name: name
+    data_path: "0"
+    response_data_path: response.0.name
+    type: String
+    match_id: true
+    query_param: true
+    query_param_name: name
+    requires_replace: true
+    description: The name of the application
+    example: my-custom-app
+  - model_name: networkApplications
+    data_path: "0"
+    mandatory: true
+    response_data_path: response.0.networkApplications
+    type: List
+    min_list: 1
+    max_list: 1
+    description: Exactly one network application.
+    attributes:
+    - model_name: helpString
+      type: String
+      mandatory: true
+      description: Description of the application shown in the GUI
+      example: "This is a custom application"
+    - model_name: applicationType
+      mandatory: true
+      enum_values: [CUSTOM]
+      type: String
+      description: Application type
+      example: CUSTOM
+    - model_name: type
+      write_only: true
+      type: String
+      mandatory: true
+      enum_values: [_servername, _url, _server-ip]
+      description:
+        How the application is identified. `_servername` pairs with `server_name`,
+        `_url` with `url`, and `_server-ip` with `network_identity`.
+      example: _server-ip
+    - model_name: dscp
+      type: String
+      description: DSCP value assigned to traffic matching this application
+      example: "18"
+    - model_name: appProtocol
+      type: String
+      enum_values: [TCP, UDP, TCP/UDP, IP]
+      description:
+        Transport protocol. Omit for `_servername`; use `TCP` for `_url`.
+      example: TCP
+    - model_name: serverName
+      type: String
+      description: Server name identifying the application, when `server_type` is `_servername`
+      example: app.example.com
+      exclude_test: true
+    - model_name: url
+      type: String
+      description: URL identifying the application, when `server_type` is `_url`
+      example: example.com/path
+      exclude_test: true
+    - model_name: trafficClass
+      type: String
+      mandatory: true
+      enum_values:
+        [
+          BROADCAST_VIDEO,
+          BULK_DATA,
+          MULTIMEDIA_CONFERENCING,
+          MULTIMEDIA_STREAMING,
+          NETWORK_CONTROL,
+          OPS_ADMIN_MGMT,
+          REAL_TIME_INTERACTIVE,
+          SIGNALING,
+          TRANSACTIONAL_DATA,
+          VOIP_TELEPHONY,
+          BEST_EFFORT,
+          SCAVENGER,
+        ]
+      description: The traffic class the application is assigned to
+      example: TRANSACTIONAL_DATA
+    - model_name: categoryId
+      type: String
+      mandatory: true
+      description:
+        ID of the application category. Copy this UUID from an existing application
+        in the desired category.
+      example: de3f7e1e-bdda-4a2c-87f8-0ff49b463997
+      test_value: data.catalystcenter_application.reference.network_applications[0].category_id
+    - model_name: ignoreConflict
+      type: Bool
+      mandatory: true
+      write_only: true
+      description: Whether to ignore conflicts with existing application signatures.
+      example: false
+    - model_name: rank
+      type: Int64
+      mandatory: true
+      description: Rank used to break ties between overlapping applications
+      example: 1
+    - model_name: engineId
+      type: Int64
+      mandatory: true
+      description: Engine id, should be set to 6
+      example: 6
+    - model_name: id
+      type: String
+      computed: true
+      description: Controller-assigned network application ID.
+      exclude_test: true
+    - model_name: applicationSubType
+      type: String
+      computed: true
+      description: Application subtype returned by the controller.
+      exclude_test: true
+    - model_name: displayName
+      type: String
+      computed: true
+      description: Display name returned by the controller.
+      exclude_test: true
+    - model_name: name
+      type: String
+      computed: true
+      description: Network application name returned by the controller.
+      exclude_test: true
+  - model_name: idRef
+    tf_name: application_set_id
+    data_path: "0.parentScalableGroup"
+    response_data_path: response.0.parentScalableGroup.idRef
+    type: String
+    mandatory: true
+    description: Id reference to parent application set
+    example: 12345678-1234-1234-1234-123456789012
+    test_value: catalystcenter_application_set.test.id
+  - model_name: networkIdentity
+    data_path: "0"
+    response_data_path: response.0.networkIdentity
+    type: Set
+    description:
+      L3/L4 signatures for `_server-ip` applications
+    attributes:
+      - model_name: protocol
+        type: String
+        id: true
+        enum_values: [TCP_OR_UDP, TCP, UDP, IP]
+        description: Protocol of the signature
+        example: TCP
+      - model_name: ports
+        type: String
+        id: true
+        description: Comma separated list of discrete ports
+        example: "65529"
+      - model_name: lowerPort
+        type: Int64
+        id: true
+        min_int: 0
+        max_int: 65535
+        description:
+          Start of a port range, used with `upper_port`. Leave `ports` empty when
+          a range is used. The controller returns `0` when no range is set.
+        example: 0
+      - model_name: upperPort
+        type: Int64
+        id: true
+        min_int: 0
+        max_int: 65535
+        description:
+          End of a port range, used with `lower_port`. Leave `ports` empty when a
+          range is used. The controller returns `0` when no range is set.
+        example: 0
+      - model_name: ipv4Subnet
+        type: Set
+        element_type: String
+        mandatory: true
+        description: IPv4 subnets matching the application
+        example: 10.0.0.0/24
+      - model_name: id
+        type: String
+        computed: true
+        description: Id
+        exclude_test: true
+      - model_name: displayName
+        type: String
+        computed: true
+        description: Display name returned by the controller.
+        exclude_test: true
+  - model_name: indicativeNetworkIdentity
+    data_path: "0"
+    response_data_path: response.0.indicativeNetworkIdentity
+    type: Set
+    exclude_test: true
+    description:
+      Indicative signatures used by NBAR applications. Available when reading
+      built-in applications through the data source. Each protocol, ports,
+      lower-port and upper-port combination must be unique.
+    attributes:
+      - model_name: protocol
+        type: String
+        id: true
+        enum_values: [TCP_OR_UDP, TCP, UDP, IP]
+        description: Protocol of the indicative signature.
+        example: TCP
+      - model_name: ports
+        type: String
+        id: true
+        description: Discrete ports, or an empty string when a range is used.
+        example: "6582"
+      - model_name: ipv4Subnet
+        type: Set
+        element_type: String
+        description: IPv4 subnets of the indicative signature.
+        example: 10.0.0.0/24
+      - model_name: ipv6Subnet
+        type: Set
+        element_type: String
+        description: IPv6 subnets of the indicative signature.
+        example: "2001:db8::/64"
+      - model_name: lowerPort
+        type: Int64
+        id: true
+        min_int: 0
+        max_int: 65535
+        description: First port in the range, or `0` for discrete ports.
+        example: 0
+      - model_name: upperPort
+        type: Int64
+        id: true
+        min_int: 0
+        max_int: 65535
+        description: Last port in the range, or `0` for discrete ports.
+        example: 0
+      - model_name: id
+        type: String
+        computed: true
+        description: Id
+        exclude_test: true
+      - model_name: displayName
+        type: String
+        computed: true
+        description: Display name returned by the controller.
+        exclude_test: true
+  - model_name: scalableGroupType
+    data_path: "0"
+    value: APPLICATION
+    write_only: true
+    type: String
+    description: Scalable group type, always `APPLICATION`
+  - model_name: type
+    tf_name: scalable_group_object_type
+    data_path: "0"
+    value: scalablegroup
+    write_only: true
+    type: String
+    description: Object type, always `scalablegroup`
+test_prerequisites: |
+  resource "catalystcenter_application_set" "test" {
+    name                       = "tf-acc-application-set"
+    default_business_relevance = "BUSINESS_RELEVANT"
+  }
+  data "catalystcenter_application" "reference" {
+    name = "3com-amp3"
+  }
