@@ -61,7 +61,7 @@ func (r *PnPNetworkDeviceClaimResource) Metadata(ctx context.Context, req resour
 func (r *PnPNetworkDeviceClaimResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a PnP Network Device Claim.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource claims a Plug and Play device, including StackWise Virtual (SVL) pairs. The claim is a one-time action; changing an attribute submits the claim again. Destroying the resource only removes it from the Terraform state, as Catalyst Center has no operation to un-claim a device.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

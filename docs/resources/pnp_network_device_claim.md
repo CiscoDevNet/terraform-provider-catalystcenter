@@ -3,12 +3,12 @@
 page_title: "catalystcenter_pnp_network_device_claim Resource - terraform-provider-catalystcenter"
 subcategory: "Plug and Play"
 description: |-
-  This resource can manage a PnP Network Device Claim.
+  This resource claims a Plug and Play device, including StackWise Virtual (SVL) pairs. The claim is a one-time action; changing an attribute submits the claim again. Destroying the resource only removes it from the Terraform state, as Catalyst Center has no operation to un-claim a device.
 ---
 
 # catalystcenter_pnp_network_device_claim (Resource)
 
-This resource can manage a PnP Network Device Claim.
+This resource claims a Plug and Play device, including StackWise Virtual (SVL) pairs. The claim is a one-time action; changing an attribute submits the claim again. Destroying the resource only removes it from the Terraform state, as Catalyst Center has no operation to un-claim a device.
 
 ## Example Usage
 
