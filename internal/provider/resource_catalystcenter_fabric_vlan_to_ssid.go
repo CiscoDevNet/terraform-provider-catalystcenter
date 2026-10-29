@@ -241,7 +241,7 @@ func (r *FabricVLANToSSIDResource) Delete(ctx context.Context, req resource.Dele
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	body := "[]" // Empty body
-	res, err := r.client.Put(state.getPath(), body)
+	res, err := r.client.Put(state.getPath(), body, cc.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

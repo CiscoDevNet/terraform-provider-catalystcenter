@@ -1,3 +1,7 @@
+## 0.6.7 (unreleased)
+
+- Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
+
 ## 0.6.6
 
 - Fix `catalystcenter_floors` resource showing a permanent difference when floors use different `units_of_measure`; Catalyst Center returns all floors in the unit requested on read, so floors are now read once per unit they use
