@@ -9,6 +9,7 @@ description: |-
 
 ## 0.6.7 (unreleased)
 
+- Fix `catalystcenter_wireless_device_provision` resource delete failing with HTTP 400 `NCHS20416` when the wireless controller has already been deleted from Catalyst Center; the resource is now removed from Terraform state
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
 
 ## 0.6.6

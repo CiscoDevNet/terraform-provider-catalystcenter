@@ -2151,6 +2151,29 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 		return
 	}
 	// Verify resource exists with GET before DELETE to prevent mass deletion from path traversal attacks
+	{{- if eq .Name "Wireless Device Provision"}}
+	// Wireless state stores the network device ID, not the provisioning object ID.
+	verifyParams := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	verifyRes, verifyErr := r.client.Get(state.getPathDelete() + verifyParams)
+	if verifyErr != nil {
+		if strings.Contains(verifyErr.Error(), "StatusCode 404") ||
+			(strings.Contains(verifyErr.Error(), "StatusCode 400") && verifyRes.Get("response.errorCode").String() == "NCHS20416") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to verify object before delete (GET), got error: %s, %s", verifyErr, verifyRes.String()))
+		return
+	}
+	if data := verifyRes.Get("response"); data.IsArray() && len(data.Array()) == 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device is no longer provisioned, removing from state only", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	if verifyRes.Get("response.0.networkDeviceId").String() != state.NetworkDeviceId.ValueString() {
+		resp.Diagnostics.AddError("Client Error", "Provisioning lookup did not return the requested network device ID; refusing to delete.")
+		return
+	}
+	{{- else}}
 	verifyParams := ""
 	{{- $verifyQueryParams := generateQueryParamString "GET" "state" .Attributes }}
 	{{- if hasQueryParam .Attributes }}
@@ -2164,6 +2187,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 		resp.State.RemoveResource(ctx)
 		return
 	}
+	{{- end}}
 	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
 	{{- end}}
 	{{- if hasDeleteQueryParam .Attributes }}
@@ -2172,14 +2196,18 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	deleteParams := {{$deleteQueryParams}}
 	{{- end}}
 	{{- end}}
-	{{- if and .DeleteRestEndpoint (strContains .DeleteRestEndpoint "%v")}}
+	{{- if and .DeleteRestEndpoint (or (strContains .DeleteRestEndpoint "%v") (eq .Name "Wireless Device Provision"))}}
 	res, err := r.client.Delete(state.getPathDelete(){{- if hasDeleteQueryParam .Attributes }} + deleteParams{{- end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- else}}
 	res, err := r.client.Delete({{if .DeleteRestEndpoint}}state.getPathDelete(){{else}}state.getPath(){{end}} + "/" + url.QueryEscape(state.Id.ValueString()){{- if hasDeleteQueryParam .Attributes }} + deleteParams{{- end}}{{- if .Mutex }}, cc.UseMutex{{- end}})
 	{{- end}}
 	{{- end}}
 	{{- if not .DeleteIterative }}
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+	{{- if eq .Name "Wireless Device Provision"}}
+	// The controller may disappear between verification and DELETE.
+	{{- end}}
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404"){{if eq .Name "Wireless Device Provision"}} &&
+		!(strings.Contains(err.Error(), "StatusCode 400") && res.Get("response.errorCode").String() == "NCHS20416"){{end}} {
 	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
 		failureReason := res.Get("response.failureReason").String()

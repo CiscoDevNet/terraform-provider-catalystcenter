@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -267,9 +268,39 @@ func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resour
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	params := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
-	res, err := r.client.Delete(state.getPathDelete() + params)
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+	// Validate ID is a proper UUID to prevent path traversal attacks
+	if err := uuid.Validate(state.Id.ValueString()); err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object: ID is not a valid UUID: %s", state.Id.ValueString()))
+		return
+	}
+	// Verify resource exists with GET before DELETE to prevent mass deletion from path traversal attacks
+	// Wireless state stores the network device ID, not the provisioning object ID.
+	verifyParams := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	verifyRes, verifyErr := r.client.Get(state.getPathDelete() + verifyParams)
+	if verifyErr != nil {
+		if strings.Contains(verifyErr.Error(), "StatusCode 404") ||
+			(strings.Contains(verifyErr.Error(), "StatusCode 400") && verifyRes.Get("response.errorCode").String() == "NCHS20416") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to verify object before delete (GET), got error: %s, %s", verifyErr, verifyRes.String()))
+		return
+	}
+	if data := verifyRes.Get("response"); data.IsArray() && len(data.Array()) == 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Device is no longer provisioned, removing from state only", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	if verifyRes.Get("response.0.networkDeviceId").String() != state.NetworkDeviceId.ValueString() {
+		resp.Diagnostics.AddError("Client Error", "Provisioning lookup did not return the requested network device ID; refusing to delete.")
+		return
+	}
+	tflog.Debug(ctx, fmt.Sprintf("%s: Resource verified, proceeding with delete", state.Id.ValueString()))
+	deleteParams := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
+	res, err := r.client.Delete(state.getPathDelete() + deleteParams)
+	// The controller may disappear between verification and DELETE.
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") &&
+		!(strings.Contains(err.Error(), "StatusCode 400") && res.Get("response.errorCode").String() == "NCHS20416") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
 	}
