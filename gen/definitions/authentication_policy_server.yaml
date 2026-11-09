@@ -4,6 +4,7 @@ rest_endpoint: /dna/intent/api/v1/authentication-policy-servers
 get_from_all: true
 id_from_query_path: response
 id_from_query_path_attribute: instanceUuid
+mutex: true
 skip_minimum_test: true
 doc_category: System
 attributes:

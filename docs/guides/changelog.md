@@ -10,6 +10,7 @@ description: |-
 ## 0.6.7 (unreleased)
 
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
+- Fix `catalystcenter_authentication_policy_server` resource creates, updates and deletes running in parallel; when several AAA servers were destroyed at once, Catalyst Center 2.3.7.11 could keep a deleted server in the external authentication server list (`/dna/system/api/v1/users/external-servers`), which has no API to remove it; these requests now run one at a time
 
 ## 0.6.6
 
