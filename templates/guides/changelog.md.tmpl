@@ -11,6 +11,7 @@ description: |-
 
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
 - Fix `catalystcenter_authentication_policy_server` resource creates, updates and deletes running in parallel; when several AAA servers were destroyed at once, Catalyst Center 2.3.7.11 could keep a deleted server in the external authentication server list (`/dna/system/api/v1/users/external-servers`), which has no API to remove it; these requests now run one at a time
+- Fix documentation of `additional_ip_pools` in `catalystcenter_anycast_gateway` and `catalystcenter_anycast_gateways` resources, which is supported from Catalyst Center 3.2.2, not 3.2.3, and of the radio bands in `catalystcenter_wireless_cleanair_configuration` resource for `ble_beacon` (2.4GHz only), `continuous_transmitter` (also 6GHz), `wimax_fixed` and `wimax_mobile` (also 2.4GHz)
 
 ## 0.6.6
 

@@ -60,7 +60,7 @@ attributes:
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.bleBeacon
     type: Bool
-    description: Detect BLE Beacon interferers. Applicable to 2.4GHz and 5GHz.
+    description: Detect BLE Beacon interferers. Applicable to 2.4GHz.
     example: true
   - model_name: bluetoothPagingInquiry
     data_path: featureAttributes.interferersFeatures
@@ -78,7 +78,7 @@ attributes:
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.continuousTransmitter
     type: Bool
-    description: Detect Continuous Transmitter interferers. Applicable to 2.4GHz and 5GHz.
+    description: Detect Continuous Transmitter interferers. Applicable to 2.4GHz, 5GHz and 6GHz.
     example: true
   - model_name: genericDect
     data_path: featureAttributes.interferersFeatures
@@ -159,13 +159,13 @@ attributes:
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.wimaxFixed
     type: Bool
-    description: Detect WiMax Fixed interferers. Applicable to 5GHz.
+    description: Detect WiMax Fixed interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: wimaxMobile
     data_path: featureAttributes.interferersFeatures
     response_data_path: response.featureAttributes.interferersFeatures.wimaxMobile
     type: Bool
-    description: Detect WiMax Mobile interferers. Applicable to 5GHz.
+    description: Detect WiMax Mobile interferers. Applicable to 2.4GHz and 5GHz.
     example: true
   - model_name: xbox
     data_path: featureAttributes.interferersFeatures

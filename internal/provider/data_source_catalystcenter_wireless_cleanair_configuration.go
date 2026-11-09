@@ -92,7 +92,7 @@ func (d *WirelessCleanAirConfigurationDataSource) Schema(ctx context.Context, re
 				Computed:            true,
 			},
 			"ble_beacon": schema.BoolAttribute{
-				MarkdownDescription: "Detect BLE Beacon interferers. Applicable to 2.4GHz and 5GHz.",
+				MarkdownDescription: "Detect BLE Beacon interferers. Applicable to 2.4GHz.",
 				Computed:            true,
 			},
 			"bluetooth_paging_inquiry": schema.BoolAttribute{
@@ -104,7 +104,7 @@ func (d *WirelessCleanAirConfigurationDataSource) Schema(ctx context.Context, re
 				Computed:            true,
 			},
 			"continuous_transmitter": schema.BoolAttribute{
-				MarkdownDescription: "Detect Continuous Transmitter interferers. Applicable to 2.4GHz and 5GHz.",
+				MarkdownDescription: "Detect Continuous Transmitter interferers. Applicable to 2.4GHz, 5GHz and 6GHz.",
 				Computed:            true,
 			},
 			"generic_dect": schema.BoolAttribute{
@@ -156,11 +156,11 @@ func (d *WirelessCleanAirConfigurationDataSource) Schema(ctx context.Context, re
 				Computed:            true,
 			},
 			"wimax_fixed": schema.BoolAttribute{
-				MarkdownDescription: "Detect WiMax Fixed interferers. Applicable to 5GHz.",
+				MarkdownDescription: "Detect WiMax Fixed interferers. Applicable to 2.4GHz and 5GHz.",
 				Computed:            true,
 			},
 			"wimax_mobile": schema.BoolAttribute{
-				MarkdownDescription: "Detect WiMax Mobile interferers. Applicable to 5GHz.",
+				MarkdownDescription: "Detect WiMax Mobile interferers. Applicable to 2.4GHz and 5GHz.",
 				Computed:            true,
 			},
 			"xbox": schema.BoolAttribute{
