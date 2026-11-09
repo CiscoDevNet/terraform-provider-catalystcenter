@@ -250,6 +250,9 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 						return
 					}
 					tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to reprovision finished successfully", plan.Id.ValueString()))
+				} else {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+					return
 				}
 			}
 		}
@@ -606,6 +609,9 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 
 					tflog.Debug(ctx, fmt.Sprintf("%s: Managed devices after filter: %v", plan.Id.ValueString(), managedDevices))
 
+				} else {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+					return
 				}
 			}
 		}
@@ -658,8 +664,16 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 			params := ""
 			res, err := r.client.Put(plan.getPath()+params, body, cc.UseMutex)
 			if err != nil {
-				resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-				break
+				errorCode := res.Get("response.errorCode").String()
+				failureReason := res.Get("response.failureReason").String()
+				deviceFailureMatch, _ := regexp.MatchString(`(?i)Operation failed on '\d+' devices`, failureReason)
+				if errorCode == "NCDP10000" || deviceFailureMatch {
+					// Log a warning and continue execution when device is unreachable
+					resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
+				} else {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "PUT", err, res.String()))
+					return
+				}
 			}
 		}
 	}
