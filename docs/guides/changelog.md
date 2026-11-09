@@ -10,6 +10,7 @@ description: |-
 ## 0.6.7 (unreleased)
 
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
+- Fix `catalystcenter_template` resource failing with `NCTP10045` (`Composite Template contains non-matching Templates`) when a composite template is created while one of its member templates is being committed in the same apply; `catalystcenter_template_version` commits now run one at a time with template creates, updates and deletes
 
 ## 0.6.6
 
