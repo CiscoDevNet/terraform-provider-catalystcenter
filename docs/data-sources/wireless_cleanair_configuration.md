@@ -27,12 +27,12 @@ data "catalystcenter_wireless_cleanair_configuration" "example" {
 
 ### Read-Only
 
-- `ble_beacon` (Boolean) Detect BLE Beacon interferers. Applicable to 2.4GHz and 5GHz.
+- `ble_beacon` (Boolean) Detect BLE Beacon interferers. Applicable to 2.4GHz.
 - `bluetooth_paging_inquiry` (Boolean) Detect Bluetooth Paging Inquiry interferers. Applicable to 2.4GHz.
 - `bluetooth_sco_acl` (Boolean) Detect Bluetooth SCO and ACL interferers. Applicable to 2.4GHz.
 - `clean_air` (Boolean) Enable CleanAir spectrum intelligence on the radio band.
 - `clean_air_device_reporting` (Boolean) Enable reporting of CleanAir interferer devices.
-- `continuous_transmitter` (Boolean) Detect Continuous Transmitter interferers. Applicable to 2.4GHz and 5GHz.
+- `continuous_transmitter` (Boolean) Detect Continuous Transmitter interferers. Applicable to 2.4GHz, 5GHz and 6GHz.
 - `description` (String) Description of the CleanAir feature template.
 - `design_name` (String) The name of the CleanAir feature template. Forbidden characters are `% & < > [ ] ' /`.
 - `generic_dect` (Boolean) Detect Generic DECT interferers. Applicable to 2.4GHz and 5GHz.
@@ -50,6 +50,6 @@ data "catalystcenter_wireless_cleanair_configuration" "example" {
 - `super_ag` (Boolean) Detect Super AG interferers. Applicable to 2.4GHz and 5GHz.
 - `unlocked_attributes` (List of String) List of feature attributes that are unlocked (editable) for this template.
 - `video_camera` (Boolean) Detect Video Camera interferers. Applicable to 2.4GHz and 5GHz.
-- `wimax_fixed` (Boolean) Detect WiMax Fixed interferers. Applicable to 5GHz.
-- `wimax_mobile` (Boolean) Detect WiMax Mobile interferers. Applicable to 5GHz.
+- `wimax_fixed` (Boolean) Detect WiMax Fixed interferers. Applicable to 2.4GHz and 5GHz.
+- `wimax_mobile` (Boolean) Detect WiMax Mobile interferers. Applicable to 2.4GHz and 5GHz.
 - `xbox` (Boolean) Detect Xbox interferers. Applicable to 2.4GHz.
