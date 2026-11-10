@@ -12,7 +12,7 @@ description: |-
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
 - Fix `catalystcenter_template_version` resource to commit one at a time with template creates, updates and deletes, so composite templates created in the same apply no longer fail with `NCTP10045`
 - Fix `catalystcenter_authentication_policy_server` resource to create, update and delete servers one at a time, as deleting several servers in parallel could leave a deleted server in the Catalyst Center external authentication server list
-- Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources to report failed provisioning as an error instead of ignoring it
+- Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources ignoring failed provisioning; `catalystcenter_provision_device` now reports it as an error, and `catalystcenter_provision_devices` as a warning, with the devices that were not provisioned planned again on the next apply
 
 ## 0.6.6
 
