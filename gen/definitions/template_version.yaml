@@ -1,7 +1,8 @@
 ---
 name: Template Version
-# Manual modifications in Create and Read functions to read Template Version Id
+# Manual modifications in Create and Read functions to read Template Version Id, and manual modifications in the Create function under r.client.Post to add cc.UseMutex
 rest_endpoint: /dna/intent/api/v1/template-programmer/template/version
+mutex: true
 no_delete: true
 no_data_source: true
 id_from_attribute: true
