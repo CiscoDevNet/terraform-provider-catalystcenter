@@ -87,7 +87,6 @@ func (data FabricMulticastVirtualNetworks) toBody(ctx context.Context, state Fab
 		body, _ = sjson.Set(body, "fabricId", data.FabricId.ValueString())
 	}
 	if len(data.VirtualNetworks) > 0 {
-		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.VirtualNetworks {
 			itemBody := ""
 			if item.Id.ValueString() != "" && !item.Id.IsNull() {
