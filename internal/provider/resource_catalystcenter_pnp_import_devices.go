@@ -25,6 +25,7 @@ import (
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -69,6 +70,9 @@ func (r *PnPImportDevicesResource) Schema(ctx context.Context, req resource.Sche
 			"devices": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of devices to add").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"serial_number": schema.StringAttribute{
@@ -128,6 +132,9 @@ func (r *PnPImportDevicesResource) Create(ctx context.Context, req resource.Crea
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
+	}
+	if failures := res.Get("failureList").Array(); len(failures) > 0 {
+		resp.Diagnostics.AddWarning("Client Warning", fmt.Sprintf("%d item(s) were not created: %s", len(failures), res.Get("failureList").Raw))
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
 
