@@ -2179,7 +2179,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	{{- end}}
 	{{- end}}
 	{{- if not .DeleteIterative }}
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404"){{range .DeleteIgnoreErrorCodes}} && res.Get("response.errorCode").String() != "{{.}}"{{end}} {
 	{{- if .DeviceUnreachabilityWarning}}
 		errorCode := res.Get("response.errorCode").String()
 		failureReason := res.Get("response.failureReason").String()

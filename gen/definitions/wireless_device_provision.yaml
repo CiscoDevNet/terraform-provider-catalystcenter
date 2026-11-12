@@ -2,6 +2,7 @@
 name: Wireless Device Provision
 rest_endpoint: /dna/intent/api/v1/wirelessControllers/%v/provision
 delete_rest_endpoint: /dna/intent/api/v1/sda/provisionDevices
+delete_ignore_error_codes: [NCHS20416]
 res_description: 'This resource is used to provision a wireless device. To reprovision a device, set the `reprovision` attribute to `true`. The resource will then trigger reprovisioning on every Terraform apply.'
 no_data_source: true
 no_read: true

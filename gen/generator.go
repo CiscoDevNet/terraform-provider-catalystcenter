@@ -159,6 +159,7 @@ type YamlConfig struct {
 	SkipDeleteOnEmptyId           bool                  `yaml:"skip_delete_on_empty_id"`
 	FailCreateOnEmptyId           bool                  `yaml:"fail_create_on_empty_id"`
 	GetBeforeDelete               bool                  `yaml:"get_before_delete"`
+	DeleteIgnoreErrorCodes        []string              `yaml:"delete_ignore_error_codes"`
 }
 
 type YamlConfigAttribute struct {
