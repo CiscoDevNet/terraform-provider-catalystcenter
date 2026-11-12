@@ -269,7 +269,7 @@ func (r *WirelessDeviceProvisionResource) Delete(ctx context.Context, req resour
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	params := "?networkDeviceId=" + url.QueryEscape(state.NetworkDeviceId.ValueString())
 	res, err := r.client.Delete(state.getPathDelete() + params)
-	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") && res.Get("response.errorCode").String() != "NCHS20416" {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
 	}

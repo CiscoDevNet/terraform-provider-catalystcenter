@@ -11,12 +11,14 @@ no_import: true
 no_update: true
 id_path: id
 root_list: true
+create_failure_list_path: failureList
 doc_category: Plug and Play
 test_tags: [PNP]
 attributes:
   - tf_name: devices
     type: List
     mandatory: true
+    requires_replace: true
     description: List of devices to add
     attributes:
       - model_name: serialNumber

@@ -63,6 +63,8 @@ cache_filter_attributes: list(str(), required=False) # List of model_name attrib
 skip_delete_on_empty_id: bool(required=False) # If true, skip DELETE request when ID is empty or null to prevent sending DELETE to base endpoint
 fail_create_on_empty_id: bool(required=False) # If true, Create fails when the ID resolved after the create request is empty (object not found by the ID query), instead of storing a resource without ID in state
 get_before_delete: bool(required=False) # If true, perform GET request before DELETE to verify resource exists with exact ID match, preventing mass deletion from path traversal attacks
+delete_ignore_error_codes: list(str(), required=False) # List of Catalyst Center error codes (response.errorCode) returned by DELETE that mean the object is already gone; the resource is removed from state instead of failing
+create_failure_list_path: str(required=False) # Path of a list of rejected items in a successful create response (e.g. "failureList"); its entries are reported as a warning
 ---
 attribute:
   model_name: str(required=False) # Name of the attribute in the model (payload)

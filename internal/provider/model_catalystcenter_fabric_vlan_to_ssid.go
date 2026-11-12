@@ -69,7 +69,6 @@ func (data FabricVLANToSSID) toBody(ctx context.Context, state FabricVLANToSSID)
 	}
 	_ = put
 	if len(data.Mappings) > 0 {
-		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.Mappings {
 			itemBody := ""
 			if !item.VlanName.IsNull() {

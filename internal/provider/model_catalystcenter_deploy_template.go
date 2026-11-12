@@ -118,12 +118,6 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 	if !data.TemplateId.IsNull() {
 		body, _ = sjson.Set(body, "templateId", data.TemplateId.ValueString())
 	}
-	if data.DeploymentId.ValueString() != "" && !data.DeploymentId.IsNull() {
-		body, _ = sjson.Set(body, "", data.DeploymentId.ValueString())
-	}
-	if !data.Redeploy.IsNull() {
-		body, _ = sjson.Set(body, "", data.Redeploy.ValueString())
-	}
 	if !data.ForcePushTemplate.IsNull() {
 		body, _ = sjson.Set(body, "forcePushTemplate", data.ForcePushTemplate.ValueBool())
 	}
@@ -161,9 +155,6 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 					itemChildBody := ""
 					if !childItem.HostName.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "hostName", childItem.HostName.ValueString())
-					}
-					if !childItem.Redeploy.IsNull() {
-						itemChildBody, _ = sjson.Set(itemChildBody, "", childItem.Redeploy.ValueString())
 					}
 					if !childItem.Id.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
@@ -217,9 +208,6 @@ func (data DeployTemplate) toBody(ctx context.Context, state DeployTemplate) str
 			itemBody := ""
 			if !item.HostName.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "hostName", item.HostName.ValueString())
-			}
-			if !item.Redeploy.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "", item.Redeploy.ValueString())
 			}
 			if !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())

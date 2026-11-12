@@ -13,6 +13,8 @@ description: |-
 - Fix `catalystcenter_template_version` resource to commit one at a time with template creates, updates and deletes, so composite templates created in the same apply no longer fail with `NCTP10045`
 - Fix `catalystcenter_authentication_policy_server` resource to create, update and delete servers one at a time, as deleting several servers in parallel could leave a deleted server in the Catalyst Center external authentication server list
 - Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources ignoring failed provisioning; `catalystcenter_provision_device` now reports it as an error, and `catalystcenter_provision_devices` as a warning, with the devices that were not provisioned planned again on the next apply
+- Fix `catalystcenter_wireless_device_provision` resource delete failing when the wireless controller has already been deleted from Catalyst Center
+- Fix `catalystcenter_pnp_import_devices` resource silently ignoring devices that Catalyst Center rejects; rejected devices, such as invalid or duplicate serial numbers, are now reported as a warning, and changing `devices` now re-creates the resource so corrected devices are imported
 
 ## 0.6.6
 
