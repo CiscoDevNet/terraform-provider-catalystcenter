@@ -229,19 +229,28 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
-	if plan.Reprovision.ValueBool() {
-		body := "{}" // Empty body for reprovisioning
+	interfacesChanged := wirelessDeviceProvisionInterfacesChanged(plan.Interfaces, state.Interfaces)
+	if plan.Reprovision.ValueBool() || interfacesChanged {
+		body := plan.toBody(ctx, state)
+		if body == "" {
+			body = "{}"
+		}
 		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Re-Provisioning", plan.Id.ValueString()))
 		params := ""
 		res, err := r.client.Post(plan.getPathUpdate()+params, body)
 		if err != nil {
 			errorCode := res.Get("response.errorCode").String()
 			if errorCode == "NCDP10000" {
+				if interfacesChanged {
+					// Keep prior interface state so a later apply retries the change.
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "POST", err, res.String()))
+					return
+				}
 				// Log a warning and continue execution when device is unreachable
 				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "POST", err, res.String()))
 				return
 			}
 		}
@@ -252,6 +261,35 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+}
+
+// Interfaces identify configuration by name and VLAN, not list position. Compare
+// all optional fields too, so changes to an existing interface are provisioned.
+// Matching each entry once also preserves duplicate counts without mutating plan.
+func wirelessDeviceProvisionInterfacesChanged(plan, state []WirelessDeviceProvisionInterfaces) bool {
+	if len(plan) != len(state) {
+		return true
+	}
+	matched := make([]bool, len(state))
+	for _, planned := range plan {
+		found := false
+		for i, previous := range state {
+			if !matched[i] && planned.InterfaceName.Equal(previous.InterfaceName) &&
+				planned.VlanId.Equal(previous.VlanId) &&
+				planned.InterfaceIpAddress.Equal(previous.InterfaceIpAddress) &&
+				planned.InterfaceNetmask.Equal(previous.InterfaceNetmask) &&
+				planned.InterfaceGateway.Equal(previous.InterfaceGateway) &&
+				planned.LagOrPortNumber.Equal(previous.LagOrPortNumber) {
+				matched[i] = true
+				found = true
+				break
+			}
+		}
+		if !found {
+			return true
+		}
+	}
+	return false
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
