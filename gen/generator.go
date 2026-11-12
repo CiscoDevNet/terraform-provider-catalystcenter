@@ -160,6 +160,7 @@ type YamlConfig struct {
 	FailCreateOnEmptyId           bool                  `yaml:"fail_create_on_empty_id"`
 	GetBeforeDelete               bool                  `yaml:"get_before_delete"`
 	DeleteIgnoreErrorCodes        []string              `yaml:"delete_ignore_error_codes"`
+	CreateFailureListPath         string                `yaml:"create_failure_list_path"`
 }
 
 type YamlConfigAttribute struct {

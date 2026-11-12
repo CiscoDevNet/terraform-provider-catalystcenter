@@ -915,6 +915,12 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	}
 	{{- end}}
 
+	{{- if .CreateFailureListPath}}
+	if failures := res.Get("{{.CreateFailureListPath}}").Array(); len(failures) > 0 {
+		resp.Diagnostics.AddWarning("Client Warning", fmt.Sprintf("%d item(s) were not created: %s", len(failures), res.Get("{{.CreateFailureListPath}}").Raw))
+	}
+	{{- end}}
+
 
 	{{- /* Check if id can be resolved directly from response */}}
 	{{- if .IdPath}}
