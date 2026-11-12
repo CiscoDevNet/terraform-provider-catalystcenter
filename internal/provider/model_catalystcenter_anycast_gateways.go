@@ -89,7 +89,6 @@ func (data AnycastGateways) toBody(ctx context.Context, state AnycastGateways) s
 		body, _ = sjson.Set(body, "fabricId", data.FabricId.ValueString())
 	}
 	if len(data.AnycastGateways) > 0 {
-		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.AnycastGateways {
 			itemBody := ""
 			if item.Id.ValueString() != "" && !item.Id.IsNull() {

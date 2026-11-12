@@ -68,7 +68,6 @@ func (data ProvisionDevices) toBody(ctx context.Context, state ProvisionDevices)
 		body, _ = sjson.Set(body, "siteId", data.SiteId.ValueString())
 	}
 	if len(data.ProvisionDevices) > 0 {
-		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.ProvisionDevices {
 			itemBody := ""
 			if item.Id.ValueString() != "" && !item.Id.IsNull() {
@@ -79,9 +78,6 @@ func (data ProvisionDevices) toBody(ctx context.Context, state ProvisionDevices)
 			}
 			if !item.NetworkDeviceId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "networkDeviceId", item.NetworkDeviceId.ValueString())
-			}
-			if !item.Reprovision.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "", item.Reprovision.ValueBool())
 			}
 			body, _ = sjson.SetRaw(body, "-1", itemBody)
 		}

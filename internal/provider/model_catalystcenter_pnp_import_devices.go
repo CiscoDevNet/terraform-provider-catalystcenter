@@ -64,7 +64,6 @@ func (data PnPImportDevices) toBody(ctx context.Context, state PnPImportDevices)
 	}
 	_ = put
 	if len(data.Devices) > 0 {
-		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.Devices {
 			itemBody := ""
 			if !item.SerialNumber.IsNull() {

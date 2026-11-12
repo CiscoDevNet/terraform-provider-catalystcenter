@@ -64,9 +64,6 @@ func (data FabricProvisionDevice) toBody(ctx context.Context, state FabricProvis
 	if !data.NetworkDeviceId.IsNull() {
 		body, _ = sjson.Set(body, "0.networkDeviceId", data.NetworkDeviceId.ValueString())
 	}
-	if !data.Reprovision.IsNull() {
-		body, _ = sjson.Set(body, "", data.Reprovision.ValueBool())
-	}
 	return body
 }
 

@@ -54,7 +54,6 @@ func (data Buildings) toBody(ctx context.Context, state Buildings) string {
 	}
 	_ = put
 	if len(data.Buildings) > 0 {
-		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.Buildings {
 			itemBody := ""
 			// Only include id for PUT operations

@@ -97,9 +97,6 @@ func (data WirelessDeviceProvision) toBody(ctx context.Context, state WirelessDe
 	if !data.AuthorizeMeshAndNonMeshAccessPoints.IsNull() {
 		body, _ = sjson.Set(body, "authorizeMeshAndNonMeshAccessPoints", data.AuthorizeMeshAndNonMeshAccessPoints.ValueBool())
 	}
-	if !data.Reprovision.IsNull() {
-		body, _ = sjson.Set(body, "", data.Reprovision.ValueBool())
-	}
 	if len(data.Interfaces) > 0 {
 		body, _ = sjson.Set(body, "interfaces", []interface{}{})
 		for _, item := range data.Interfaces {
