@@ -71,11 +71,7 @@ func (data FabricDevices) toBody(ctx context.Context, state FabricDevices) strin
 		put = true
 	}
 	_ = put
-	if !data.FabricId.IsNull() {
-		body, _ = sjson.Set(body, "", data.FabricId.ValueString())
-	}
 	if len(data.FabricDevices) > 0 {
-		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.FabricDevices {
 			itemBody := ""
 			if item.Id.ValueString() != "" && !item.Id.IsNull() {

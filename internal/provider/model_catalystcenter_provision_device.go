@@ -65,9 +65,6 @@ func (data ProvisionDevice) toBody(ctx context.Context, state ProvisionDevice) s
 	if !data.NetworkDeviceId.IsNull() {
 		body, _ = sjson.Set(body, "0.networkDeviceId", data.NetworkDeviceId.ValueString())
 	}
-	if !data.Reprovision.IsNull() {
-		body, _ = sjson.Set(body, "", data.Reprovision.ValueBool())
-	}
 	return body
 }
 

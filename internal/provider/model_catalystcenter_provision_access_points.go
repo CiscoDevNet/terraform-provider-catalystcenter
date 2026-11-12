@@ -83,9 +83,6 @@ func (data ProvisionAccessPoints) toBody(ctx context.Context, state ProvisionAcc
 			if !item.MeshRole.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "meshRole", item.MeshRole.ValueString())
 			}
-			if !item.Reprovision.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "", item.Reprovision.ValueBool())
-			}
 			body, _ = sjson.SetRaw(body, "networkDevices.-1", itemBody)
 		}
 	}

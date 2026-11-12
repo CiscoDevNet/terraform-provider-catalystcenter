@@ -254,7 +254,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 	{{- end}}
 	{{- end}}
-	{{- else if and (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody) (not .WoVersion)}}
+	{{- else if and (not .Reference) (not .CreateQueryPath) (not .QueryParamNoBody) (not .WoVersion) (or .ModelName .DataPath (isNestedListSetMap .))}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 	if {{- if .Computed}} data.{{toGoName .TfName}}.Value{{if eq .Type "Int64"}}Int64() != 0{{else}}String() != ""{{end}} &&{{- end}} !data.{{toGoName .TfName}}.IsNull() {{if .ExcludeFromPut}}&& put == false{{end}} {
 		{{- if .PutDataPath}}
@@ -341,6 +341,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	{{- else}}
 	if len(data.{{toGoName .TfName}}) > 0 {
 	{{- end}}
+		{{- if or .DataPath .ModelName}}
 		{{- if .PutDataPath}}
 		if put {
 			body, _ = sjson.Set(body, "{{.PutDataPath}}.{{.ModelName}}", []interface{}{})
@@ -349,6 +350,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 		}
 		{{- else}}
 		body, _ = sjson.Set(body, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", []interface{}{})
+		{{- end}}
 		{{- end}}
 		for _, item := range data.{{toGoName .TfName}} {
 			itemBody := ""
@@ -377,7 +379,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 			itemBody, _ = sjson.Set(itemBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 			{{- end}}
 			{{- end}}
-			{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion)}}
+			{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion) (or .ModelName .DataPath (isNestedListSetMap .))}}
 			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 			if {{- if .Computed}} item.{{toGoName .TfName}}.Value{{if eq .Type "Int64"}}Int64() != 0{{else}}String() != ""{{end}} &&{{- end}} !item.{{toGoName .TfName}}.IsNull() {{if .ExcludeFromPut}}&& put == false{{end}} {
 				{{- if .PutDataPath}}
@@ -484,7 +486,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 					itemChildBody, _ = sjson.Set(itemChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 					{{- end}}
 					{{- end}}
-					{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion)}}
+					{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion) (or .ModelName .DataPath (isNestedListSetMap .))}}
 					{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 					if !childItem.{{toGoName .TfName}}.IsNull() {
 						{{- if .PutDataPath}}
@@ -591,7 +593,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 							itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{if .DataPath}}{{.DataPath}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 							{{- end}}
 							{{- end}}
-		{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion)}}
+		{{- else if and (not .Reference) (not .QueryParamNoBody) (not .WoVersion) (or .ModelName .DataPath (isNestedListSetMap .))}}
 							{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 							if !childChildItem.{{toGoName .TfName}}.IsNull() {
 								{{- if .PutDataPath}}

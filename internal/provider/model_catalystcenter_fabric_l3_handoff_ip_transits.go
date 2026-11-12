@@ -74,14 +74,7 @@ func (data FabricL3HandoffIPTransits) toBody(ctx context.Context, state FabricL3
 		put = true
 	}
 	_ = put
-	if !data.NetworkDeviceId.IsNull() {
-		body, _ = sjson.Set(body, "", data.NetworkDeviceId.ValueString())
-	}
-	if !data.FabricId.IsNull() {
-		body, _ = sjson.Set(body, "", data.FabricId.ValueString())
-	}
 	if len(data.L3Handoffs) > 0 {
-		body, _ = sjson.Set(body, "", []interface{}{})
 		for _, item := range data.L3Handoffs {
 			itemBody := ""
 			if item.Id.ValueString() != "" && !item.Id.IsNull() {
