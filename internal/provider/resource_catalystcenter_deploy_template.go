@@ -22,10 +22,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/url"
 	"regexp"
 	"slices"
-	"sort"
 	"strings"
 	"time"
 
@@ -107,6 +107,10 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 					int64validator.Between(10, 86400),
 				},
 				Default: int64default.StaticInt64(300),
+			},
+			"skip_unreachable_targets": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("When Catalyst Center rejects the whole deployment because a target is unreachable (`NCDP10000`), deploy once more without the targets that the device inventory reports as not reachable. A warning names the skipped targets, and the next apply retries them. If no target is reachable, the deployment is skipped with a warning instead of failing. Catalyst Center 2.3.7 rejects the deployment this way for `MANAGED_DEVICE_UUID` targets; with IP or hostname targets the deployment runs and an unreachable device fails on its own, which the next apply retries without this option. Pre-provisioned targets are not checked, and a device that stays unreachable keeps a difference in every plan. Changing this value alone does not trigger a redeployment. Defaults to `false`.").String,
+				Optional:            true,
 			},
 			"force_push_template": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Force Push Template").String,
@@ -352,19 +356,13 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 	// As per requirement, plan.Id should always be TemplateId
 	plan.Id = types.StringValue(fmt.Sprint(plan.TemplateId.ValueString()))
 
-	// Create object body
-	body := deploymentBody(ctx, plan, secrets, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	for _, v := range plan.TargetInfo {
 		tflog.Debug(ctx, fmt.Sprintf("create deploying target id: %s", v.Id))
 	}
 	postPath := plan.getPath() // params is an empty string in the original code, so just getPath() is sufficient.
 
 	// Perform deployment and monitor status using the new helper
-	success, deploymentId, _ := r.performDeploymentAndMonitorStatus(ctx, postPath, body, plan, plan.DeploymentTimeout, resp.Private, &resp.Diagnostics, len(secrets) > 0)
+	success, deploymentId, _ := r.performDeploymentAndMonitorStatus(ctx, postPath, plan, secrets, plan.DeploymentTimeout, resp.Private, &resp.Diagnostics)
 	if !success {
 		if deploymentId != "" {
 			// Persist deployment_id so the next Read can reconcile (TIMEOUT, FAILURE, unknown status, or left-out targets).
@@ -425,14 +423,8 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 			if state.DeploymentId.IsNull() {
 				value, diags := req.Private.GetKey(ctx, sentTargetsKey)
 				resp.Diagnostics.Append(diags...)
-				var sent []sentTarget
-				if err := json.Unmarshal(value, &sent); err != nil {
-					sent = nil
-				}
-				if left := leftOutTargets(sent, statusRes); len(left) > 0 {
-					removeTargets(&state, func(id, host types.String) bool {
-						return slices.Contains(left, sentTarget{Id: id.ValueString(), HostName: host.ValueString()})
-					})
+				if left := leftOutTargets(decodeTargets(value), statusRes); len(left) > 0 {
+					removeTargets(&state, targetIn(left))
 					resp.Diagnostics.AddWarning(
 						"Previous Template Deployment Left Out Targets",
 						fmt.Sprintf("Deployment %s did not deploy to %s. %s State reverted for these targets to force their redeploy.", deploymentId, sentTargetNames(left), leftOutTargetsHint),
@@ -443,6 +435,17 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 		if state.DeploymentId.IsNull() {
 			resp.Diagnostics.Append(resp.Private.SetKey(ctx, sentTargetsKey, nil)...)
 		}
+	}
+
+	value, diags := req.Private.GetKey(ctx, skippedTargetsKey)
+	resp.Diagnostics.Append(diags...)
+	if skipped := decodeTargets(value); len(skipped) > 0 {
+		removeTargets(&state, targetIn(skipped))
+		resp.Diagnostics.AddWarning(
+			"Previous Template Deployment Skipped Unreachable Targets",
+			fmt.Sprintf("The previous deployment skipped %s as not reachable. State reverted for these targets to force their redeploy.", sentTargetNames(skipped)),
+		)
+		resp.Diagnostics.Append(resp.Private.SetKey(ctx, skippedTargetsKey, nil)...)
 	}
 
 	// read always as on_change to create drift and push template every apply
@@ -738,6 +741,11 @@ func removeTargets(state *DeployTemplate, remove func(id, host types.String) boo
 // Catalyst Center deployed to.
 const sentTargetsKey = "sent_targets"
 
+// skippedTargetsKey is the private state key that records the targets that
+// skip_unreachable_targets left out of the last deployment, as Create and
+// Update cannot remove them from state.
+const skippedTargetsKey = "skipped_targets"
+
 const leftOutTargetsHint = "Catalyst Center leaves out targets that are not applicable to the template, such as a device that is not in the inventory or does not match the device type, software type or software version of the template."
 
 type sentTarget struct {
@@ -748,6 +756,30 @@ type sentTarget struct {
 // privateStateSetter is implemented by the private state of resource responses.
 type privateStateSetter interface {
 	SetKey(ctx context.Context, key string, value []byte) diag.Diagnostics
+}
+
+// encodeTargets encodes targets for private state, where nil removes the key.
+func encodeTargets(targets []sentTarget) []byte {
+	if len(targets) == 0 {
+		return nil
+	}
+	value, _ := json.Marshal(targets)
+	return value
+}
+
+func decodeTargets(value []byte) []sentTarget {
+	var targets []sentTarget
+	if err := json.Unmarshal(value, &targets); err != nil {
+		return nil
+	}
+	return targets
+}
+
+// targetIn returns a removeTargets predicate that matches the given targets.
+func targetIn(targets []sentTarget) func(id, host types.String) bool {
+	return func(id, host types.String) bool {
+		return slices.Contains(targets, sentTarget{Id: id.ValueString(), HostName: host.ValueString()})
+	}
 }
 
 // sentTargets returns the managed device targets of data, including composite
@@ -869,20 +901,20 @@ const (
 // and polls its status. Returns (success, deploymentId, terminalStatus) where
 // terminalStatus is "SUCCESS", "TIMEOUT" or "INCOMPLETE" (SUCCESS with left-out
 // targets) (warning, caller should persist id), or "FAILURE"/other (Error
-// already added to diag). The targets of data are recorded in private whenever
-// the caller should persist the deployment ID.
-func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, data DeployTemplate, timeout types.Int64, private privateStateSetter, diag *diag.Diagnostics, sensitive bool) (bool, string, string) {
-	bodyString, ok := body.(string)
-	if !ok {
-		diag.AddError("Internal Error", "Failed to convert request body to string. The 'toBody' method is expected to return a string for the client.Post method.")
+// already added to diag), or "SKIPPED" (no target reachable, warning). The
+// targets of data are recorded in private whenever the caller should persist
+// the deployment ID.
+func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, data DeployTemplate, secrets []DeployTemplateSecretParams, timeout types.Int64, private privateStateSetter, diag *diag.Diagnostics) (bool, string, string) {
+	body := deploymentBody(ctx, data, secrets, diag)
+	if diag.HasError() {
 		return false, "", ""
 	}
 
 	// This resource monitors deployment status itself. Skip the client's generic
 	// task polling, which logs unstructured task details that may contain secrets.
-	res, err := r.client.Post(postPath, bodyString, cc.NoLogPayload, cc.NoWait)
+	res, err := r.client.Post(postPath, body, cc.NoLogPayload, cc.NoWait)
 	if err != nil {
-		if sensitive {
+		if len(secrets) > 0 {
 			diag.AddError("Client Error", "Failed to initiate template deployment (POST). API error details are omitted because they may echo secret parameters.")
 		} else {
 			diag.AddError("Client Error", fmt.Sprintf("Failed to initiate template deployment (%s), got error: %s, %s", "POST", err, res.String()))
@@ -912,7 +944,16 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 				return false, "", ""
 			}
 			if taskRes.Get("response.isError").Bool() {
-				diag.AddError("Template Deployment Task Failed", r.taskFailureMessage(ctx, taskID, taskRes, data))
+				code := taskRes.Get("response.errorCode").String()
+				var unreachable map[sentTarget]string
+				complete := false
+				if code == "NCDP10000" {
+					unreachable, complete = r.unreachableTargets(ctx, data)
+					if complete && len(unreachable) > 0 && data.SkipUnreachableTargets.ValueBool() {
+						return r.skipUnreachableTargets(ctx, postPath, data, unreachable, secrets, timeout, private, diag)
+					}
+				}
+				diag.AddError("Template Deployment Task Failed", taskFailureMessage(taskID, code, unreachable, complete))
 				return false, "", ""
 			}
 			if taskRes.Get("response.endTime").Int() > 0 {
@@ -957,11 +998,7 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 
 	deploymentId := matches[1]
 	tflog.Debug(ctx, fmt.Sprintf("Deployment started with ID: %s", deploymentId))
-	var sentValue []byte
-	if len(sent) > 0 {
-		sentValue, _ = json.Marshal(sent)
-	}
-	diag.Append(private.SetKey(ctx, sentTargetsKey, sentValue)...)
+	diag.Append(private.SetKey(ctx, sentTargetsKey, encodeTargets(sent))...)
 
 	statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
 
@@ -1031,17 +1068,15 @@ const deviceLookupChunkSize = 100
 // taskFailureMessage describes a failed deployment task by its error code. For
 // NCDP10000, where Catalyst Center names the unreachable device 'null', it also
 // lists the targets that the device inventory reports as not reachable.
-func (r *DeployTemplateResource) taskFailureMessage(ctx context.Context, taskID string, task cc.Res, data DeployTemplate) string {
+func taskFailureMessage(taskID, code string, unreachable map[sentTarget]string, complete bool) string {
 	message := fmt.Sprintf("Deployment task %s failed", taskID)
-	code := task.Get("response.errorCode").String()
 	if taskErrorCodePattern.MatchString(code) {
 		message += " with error code " + code
 	}
 	message += ". API details are omitted because they may echo template parameters."
 	if code == "NCDP10000" {
-		names, complete := r.unreachableTargets(ctx, data)
-		if len(names) > 0 {
-			message += " Targets not reachable in the device inventory: " + strings.Join(names, ", ") + "."
+		if len(unreachable) > 0 {
+			message += " Targets not reachable in the device inventory: " + deviceNames(unreachable) + "."
 		} else if complete {
 			message += " The device inventory reports all targets as reachable."
 		}
@@ -1049,24 +1084,34 @@ func (r *DeployTemplateResource) taskFailureMessage(ctx context.Context, taskID 
 	return message
 }
 
+func deviceNames(unreachable map[sentTarget]string) string {
+	return strings.Join(slices.Compact(slices.Sorted(maps.Values(unreachable))), ", ")
+}
+
 // unreachableTargets returns the managed device targets of data, including
 // composite member targets, whose inventory reachabilityStatus is not
-// Reachable, by hostname and management IP. Pre-provisioned targets are not in
-// the inventory and are skipped. complete is false when a lookup failed.
-func (r *DeployTemplateResource) unreachableTargets(ctx context.Context, data DeployTemplate) (names []string, complete bool) {
-	requested := map[string]map[string]bool{"id": {}, "hostname": {}, "managementIpAddress": {}}
+// Reachable, with the hostname and management IP of their device.
+// Pre-provisioned targets are not in the inventory and are skipped. A
+// MANAGED_DEVICE_HOSTNAME target is looked up by id, which Catalyst Center
+// deploys by, or else by host_name. complete is false when a lookup failed.
+func (r *DeployTemplateResource) unreachableTargets(ctx context.Context, data DeployTemplate) (map[sentTarget]string, bool) {
+	requested := map[string]map[string][]sentTarget{"id": {}, "hostname": {}, "managementIpAddress": {}}
 	add := func(targetType, id, host types.String) {
+		target := sentTarget{Id: id.ValueString(), HostName: host.ValueString()}
+		param, value := "", target.Id
 		switch targetType.ValueString() {
 		case "MANAGED_DEVICE_UUID":
-			requested["id"][id.ValueString()] = true
+			param = "id"
 		case "MANAGED_DEVICE_HOSTNAME":
-			if host.ValueString() != "" {
-				requested["hostname"][host.ValueString()] = true
-			} else {
-				requested["hostname"][id.ValueString()] = true
+			param = "hostname"
+			if value == "" {
+				value = target.HostName
 			}
 		case "MANAGED_DEVICE_IP":
-			requested["managementIpAddress"][id.ValueString()] = true
+			param = "managementIpAddress"
+		}
+		if param != "" && value != "" && !slices.Contains(requested[param][value], target) {
+			requested[param][value] = append(requested[param][value], target)
 		}
 	}
 	for _, target := range data.TargetInfo {
@@ -1078,16 +1123,10 @@ func (r *DeployTemplateResource) unreachableTargets(ctx context.Context, data De
 		}
 	}
 
-	complete = true
-	found := make(map[string]bool)
+	complete := true
+	unreachable := make(map[sentTarget]string)
 	for _, param := range []string{"id", "hostname", "managementIpAddress"} {
-		var values []string
-		for value := range requested[param] {
-			if value != "" {
-				values = append(values, value)
-			}
-		}
-		sort.Strings(values)
+		values := slices.Sorted(maps.Keys(requested[param]))
 		for start := 0; start < len(values); start += deviceLookupChunkSize {
 			chunk := values[start:min(start+deviceLookupChunkSize, len(values))]
 			query := url.Values{param: chunk}
@@ -1101,7 +1140,8 @@ func (r *DeployTemplateResource) unreachableTargets(ctx context.Context, data De
 				continue
 			}
 			for _, device := range res.Get("response").Array() {
-				if !requested[param][device.Get(param).String()] || device.Get("reachabilityStatus").String() == "Reachable" {
+				targets := requested[param][device.Get(param).String()]
+				if len(targets) == 0 || device.Get("reachabilityStatus").String() == "Reachable" {
 					continue
 				}
 				name := device.Get("managementIpAddress").String()
@@ -1111,15 +1151,53 @@ func (r *DeployTemplateResource) unreachableTargets(ctx context.Context, data De
 				if host := device.Get("hostname").String(); host != "" {
 					name = fmt.Sprintf("%s (%s)", host, name)
 				}
-				found[name] = true
+				for _, target := range targets {
+					unreachable[target] = name
+				}
 			}
 		}
 	}
-	for name := range found {
-		names = append(names, name)
+	return unreachable, complete
+}
+
+// skipUnreachableTargets deploys data once more without the unreachable
+// targets after Catalyst Center rejected its deployment task with NCDP10000,
+// and records the skipped targets in private, so that Read removes them from
+// state and the next apply retries them.
+func (r *DeployTemplateResource) skipUnreachableTargets(ctx context.Context, postPath string, data DeployTemplate, unreachable map[sentTarget]string, secrets []DeployTemplateSecretParams, timeout types.Int64, private privateStateSetter, diag *diag.Diagnostics) (bool, string, string) {
+	skipped := slices.SortedFunc(maps.Keys(unreachable), func(a, b sentTarget) int {
+		return strings.Compare(a.Id+"\x00"+a.HostName, b.Id+"\x00"+b.HostName)
+	})
+	skip := targetIn(skipped)
+	reachable := data
+	reachable.SkipUnreachableTargets = types.BoolValue(false)
+	reachable.TargetInfo = slices.DeleteFunc(slices.Clone(data.TargetInfo), func(target DeployTemplateTargetInfo) bool {
+		return skip(target.Id, target.HostName)
+	})
+	reachable.MemberTemplateDeploymentInfo = nil
+	for _, member := range data.MemberTemplateDeploymentInfo {
+		member.TargetInfo = slices.DeleteFunc(slices.Clone(member.TargetInfo), func(target DeployTemplateMemberTemplateDeploymentInfoTargetInfo) bool {
+			return skip(target.Id, target.HostName)
+		})
+		if len(member.TargetInfo) > 0 {
+			reachable.MemberTemplateDeploymentInfo = append(reachable.MemberTemplateDeploymentInfo, member)
+		}
 	}
-	sort.Strings(names)
-	return names, complete
+
+	diag.Append(private.SetKey(ctx, skippedTargetsKey, encodeTargets(skipped))...)
+	if len(reachable.TargetInfo) == 0 && len(reachable.MemberTemplateDeploymentInfo) == 0 {
+		diag.Append(private.SetKey(ctx, sentTargetsKey, nil)...)
+		diag.AddWarning(
+			"Template Deployment Skipped",
+			fmt.Sprintf("No target is reachable in the device inventory, so the template was not deployed. Unreachable: %s. The next apply retries them.", deviceNames(unreachable)),
+		)
+		return true, "", "SKIPPED"
+	}
+	diag.AddWarning(
+		"Unreachable Targets Skipped",
+		fmt.Sprintf("Catalyst Center rejected the deployment with NCDP10000, so it was sent again without the targets that the device inventory reports as not reachable: %s. The next apply retries them.", deviceNames(unreachable)),
+	)
+	return r.performDeploymentAndMonitorStatus(ctx, postPath, reachable, secrets, timeout, private, diag)
 }
 
 // deployTargets deploys to a subset of target_info items.
@@ -1155,6 +1233,7 @@ func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *Deploy
 		CopyingConfig:                plan.CopyingConfig,
 		IsComposite:                  plan.IsComposite,
 		MainTemplateId:               plan.MainTemplateId,
+		SkipUnreachableTargets:       plan.SkipUnreachableTargets,
 		MemberTemplateDeploymentInfo: filteredMemberInfo,
 		TargetInfo:                   targets,
 	}
@@ -1163,14 +1242,10 @@ func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *Deploy
 		tflog.Debug(ctx, fmt.Sprintf("deploying target id: %s", v.Id))
 	}
 
-	body := deploymentBody(ctx, tempPlan, secrets, diag)
-	if diag.HasError() {
-		return false, "", ""
-	}
 	postPath := plan.getPath() // params is an empty string
 
 	// Use the unified helper for deployment and status monitoring
-	return r.performDeploymentAndMonitorStatus(ctx, postPath, body, tempPlan, plan.DeploymentTimeout, private, diag, len(secrets) > 0)
+	return r.performDeploymentAndMonitorStatus(ctx, postPath, tempPlan, secrets, plan.DeploymentTimeout, private, diag)
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import

@@ -38,6 +38,11 @@ attributes:
     query_param_no_body: true
     default_value: 300
     example: 300
+  - tf_name: skip_unreachable_targets
+    type: Bool
+    description: When Catalyst Center rejects the whole deployment because a target is unreachable (`NCDP10000`), deploy once more without the targets that the device inventory reports as not reachable. A warning names the skipped targets, and the next apply retries them. If no target is reachable, the deployment is skipped with a warning instead of failing. Catalyst Center 2.3.7 rejects the deployment this way for `MANAGED_DEVICE_UUID` targets; with IP or hostname targets the deployment runs and an unreachable device fails on its own, which the next apply retries without this option. Pre-provisioned targets are not checked, and a device that stays unreachable keeps a difference in every plan. Changing this value alone does not trigger a redeployment. Defaults to `false`.
+    query_param_no_body: true
+    exclude_test: true
   - model_name: forcePushTemplate
     type: Bool
     description: Force Push Template
