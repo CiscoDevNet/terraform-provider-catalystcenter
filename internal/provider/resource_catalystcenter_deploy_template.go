@@ -405,7 +405,7 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 			case "SUCCESS":
 				state.DeploymentId = types.StringNull()
 			case "FAILURE":
-				failed, total := revertVersionedTemplateIds(&state, statusRes)
+				failed, total := revertFailedTargets(&state, statusRes)
 				resp.Diagnostics.AddWarning(
 					"Previous Template Deployment Failed",
 					fmt.Sprintf("Deployment %s reported FAILURE. %s", deploymentId, revertedTargetsMessage(failed, total)),
@@ -413,7 +413,7 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 			case "INIT", "IN_PROGRESS", "":
 				// Still in flight; leave state and id for next Read.
 			default:
-				failed, total := revertVersionedTemplateIds(&state, statusRes)
+				failed, total := revertFailedTargets(&state, statusRes)
 				resp.Diagnostics.AddWarning(
 					"Previous Template Deployment Ended With Unexpected Status",
 					fmt.Sprintf("Deployment %s reported an unexpected status. API details are omitted because they may echo template parameters. %s", deploymentId, revertedTargetsMessage(failed, total)),
@@ -640,15 +640,18 @@ func deploymentDeviceHasTarget(state DeployTemplate, device cc.Res) bool {
 	return false
 }
 
-// revertVersionedTemplateIds clears versioned_template_id and secret rotation
-// versions on the targets whose device did not report SUCCESS in the deployment
-// status response, and clears deployment_id, so the next plan diffs and Update
-// retries only those targets. Targets missing from devices[] were not part of
-// the deployment and are kept. Every target is reverted when devices[] lists no
-// failed device or a failed device matches no target, so a failure is never
-// dropped. Returns the number of failed devices and the number of devices in
-// devices[], or -1 and 0 when every target was reverted.
-func revertVersionedTemplateIds(state *DeployTemplate, deployment cc.Res) (int, int) {
+// revertFailedTargets removes the targets whose device did not report SUCCESS
+// in the deployment status response from state, clears their secret rotation
+// versions and clears deployment_id, so the next plan adds those targets back
+// and Update retries only them. Removing a target, rather than clearing its
+// versioned_template_id, also produces a diff for targets that do not set it,
+// and Update deploys a target missing from state whatever its redeploy policy.
+// Targets missing from devices[] were not part of the deployment and are kept.
+// Every target is reverted when devices[] lists no failed device or a failed
+// device matches no target, so a failure is never dropped. Returns the number
+// of failed devices and the number of devices in devices[], or -1 and 0 when
+// every target was reverted.
+func revertFailedTargets(state *DeployTemplate, deployment cc.Res) (int, int) {
 	devices := deployment.Get("devices").Array()
 	var failedDevices []cc.Res
 	for _, device := range devices {
@@ -672,22 +675,26 @@ func revertVersionedTemplateIds(state *DeployTemplate, deployment cc.Res) (int, 
 		failed = func(types.String, types.String) bool { return true }
 	}
 
-	for i, target := range state.TargetInfo {
-		if failed(target.Id, target.HostName) {
-			state.TargetInfo[i].VersionedTemplateId = types.StringNull()
-		}
-	}
-	for i, member := range state.MemberTemplateDeploymentInfo {
-		for k, target := range member.TargetInfo {
-			if failed(target.Id, target.HostName) {
-				state.MemberTemplateDeploymentInfo[i].TargetInfo[k].VersionedTemplateId = types.StringNull()
-			}
-		}
-	}
 	for i, entry := range state.SecretParams {
 		if secretTargetFailed(*state, entry, failed) {
 			state.SecretParams[i].ParamsWoVersions = types.MapNull(types.Int64Type)
 		}
+	}
+	targets := make([]DeployTemplateTargetInfo, 0, len(state.TargetInfo))
+	for _, target := range state.TargetInfo {
+		if !failed(target.Id, target.HostName) {
+			targets = append(targets, target)
+		}
+	}
+	state.TargetInfo = targets
+	for i, member := range state.MemberTemplateDeploymentInfo {
+		memberTargets := make([]DeployTemplateMemberTemplateDeploymentInfoTargetInfo, 0, len(member.TargetInfo))
+		for _, target := range member.TargetInfo {
+			if !failed(target.Id, target.HostName) {
+				memberTargets = append(memberTargets, target)
+			}
+		}
+		state.MemberTemplateDeploymentInfo[i].TargetInfo = memberTargets
 	}
 	state.DeploymentId = types.StringNull()
 	if revertAll {
@@ -696,7 +703,7 @@ func revertVersionedTemplateIds(state *DeployTemplate, deployment cc.Res) (int, 
 	return len(failedDevices), len(devices)
 }
 
-// revertedTargetsMessage describes the result of revertVersionedTemplateIds.
+// revertedTargetsMessage describes the result of revertFailedTargets.
 func revertedTargetsMessage(failed, total int) string {
 	if failed < 0 {
 		return "State reverted for all targets to force their redeploy."
