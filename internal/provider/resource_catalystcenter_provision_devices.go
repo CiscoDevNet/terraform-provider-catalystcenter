@@ -250,7 +250,7 @@ func (r *ProvisionDevicesResource) Create(ctx context.Context, req resource.Crea
 				}
 				tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to reprovision finished successfully", plan.Id.ValueString()))
 			} else {
-				resp.Diagnostics.AddWarning("Provisioning Warning", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. Devices that were not provisioned will be planned again on the next apply.", "POST", err, res.String()))
+				resp.Diagnostics.AddWarning("Provisioning Warning", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. Check the provisioning status of these devices in Catalyst Center; devices without a provisioning record are planned again on the next apply.", "POST", err, res.String()))
 			}
 		}
 	}
@@ -601,7 +601,7 @@ func (r *ProvisionDevicesResource) Update(ctx context.Context, req resource.Upda
 
 					tflog.Debug(ctx, fmt.Sprintf("%s: Managed devices after filter: %v", plan.Id.ValueString(), managedDevices))
 				} else {
-					resp.Diagnostics.AddWarning("Provisioning Warning", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. Devices that were not provisioned will be planned again on the next apply.", "POST", err, res.String()))
+					resp.Diagnostics.AddWarning("Provisioning Warning", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s. Check the provisioning status of these devices in Catalyst Center; devices without a provisioning record are planned again on the next apply.", "POST", err, res.String()))
 				}
 			}
 		}
