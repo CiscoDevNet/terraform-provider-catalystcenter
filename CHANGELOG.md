@@ -6,6 +6,7 @@
 - Fix `catalystcenter_wireless_device_provision` resource delete failing when the wireless controller has already been deleted from Catalyst Center
 - Fix `catalystcenter_pnp_import_devices` resource silently ignoring devices that Catalyst Center rejects; rejected devices, such as invalid or duplicate serial numbers, are now reported as a warning, and changing `devices` now re-creates the resource so corrected devices are imported
 - Fix `catalystcenter_deploy_template` resource not retrying the failed targets of a failed template deployment when `redeploy` is `NEVER` or the targets have no `versioned_template_id`, as in composite template deployments; failed targets are now redeployed on the next apply whatever their `redeploy` setting
+- Fix `catalystcenter_deploy_template` resource saving targets as deployed when Catalyst Center leaves them out of a template deployment because they are not applicable to the template, such as a device that is not in the inventory or does not match the template's device type; these targets are now reported in a warning and redeployed on the next apply, and when no target is applicable the error names the targets instead of reporting a missing deployment ID
 
 ## 0.6.6
 

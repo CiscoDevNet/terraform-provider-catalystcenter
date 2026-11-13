@@ -20,9 +20,11 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
@@ -361,10 +363,10 @@ func (r *DeployTemplateResource) Create(ctx context.Context, req resource.Create
 	postPath := plan.getPath() // params is an empty string in the original code, so just getPath() is sufficient.
 
 	// Perform deployment and monitor status using the new helper
-	success, deploymentId, _ := r.performDeploymentAndMonitorStatus(ctx, postPath, body, plan.DeploymentTimeout, &resp.Diagnostics, len(secrets) > 0)
+	success, deploymentId, _ := r.performDeploymentAndMonitorStatus(ctx, postPath, body, plan, plan.DeploymentTimeout, resp.Private, &resp.Diagnostics, len(secrets) > 0)
 	if !success {
 		if deploymentId != "" {
-			// Persist deployment_id so the next Read can reconcile (TIMEOUT, FAILURE, or unknown status).
+			// Persist deployment_id so the next Read can reconcile (TIMEOUT, FAILURE, unknown status, or left-out targets).
 			plan.DeploymentId = types.StringValue(deploymentId)
 			resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 		}
@@ -419,6 +421,26 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 					fmt.Sprintf("Deployment %s reported an unexpected status. API details are omitted because they may echo template parameters. %s", deploymentId, revertedTargetsMessage(failed, total)),
 				)
 			}
+			if state.DeploymentId.IsNull() {
+				value, diags := req.Private.GetKey(ctx, sentTargetsKey)
+				resp.Diagnostics.Append(diags...)
+				var sent []sentTarget
+				if err := json.Unmarshal(value, &sent); err != nil {
+					sent = nil
+				}
+				if left := leftOutTargets(sent, statusRes); len(left) > 0 {
+					removeTargets(&state, func(id, host types.String) bool {
+						return slices.Contains(left, sentTarget{Id: id.ValueString(), HostName: host.ValueString()})
+					})
+					resp.Diagnostics.AddWarning(
+						"Previous Template Deployment Left Out Targets",
+						fmt.Sprintf("Deployment %s did not deploy to %s. %s State reverted for these targets to force their redeploy.", deploymentId, sentTargetNames(left), leftOutTargetsHint),
+					)
+				}
+			}
+		}
+		if state.DeploymentId.IsNull() {
+			resp.Diagnostics.Append(resp.Private.SetKey(ctx, sentTargetsKey, nil)...)
 		}
 	}
 
@@ -474,10 +496,10 @@ func (r *DeployTemplateResource) Update(ctx context.Context, req resource.Update
 
 	targetsToUse := deploymentTargets(plan, state)
 	if len(targetsToUse) > 0 {
-		success, deploymentId, _ := r.deployTargets(ctx, &plan, targetsToUse, secrets, &resp.Diagnostics)
+		success, deploymentId, _ := r.deployTargets(ctx, &plan, targetsToUse, secrets, resp.Private, &resp.Diagnostics)
 		if !success {
 			if deploymentId != "" {
-				// Persist deployment_id so the next Read can reconcile (TIMEOUT, FAILURE, or unknown status).
+				// Persist deployment_id so the next Read can reconcile (TIMEOUT, FAILURE, unknown status, or left-out targets).
 				plan.DeploymentId = types.StringValue(deploymentId)
 				resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 			}
@@ -675,14 +697,26 @@ func revertFailedTargets(state *DeployTemplate, deployment cc.Res) (int, int) {
 		failed = func(types.String, types.String) bool { return true }
 	}
 
+	removeTargets(state, failed)
+	state.DeploymentId = types.StringNull()
+	if revertAll {
+		return -1, 0
+	}
+	return len(failedDevices), len(devices)
+}
+
+// removeTargets removes the top-level and composite member targets for which
+// remove reports true from state and clears the secret rotation versions of
+// their secret_params entries.
+func removeTargets(state *DeployTemplate, remove func(id, host types.String) bool) {
 	for i, entry := range state.SecretParams {
-		if secretTargetFailed(*state, entry, failed) {
+		if secretTargetFailed(*state, entry, remove) {
 			state.SecretParams[i].ParamsWoVersions = types.MapNull(types.Int64Type)
 		}
 	}
 	targets := make([]DeployTemplateTargetInfo, 0, len(state.TargetInfo))
 	for _, target := range state.TargetInfo {
-		if !failed(target.Id, target.HostName) {
+		if !remove(target.Id, target.HostName) {
 			targets = append(targets, target)
 		}
 	}
@@ -690,17 +724,106 @@ func revertFailedTargets(state *DeployTemplate, deployment cc.Res) (int, int) {
 	for i, member := range state.MemberTemplateDeploymentInfo {
 		memberTargets := make([]DeployTemplateMemberTemplateDeploymentInfoTargetInfo, 0, len(member.TargetInfo))
 		for _, target := range member.TargetInfo {
-			if !failed(target.Id, target.HostName) {
+			if !remove(target.Id, target.HostName) {
 				memberTargets = append(memberTargets, target)
 			}
 		}
 		state.MemberTemplateDeploymentInfo[i].TargetInfo = memberTargets
 	}
-	state.DeploymentId = types.StringNull()
-	if revertAll {
-		return -1, 0
+}
+
+// sentTargetsKey is the private state key that records the targets sent in the
+// deployment of deployment_id, as its status lists only the devices that
+// Catalyst Center deployed to.
+const sentTargetsKey = "sent_targets"
+
+const leftOutTargetsHint = "Catalyst Center leaves out targets that are not applicable to the template, such as a device that is not in the inventory or does not match the device type, software type or software version of the template."
+
+type sentTarget struct {
+	Id       string `json:"id,omitempty"`
+	HostName string `json:"host_name,omitempty"`
+}
+
+// privateStateSetter is implemented by the private state of resource responses.
+type privateStateSetter interface {
+	SetKey(ctx context.Context, key string, value []byte) diag.Diagnostics
+}
+
+// sentTargets returns the managed device targets of data, including composite
+// member targets, without duplicates. Pre-provisioned targets are skipped, as
+// it is not known how the deployment status reports them.
+func sentTargets(data DeployTemplate) []sentTarget {
+	var targets []sentTarget
+	add := func(targetType, id, host types.String) {
+		target := sentTarget{Id: id.ValueString(), HostName: host.ValueString()}
+		if !strings.HasPrefix(targetType.ValueString(), "MANAGED_DEVICE_") || target == (sentTarget{}) || slices.Contains(targets, target) {
+			return
+		}
+		targets = append(targets, target)
 	}
-	return len(failedDevices), len(devices)
+	for _, target := range data.TargetInfo {
+		add(target.Type, target.Id, target.HostName)
+	}
+	for _, member := range data.MemberTemplateDeploymentInfo {
+		for _, target := range member.TargetInfo {
+			add(target.Type, target.Id, target.HostName)
+		}
+	}
+	return targets
+}
+
+// leftOutTargets returns the targets that no devices[] entry of a deployment
+// status response refers to. An empty devices[] proves nothing, so then no
+// target is returned.
+func leftOutTargets(targets []sentTarget, deployment cc.Res) []sentTarget {
+	devices := deployment.Get("devices").Array()
+	if len(devices) == 0 {
+		return nil
+	}
+	var left []sentTarget
+	for _, target := range targets {
+		if !slices.ContainsFunc(devices, func(device cc.Res) bool {
+			return deploymentDeviceMatches(device, types.StringValue(target.Id), types.StringValue(target.HostName))
+		}) {
+			left = append(left, target)
+		}
+	}
+	return left
+}
+
+// nonApplicableTargets returns the targets that the progress text of a
+// deployment task lists under nonApplicableTargets, and whether the text has
+// that list. Only the target ids are matched, as the rest of the text may echo
+// template parameters. Catalyst Center lists a target without id as null.
+func nonApplicableTargets(progress string, targets []sentTarget) ([]sentTarget, bool) {
+	_, list, found := strings.Cut(progress, "nonApplicableTargets: {")
+	if !found {
+		return nil, false
+	}
+	list, _, _ = strings.Cut(list, "}")
+	var result []sentTarget
+	for _, target := range targets {
+		key := target.Id
+		if key == "" {
+			key = "null"
+		}
+		if strings.HasPrefix(list, key+"=") || strings.Contains(list, ", "+key+"=") {
+			result = append(result, target)
+		}
+	}
+	return result, true
+}
+
+func sentTargetNames(targets []sentTarget) string {
+	names := make([]string, 0, len(targets))
+	for _, target := range targets {
+		if target.Id != "" {
+			names = append(names, target.Id)
+		} else {
+			names = append(names, target.HostName)
+		}
+	}
+	return strings.Join(names, ", ")
 }
 
 // revertedTargetsMessage describes the result of revertFailedTargets.
@@ -743,9 +866,11 @@ const (
 
 // performDeploymentAndMonitorStatus runs the deploy POST and polls its status.
 // Returns (success, deploymentId, terminalStatus) where terminalStatus is
-// "SUCCESS", "TIMEOUT" (warning, caller should persist id), or "FAILURE"/other
-// (Error already added to diag).
-func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, timeout types.Int64, diag *diag.Diagnostics, sensitive bool) (bool, string, string) {
+// "SUCCESS", "TIMEOUT" or "INCOMPLETE" (SUCCESS with left-out targets) (warning,
+// caller should persist id), or "FAILURE"/other (Error already added to diag).
+// The targets of data are recorded in private whenever the caller should
+// persist the deployment ID.
+func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, data DeployTemplate, timeout types.Int64, private privateStateSetter, diag *diag.Diagnostics, sensitive bool) (bool, string, string) {
 	bodyString, ok := body.(string)
 	if !ok {
 		diag.AddError("Internal Error", "Failed to convert request body to string. The 'toBody' method is expected to return a string for the client.Post method.")
@@ -811,8 +936,17 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 	re := regexp.MustCompile(`Template Deployemnt Id:\s*([a-f0-9-]+)`)
 	matches := re.FindStringSubmatch(progress)
 
+	sent := sentTargets(data)
 	if len(matches) == 0 || uuid.Validate(matches[1]) != nil {
 		if taskID != "" {
+			if left, found := nonApplicableTargets(progress, sent); found {
+				names := ""
+				if len(left) > 0 {
+					names = ": " + sentTargetNames(left)
+				}
+				diag.AddError("Template Deployment Not Started", fmt.Sprintf("Catalyst Center started no deployment for task %s, as none of the targets is applicable to the template%s. %s", taskID, names, leftOutTargetsHint))
+				return false, "", ""
+			}
 			diag.AddError("Template Deployment ID Missing", "The completed task did not contain a valid deployment ID. API details are omitted because they may echo template parameters.")
 			return false, "", ""
 		}
@@ -822,6 +956,11 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 
 	deploymentId := matches[1]
 	tflog.Debug(ctx, fmt.Sprintf("Deployment started with ID: %s", deploymentId))
+	var sentValue []byte
+	if len(sent) > 0 {
+		sentValue, _ = json.Marshal(sent)
+	}
+	diag.Append(private.SetKey(ctx, sentTargetsKey, sentValue)...)
 
 	statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
 
@@ -839,6 +978,14 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 
 			switch {
 			case status == "SUCCESS":
+				if left := leftOutTargets(sent, statusRes); len(left) > 0 {
+					diag.AddWarning(
+						"Template Deployment Left Out Targets",
+						fmt.Sprintf("Deployment %s succeeded, but Catalyst Center did not deploy to %s. %s State persisted with deployment_id; next apply will reconcile via Read and retry these targets.", deploymentId, sentTargetNames(left), leftOutTargetsHint),
+					)
+					return false, deploymentId, "INCOMPLETE"
+				}
+				diag.Append(private.SetKey(ctx, sentTargetsKey, nil)...)
 				tflog.Debug(ctx, fmt.Sprintf("Template deployment %s finished successfully", deploymentId))
 				return true, deploymentId, "SUCCESS"
 			case status == "FAILURE":
@@ -876,7 +1023,7 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 
 // deployTargets deploys to a subset of target_info items.
 // Returns (success, deploymentId, terminalStatus) — see performDeploymentAndMonitorStatus.
-func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, secrets []DeployTemplateSecretParams, diag *diag.Diagnostics) (bool, string, string) {
+func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *DeployTemplate, targets []DeployTemplateTargetInfo, secrets []DeployTemplateSecretParams, private privateStateSetter, diag *diag.Diagnostics) (bool, string, string) {
 	var filteredMemberInfo []DeployTemplateMemberTemplateDeploymentInfo
 	for _, member := range plan.MemberTemplateDeploymentInfo {
 		var filteredTargets []DeployTemplateMemberTemplateDeploymentInfoTargetInfo
@@ -922,7 +1069,7 @@ func (r *DeployTemplateResource) deployTargets(ctx context.Context, plan *Deploy
 	postPath := plan.getPath() // params is an empty string
 
 	// Use the unified helper for deployment and status monitoring
-	return r.performDeploymentAndMonitorStatus(ctx, postPath, body, plan.DeploymentTimeout, diag, len(secrets) > 0)
+	return r.performDeploymentAndMonitorStatus(ctx, postPath, body, tempPlan, plan.DeploymentTimeout, private, diag, len(secrets) > 0)
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
