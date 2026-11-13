@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.6.8 (unreleased)
+
+- Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources ignoring failed provisioning; `catalystcenter_provision_device` now reports it as an error, and `catalystcenter_provision_devices` as a warning; devices without a provisioning record in Catalyst Center are planned again on the next apply
+
 ## 0.6.7
 
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update

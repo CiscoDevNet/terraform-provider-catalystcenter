@@ -161,6 +161,9 @@ func (r *ProvisionDeviceResource) Create(ctx context.Context, req resource.Creat
 					return
 				}
 				tflog.Debug(ctx, fmt.Sprintf("%s: Fallback to reprovision finished successfully", plan.Id.ValueString()))
+			} else {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
+				return
 			}
 		}
 	}
