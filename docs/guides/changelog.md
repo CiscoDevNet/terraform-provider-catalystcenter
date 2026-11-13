@@ -7,6 +7,10 @@ description: |-
 
 # Changelog
 
+## 0.6.8 (unreleased)
+
+- Fix `catalystcenter_deploy_template` resource not retrying the failed targets of a failed template deployment when `redeploy` is `NEVER` or the targets have no `versioned_template_id`, as in composite template deployments; failed targets are now redeployed on the next apply whatever their `redeploy` setting
+
 ## 0.6.7
 
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
