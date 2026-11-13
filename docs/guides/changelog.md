@@ -16,6 +16,7 @@ description: |-
 - Fix `catalystcenter_pnp_import_devices` resource silently ignoring devices that Catalyst Center rejects; rejected devices, such as invalid or duplicate serial numbers, are now reported as a warning, and changing `devices` now re-creates the resource so corrected devices are imported
 - Fix `catalystcenter_deploy_template` resource not retrying the failed targets of a failed template deployment when `redeploy` is `NEVER` or the targets have no `versioned_template_id`, as in composite template deployments; failed targets are now redeployed on the next apply whatever their `redeploy` setting
 - Fix `catalystcenter_deploy_template` resource saving targets as deployed when Catalyst Center leaves them out of a template deployment because they are not applicable to the template, such as a device that is not in the inventory or does not match the template's device type; these targets are now reported in a warning and redeployed on the next apply, and when no target is applicable the error names the targets instead of reporting a missing deployment ID
+- Fix `catalystcenter_deploy_template` resource hiding why a template deployment task failed; the error now includes the Catalyst Center error code and, for `NCDP10000`, names the targets that the device inventory reports as not reachable, as Catalyst Center names the device `'null'`
 
 ## 0.6.6
 
