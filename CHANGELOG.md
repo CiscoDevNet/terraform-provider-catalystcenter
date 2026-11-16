@@ -1,6 +1,9 @@
+## 0.6.8 (unreleased)
+
+- Fix `catalystcenter_wireless_device_provision` resource reprovisioning to include configured `interfaces` and other provisioning options
+
 ## 0.6.7
 
-- Fix `catalystcenter_wireless_device_provision` resource reprovisioning to include configured `interfaces` and other provisioning options instead of always sending an empty body
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
 - Fix `catalystcenter_template_version` resource to commit one at a time with template creates, updates and deletes, so composite templates created in the same apply no longer fail with `NCTP10045`
 - Fix `catalystcenter_authentication_policy_server` resource to create, update and delete servers one at a time, as deleting several servers in parallel could leave a deleted server in the Catalyst Center external authentication server list
