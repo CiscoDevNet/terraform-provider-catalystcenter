@@ -1,4 +1,4 @@
-## 0.6.7 (unreleased)
+## 0.6.7
 
 - Fix `catalystcenter_wireless_device_provision` resource reprovisioning to include configured `interfaces` and other provisioning options instead of always sending an empty body
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
