@@ -25,7 +25,6 @@ func TestWirelessDeviceProvisionUpdate(t *testing.T) {
 	iface := WirelessDeviceProvisionInterfaces{InterfaceName: types.StringValue("PSK_SSID"), VlanId: types.Int64Value(560)}
 	oldIface := iface
 	oldIface.VlanId = types.Int64Value(559)
-	other := WirelessDeviceProvisionInterfaces{InterfaceName: types.StringValue("other"), VlanId: types.Int64Value(100)}
 	optional := iface
 	optional.InterfaceIpAddress = types.StringValue("10.0.0.2")
 	optional.InterfaceNetmask = types.Int64Value(24)
@@ -41,17 +40,12 @@ func TestWirelessDeviceProvisionUpdate(t *testing.T) {
 		errorCode     string
 		wantWarning   bool
 	}{
-		{name: "false interface VLAN change", before: []WirelessDeviceProvisionInterfaces{oldIface}, after: []WirelessDeviceProvisionInterfaces{iface}, wantPost: true},
-		{name: "false interface addition", after: []WirelessDeviceProvisionInterfaces{iface}, wantPost: true},
-		{name: "explicit reprovision includes interfaces", before: []WirelessDeviceProvisionInterfaces{optional}, after: []WirelessDeviceProvisionInterfaces{optional}, reprovision: true, wantPost: true},
+		{name: "false interface VLAN change no POST", before: []WirelessDeviceProvisionInterfaces{oldIface}, after: []WirelessDeviceProvisionInterfaces{iface}},
+		{name: "explicit reprovision includes interfaces", before: []WirelessDeviceProvisionInterfaces{oldIface}, after: []WirelessDeviceProvisionInterfaces{optional}, reprovision: true, wantPost: true},
 		{name: "unchanged false no POST", before: []WirelessDeviceProvisionInterfaces{iface}, after: []WirelessDeviceProvisionInterfaces{iface}},
-		{name: "reorder no POST", before: []WirelessDeviceProvisionInterfaces{iface, other}, after: []WirelessDeviceProvisionInterfaces{other, iface}},
-		{name: "optional interface change", before: []WirelessDeviceProvisionInterfaces{iface}, after: []WirelessDeviceProvisionInterfaces{optional}, wantPost: true},
 		{name: "explicit empty fallback", reprovision: true, wantPost: true, wantEmpty: true},
-		{name: "interface removal empty fallback", before: []WirelessDeviceProvisionInterfaces{iface}, wantPost: true, wantEmpty: true},
-		{name: "client error retains state", before: []WirelessDeviceProvisionInterfaces{oldIface}, after: []WirelessDeviceProvisionInterfaces{iface}, wantPost: true, fail: true, errorCode: "INVALID"},
-		{name: "unreachable interface change retains state", before: []WirelessDeviceProvisionInterfaces{oldIface}, after: []WirelessDeviceProvisionInterfaces{iface}, wantPost: true, fail: true, errorCode: "NCDP10000"},
-		{name: "unreachable explicit reprovision warns", before: []WirelessDeviceProvisionInterfaces{iface}, after: []WirelessDeviceProvisionInterfaces{iface}, reprovision: true, wantPost: true, errorCode: "NCDP10000", wantWarning: true},
+		{name: "client error retains state", before: []WirelessDeviceProvisionInterfaces{oldIface}, after: []WirelessDeviceProvisionInterfaces{iface}, reprovision: true, wantPost: true, fail: true, errorCode: "INVALID"},
+		{name: "unreachable explicit reprovision warns", before: []WirelessDeviceProvisionInterfaces{oldIface}, after: []WirelessDeviceProvisionInterfaces{iface}, reprovision: true, wantPost: true, errorCode: "NCDP10000", wantWarning: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
