@@ -109,7 +109,7 @@ func (r *DeployTemplateResource) Schema(ctx context.Context, req resource.Schema
 				Default: int64default.StaticInt64(300),
 			},
 			"skip_unreachable_targets": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("When Catalyst Center rejects the whole deployment because a target is unreachable (`NCDP10000`), deploy once more without the targets that the device inventory reports as not reachable. A warning names the skipped targets, and the next apply retries them. If no target is reachable, the deployment is skipped with a warning instead of failing. Catalyst Center 2.3.7 rejects the deployment this way for `MANAGED_DEVICE_UUID` targets; with IP or hostname targets the deployment runs and an unreachable device fails on its own, which the next apply retries without this option. Pre-provisioned targets are not checked, and a device that stays unreachable keeps a difference in every plan. Changing this value alone does not trigger a redeployment. Defaults to `false`.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Deploy to the reachable targets when Catalyst Center rejects the whole deployment because a target is unreachable. Skipped targets are named in a warning and retried on the next apply, so a device that stays unreachable shows a difference in every plan. Applies to `MANAGED_DEVICE_UUID` targets only; pre-provisioned targets are never skipped. Defaults to `false`.").String,
 				Optional:            true,
 			},
 			"force_push_template": schema.BoolAttribute{
