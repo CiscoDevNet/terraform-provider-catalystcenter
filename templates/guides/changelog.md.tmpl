@@ -7,7 +7,14 @@ description: |-
 
 # Changelog
 
-## 0.6.7 (unreleased)
+## 0.6.8 (unreleased)
+
+- Fix `catalystcenter_deploy_template` resource not redeploying failed targets on the next apply when `redeploy` is `NEVER` or the deployment is composite
+- Fix `catalystcenter_deploy_template` resource saving targets as deployed when Catalyst Center skips them as not applicable to the template; they are now reported in a warning and redeployed on the next apply
+- Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources ignoring failed provisioning; `catalystcenter_provision_device` now returns an error and `catalystcenter_provision_devices` a warning
+- Fix `catalystcenter_wireless_device_provision` resource reprovisioning to include configured `interfaces` and other provisioning options
+
+## 0.6.7
 
 - Fix `catalystcenter_fabric_vlan_to_ssid` resource delete running in parallel with other fabric changes, which made deletes on the same fabric site, such as `catalystcenter_fabric_port_assignments`, fail with `NCSP11051`; the delete now runs one at a time like create and update
 - Fix `catalystcenter_template_version` resource to commit one at a time with template creates, updates and deletes, so composite templates created in the same apply no longer fail with `NCTP10045`
