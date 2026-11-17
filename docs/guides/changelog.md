@@ -9,6 +9,7 @@ description: |-
 
 ## 0.6.8 (unreleased)
 
+- Add `skip_unreachable_targets` attribute to the `catalystcenter_deploy_template` resource to deploy to the reachable targets when a target is unreachable
 - Fix `catalystcenter_deploy_template` resource to show the error code when a template deployment task fails, and for `NCDP10000` to name the unreachable targets
 - Fix `catalystcenter_deploy_template` resource not redeploying failed targets on the next apply when `redeploy` is `NEVER` or the deployment is composite
 - Fix `catalystcenter_deploy_template` resource saving targets as deployed when Catalyst Center skips them as not applicable to the template; they are now reported in a warning and redeployed on the next apply
@@ -22,10 +23,6 @@ description: |-
 - Fix `catalystcenter_authentication_policy_server` resource to create, update and delete servers one at a time, as deleting several servers in parallel could leave a deleted server in the Catalyst Center external authentication server list
 - Fix `catalystcenter_wireless_device_provision` resource delete failing when the wireless controller has already been deleted from Catalyst Center
 - Fix `catalystcenter_pnp_import_devices` resource silently ignoring devices that Catalyst Center rejects; rejected devices, such as invalid or duplicate serial numbers, are now reported as a warning, and changing `devices` now re-creates the resource so corrected devices are imported
-- Fix `catalystcenter_deploy_template` resource not retrying the failed targets of a failed template deployment when `redeploy` is `NEVER` or the targets have no `versioned_template_id`, as in composite template deployments; failed targets are now redeployed on the next apply whatever their `redeploy` setting
-- Fix `catalystcenter_deploy_template` resource saving targets as deployed when Catalyst Center leaves them out of a template deployment because they are not applicable to the template, such as a device that is not in the inventory or does not match the template's device type; these targets are now reported in a warning and redeployed on the next apply, and when no target is applicable the error names the targets instead of reporting a missing deployment ID
-- Fix `catalystcenter_deploy_template` resource hiding why a template deployment task failed; the error now includes the Catalyst Center error code and, for `NCDP10000`, names the targets that the device inventory reports as not reachable, as Catalyst Center names the device `'null'`
-- Add `skip_unreachable_targets` attribute to the `catalystcenter_deploy_template` resource (default `false`); when Catalyst Center rejects a template deployment with `NCDP10000` because a target is unreachable, the template is deployed to the reachable targets and the unreachable ones are reported in a warning and retried on the next apply. Changing it alone does not trigger a redeployment
 
 ## 0.6.6
 
