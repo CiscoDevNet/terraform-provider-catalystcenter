@@ -24,8 +24,8 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
-	"sort"
 	"slices"
+	"sort"
 	"strings"
 	"time"
 
