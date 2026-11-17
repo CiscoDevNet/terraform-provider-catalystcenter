@@ -25,6 +25,7 @@ import (
 	"net/url"
 	"regexp"
 	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -864,12 +865,12 @@ const (
 	deploymentPollIntervalSeconds   = 10
 )
 
-// performDeploymentAndMonitorStatus runs the deploy POST and polls its status.
-// Returns (success, deploymentId, terminalStatus) where terminalStatus is
-// "SUCCESS", "TIMEOUT" or "INCOMPLETE" (SUCCESS with left-out targets) (warning,
-// caller should persist id), or "FAILURE"/other (Error already added to diag).
-// The targets of data are recorded in private whenever the caller should
-// persist the deployment ID.
+// performDeploymentAndMonitorStatus runs the deploy POST of the targets in data
+// and polls its status. Returns (success, deploymentId, terminalStatus) where
+// terminalStatus is "SUCCESS", "TIMEOUT" or "INCOMPLETE" (SUCCESS with left-out
+// targets) (warning, caller should persist id), or "FAILURE"/other (Error
+// already added to diag). The targets of data are recorded in private whenever
+// the caller should persist the deployment ID.
 func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.Context, postPath string, body interface{}, data DeployTemplate, timeout types.Int64, private privateStateSetter, diag *diag.Diagnostics, sensitive bool) (bool, string, string) {
 	bodyString, ok := body.(string)
 	if !ok {
@@ -911,7 +912,7 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 				return false, "", ""
 			}
 			if taskRes.Get("response.isError").Bool() {
-				diag.AddError("Template Deployment Task Failed", fmt.Sprintf("Deployment task %s failed. API details are omitted because they may echo template parameters.", taskID))
+				diag.AddError("Template Deployment Task Failed", r.taskFailureMessage(ctx, taskID, taskRes, data))
 				return false, "", ""
 			}
 			if taskRes.Get("response.endTime").Int() > 0 {
@@ -1019,6 +1020,106 @@ func (r *DeployTemplateResource) performDeploymentAndMonitorStatus(ctx context.C
 		fmt.Sprintf("Deployment %s did not complete within %d seconds. Will be reconciled on the next apply via deployment_id. Increase deployment_timeout for long-running deployments.", deploymentId, timeoutSeconds),
 	)
 	return false, deploymentId, "TIMEOUT"
+}
+
+// taskErrorCodePattern only lets a plain error code through, as other task
+// fields may echo template parameters.
+var taskErrorCodePattern = regexp.MustCompile(`^[A-Z]+[0-9]+$`)
+
+const deviceLookupChunkSize = 100
+
+// taskFailureMessage describes a failed deployment task by its error code. For
+// NCDP10000, where Catalyst Center names the unreachable device 'null', it also
+// lists the targets that the device inventory reports as not reachable.
+func (r *DeployTemplateResource) taskFailureMessage(ctx context.Context, taskID string, task cc.Res, data DeployTemplate) string {
+	message := fmt.Sprintf("Deployment task %s failed", taskID)
+	code := task.Get("response.errorCode").String()
+	if taskErrorCodePattern.MatchString(code) {
+		message += " with error code " + code
+	}
+	message += ". API details are omitted because they may echo template parameters."
+	if code == "NCDP10000" {
+		names, complete := r.unreachableTargets(ctx, data)
+		if len(names) > 0 {
+			message += " Targets not reachable in the device inventory: " + strings.Join(names, ", ") + "."
+		} else if complete {
+			message += " The device inventory reports all targets as reachable."
+		}
+	}
+	return message
+}
+
+// unreachableTargets returns the managed device targets of data, including
+// composite member targets, whose inventory reachabilityStatus is not
+// Reachable, by hostname and management IP. Pre-provisioned targets are not in
+// the inventory and are skipped. complete is false when a lookup failed.
+func (r *DeployTemplateResource) unreachableTargets(ctx context.Context, data DeployTemplate) (names []string, complete bool) {
+	requested := map[string]map[string]bool{"id": {}, "hostname": {}, "managementIpAddress": {}}
+	add := func(targetType, id, host types.String) {
+		switch targetType.ValueString() {
+		case "MANAGED_DEVICE_UUID":
+			requested["id"][id.ValueString()] = true
+		case "MANAGED_DEVICE_HOSTNAME":
+			if host.ValueString() != "" {
+				requested["hostname"][host.ValueString()] = true
+			} else {
+				requested["hostname"][id.ValueString()] = true
+			}
+		case "MANAGED_DEVICE_IP":
+			requested["managementIpAddress"][id.ValueString()] = true
+		}
+	}
+	for _, target := range data.TargetInfo {
+		add(target.Type, target.Id, target.HostName)
+	}
+	for _, member := range data.MemberTemplateDeploymentInfo {
+		for _, target := range member.TargetInfo {
+			add(target.Type, target.Id, target.HostName)
+		}
+	}
+
+	complete = true
+	found := make(map[string]bool)
+	for _, param := range []string{"id", "hostname", "managementIpAddress"} {
+		var values []string
+		for value := range requested[param] {
+			if value != "" {
+				values = append(values, value)
+			}
+		}
+		sort.Strings(values)
+		for start := 0; start < len(values); start += deviceLookupChunkSize {
+			chunk := values[start:min(start+deviceLookupChunkSize, len(values))]
+			query := url.Values{param: chunk}
+			if param == "id" {
+				query = url.Values{param: {strings.Join(chunk, ",")}}
+			}
+			res, err := r.client.Get("/dna/intent/api/v1/network-device?" + query.Encode())
+			if err != nil {
+				tflog.Warn(ctx, fmt.Sprintf("Failed to look up the reachability of deployment targets: %s", err))
+				complete = false
+				continue
+			}
+			for _, device := range res.Get("response").Array() {
+				if !requested[param][device.Get(param).String()] || device.Get("reachabilityStatus").String() == "Reachable" {
+					continue
+				}
+				name := device.Get("managementIpAddress").String()
+				if name == "" {
+					name = device.Get("id").String()
+				}
+				if host := device.Get("hostname").String(); host != "" {
+					name = fmt.Sprintf("%s (%s)", host, name)
+				}
+				found[name] = true
+			}
+		}
+	}
+	for name := range found {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names, complete
 }
 
 // deployTargets deploys to a subset of target_info items.
