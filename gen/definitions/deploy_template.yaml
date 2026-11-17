@@ -38,6 +38,11 @@ attributes:
     query_param_no_body: true
     default_value: 300
     example: 300
+  - tf_name: skip_unreachable_targets
+    type: Bool
+    description: Deploy to the reachable targets when Catalyst Center rejects the whole deployment because a target is unreachable. Skipped targets are named in a warning and retried on the next apply, so a device that stays unreachable shows a difference in every plan. Applies to `MANAGED_DEVICE_UUID` targets only; pre-provisioned targets are never skipped. Defaults to `false`.
+    query_param_no_body: true
+    exclude_test: true
   - model_name: forcePushTemplate
     type: Bool
     description: Force Push Template

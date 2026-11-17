@@ -103,6 +103,7 @@ for ephemeral inputs, credential resources, and migration from state-backed secr
 - `redeploy` (String) Attribute that controls when the template should be redeployed. `ALWAYS` redeploys it on every Terraform apply, `ON_CHANGE` redeploys only when the template’s content changes, and `NEVER` prevents redeployment.
   - Choices: `ALWAYS`, `ON_CHANGE`, `NEVER`
 - `secret_params` (Attributes List) Secret parameters for existing deployment targets. Terraform >= 1.11 is required. Secret values must be supplied whenever a target is redeployed; only target references and rotation versions are stored in state. Entries are matched by target and member identity, not list position. (see [below for nested schema](#nestedatt--secret_params))
+- `skip_unreachable_targets` (Boolean) Deploy to the reachable targets when Catalyst Center rejects the whole deployment because a target is unreachable. Skipped targets are named in a warning and retried on the next apply, so a device that stays unreachable shows a difference in every plan. Applies to `MANAGED_DEVICE_UUID` targets only; pre-provisioned targets are never skipped. Defaults to `false`.
 
 ### Read-Only
 
