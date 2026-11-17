@@ -1,5 +1,6 @@
 ## 0.6.8 (unreleased)
 
+- Fix `catalystcenter_deploy_template` resource to show the error code when a template deployment task fails, and for `NCDP10000` to name the unreachable targets
 - Fix `catalystcenter_deploy_template` resource not redeploying failed targets on the next apply when `redeploy` is `NEVER` or the deployment is composite
 - Fix `catalystcenter_deploy_template` resource saving targets as deployed when Catalyst Center skips them as not applicable to the template; they are now reported in a warning and redeployed on the next apply
 - Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources ignoring failed provisioning; `catalystcenter_provision_device` now returns an error and `catalystcenter_provision_devices` a warning
@@ -12,7 +13,6 @@
 - Fix `catalystcenter_authentication_policy_server` resource to create, update and delete servers one at a time, as deleting several servers in parallel could leave a deleted server in the Catalyst Center external authentication server list
 - Fix `catalystcenter_wireless_device_provision` resource delete failing when the wireless controller has already been deleted from Catalyst Center
 - Fix `catalystcenter_pnp_import_devices` resource silently ignoring devices that Catalyst Center rejects; rejected devices, such as invalid or duplicate serial numbers, are now reported as a warning, and changing `devices` now re-creates the resource so corrected devices are imported
-- Fix `catalystcenter_deploy_template` resource hiding why a template deployment task failed; the error now includes the Catalyst Center error code and, for `NCDP10000`, names the targets that the device inventory reports as not reachable, as Catalyst Center names the device `'null'`
 
 ## 0.6.6
 
