@@ -230,7 +230,10 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 	if plan.Reprovision.ValueBool() {
-		body := "{}" // Empty body for reprovisioning
+		body := plan.toBody(ctx, state)
+		if body == "" {
+			body = "{}"
+		}
 		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Re-Provisioning", plan.Id.ValueString()))
 		params := ""
 		res, err := r.client.Post(plan.getPathUpdate()+params, body)
@@ -241,7 +244,7 @@ func (r *WirelessDeviceProvisionResource) Update(ctx context.Context, req resour
 				failureReason := res.Get("response.failureReason").String()
 				resp.Diagnostics.AddWarning("Device Unreachability Warning", fmt.Sprintf("Device unreachability detected (error code: %s, reason %s).", errorCode, failureReason))
 			} else {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "PUT", err, res.String()))
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (%s), got error: %s, %s", "POST", err, res.String()))
 				return
 			}
 		}

@@ -9,7 +9,8 @@ description: |-
 
 ## 0.6.8 (unreleased)
 
-- Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources ignoring failed provisioning; `catalystcenter_provision_device` now reports it as an error, and `catalystcenter_provision_devices` as a warning; devices without a provisioning record in Catalyst Center are planned again on the next apply
+- Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources ignoring failed provisioning; `catalystcenter_provision_device` now returns an error and `catalystcenter_provision_devices` a warning
+- Fix `catalystcenter_wireless_device_provision` resource reprovisioning to include configured `interfaces` and other provisioning options
 
 ## 0.6.7
 
