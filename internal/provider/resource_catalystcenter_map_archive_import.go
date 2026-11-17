@@ -386,7 +386,6 @@ func (r *MapArchiveImportResource) startMapArchiveImport(ctx context.Context, so
 	defer httpRes.Body.Close()
 
 	respBody, _ := io.ReadAll(httpRes.Body)
-	res := cc.Res(gjson.ParseBytes(respBody))
 	if httpRes.StatusCode < 200 || httpRes.StatusCode > 299 {
 		msg := strings.TrimSpace(string(respBody))
 		if msg == "" {
@@ -395,9 +394,9 @@ func (r *MapArchiveImportResource) startMapArchiveImport(ctx context.Context, so
 		return "", fmt.Errorf("failed to start map archive import (POST /maps/import/start): HTTP %d: %s", httpRes.StatusCode, msg)
 	}
 
-	uuid := parseImportContextUUID(res)
+	uuid := parseImportContextUUID(respBody)
 	if uuid == "" {
-		return "", fmt.Errorf("start import did not return an import context UUID; response: %s", res.Raw)
+		return "", fmt.Errorf("start import did not return an import context UUID; HTTP %d, response: %q", httpRes.StatusCode, string(respBody))
 	}
 	return uuid, nil
 }
@@ -550,7 +549,11 @@ func mapImportAuditMessages(res cc.Res, kind string) []string {
 
 var uuidRE = regexp.MustCompile(`(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`)
 
-func parseImportContextUUID(res cc.Res) string {
+// parseImportContextUUID accepts a JSON object or the bare, unquoted UUID that
+// start import returns. A bare UUID is not valid JSON when it starts with a-f,
+// so the raw body is searched as text when no JSON field matches.
+func parseImportContextUUID(body []byte) string {
+	res := gjson.ParseBytes(body)
 	for _, p := range []string{
 		"importContextUuid",
 		"response.importContextUuid",
@@ -561,10 +564,7 @@ func parseImportContextUUID(res cc.Res) string {
 			return uuidRE.FindString(v)
 		}
 	}
-	if v := uuidRE.FindString(res.Raw); v != "" {
-		return v
-	}
-	return ""
+	return uuidRE.FindString(string(body))
 }
 
 func hashFileSHA256(path string) (string, error) {
