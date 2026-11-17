@@ -9,8 +9,10 @@ description: |-
 
 ## 0.6.8 (unreleased)
 
-- Fix `catalystcenter_deploy_template` resource not retrying the failed targets of a failed template deployment when `redeploy` is `NEVER` or the targets have no `versioned_template_id`, as in composite template deployments; failed targets are now redeployed on the next apply whatever their `redeploy` setting
-- Fix `catalystcenter_deploy_template` resource saving targets as deployed when Catalyst Center leaves them out of a template deployment because they are not applicable to the template, such as a device that is not in the inventory or does not match the template's device type; these targets are now reported in a warning and redeployed on the next apply, and when no target is applicable the error names the targets instead of reporting a missing deployment ID
+- Fix `catalystcenter_deploy_template` resource not redeploying failed targets on the next apply when `redeploy` is `NEVER` or the deployment is composite
+- Fix `catalystcenter_deploy_template` resource saving targets as deployed when Catalyst Center skips them as not applicable to the template; they are now reported in a warning and redeployed on the next apply
+- Fix `catalystcenter_provision_device` and `catalystcenter_provision_devices` resources ignoring failed provisioning; `catalystcenter_provision_device` now returns an error and `catalystcenter_provision_devices` a warning
+- Fix `catalystcenter_wireless_device_provision` resource reprovisioning to include configured `interfaces` and other provisioning options
 
 ## 0.6.7
 
