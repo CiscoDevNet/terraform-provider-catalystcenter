@@ -1,4 +1,4 @@
-## 0.6.8 (unreleased)
+## 0.6.8
 
 - Add `skip_unreachable_targets` attribute to the `catalystcenter_deploy_template` resource to deploy to the reachable targets when a target is unreachable
 - Fix `catalystcenter_deploy_template` resource to show the error code when a template deployment task fails, and for `NCDP10000` to name the unreachable targets
