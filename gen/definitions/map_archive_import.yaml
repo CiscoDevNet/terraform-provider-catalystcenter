@@ -1,0 +1,87 @@
+---
+name: Map Archive Import
+rest_endpoint: /dna/intent/api/v1/maps/import/start
+no_data_source: true
+no_update: true
+no_delete: true
+no_import: true
+no_read: true
+no_wait: true
+mutex: true
+skip_minimum_test: true
+max_async_wait_time: 600
+doc_category: Sites
+test_tags: [MAP_ARCHIVE]
+res_description: >-
+  This resource imports a Catalyst Center map archive (tar.gz) containing
+  xmlDir/MapsImportExport.xml plus floor images under /images. It orchestrates
+  start import, pre-import validation, and perform import.
+  <p/>
+  The archive must be Cisco's XML interchange format (for example an Ekahau
+  Cloud Project Export via API). Raw Ekahau .esx files are not accepted by the
+  Intent API. Sites (area, building, floor) named in the archive must already
+  exist. Perform fully replaces existing map data (images, obstacles, planned
+  APs) for those sites.
+  <p/>
+  Re-apply is a no-op while the archive file is unchanged (SHA-256). Changing
+  the file or source_path replaces the resource and imports again.
+  Destroy removes the resource from state only; Catalyst Center map data is
+  left in place.
+attributes:
+  - model_name: sourcePath
+    tf_name: source_path
+    type: String
+    mandatory: true
+    write_only: true
+    requires_replace: true
+    description: >-
+      Local path to a Catalyst Center map archive tar.gz (xmlDir/MapsImportExport.xml
+      plus images/). Ekahau .esx files are not supported.
+    example: testdata/map_archives/nac_map_import.tar.gz
+  - model_name: acceptDataLoss
+    tf_name: accept_data_loss
+    type: Bool
+    mandatory: true
+    requires_replace: true
+    description: >-
+      Must be true. Acknowledges that perform import fully replaces existing
+      map data for the site(s) defined in the archive.
+    example: true
+  - model_name: archiveSha256
+    tf_name: archive_sha256
+    type: String
+    computed: true
+    description: SHA-256 of the archive file. Replacement is triggered when this hash changes.
+    exclude_test: true
+  - model_name: importContextUuid
+    tf_name: import_context_uuid
+    type: String
+    computed: true
+    description: Import context UUID returned by start import. Retained after a successful import for troubleshooting.
+    exclude_test: true
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_area" "test" {
+    name      = "NAC_MapImport"
+    parent_id = data.catalystcenter_site.test.id
+  }
+  resource "catalystcenter_building" "test" {
+    name      = "NAC_MapImport_Bldg"
+    parent_id = catalystcenter_area.test.id
+    country   = "United States"
+    address   = "150 W Tasman Dr, San Jose"
+    latitude  = 37.338
+    longitude = -121.832
+  }
+  resource "catalystcenter_floor" "test" {
+    name             = "NAC_MapImport_F1"
+    parent_id        = catalystcenter_building.test.id
+    floor_number     = 1
+    rf_model         = "Drywall Office Only"
+    width            = 30
+    length           = 20
+    height           = 3
+    units_of_measure = "meters"
+  }
