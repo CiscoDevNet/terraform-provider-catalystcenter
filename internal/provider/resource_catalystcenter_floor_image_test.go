@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -29,9 +28,6 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcFloorImage(t *testing.T) {
-	if os.Getenv("FLOOR_IMAGE") == "" {
-		t.Skip("skipping test, set environment variable FLOOR_IMAGE")
-	}
 	var checks []resource.TestCheckFunc
 
 	var steps []resource.TestStep

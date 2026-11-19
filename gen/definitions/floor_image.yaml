@@ -13,7 +13,6 @@ res_description: >-
   When destroyed, no action is taken (Catalyst Center does not support deleting floor images via API).
 doc_category: Sites
 skip_minimum_test: true
-test_tags: [FLOOR_IMAGE]
 attributes:
   - model_name: floor_id
     tf_name: floor_id

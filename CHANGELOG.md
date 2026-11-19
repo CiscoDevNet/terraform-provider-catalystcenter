@@ -1,3 +1,7 @@
+## 0.6.9 (unreleased)
+
+- Add `catalystcenter_map_archive_import` resource to import a map archive (floor images, walls and planned APs) onto existing sites
+
 ## 0.6.8
 
 - Add `skip_unreachable_targets` attribute to the `catalystcenter_deploy_template` resource to deploy to the reachable targets when a target is unreachable
