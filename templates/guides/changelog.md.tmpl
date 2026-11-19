@@ -9,7 +9,7 @@ description: |-
 
 ## 0.6.9 (unreleased)
 
-- Add `catalystcenter_map_archive_import` resource to import a Catalyst Center map archive (`tar.gz` with `xmlDir/MapsImportExport.xml` and floor images) onto existing sites; perform import fully replaces map data for those sites
+- Add `catalystcenter_map_archive_import` resource to import a map archive (floor images, walls and planned APs) onto existing sites
 
 ## 0.6.8
 
