@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -30,7 +31,9 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/CiscoDevNet/terraform-provider-catalystcenter/internal/provider/helpers"
@@ -70,7 +73,7 @@ func (r *MapArchiveImportResource) Metadata(ctx context.Context, req resource.Me
 func (r *MapArchiveImportResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource imports a Catalyst Center map archive (tar.gz) containing xmlDir/MapsImportExport.xml plus floor images under /images. It orchestrates start import, pre-import validation, and perform import. <p/> The archive must be Cisco's XML interchange format (for example an Ekahau Cloud Project Export via API). Raw Ekahau .esx files are not accepted by the Intent API. Sites (area, building, floor) named in the archive must already exist. Perform fully replaces existing map data (images, obstacles, planned APs) for those sites. <p/> Re-apply is a no-op while the archive file is unchanged (SHA-256). Changing the file or source_path replaces the resource and imports again. Destroy removes the resource from state only; Catalyst Center map data is left in place.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource imports a Catalyst Center map archive (tar.gz) containing xmlDir/MapsImportExport.xml plus floor images under /images. It orchestrates start import, pre-import validation, and perform import. <p/> The archive must be Cisco's XML interchange format (for example an Ekahau Cloud Project Export via API). Raw Ekahau .esx files are not accepted by the Intent API. Sites (area, building, floor) named in the archive must already exist. Perform fully replaces existing map data (images, obstacles, planned APs) for those sites. <p/> Set archive_sha256 = filesha256(source_path): re-apply is a no-op while the archive is unchanged, and changing the file or source_path replaces the resource and imports again. Destroy removes the resource from state only; Catalyst Center map data is left in place.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -95,11 +98,10 @@ func (r *MapArchiveImportResource) Schema(ctx context.Context, req resource.Sche
 				},
 			},
 			"archive_sha256": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("SHA-256 of the archive file. Replacement is triggered when this hash changes.").String,
-				Optional:            true,
-				Computed:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("SHA-256 of the archive file, normally filesha256(source_path). Changing it replaces the resource and imports the archive again. Apply fails before the upload when the file does not match.").String,
+				Required:            true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"import_context_uuid": schema.StringAttribute{
@@ -126,7 +128,12 @@ func (r *MapArchiveImportResource) Configure(_ context.Context, req resource.Con
 
 // End of section. //template:end model
 
-var _ resource.ResourceWithModifyPlan = &MapArchiveImportResource{}
+// Large map imports can outlast the provider max_timeout default of 180 seconds.
+const mapArchiveImportMinWait = 10 * time.Minute
+
+// mapArchiveImportMutex serializes complete imports (start to completion); the
+// client write mutex only covers single requests.
+var mapArchiveImportMutex sync.Mutex
 
 // Custom create: map archive import is a multipart upload plus a two-step
 // async workflow (start → poll validation → perform → poll completion). The
@@ -156,15 +163,25 @@ func (r *MapArchiveImportResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	hash, err := hashFileSHA256(sourcePath)
+	archive, err := os.ReadFile(sourcePath)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read map archive: %s", err))
 		return
 	}
-	plan.ArchiveSha256 = types.StringValue(hash)
+	sum := sha256.Sum256(archive)
+	hash := hex.EncodeToString(sum[:])
+	if !strings.EqualFold(hash, plan.ArchiveSha256.ValueString()) {
+		resp.Diagnostics.AddAttributeError(path.Root("archive_sha256"), "Map archive checksum mismatch",
+			fmt.Sprintf("%s has SHA-256 %s, but archive_sha256 is %s. Set archive_sha256 = filesha256(source_path) and plan again.",
+				sourcePath, hash, plan.ArchiveSha256.ValueString()))
+		return
+	}
 	plan.Id = types.StringValue(hash)
 
-	importUUID, err := r.startMapArchiveImport(ctx, sourcePath)
+	mapArchiveImportMutex.Lock()
+	defer mapArchiveImportMutex.Unlock()
+
+	importUUID, err := r.startMapArchiveImport(ctx, filepath.Base(sourcePath), archive)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
@@ -184,6 +201,7 @@ func (r *MapArchiveImportResource) Create(ctx context.Context, req resource.Crea
 			fmt.Sprintf("Map archive failed pre-import validation:\n%s", strings.Join(msgs, "\n")))
 		return
 	}
+	warnings := mapImportAuditMessages(status, "warnings")
 
 	if mapImportStatus(status) != "COMPLETED" {
 		if err := r.performMapArchiveImport(ctx, importUUID); err != nil {
@@ -201,10 +219,15 @@ func (r *MapArchiveImportResource) Create(ctx context.Context, req resource.Crea
 				fmt.Sprintf("Map archive import completed with errors:\n%s", strings.Join(msgs, "\n")))
 			return
 		}
+		for _, m := range mapImportAuditMessages(status, "warnings") {
+			if !slices.Contains(warnings, m) {
+				warnings = append(warnings, m)
+			}
+		}
 	}
 
-	if msgs := mapImportAuditMessages(status, "warnings"); len(msgs) > 0 {
-		resp.Diagnostics.AddWarning("Map archive import warnings", strings.Join(msgs, "\n"))
+	if len(warnings) > 0 {
+		resp.Diagnostics.AddWarning("Map archive import warnings", strings.Join(warnings, "\n"))
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -322,117 +345,73 @@ func (r *MapArchiveImportResource) ReadCache(ctx context.Context, req resource.R
 
 // End of section. //template:end readcache
 
-func (r *MapArchiveImportResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		return
-	}
-
-	var plan MapArchiveImport
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	if plan.SourcePath.IsNull() || plan.SourcePath.IsUnknown() {
-		return
-	}
-
-	hash, err := hashFileSHA256(plan.SourcePath.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddAttributeError(path.Root("source_path"), "Cannot read map archive", err.Error())
-		return
-	}
-	plan.ArchiveSha256 = types.StringValue(hash)
-
-	if !req.State.Raw.IsNull() {
-		var state MapArchiveImport
-		resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		if !state.ArchiveSha256.IsNull() && state.ArchiveSha256.ValueString() != hash {
-			resp.RequiresReplace = append(resp.RequiresReplace, path.Root("source_path"))
-		}
-	}
-
-	resp.Diagnostics.Append(resp.Plan.Set(ctx, &plan)...)
-}
-
-func (r *MapArchiveImportResource) startMapArchiveImport(ctx context.Context, sourcePath string) (string, error) {
-	body, contentType, err := pipeMapArchiveUpload(ctx, sourcePath)
-	if err != nil {
-		return "", fmt.Errorf("failed to open map archive: %w", err)
-	}
-
-	if err := r.client.Authenticate(); err != nil {
-		return "", fmt.Errorf("failed to authenticate: %w", err)
-	}
-
-	// Use HttpClient directly: go-catalystcenter Do() always adds
-	// Content-Type: application/json, which this multipart endpoint rejects.
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, r.client.Url+"/dna/intent/api/v1/maps/import/start", body)
+func (r *MapArchiveImportResource) startMapArchiveImport(ctx context.Context, fileName string, archive []byte) (string, error) {
+	body, contentType, err := mapArchiveUploadBody(fileName, archive)
 	if err != nil {
 		return "", fmt.Errorf("failed to build start import request: %w", err)
 	}
-	httpReq.Header.Set("Content-Type", contentType)
-	httpReq.Header.Set("X-Auth-Token", r.client.Token)
-	if r.client.UserAgent != "" {
-		httpReq.Header.Set("User-Agent", r.client.UserAgent)
-	}
 
-	httpRes, err := r.client.HttpClient.Do(httpReq)
-	if err != nil {
-		return "", fmt.Errorf("failed to start map archive import (POST /maps/import/start): %w", err)
-	}
-	defer httpRes.Body.Close()
-
-	respBody, _ := io.ReadAll(httpRes.Body)
-	if httpRes.StatusCode < 200 || httpRes.StatusCode > 299 {
-		msg := strings.TrimSpace(string(respBody))
-		if msg == "" {
-			msg = httpRes.Status
+	// Use HttpClient directly: go-catalystcenter Do() adds Content-Type:
+	// application/json and parses the response as JSON, which drops the bare
+	// UUID that start import returns. A 401 is retried once with a new token.
+	for attempt := 0; ; attempt++ {
+		if err := r.client.Authenticate(); err != nil {
+			return "", fmt.Errorf("failed to authenticate: %w", err)
 		}
-		return "", fmt.Errorf("failed to start map archive import (POST /maps/import/start): HTTP %d: %s", httpRes.StatusCode, msg)
-	}
+		httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, r.client.Url+"/dna/intent/api/v1/maps/import/start", bytes.NewReader(body))
+		if err != nil {
+			return "", fmt.Errorf("failed to build start import request: %w", err)
+		}
+		httpReq.Header.Set("Content-Type", contentType)
+		httpReq.Header.Set("X-Auth-Token", r.client.Token)
+		if r.client.UserAgent != "" {
+			httpReq.Header.Set("User-Agent", r.client.UserAgent)
+		}
 
-	uuid := parseImportContextUUID(respBody)
-	if uuid == "" {
-		return "", fmt.Errorf("start import did not return an import context UUID; HTTP %d, response: %q", httpRes.StatusCode, string(respBody))
+		httpRes, err := r.client.HttpClient.Do(httpReq)
+		if err != nil {
+			return "", fmt.Errorf("failed to start map archive import (POST /maps/import/start): %w", err)
+		}
+		respBody, _ := io.ReadAll(httpRes.Body)
+		httpRes.Body.Close()
+
+		if httpRes.StatusCode == http.StatusUnauthorized && attempt == 0 {
+			tflog.Debug(ctx, "Start import returned HTTP 401, re-authenticating")
+			r.client.Token = ""
+			continue
+		}
+		if httpRes.StatusCode < 200 || httpRes.StatusCode > 299 {
+			msg := strings.TrimSpace(string(respBody))
+			if msg == "" {
+				msg = httpRes.Status
+			}
+			return "", fmt.Errorf("failed to start map archive import (POST /maps/import/start): HTTP %d: %s", httpRes.StatusCode, msg)
+		}
+
+		uuid := parseImportContextUUID(respBody)
+		if uuid == "" {
+			return "", fmt.Errorf("start import did not return an import context UUID; HTTP %d, response: %q", httpRes.StatusCode, string(respBody))
+		}
+		return uuid, nil
 	}
-	return uuid, nil
 }
 
-// pipeMapArchiveUpload builds a multipart/form-data body with the archive field
-// required by POST /dna/intent/api/v1/maps/import/start.
-func pipeMapArchiveUpload(ctx context.Context, sourcePath string) (io.Reader, string, error) {
-	source, err := os.Open(sourcePath)
+// mapArchiveUploadBody builds the multipart/form-data body with the archive
+// field required by POST /dna/intent/api/v1/maps/import/start.
+func mapArchiveUploadBody(fileName string, archive []byte) ([]byte, string, error) {
+	var buf bytes.Buffer
+	mw := multipart.NewWriter(&buf)
+	partWriter, err := mw.CreateFormFile("archive", fileName)
 	if err != nil {
 		return nil, "", err
 	}
-
-	readPipe, writePipe := io.Pipe()
-	mw := multipart.NewWriter(writePipe)
-	contentType := mw.FormDataContentType()
-
-	go func() {
-		defer source.Close()
-		partWriter, err := mw.CreateFormFile("archive", filepath.Base(sourcePath))
-		if err != nil {
-			writePipe.CloseWithError(err)
-			return
-		}
-		if _, err = io.Copy(partWriter, source); err != nil {
-			writePipe.CloseWithError(err)
-			return
-		}
-		if err := mw.Close(); err != nil {
-			writePipe.CloseWithError(err)
-			return
-		}
-		writePipe.Close()
-		tflog.Debug(ctx, "Map archive multipart body closed")
-	}()
-
-	return readPipe, contentType, nil
+	if _, err := partWriter.Write(archive); err != nil {
+		return nil, "", err
+	}
+	if err := mw.Close(); err != nil {
+		return nil, "", err
+	}
+	return buf.Bytes(), mw.FormDataContentType(), nil
 }
 
 func (r *MapArchiveImportResource) performMapArchiveImport(ctx context.Context, importUUID string) error {
@@ -461,8 +440,8 @@ func (r *MapArchiveImportResource) waitForMapImportStatus(ctx context.Context, i
 	}
 
 	maxWait := time.Duration(r.client.DefaultMaxAsyncWaitTime) * time.Second
-	if maxWait <= 0 {
-		maxWait = 10 * time.Minute
+	if maxWait < mapArchiveImportMinWait {
+		maxWait = mapArchiveImportMinWait
 	}
 	deadline := time.Now().Add(maxWait)
 	statusPath := fmt.Sprintf("/dna/intent/api/v1/maps/import/%s/status", url.PathEscape(importUUID))
@@ -565,18 +544,4 @@ func parseImportContextUUID(body []byte) string {
 		}
 	}
 	return uuidRE.FindString(string(body))
-}
-
-func hashFileSHA256(path string) (string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	h := sha256.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
 }

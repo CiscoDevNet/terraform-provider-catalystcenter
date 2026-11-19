@@ -83,6 +83,7 @@ func testAccCcMapArchiveImportConfig_minimum() string {
 	config := `resource "catalystcenter_map_archive_import" "test" {` + "\n"
 	config += `	source_path = "testdata/map_archives/nac_map_import.tar.gz"` + "\n"
 	config += `	accept_data_loss = true` + "\n"
+	config += `	archive_sha256 = filesha256("testdata/map_archives/nac_map_import.tar.gz")` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -94,6 +95,7 @@ func testAccCcMapArchiveImportConfig_all() string {
 	config := `resource "catalystcenter_map_archive_import" "test" {` + "\n"
 	config += `	source_path = "testdata/map_archives/nac_map_import.tar.gz"` + "\n"
 	config += `	accept_data_loss = true` + "\n"
+	config += `	archive_sha256 = filesha256("testdata/map_archives/nac_map_import.tar.gz")` + "\n"
 	config += `}` + "\n"
 	return config
 }

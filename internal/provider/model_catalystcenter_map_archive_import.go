@@ -84,7 +84,7 @@ func (data MapArchiveImport) toBody(ctx context.Context, state MapArchiveImport)
 	if !data.AcceptDataLoss.IsNull() {
 		body, _ = sjson.Set(body, "acceptDataLoss", data.AcceptDataLoss.ValueBool())
 	}
-	if data.ArchiveSha256.ValueString() != "" && !data.ArchiveSha256.IsNull() {
+	if !data.ArchiveSha256.IsNull() {
 		body, _ = sjson.Set(body, "archiveSha256", data.ArchiveSha256.ValueString())
 	}
 	if data.ImportContextUuid.ValueString() != "" && !data.ImportContextUuid.IsNull() {

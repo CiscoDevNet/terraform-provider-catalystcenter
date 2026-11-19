@@ -9,7 +9,6 @@ no_read: true
 no_wait: true
 mutex: true
 skip_minimum_test: true
-max_async_wait_time: 600
 doc_category: Sites
 res_description: >-
   This resource imports a Catalyst Center map archive (tar.gz) containing
@@ -22,10 +21,10 @@ res_description: >-
   exist. Perform fully replaces existing map data (images, obstacles, planned
   APs) for those sites.
   <p/>
-  Re-apply is a no-op while the archive file is unchanged (SHA-256). Changing
-  the file or source_path replaces the resource and imports again.
-  Destroy removes the resource from state only; Catalyst Center map data is
-  left in place.
+  Set archive_sha256 = filesha256(source_path): re-apply is a no-op while the
+  archive is unchanged, and changing the file or source_path replaces the
+  resource and imports again. Destroy removes the resource from state only;
+  Catalyst Center map data is left in place.
 attributes:
   - model_name: sourcePath
     tf_name: source_path
@@ -49,9 +48,14 @@ attributes:
   - model_name: archiveSha256
     tf_name: archive_sha256
     type: String
-    computed: true
-    description: SHA-256 of the archive file. Replacement is triggered when this hash changes.
-    exclude_test: true
+    mandatory: true
+    requires_replace: true
+    description: >-
+      SHA-256 of the archive file, normally filesha256(source_path). Changing it
+      replaces the resource and imports the archive again. Apply fails before the
+      upload when the file does not match.
+    example: 11052e417e1a8b0f763bc363c4cb994be3c0330f33afba927a6a402c6e2a0364
+    test_value: filesha256("testdata/map_archives/nac_map_import.tar.gz")
   - model_name: importContextUuid
     tf_name: import_context_uuid
     type: String
