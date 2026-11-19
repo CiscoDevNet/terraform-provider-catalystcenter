@@ -19,7 +19,6 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -29,9 +28,6 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccCcMapArchiveImport(t *testing.T) {
-	if os.Getenv("MAP_ARCHIVE") == "" {
-		t.Skip("skipping test, set environment variable MAP_ARCHIVE")
-	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("catalystcenter_map_archive_import.test", "accept_data_loss", "true"))
 
