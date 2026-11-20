@@ -1,4 +1,4 @@
-## 0.6.9 (unreleased)
+## 0.6.9
 
 - Add `catalystcenter_map_archive_import` resource to import a map archive (floor images, walls and planned APs) onto existing sites
 
