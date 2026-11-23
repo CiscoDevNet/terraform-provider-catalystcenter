@@ -397,9 +397,19 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 		statusURL := fmt.Sprintf("/dna/intent/api/v1/template-programmer/template/deploy/status/%s", url.QueryEscape(deploymentId))
 		statusRes, err := r.client.Get(statusURL, cc.NoLogPayload)
 		if err != nil {
-			// Id no longer queryable; assume success optimistically.
-			tflog.Warn(ctx, fmt.Sprintf("Deployment %s no longer queryable (%s); assuming success", deploymentId, err))
-			state.DeploymentId = types.StringNull()
+			if deploymentStatusRetryable(err) {
+				resp.Diagnostics.AddWarning(
+					"Previous Template Deployment Status Unavailable",
+					fmt.Sprintf("Could not get the status of deployment %s: %s. deployment_id is kept, so the next refresh checks it again.", deploymentId, err),
+				)
+			} else {
+				removeTargets(&state, func(types.String, types.String) bool { return true })
+				state.DeploymentId = types.StringNull()
+				resp.Diagnostics.AddWarning(
+					"Previous Template Deployment Status Not Found",
+					fmt.Sprintf("Catalyst Center returned no status for deployment %s (%s), for example because it no longer keeps the deployment, so it is not known whether the deployment succeeded. %s", deploymentId, err, revertedTargetsMessage(-1, 0)),
+				)
+			}
 		} else {
 			status := statusRes.Get("status").String()
 			switch status {
@@ -865,6 +875,28 @@ func revertedTargetsMessage(failed, total int) string {
 		return "State reverted for all targets to force their redeploy."
 	}
 	return fmt.Sprintf("%d of %d devices failed. State reverted for the failed devices to force their redeploy.", failed, total)
+}
+
+// httpStatusPattern matches the HTTP status code in a client error, as the
+// client does not return it otherwise.
+var httpStatusPattern = regexp.MustCompile(`StatusCode (\d+)`)
+
+// deploymentStatusRetryable reports whether a failed deployment status request
+// may succeed on a later refresh: Catalyst Center did not answer, the
+// authentication failed, or the client gave up on a status code it retries.
+// Any other error status means that Catalyst Center has no status for the
+// deployment. It returns 404 for an unknown deployment id, and 500 once it no
+// longer keeps the deployment.
+func deploymentStatusRetryable(err error) bool {
+	match := httpStatusPattern.FindStringSubmatch(err.Error())
+	if match == nil {
+		return true
+	}
+	switch match[1] {
+	case "401", "408", "429", "502", "503", "504":
+		return true
+	}
+	return false
 }
 
 // secretTargetFailed resolves a secret_params entry to its target, which it may
