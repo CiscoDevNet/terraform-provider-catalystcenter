@@ -403,11 +403,11 @@ func (r *DeployTemplateResource) Read(ctx context.Context, req resource.ReadRequ
 					fmt.Sprintf("Could not get the status of deployment %s: %s. deployment_id is kept, so the next refresh checks it again.", deploymentId, err),
 				)
 			} else {
-				removeTargets(&state, func(types.String, types.String) bool { return true })
-				state.DeploymentId = types.StringNull()
+				value, diags := req.Private.GetKey(ctx, sentTargetsKey)
+				resp.Diagnostics.Append(diags...)
 				resp.Diagnostics.AddWarning(
 					"Previous Template Deployment Status Not Found",
-					fmt.Sprintf("Catalyst Center returned no status for deployment %s (%s), for example because it no longer keeps the deployment, so it is not known whether the deployment succeeded. %s", deploymentId, err, revertedTargetsMessage(-1, 0)),
+					fmt.Sprintf("Catalyst Center returned no status for deployment %s (%s), for example because it no longer keeps the deployment, so it is not known whether the deployment succeeded. %s", deploymentId, err, revertSentTargets(&state, decodeTargets(value))),
 				)
 			}
 		} else {
@@ -813,6 +813,41 @@ func sentTargets(data DeployTemplate) []sentTarget {
 		}
 	}
 	return targets
+}
+
+// hasUnrecordedTargets reports whether data has a target that sentTargets does
+// not record, such as a pre-provisioned target.
+func hasUnrecordedTargets(data DeployTemplate) bool {
+	recorded := targetIn(sentTargets(data))
+	for _, target := range data.TargetInfo {
+		if !recorded(target.Id, target.HostName) {
+			return true
+		}
+	}
+	for _, member := range data.MemberTemplateDeploymentInfo {
+		for _, target := range member.TargetInfo {
+			if !recorded(target.Id, target.HostName) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// revertSentTargets removes the targets sent in the deployment of
+// deployment_id from state and clears deployment_id, so the next apply
+// redeploys them, and returns the warning detail. Targets of earlier
+// deployments are kept. Every target is removed when the sent targets are not
+// known, as in state written before they were recorded, or when state has a
+// target that is not recorded, so a failure is never dropped.
+func revertSentTargets(state *DeployTemplate, sent []sentTarget) string {
+	state.DeploymentId = types.StringNull()
+	if len(sent) == 0 || hasUnrecordedTargets(*state) {
+		removeTargets(state, func(types.String, types.String) bool { return true })
+		return revertedTargetsMessage(-1, 0)
+	}
+	removeTargets(state, targetIn(sent))
+	return fmt.Sprintf("State reverted for the targets of that deployment, %s, to force their redeploy.", sentTargetNames(sent))
 }
 
 // leftOutTargets returns the targets that no devices[] entry of a deployment

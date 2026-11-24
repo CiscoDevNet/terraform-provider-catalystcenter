@@ -9,7 +9,7 @@ description: |-
 
 ## 0.6.10 (unreleased)
 
-- Fix `catalystcenter_deploy_template` resource assuming that a failed or timed-out deployment succeeded when its status could not be read; on a connection, authentication or gateway error the next refresh checks it again, and when Catalyst Center has no status for the deployment all targets are redeployed
+- Fix `catalystcenter_deploy_template` resource assuming that a failed or timed-out deployment succeeded when its status could not be read
 
 ## 0.6.9
 
