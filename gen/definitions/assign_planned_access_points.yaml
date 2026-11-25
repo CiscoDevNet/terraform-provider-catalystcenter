@@ -1,0 +1,92 @@
+---
+name: Assign Planned Access Points
+rest_endpoint: /dna/intent/api/v2/floors/%v/plannedAccessPointPositions/assignAccessPointPositions
+get_rest_endpoint: /dna/intent/api/v2/floors/%v/accessPointPositions
+get_no_id: true
+root_list: true
+id_from_attribute: true
+post_update: true
+mutex: true
+no_import: true
+no_data_source: true
+skip_minimum_test: true
+doc_category: Sites
+test_tags: [INVENTORY]
+res_description: >-
+  This resource assigns planned Access Points on a floor map to operational
+  Access Points from the inventory. Planned APs are referenced by name, for
+  example planned APs from a map archive import. For planned APs managed with
+  `catalystcenter_planned_access_point_position`, use its `access_point_id`
+  attribute instead. Each operational AP takes the position, height and antenna
+  orientation of its planned AP and is assigned to the floor; Catalyst Center
+  then removes the planned AP.
+  <p/>
+  Because the planned AP no longer exists after assignment, refresh only checks
+  that each operational AP is still positioned on the floor. Destroy unassigns
+  the operational APs from the floor, except provisioned APs, which Catalyst
+  Center does not allow to be unassigned; the planned APs are not recreated.
+attributes:
+  - tf_name: floor_id
+    type: String
+    reference: true
+    id: true
+    requires_replace: true
+    description: Floor ID where the planned Access Points are placed
+    example: 5e6f7b3a-2b0b-4a7d-8b1c-0d4b1cd5e1b1
+    test_value: data.catalystcenter_site.floor.id
+  - tf_name: assignments
+    type: Set
+    mandatory: true
+    response_data_path: response
+    description: Planned Access Point to operational Access Point assignments
+    attributes:
+      - model_name: plannedAccessPointName
+        tf_name: planned_access_point_name
+        type: String
+        mandatory: true
+        write_only: true
+        description: Name of the planned Access Point on the floor
+        example: NAC-PLANNED-AP-01
+      - model_name: id
+        tf_name: access_point_id
+        type: String
+        mandatory: true
+        id: true
+        description: Network device ID of the operational Access Point
+        example: b054deab-f9fc-48c9-88d0-ab82f029e6aa
+test_prerequisites: |
+  data "catalystcenter_site" "test" {
+    name_hierarchy = "Global"
+  }
+  resource "catalystcenter_area" "test" {
+    name      = "NAC_PlannedAPAssign"
+    parent_id = data.catalystcenter_site.test.id
+  }
+  resource "catalystcenter_building" "test" {
+    name      = "NAC_PlannedAPAssign_Bldg"
+    parent_id = catalystcenter_area.test.id
+    country   = "United States"
+    address   = "150 W Tasman Dr, San Jose"
+    latitude  = 37.338
+    longitude = -121.832
+  }
+  resource "catalystcenter_floor" "test" {
+    name             = "NAC_PlannedAPAssign_F1"
+    parent_id        = catalystcenter_building.test.id
+    floor_number     = 1
+    rf_model         = "Drywall Office Only"
+    width            = 30
+    length           = 20
+    height           = 3
+    units_of_measure = "meters"
+  }
+  resource "catalystcenter_map_archive_import" "test" {
+    source_path      = "testdata/map_archives/nac_planned_ap_assign.tar.gz"
+    accept_data_loss = true
+    archive_sha256   = filesha256("testdata/map_archives/nac_planned_ap_assign.tar.gz")
+    depends_on       = [catalystcenter_floor.test]
+  }
+  data "catalystcenter_site" "floor" {
+    name_hierarchy = "Global/NAC_PlannedAPAssign/NAC_PlannedAPAssign_Bldg/NAC_PlannedAPAssign_F1"
+    depends_on     = [catalystcenter_map_archive_import.test]
+  }

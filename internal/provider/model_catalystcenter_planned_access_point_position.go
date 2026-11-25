@@ -34,15 +34,16 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type PlannedAccessPointPosition struct {
-	Id         types.String                       `tfsdk:"id"`
-	FloorId    types.String                       `tfsdk:"floor_id"`
-	Name       types.String                       `tfsdk:"name"`
-	MacAddress types.String                       `tfsdk:"mac_address"`
-	ApType     types.String                       `tfsdk:"ap_type"`
-	PositionX  types.Float64                      `tfsdk:"position_x"`
-	PositionY  types.Float64                      `tfsdk:"position_y"`
-	PositionZ  types.Float64                      `tfsdk:"position_z"`
-	Radios     []PlannedAccessPointPositionRadios `tfsdk:"radios"`
+	Id            types.String                       `tfsdk:"id"`
+	FloorId       types.String                       `tfsdk:"floor_id"`
+	Name          types.String                       `tfsdk:"name"`
+	MacAddress    types.String                       `tfsdk:"mac_address"`
+	ApType        types.String                       `tfsdk:"ap_type"`
+	PositionX     types.Float64                      `tfsdk:"position_x"`
+	PositionY     types.Float64                      `tfsdk:"position_y"`
+	PositionZ     types.Float64                      `tfsdk:"position_z"`
+	Radios        []PlannedAccessPointPositionRadios `tfsdk:"radios"`
+	AccessPointId types.String                       `tfsdk:"access_point_id"`
 }
 
 type PlannedAccessPointPositionRadios struct {
