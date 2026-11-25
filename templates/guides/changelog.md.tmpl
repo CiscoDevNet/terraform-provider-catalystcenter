@@ -9,7 +9,10 @@ description: |-
 
 ## 0.6.10 (unreleased)
 
+- Add `catalystcenter_assign_planned_access_points` resource to assign planned APs on a floor, referenced by name, to operational APs from the inventory
+- Add `access_point_id` attribute to the `catalystcenter_planned_access_point_position` resource to assign an operational AP to the planned AP
 - Fix `catalystcenter_deploy_template` resource assuming that a failed or timed-out deployment succeeded when its status could not be read
+- Fix `catalystcenter_planned_access_point_position` resource destroy failing with `NCMP00102` when the planned AP no longer exists
 
 ## 0.6.9
 

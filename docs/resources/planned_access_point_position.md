@@ -3,12 +3,12 @@
 page_title: "catalystcenter_planned_access_point_position Resource - terraform-provider-catalystcenter"
 subcategory: "Sites"
 description: |-
-  This resource manages a planned (virtual) Access Point position on a floor map for RF planning in Cisco Catalyst Center. Planned APs are Day 0 design-time resources - no physical APs are needed in the inventory.
+  This resource manages a planned (virtual) Access Point position on a floor map for RF planning in Cisco Catalyst Center. Planned APs are Day 0 design-time resources - no physical APs are needed in the inventory.  Set access_point_id, also on an existing planned AP, to assign an operational Access Point to the planned AP once it is in the inventory. The operational AP takes the planned position and is assigned to the floor, and Catalyst Center removes the planned AP. After that, refresh checks that the operational AP is still positioned on the floor, any change, including to access_point_id, requires replacing the resource, and destroy unassigns the operational AP from the floor unless it has been provisioned. If the assignment fails, for example because the operational AP is assigned to another floor, the planned AP is deleted again.
 ---
 
 # catalystcenter_planned_access_point_position (Resource)
 
-This resource manages a planned (virtual) Access Point position on a floor map for RF planning in Cisco Catalyst Center. Planned APs are Day 0 design-time resources - no physical APs are needed in the inventory.
+This resource manages a planned (virtual) Access Point position on a floor map for RF planning in Cisco Catalyst Center. Planned APs are Day 0 design-time resources - no physical APs are needed in the inventory. <p/> Set `access_point_id`, also on an existing planned AP, to assign an operational Access Point to the planned AP once it is in the inventory. The operational AP takes the planned position and is assigned to the floor, and Catalyst Center removes the planned AP. After that, refresh checks that the operational AP is still positioned on the floor, any change, including to `access_point_id`, requires replacing the resource, and destroy unassigns the operational AP from the floor unless it has been provisioned. If the assignment fails, for example because the operational AP is assigned to another floor, the planned AP is deleted again.
 
 ## Example Usage
 
@@ -47,6 +47,7 @@ resource "catalystcenter_planned_access_point_position" "example" {
 
 ### Optional
 
+- `access_point_id` (String) Network device ID of an operational Access Point to assign to this planned Access Point
 - `mac_address` (String) MAC address of the planned Access Point
 - `position_z` (Number) Z coordinate (height) of the planned AP position in feet
 

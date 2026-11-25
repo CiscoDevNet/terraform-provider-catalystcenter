@@ -12,7 +12,20 @@ import_no_id: true
 data_source_no_id: true
 skip_minimum_test: true
 ds_description: 'This data source reads a planned Access Point position from a floor map in Cisco Catalyst Center.'
-res_description: 'This resource manages a planned (virtual) Access Point position on a floor map for RF planning in Cisco Catalyst Center. Planned APs are Day 0 design-time resources - no physical APs are needed in the inventory.'
+res_description: >-
+  This resource manages a planned (virtual) Access Point position on a floor map
+  for RF planning in Cisco Catalyst Center. Planned APs are Day 0 design-time
+  resources - no physical APs are needed in the inventory.
+  <p/>
+  Set `access_point_id`, also on an existing planned AP, to assign an operational
+  Access Point to the planned AP once it is in the inventory. The operational AP
+  takes the planned position and is assigned to the floor, and Catalyst Center
+  removes the planned AP. After that, refresh checks that the operational AP is
+  still positioned on the floor, any change, including to `access_point_id`,
+  requires replacing the resource, and destroy unassigns the operational AP from
+  the floor unless it has been provisioned. If the assignment fails, for example
+  because the operational AP is assigned to another floor, the planned AP is
+  deleted again.
 doc_category: Sites
 attributes:
   - tf_name: floor_id
@@ -114,6 +127,13 @@ attributes:
         type: Int64
         description: Antenna elevation angle in degrees (-90 to 90)
         example: 0
+  - model_name: accessPointId
+    tf_name: access_point_id
+    type: String
+    query_param_no_body: true
+    description: Network device ID of an operational Access Point to assign to this planned Access Point
+    example: b054deab-f9fc-48c9-88d0-ab82f029e6aa
+    exclude_test: true
 test_prerequisites: |
   data "catalystcenter_site" "test" {
     name_hierarchy = "Global"
