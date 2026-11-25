@@ -1,3 +1,7 @@
+## 0.6.10 (unreleased)
+
+- Fix `catalystcenter_deploy_template` resource assuming that a failed or timed-out deployment succeeded when its status could not be read
+
 ## 0.6.9
 
 - Add `catalystcenter_map_archive_import` resource to import a map archive (floor images, walls and planned APs) onto existing sites
